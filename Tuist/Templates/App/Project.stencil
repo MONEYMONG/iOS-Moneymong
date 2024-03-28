@@ -1,0 +1,28 @@
+import ProjectDescription
+
+let project = Project(
+    name: "{{ name }}",
+    options: .options(
+        disableBundleAccessors: true,
+        disableSynthesizedResourceAccessors: true
+    ),
+    targets: [
+        Target(
+            name: "{{ name }}",
+            platform: .iOS,
+            product: .app,
+            bundleId: "com.team.moneymong",
+            deploymentTarget: .iOS(targetVersion: "15.0", devices: .iphone),
+            infoPlist: .extendingDefault(with: [
+                "CFBundleShortVersionString": "1.0",
+                "CFBundleVersion": "1",
+                "UILaunchStoryboardName": "LaunchScreen"
+            ]),
+            sources: ["Sources/**"],
+            resources: ["Resources/**"],
+            dependencies: [
+                
+            ]
+        )
+    ]
+)
