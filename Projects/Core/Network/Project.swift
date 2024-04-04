@@ -11,7 +11,7 @@ let project = Project(
             deploymentTarget: .iOS(targetVersion: "15.0", devices: .iphone),
             sources: ["Sources/**"],
             dependencies: [
-                
+              .external(name: "Moya"),
             ]
         )
     ]

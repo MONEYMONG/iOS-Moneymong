@@ -14,7 +14,6 @@ let project = Project(
                 .external(name: "ReactorKit"),
                 .external(name: "FlexLayout"),
                 .external(name: "PinLayout"),
-                .external(name: "Moya"),
                 .external(name: "Kingfisher"),
                 .external(name: "RxCocoa")
             ]
