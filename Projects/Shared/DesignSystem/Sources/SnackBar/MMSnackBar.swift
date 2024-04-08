@@ -8,14 +8,14 @@ final class MMSnackBar: UIView {
   private let titleLabel: UILabel = {
     let v = UILabel()
     v.textColor = Colors.White._1
-    v.font = .systemFont(ofSize: 14)
+    v.font = Fonts.body._3
     return v
   }()
   
   private let rightButton: UIButton = {
     let button = UIButton()
     let imageConfig = UIImage.SymbolConfiguration(pointSize: 24)
-    let image = UIImage(resource: .close)
+    let image = Images.close?
       .withRenderingMode(.alwaysTemplate).withConfiguration(imageConfig)
     button.setTitleColor(.red, for: .normal)
     button.setImage(image, for: .normal)
@@ -44,7 +44,6 @@ final class MMSnackBar: UIView {
   
   private func setupView() {
     alpha = 0.1
-    titleLabel.text = "내용"
   }
   
   private func setupConstraints() {

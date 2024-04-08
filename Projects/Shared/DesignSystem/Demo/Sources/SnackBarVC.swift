@@ -18,6 +18,13 @@ final class SnackBarVC: UIViewController {
     return UIButton(configuration: config)
   }()
   
+  private let retryLabel: UILabel = {
+    let v = UILabel()
+    v.text = "뭔가 리트라이..!"
+    v.textColor = .red
+    return v
+  }()
+  
   private let rootContainer = UIView()
   
   init() {
