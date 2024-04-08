@@ -21,7 +21,7 @@ final class DesignSystemVC: UITableViewController {
       let vc: UIViewController
       switch self {
       case .color: vc = ColorVC(style: .insetGrouped)
-      case .font: vc = UIViewController()
+      case .font: vc = FontVC(style: .insetGrouped)
       case .button: vc = UIViewController()
       case .snackbar: vc = SnackBarVC()
       }
