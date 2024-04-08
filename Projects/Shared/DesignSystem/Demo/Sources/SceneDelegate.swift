@@ -7,7 +7,7 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
     func scene(_ scene: UIScene, willConnectTo session: UISceneSession, options connectionOptions: UIScene.ConnectionOptions) {
         guard let windowScene = (scene as? UIWindowScene) else { return }
         window = UIWindow(windowScene: windowScene)
-        window?.rootViewController = UINavigationController(rootViewController: DesignSystemVC())
+        window?.rootViewController = UINavigationController(rootViewController: DesignSystemVC(style: .insetGrouped))
         window?.makeKeyAndVisible()
       
       Fonts.registerFont()

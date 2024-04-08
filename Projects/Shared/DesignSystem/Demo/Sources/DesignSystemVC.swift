@@ -20,7 +20,7 @@ final class DesignSystemVC: UITableViewController {
     func move(with navigationController: UINavigationController?) {
       let vc: UIViewController
       switch self {
-      case .color: vc = UIViewController()
+      case .color: vc = ColorVC(style: .insetGrouped)
       case .font: vc = UIViewController()
       case .button: vc = UIViewController()
       case .snackbar: vc = SnackBarVC()
