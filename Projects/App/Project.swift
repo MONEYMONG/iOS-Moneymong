@@ -16,7 +16,18 @@ let project = Project(
       infoPlist: .extendingDefault(with: [
         "CFBundleShortVersionString": "1.0",
         "CFBundleVersion": "1",
-        "UILaunchStoryboardName": "LaunchScreen"
+        "UILaunchStoryboardName": "LaunchScreen",
+        "UIApplicationSceneManifest" : [
+          "UIApplicationSupportsMultipleScenes":true,
+          "UISceneConfigurations":[
+            "UIWindowSceneSessionRoleApplication":[
+              [
+                "UISceneConfigurationName":"Default Configuration",
+                "UISceneDelegateClassName":"$(PRODUCT_MODULE_NAME).SceneDelegate"
+              ]
+            ]
+          ]
+        ]
       ]),
       sources: ["Sources/**"],
       resources: ["Resources/**"],

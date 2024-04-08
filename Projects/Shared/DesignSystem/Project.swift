@@ -2,10 +2,6 @@ import ProjectDescription
 
 let project = Project(
   name: "DesignSystem",
-  options: .options(
-    disableBundleAccessors: true,
-    disableSynthesizedResourceAccessors: true
-  ),
   packages: [
     .remote(
       url: "https://github.com/layoutBox/FlexLayout",
@@ -39,7 +35,18 @@ let project = Project(
       infoPlist: .extendingDefault(with: [
         "CFBundleShortVersionString": "1.0",
         "CFBundleVersion": "1",
-        "UILaunchStoryboardName": "LaunchScreen"
+        "UILaunchStoryboardName": "LaunchScreen",
+        "UIApplicationSceneManifest" : [
+          "UIApplicationSupportsMultipleScenes":true,
+          "UISceneConfigurations":[
+            "UIWindowSceneSessionRoleApplication":[
+              [
+                "UISceneConfigurationName":"Default Configuration",
+                "UISceneDelegateClassName":"$(PRODUCT_MODULE_NAME).SceneDelegate"
+              ]
+            ]
+          ]
+        ]
       ]),
       sources: ["Demo/Sources/**"],
       resources: ["Demo/Resources/**"],
