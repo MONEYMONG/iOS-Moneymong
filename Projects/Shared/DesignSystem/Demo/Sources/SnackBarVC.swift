@@ -1,8 +1,6 @@
 import UIKit
 
 import DesignSystem
-//import FlexLayout
-//import PinLayout
 
 final class SnackBarVC: UIViewController {
   private let defaultButton: UIButton = {
@@ -17,14 +15,7 @@ final class SnackBarVC: UIViewController {
     config.baseBackgroundColor = .red
     return UIButton(configuration: config)
   }()
-  
-  private let retryLabel: UILabel = {
-    let v = UILabel()
-    v.text = "뭔가 리트라이..!"
-    v.textColor = .red
-    return v
-  }()
-  
+
   private let rootContainer = UIView()
   
   init() {
@@ -39,14 +30,15 @@ final class SnackBarVC: UIViewController {
   
   private func setupView() {
     view.backgroundColor = .white
+    title = "SnackBar"
     
-    defaultButton.addAction { [weak self] in
+    defaultButton.addAction {
       SnackBarManager.show(title: "단순 내용입니다")
     }
     
-    retryButton.addAction { [weak self] in
+    retryButton.addAction {
       SnackBarManager.show(title: "다시 시도해주세요") {
-        debugPrint("RETRY!")
+        print("Retry Tapped")
       }
     }
   }

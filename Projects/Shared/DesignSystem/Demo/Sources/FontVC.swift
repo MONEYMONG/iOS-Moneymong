@@ -23,11 +23,8 @@ final class FontVC: UITableViewController {
   }
   
   private func setupView() {
-    tableView.register(UITableViewCell.self, forCellReuseIdentifier: String(describing: UITableViewCell.self))
-    tableView.contentInset = .init(top: 10, left: 0, bottom: 50, right: 0)
-    
+    tableView.register(UITableViewCell.self, forCellReuseIdentifier: String(describing: UITableViewCell.self))    
     title = "Fonts"
-    navigationController?.navigationBar.prefersLargeTitles = true
   }
 }
 

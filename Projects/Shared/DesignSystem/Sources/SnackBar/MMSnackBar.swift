@@ -1,5 +1,4 @@
 import UIKit
-import SwiftUI
 
 import FlexLayout
 import PinLayout
@@ -84,15 +83,5 @@ final class MMSnackBar: UIView {
     titleLabel.text = title
     titleLabel.flex.markDirty()
     setNeedsLayout()
-  }
-}
-
-struct MMToastPreview: PreviewProvider {
-  static var previews: some View {
-    UIViewPreview {
-      MMSnackBar()
-    }
-    .frame(height: 48)
-    .previewLayout(.sizeThatFits)
   }
 }

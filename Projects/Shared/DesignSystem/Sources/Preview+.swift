@@ -1,3 +1,5 @@
+import SwiftUI
+
 /**
  ```
  struct MyViewPreview: PreviewProvider{
@@ -9,23 +11,38 @@
  }
  ```
  */
-
-import SwiftUI
-struct UIViewPreview<View: UIView>: UIViewRepresentable {
+public struct UIViewPreview<View: UIView>: UIViewRepresentable {
   let view: View
   
-  init(_ builder: @escaping () -> View) {
+  public init(_ builder: @escaping () -> View) {
     view = builder()
   }
   
   // MARK: - UIViewRepresentable
   
-  func makeUIView(context: Context) -> UIView {
+  public func makeUIView(context: Context) -> UIView {
     return view
   }
   
-  func updateUIView(_ view: UIView, context: Context) {
+  public func updateUIView(_ view: UIView, context: Context) {
     view.setContentHuggingPriority(.defaultHigh, for: .horizontal)
     view.setContentHuggingPriority(.defaultHigh, for: .vertical)
   }
+}
+
+
+public struct UIViewControllerPreView<View: UIViewController>: UIViewControllerRepresentable {
+  let view: View
+  
+  public init(_ builder: @escaping () -> View) {
+    view = builder()
+  }
+  
+  // MARK: - UIViewRepresentable
+  
+  public func makeUIViewController(context: Context) -> UIViewController {
+    return view
+  }
+  
+  public func updateUIViewController(_ uiViewController: UIViewController, context: Context) { }
 }

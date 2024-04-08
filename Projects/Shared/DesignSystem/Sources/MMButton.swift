@@ -1,20 +1,7 @@
 import UIKit
 
-extension MMButton {
-  func setState(_ type: `Type`) {
-    self.type = type
-  }
-}
-
 public final class MMButton: UIButton {
-  private let flexContainer = UIView()
   
-  private var type: `Type` {
-    didSet {
-      updateState()
-    }
-  }
-
   public enum `Type` {
     case primary
     case secondary
@@ -23,62 +10,65 @@ public final class MMButton: UIButton {
     
     var titleColor: UIColor {
       switch self {
-      case .primary:
-        return Colors.White._1
-      case .secondary:
-        return Colors.Blue._4
-      case .disable:
-        return Colors.Gray._4
-      case .negative:
-        return Colors.Gray._5
+      case .primary: return Colors.White._1
+      case .secondary: return Colors.Blue._4
+      case .disable: return Colors.Gray._4
+      case .negative: return Colors.Gray._5
       }
     }
     
     var backgroundColor: UIColor {
       switch self {
-      case .primary:
-        return Colors.Blue._4
-      case .secondary:
-        return Colors.Blue._1
-      case .disable:
-        return Colors.Gray._3
-      case .negative:
-        return Colors.Gray._2
+      case .primary: return Colors.Blue._4
+      case .secondary: return Colors.Blue._1
+      case .disable: return Colors.Gray._3
+      case .negative: return Colors.Gray._2
       }
+    }
+  }
+  
+  private let rootContainer = UIView()
+  
+  private var type: `Type` {
+    didSet {
+      updateState()
     }
   }
 
   public init(title: String, type: `Type`) {
     self.type = type
     super.init(frame: .zero)
-    setTitle(title, for: .normal)
-    
-    setupView()
-    setupContraints()
+    setupView(with: title)
   }
 
   required init?(coder: NSCoder) {
     fatalError("init(coder:) has not been implemented")
   }
 
-  private func setupView() {
-    addSubview(self.flexContainer)
-    titleLabel?.font = .systemFont(ofSize: 14)
-    layer.cornerRadius = 12
+  private func setupView(with title: String) {
     clipsToBounds = true
+    layer.cornerRadius = 12
     
-    setTitleColor(type.titleColor, for: .normal)
-    backgroundColor = type.backgroundColor
-  }
-
-  private func setupContraints() {
-
+    var attributedTitle = AttributedString(title)
+    attributedTitle.font = Fonts.body._3
+    
+    var configuration = UIButton.Configuration.bordered()
+    configuration.attributedTitle = attributedTitle
+    configuration.baseForegroundColor = type.titleColor
+    configuration.baseBackgroundColor = type.backgroundColor
+    
+    self.configuration = configuration
   }
   
   private func updateState() {
-    setTitleColor(type.titleColor, for: .normal)
-    backgroundColor = type.backgroundColor
+    isEnabled = type != .disable
+    configuration?.baseForegroundColor = type.titleColor
+    configuration?.baseBackgroundColor = type.backgroundColor
   }
 }
 
-
+extension MMButton {
+  public func setState(_ type: `Type`) {
+    self.type = type
+  }
+}
