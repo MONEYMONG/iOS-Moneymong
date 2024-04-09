@@ -52,5 +52,10 @@ public enum Images {
   public static var time = UIImage(named: "time", in: Bundle.module, with: nil)
   public static var trash = UIImage(named: "trash", in: Bundle.module, with: nil)
   public static var university = UIImage(named: "university", in: Bundle.module, with: nil)
+  
+  public static var closeCircleFill = UIImage(named: "close.circle.fill", in: Bundle.module, with: nil)
+  public static var plusCircleFillGreen = UIImage(named: "plus.circle.fill.green", in: Bundle.module, with: nil)
+  public static var pencilCircleFill = UIImage(named: "pencil.circle.fill", in: Bundle.module, with: nil)
+  public static var scanCircleFill = UIImage(named: "scan.circle.fill", in: Bundle.module, with: nil)
 }
 

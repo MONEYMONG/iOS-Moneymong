@@ -13,9 +13,8 @@ final class MMSnackBar: UIView {
   
   private let rightButton: UIButton = {
     let button = UIButton()
-    let imageConfig = UIImage.SymbolConfiguration(pointSize: 24)
     let image = Images.close?
-      .withRenderingMode(.alwaysTemplate).withConfiguration(imageConfig)
+      .withRenderingMode(.alwaysTemplate)
     button.setTitleColor(.red, for: .normal)
     button.setImage(image, for: .normal)
     button.tintColor = .white
