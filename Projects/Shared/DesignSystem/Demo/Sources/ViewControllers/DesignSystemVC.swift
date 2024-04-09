@@ -7,6 +7,7 @@ final class DesignSystemVC: UITableViewController {
     case font
     case button
     case snackbar
+    case tag
     
     var title: String {
       switch self {
@@ -14,6 +15,7 @@ final class DesignSystemVC: UITableViewController {
       case .font: return "Fonts"
       case .button: return "Buttons"
       case .snackbar: return "SnackBar"
+      case .tag: return "Tag"
       }
     }
     
@@ -24,6 +26,7 @@ final class DesignSystemVC: UITableViewController {
       case .font: vc = FontVC(style: .insetGrouped)
       case .button: vc = ButtonVC()
       case .snackbar: vc = SnackBarVC()
+      case .tag: vc = TagVC()
       }
       
       navigationController?.pushViewController(vc, animated: true)
