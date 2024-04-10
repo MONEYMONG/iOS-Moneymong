@@ -24,7 +24,7 @@ final class ButtonVC: UIViewController {
   
   private func setupView() {
     view.backgroundColor = .systemBackground
-    title = "MMButton"
+    title = "Buttons"
     
     let buttons = [button1, button2, button3]
     
@@ -58,7 +58,7 @@ final class ButtonVC: UIViewController {
   
   override func viewDidLayoutSubviews() {
     super.viewDidLayoutSubviews()
-    
+ 
     rootContainer.pin.all()
     rootContainer.flex.layout()
   }
