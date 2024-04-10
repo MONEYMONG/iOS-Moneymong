@@ -29,6 +29,7 @@ final class MMSnackBar: UIView {
     setupConstraints()
   }
   
+  @available(*, unavailable)
   required init?(coder: NSCoder) {
     fatalError("init(coder:) has not been implemented")
   }
@@ -71,7 +72,7 @@ final class MMSnackBar: UIView {
     // close 일떄
     else {
       let imageConfig = UIImage.SymbolConfiguration(pointSize: 24)
-      let image = UIImage(resource: .close)
+      let image = Images.close?
         .withRenderingMode(.alwaysTemplate).withConfiguration(imageConfig)
       rightButton.setImage(image, for: .normal)
       rightButton.setTitle("", for: .normal)
