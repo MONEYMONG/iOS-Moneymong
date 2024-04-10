@@ -1,25 +1,17 @@
 import DesignSystem
 import UIKit
+//import FlexLayout
+//import PinLayout
 
-final class ColorLineCharacterLimitView: UIView {
+final class CharacterLimitView: UIView {
 
   public enum State {
-    case active(Int)
-    case unActive
-    case error(String)
+    case `default`(characterCount: Int)
+    case error(characterCount: Int, errorMessage: String)
 
-    var lineColor: UIColor {
+    var color: UIColor {
       switch self {
-      case .active: return Colors.Blue._4
-      case .unActive: return Colors.Gray._5
-      case .error: return Colors.Red._3
-      }
-    }
-
-    var labelColor: UIColor {
-      switch self {
-      case .active: return Colors.Gray._5
-      case .unActive: return Colors.Gray._5
+      case .`default`: return Colors.Gray._5
       case .error: return Colors.Red._3
       }
     }
@@ -28,11 +20,6 @@ final class ColorLineCharacterLimitView: UIView {
   private var state: State {
     didSet { updateState() }
   }
-
-  private let colorLineView: UIView = {
-    let view = UIView()
-    return view
-  }()
 
   private let errorMessageLabel: UILabel = {
     let label = UILabel()
@@ -44,6 +31,7 @@ final class ColorLineCharacterLimitView: UIView {
   private let currentCountLabel: UILabel = {
     let label = UILabel()
     label.font = .preferredFont(forTextStyle: .caption1)
+    label.numberOfLines = 1
     return label
   }()
 
@@ -52,7 +40,7 @@ final class ColorLineCharacterLimitView: UIView {
 
   private let rootContainer = UIView()
 
-  init(state: State = .unActive, limitCount: Int) {
+  init(state: State = .default(characterCount: 0), limitCount: Int) {
     self.state = state
     self.limitCount = limitCount
     super.init(frame: .zero)
@@ -61,6 +49,7 @@ final class ColorLineCharacterLimitView: UIView {
     updateState()
   }
 
+  @available(*, unavailable)
   required init?(coder: NSCoder) {
     fatalError("init(coder:) has not been implemented")
   }
@@ -74,19 +63,11 @@ final class ColorLineCharacterLimitView: UIView {
 
   private func setupUI() {
     addSubview(rootContainer)
-    currentCountLabel.text = String(format: "%d/%d", currentCount, limitCount)
   }
 
   private func setupConstraints() {
-    rootContainer.flex.direction(.column).height(20).define { flex in
-
-      flex.direction(.row).define { flex in
-        flex.addItem(colorLineView).height(2)
-      }
-
-      flex.addItem().height(2)
-
-      flex.direction(.row).define { flex in
+    rootContainer.flex.define { flex in
+      flex.direction(.row).justifyContent(.spaceBetween).define { flex in
         flex.addItem(errorMessageLabel)
         flex.addItem().grow(1)
         flex.addItem(currentCountLabel)
@@ -95,27 +76,24 @@ final class ColorLineCharacterLimitView: UIView {
   }
 
   private func updateState() {
-    colorLineView.backgroundColor = state.lineColor
-
     switch state {
-    case .active(let charactorCount):
-      currentCountLabel.textColor = state.labelColor
+    case .default(let characterCount):
+      currentCountLabel.text = String(format: "%d/%d", characterCount, limitCount)
+      currentCountLabel.textColor = state.color
       errorMessageLabel.flex.display(.none)
-      currentCount = charactorCount
-    case .unActive:
-      currentCountLabel.textColor = state.labelColor
-      errorMessageLabel.flex.display(.none)
-    case .error(let message):
-      currentCountLabel.textColor = state.labelColor
+    case .error(let characterCount, let message):
+      currentCountLabel.text = String(format: "%d/%d", characterCount, limitCount)
+      currentCountLabel.textColor = state.color
       errorMessageLabel.flex.display(.flex)
       errorMessageLabel.text = message
     }
-
+    currentCountLabel.flex.markDirty()
+    errorMessageLabel.flex.markDirty()
     rootContainer.flex.layout()
   }
 }
 
-extension ColorLineCharacterLimitView {
+extension CharacterLimitView {
   public func setState(_ state: State) {
     self.state = state
   }
