@@ -1,28 +1,26 @@
-import Foundation
+import DesignSystem
 import UIKit
-import FlexLayout
-import PinLayout
 
 final class ColorLineCharacterLimitView: UIView {
 
   public enum State {
-    case focus(Int)
-    case unFocus
+    case active(Int)
+    case unActive
     case error(String)
 
     var lineColor: UIColor {
       switch self {
-      case .focus: return .blue
-      case .unFocus: return .gray
-      case .error: return .red
+      case .active: return Colors.Blue._4
+      case .unActive: return Colors.Gray._5
+      case .error: return Colors.Red._3
       }
     }
 
     var labelColor: UIColor {
       switch self {
-      case .focus: return .gray
-      case .unFocus: return .gray
-      case .error: return .red
+      case .active: return Colors.Gray._5
+      case .unActive: return Colors.Gray._5
+      case .error: return Colors.Red._3
       }
     }
   }
@@ -54,7 +52,7 @@ final class ColorLineCharacterLimitView: UIView {
 
   private let rootContainer = UIView()
 
-  init(state: State = .unFocus, limitCount: Int) {
+  init(state: State = .unActive, limitCount: Int) {
     self.state = state
     self.limitCount = limitCount
     super.init(frame: .zero)
@@ -100,11 +98,11 @@ final class ColorLineCharacterLimitView: UIView {
     colorLineView.backgroundColor = state.lineColor
 
     switch state {
-    case .focus(let charactorCount):
+    case .active(let charactorCount):
       currentCountLabel.textColor = state.labelColor
       errorMessageLabel.flex.display(.none)
       currentCount = charactorCount
-    case .unFocus:
+    case .unActive:
       currentCountLabel.textColor = state.labelColor
       errorMessageLabel.flex.display(.none)
     case .error(let message):
