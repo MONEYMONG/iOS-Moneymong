@@ -1,7 +1,4 @@
-import DesignSystem
 import UIKit
-//import FlexLayout
-//import PinLayout
 
 final class CharacterLimitView: UIView {
 
@@ -66,7 +63,7 @@ final class CharacterLimitView: UIView {
   }
 
   private func setupConstraints() {
-    rootContainer.flex.define { flex in
+    rootContainer.flex.backgroundColor(.white).define { flex in
       flex.direction(.row).justifyContent(.spaceBetween).define { flex in
         flex.addItem(errorMessageLabel)
         flex.addItem().grow(1)

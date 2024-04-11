@@ -8,7 +8,8 @@ final class DesignSystemVC: UITableViewController {
     case button
     case floatingButton
     case snackbar
-    
+    case textFields
+
     var title: String {
       switch self {
       case .color: return "Colors"
@@ -16,6 +17,7 @@ final class DesignSystemVC: UITableViewController {
       case .button: return "Buttons"
       case .floatingButton: return "FloatingButton"
       case .snackbar: return "SnackBar"
+      case .textFields: return "TextFields"
       }
     }
     
@@ -27,6 +29,7 @@ final class DesignSystemVC: UITableViewController {
       case .button: vc = ButtonVC()
       case .floatingButton: vc = FloatingButtonVC()
       case .snackbar: vc = SnackBarVC()
+      case .textFields: vc = TextFieldsVC()
       }
       
       navigationController?.pushViewController(vc, animated: true)
