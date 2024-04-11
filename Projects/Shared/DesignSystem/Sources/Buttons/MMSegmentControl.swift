@@ -3,7 +3,7 @@ import UIKit
 import FlexLayout
 import PinLayout
 
-public final class SelectionView: UIView {
+public final class MMSegmentControl: UIView {
   
   public enum `Type` {
     case capsule // 전체, 지출, 수입
