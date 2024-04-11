@@ -1,46 +1,50 @@
 import ProjectDescription
 
 let project = Project(
-    name: "LedgerFeature",
+    name: "MainFeature",
     targets: [
         Target(
-            name: "LedgerFeature",
+            name: "MainFeature",
             platform: .iOS,
             product: .framework,
-            bundleId: "com.framework.moneymong.LedgerFeature",
+            bundleId: "com.framework.moneymong.MainFeature",
             deploymentTarget: .iOS(targetVersion: "15.0", devices: .iphone),
             sources: ["Sources/**"],
             dependencies: [
-                .target(name: "LedgerFeatureInterface"),
+                .target(name: "MainFeatureInterface"),
+                .project(target: "MyPageFeatureInterface", path: .relativeToRoot("Projects/Feature/MyPage")),
+                .project(target: "AgencyFeatureInterface", path: .relativeToRoot("Projects/Feature/Agency")),
+                .project(target: "LedgerFeatureInterface", path: .relativeToRoot("Projects/Feature/Ledger")),
                 .project(target: "BaseFeature", path: .relativeToRoot("Projects/Feature/Base"))
+
             ]
         ),
         Target(
-            name: "LedgerFeatureInterface",
+            name: "MainFeatureInterface",
             platform: .iOS,
             product: .framework,
-            bundleId: "com.framework.moneymong.LedgerFeatureInterface",
+            bundleId: "com.framework.moneymong.MainFeatureInterface",
             deploymentTarget: .iOS(targetVersion: "15.0", devices: .iphone),
             sources: ["Interface/**"],
             dependencies: [
             ]
         ),
         Target(
-            name: "LedgerFeatureTests",
+            name: "MainFeatureTests",
             platform: .iOS,
             product: .unitTests,
-            bundleId: "com.framework.moneymong.LedgerFeatureTests",
+            bundleId: "com.framework.moneymong.MainFeatureTests",
             deploymentTarget: .iOS(targetVersion: "15.0", devices: .iphone),
             sources: ["Tests/**"],
             dependencies: [
-                .target(name: "LedgerFeature")
+                .target(name: "MainFeature")
             ]
         ),
         Target(
-            name: "LedgerFeatureDemo",
+            name: "MainFeatureDemo",
             platform: .iOS,
             product: .app,
-            bundleId: "com.framework.moneymong.LedgerFeatureDemo",
+            bundleId: "com.framework.moneymong.MainFeatureDemo",
             deploymentTarget: .iOS(targetVersion: "15.0", devices: .iphone),
             infoPlist: .extendingDefault(with: [
                 "CFBundleShortVersionString": "1.0",
@@ -50,7 +54,7 @@ let project = Project(
             sources: ["Demo/Sources/**"],
             resources: ["Demo/Resources/**"],
             dependencies: [
-                .target(name: "LedgerFeature")
+                .target(name: "MainFeature")
             ]
         )
     ]
