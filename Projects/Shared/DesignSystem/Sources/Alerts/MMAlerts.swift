@@ -38,13 +38,30 @@ final class MMAlerts: UIViewController {
   
   private let rootContainer = UIView()
   
-  init(isSubTitleHidden: Bool, isCancelButtonHidden: Bool) {
+  init(
+    title: String,
+    subTitle: String?,
+    okAction: @escaping () -> Void,
+    cancelAction: (() -> Void)?
+  ) {
     super.init(nibName: nil, bundle: nil)
     setupView()
     setupConstraints(
-      isSubTitleHidden: isSubTitleHidden,
-      isCancelButtonHidden: isCancelButtonHidden
+      isSubTitleHidden: subTitle == nil || subTitle!.isEmpty,
+      isCancelButtonHidden: cancelAction == nil
     )
+    titleLabel.text = title
+    subTitleLabel.text = subTitle
+    okButton.addAction {
+      okAction()
+      self.dismiss(animated: true)
+    }
+    if let cancelAction {
+      cancelButton.addAction {
+        cancelAction()
+        self.dismiss(animated: true)
+      }
+    }
   }
   
   @available(*, unavailable)
@@ -98,26 +115,6 @@ final class MMAlerts: UIViewController {
               }
           }
       }
-  }
-  
-  func configure(
-    title: String,
-    subTitle: String?,
-    okAction: @escaping () -> Void,
-    cancelAction: (() -> Void)?
-  ) {
-    titleLabel.text = title
-    subTitleLabel.text = subTitle
-    okButton.addAction { 
-      okAction()
-      self.dismiss(animated: true)
-    }
-    if let cancelAction {
-      cancelButton.addAction { 
-        cancelAction()
-        self.dismiss(animated: true)
-      }
-    }
   }
 }
 

@@ -10,10 +10,6 @@ public final class AlertsManager {
     cancelAction: (() -> Void)?
   ) {
     let alert = MMAlerts(
-      isSubTitleHidden: subTitle == nil || subTitle!.isEmpty,
-      isCancelButtonHidden: cancelAction == nil
-    )
-    alert.configure(
       title: title,
       subTitle: subTitle,
       okAction: okAction,
