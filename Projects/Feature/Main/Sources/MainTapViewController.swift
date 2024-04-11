@@ -31,7 +31,3 @@ public final class MainTapViewController: UITabBarController {
     }
   }
 }
-
-protocol Coordinator {
-  
-}
