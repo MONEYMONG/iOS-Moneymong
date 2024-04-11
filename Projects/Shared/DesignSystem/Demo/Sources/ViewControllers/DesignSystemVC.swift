@@ -12,6 +12,8 @@ final class DesignSystemVC: UITableViewController {
     case tag
     case lineTab
     
+    case textFields
+
     var title: String {
       switch self {
       case .color: return "Colors"
@@ -22,6 +24,7 @@ final class DesignSystemVC: UITableViewController {
       case .alert: return "Alert"
       case .tag: return "Tag"
       case .lineTab: return "TineTab"
+      case .textFields: return "TextFields"
       }
     }
     
@@ -36,6 +39,7 @@ final class DesignSystemVC: UITableViewController {
       case .alert: vc = AlertVC()
       case .tag: vc = TagVC()
       case .lineTab: vc = LineTabVC()
+      case .textFields: vc = TextFieldsVC()
       }
       
       navigationController?.pushViewController(vc, animated: true)

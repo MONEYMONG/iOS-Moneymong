@@ -1,4 +1,3 @@
-import DesignSystem
 import UIKit
 
 final class ColorLineCharacterLimitView: UIView {
@@ -78,6 +77,7 @@ final class ColorLineCharacterLimitView: UIView {
   }
 
   private func setupConstraints() {
+<<<<<<<< HEAD:Projects/Shared/DesignSystem/Sources/TextFields/ColorLineCharacterLimitView.swift
     rootContainer.flex.direction(.column).height(20).define { flex in
 
       flex.direction(.row).define { flex in
@@ -87,6 +87,10 @@ final class ColorLineCharacterLimitView: UIView {
       flex.addItem().height(2)
 
       flex.direction(.row).define { flex in
+========
+    rootContainer.flex.backgroundColor(.white).define { flex in
+      flex.direction(.row).justifyContent(.spaceBetween).define { flex in
+>>>>>>>> 2a33a6a (feat: Input 추가및 구현):Projects/Shared/DesignSystem/Sources/TextFields/CharacterLimitView.swift
         flex.addItem(errorMessageLabel)
         flex.addItem().grow(1)
         flex.addItem(currentCountLabel)
