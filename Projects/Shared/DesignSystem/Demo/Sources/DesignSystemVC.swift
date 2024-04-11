@@ -7,6 +7,7 @@ final class DesignSystemVC: UITableViewController {
     case font
     case button
     case floatingButton
+    case selection
     case snackbar
     case tag
     
@@ -16,6 +17,7 @@ final class DesignSystemVC: UITableViewController {
       case .font: return "Fonts"
       case .button: return "Buttons"
       case .floatingButton: return "FloatingButton"
+      case .selection: return "Selection"
       case .snackbar: return "SnackBar"
       case .tag: return "Tag"
       }
@@ -28,6 +30,7 @@ final class DesignSystemVC: UITableViewController {
       case .font: vc = FontVC(style: .insetGrouped)
       case .button: vc = ButtonVC()
       case .floatingButton: vc = FloatingButtonVC()
+      case .selection: vc = SelectionVC()
       case .snackbar: vc = SnackBarVC()
       case .tag: vc = TagVC()
       }
