@@ -9,7 +9,10 @@ public final class AlertsManager {
     okAction: @escaping () -> Void,
     cancelAction: (() -> Void)?
   ) {
-    let alert = MMAlerts()
+    let alert = MMAlerts(
+      isSubTitleHidden: subTitle == nil || subTitle!.isEmpty,
+      isCancelButtonHidden: cancelAction == nil
+    )
     alert.configure(
       title: title,
       subTitle: subTitle,
