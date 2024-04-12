@@ -11,21 +11,10 @@ let project = Project(
             deploymentTarget: .iOS(targetVersion: "15.0", devices: .iphone),
             sources: ["Sources/**"],
             dependencies: [
-                .target(name: "MainFeatureInterface"),
-                .project(target: "MyPageFeatureInterface", path: .relativeToRoot("Projects/Feature/MyPage")),
-                .project(target: "AgencyFeatureInterface", path: .relativeToRoot("Projects/Feature/Agency")),
-                .project(target: "LedgerFeatureInterface", path: .relativeToRoot("Projects/Feature/Ledger"))
-            ]
-        ),
-        Target(
-            name: "MainFeatureInterface",
-            platform: .iOS,
-            product: .framework,
-            bundleId: "com.framework.moneymong.MainFeatureInterface",
-            deploymentTarget: .iOS(targetVersion: "15.0", devices: .iphone),
-            sources: ["Interface/**"],
-            dependencies: [
-              .project(target: "BaseFeature", path: .relativeToRoot("Projects/Feature/Base"))
+              .project(target: "BaseFeature", path: .relativeToRoot("Projects/Feature/Base")),
+                .project(target: "MyPageFeature", path: .relativeToRoot("Projects/Feature/MyPage")),
+                .project(target: "AgencyFeature", path: .relativeToRoot("Projects/Feature/Agency")),
+                .project(target: "LedgerFeature", path: .relativeToRoot("Projects/Feature/Ledger"))
             ]
         ),
         Target(

@@ -11,17 +11,6 @@ let project = Project(
             deploymentTarget: .iOS(targetVersion: "15.0", devices: .iphone),
             sources: ["Sources/**"],
             dependencies: [
-                .target(name: "SignFeatureInterface")
-            ]
-        ),
-        Target(
-            name: "SignFeatureInterface",
-            platform: .iOS,
-            product: .framework,
-            bundleId: "com.framework.moneymong.SignFeatureInterface",
-            deploymentTarget: .iOS(targetVersion: "15.0", devices: .iphone),
-            sources: ["Interface/**"],
-            dependencies: [
               .project(target: "BaseFeature", path: .relativeToRoot("Projects/Feature/Base"))
             ]
         ),
