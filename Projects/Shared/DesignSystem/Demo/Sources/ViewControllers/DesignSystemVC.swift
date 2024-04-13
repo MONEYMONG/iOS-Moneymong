@@ -10,6 +10,7 @@ final class DesignSystemVC: UITableViewController {
     case snackbar
     case alert
     case tag
+    case lineTab
     
     var title: String {
       switch self {
@@ -20,6 +21,7 @@ final class DesignSystemVC: UITableViewController {
       case .snackbar: return "SnackBar"
       case .alert: return "Alert"
       case .tag: return "Tag"
+      case .lineTab: return "TineTab"
       }
     }
     
@@ -33,6 +35,7 @@ final class DesignSystemVC: UITableViewController {
       case .snackbar: vc = SnackBarVC()
       case .alert: vc = AlertVC()
       case .tag: vc = TagVC()
+      case .lineTab: vc = LineTabVC()
       }
       
       navigationController?.pushViewController(vc, animated: true)
