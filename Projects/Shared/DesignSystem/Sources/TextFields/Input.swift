@@ -29,10 +29,14 @@ public class Input: UIView {
     return label
   }()
 
-  let textField: UITextField = {
+  private(set) var textField: UITextField = {
     let textField = UITextField()
     textField.font = Fonts.body._3
     textField.selectedTextRange = nil
+    textField.attributedPlaceholder = NSAttributedString(
+      string: "Placeholder Text",
+      attributes: [NSAttributedString.Key.foregroundColor: Colors.Gray._4]
+    )
     return textField
   }()
 
@@ -49,7 +53,6 @@ public class Input: UIView {
     )
     button.imageEdgeInsets = UIEdgeInsets(top: 2, left: 2, bottom: 2, right: 2)
     button.tintColor = Colors.Gray._4
-    button.backgroundColor = .red
     return button
   }()
 
@@ -103,6 +106,7 @@ public class Input: UIView {
 
       flex.addItem().height(10)
       flex.addItem(colorLineView).height(1).backgroundColor(state.color)
+      flex.addItem().height(2)
       flex.addItem(charactorLimitView)
     }
   }
@@ -143,7 +147,7 @@ extension Input: UITextFieldDelegate {
       state = .error
       charactorLimitView.setState(.error(
         characterCount: updatedText.count,
-        errorMessage: "글자수를 초과 하였습니다"
+        errorMessage: "글자수를 초과 하였습니다."
       ))
     }
     return true
@@ -169,7 +173,6 @@ extension Input: UITextFieldDelegate {
 }
 
 extension Input {
-  // API 콜후 Response Error 떨어질 경우 Alert 말고 colorLine 아래 메세지로 보여주고 싶은경우 사용
   func setError(message: String) {
     guard let textCount = textField.text?.count else { return }
     state = .error
