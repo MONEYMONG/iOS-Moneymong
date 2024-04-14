@@ -99,7 +99,7 @@ public class TextArea: UIView {
   }
 
   private func updateState() {
-    titleLabel.textColor = state.color
+    titleLabel.textColor = state == .unActive ? Colors.Gray._6 : state.color
     colorLineView.backgroundColor = state.color
     textView.tintColor = state.color
     placeholderLabel.isHidden = textView.text.count != 0

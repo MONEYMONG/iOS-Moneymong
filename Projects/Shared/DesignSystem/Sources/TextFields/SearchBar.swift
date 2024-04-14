@@ -107,7 +107,7 @@ public class SearchBar: UIView {
   }
 
   private func updateState() {
-    titleLabel.textColor = state.color
+    titleLabel.textColor = state == .unActive ? Colors.Gray._6 : state.color
     colorLineView.backgroundColor = state.color
     textField.tintColor = state.color
   }

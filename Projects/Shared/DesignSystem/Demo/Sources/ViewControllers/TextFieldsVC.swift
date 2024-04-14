@@ -16,7 +16,6 @@ final class TextFieldsVC: UIViewController {
     super.init(nibName: nil, bundle: nil)
     setupView()
     setupConstraints()
-    textArea.setError(message: "Error")
   }
 
   required init?(coder: NSCoder) {
