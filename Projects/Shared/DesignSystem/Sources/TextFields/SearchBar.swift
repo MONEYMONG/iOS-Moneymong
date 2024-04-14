@@ -50,7 +50,7 @@ public class SearchBar: UIView {
       Images.search?.withRenderingMode(.alwaysTemplate),
       for: .highlighted
     )
-    button.imageEdgeInsets = UIEdgeInsets(top: 2, left: 2, bottom: 2, right: 2)
+//    button.imageEdgeInsets = UIEdgeInsets(top: 2, left: 2, bottom: 2, right: 2)
     button.tintColor = Colors.Gray._4
     return button
   }()
@@ -118,23 +118,6 @@ public class SearchBar: UIView {
 }
 
 extension SearchBar: UITextFieldDelegate {
-  public func textField(
-    _ textField: UITextField,
-    shouldChangeCharactersIn range: NSRange,
-    replacementString string: String
-  ) -> Bool {
-    guard let currentText = textField.text,
-          let stringRange = Range(range, in: currentText) else {
-      return false
-    }
-
-    let updatedText = currentText.replacingCharacters(in: stringRange, with: string)
-
-    searchButton.isHidden = updatedText.count == 0
-
-    return true
-  }
-
   public func textFieldShouldBeginEditing(_ textField: UITextField) -> Bool {
     state = .active
     return true

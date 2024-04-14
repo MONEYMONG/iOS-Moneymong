@@ -84,7 +84,6 @@ public class TextArea: UIView {
   private func setupConstraints() {
     rootContainer.flex.direction(.column).height(204).define { flex in
       flex.addItem(titleLabel)
-      flex.addItem().height(8)
 
       flex.addItem().direction(.row).grow(1).define { flex in
         flex.addItem(textView).grow(1)
