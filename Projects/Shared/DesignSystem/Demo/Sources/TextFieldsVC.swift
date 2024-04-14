@@ -6,6 +6,8 @@ final class TextFieldsVC: UIViewController {
 
   private let input = Input(charactorLimitCount: 20, title: "Input", placeholeder: "플레이스 홀더")
 
+  private let searchBar = SearchBar(title: "SearchBar", placeholeder: "플레이스 홀더", didSearch: nil)
+
   private let textArea = TextArea(charactorLimitCount: 20, title: "TextArea", placeholeder: "플레이스 홀더")
 
   private let rootContainer = UIView()
@@ -14,6 +16,7 @@ final class TextFieldsVC: UIViewController {
     super.init(nibName: nil, bundle: nil)
     setupView()
     setupConstraints()
+    textArea.setError(message: "Error")
   }
 
   required init?(coder: NSCoder) {
@@ -30,7 +33,11 @@ final class TextFieldsVC: UIViewController {
     rootContainer.flex.justifyContent(.center).paddingHorizontal(20).define { flex in
       flex.addItem(input)
 
-      flex.addItem().height(20)
+      flex.addItem().height(40)
+
+      flex.addItem(searchBar)
+
+      flex.addItem().height(40)
 
       flex.addItem(textArea)
     }

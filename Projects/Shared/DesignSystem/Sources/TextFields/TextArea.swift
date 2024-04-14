@@ -141,7 +141,7 @@ extension TextArea: UITextViewDelegate {
 }
 
 extension TextArea {
-  func setError(message: String) {
+  public func setError(message: String) {
     state = .error
     charactorLimitView.setState(.error(
       characterCount: textView.text.count,
