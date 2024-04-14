@@ -1,5 +1,8 @@
 import UIKit
 
+import PinLayout
+import FlexLayout
+
 public class SearchBar: UIView {
 
   public enum State {
@@ -29,7 +32,7 @@ public class SearchBar: UIView {
     return label
   }()
 
-  let textField: UITextField = {
+  public let textField: UITextField = {
     let textField = UITextField()
     textField.font = Fonts.body._3
     textField.selectedTextRange = nil
@@ -50,7 +53,7 @@ public class SearchBar: UIView {
       Images.search?.withRenderingMode(.alwaysTemplate),
       for: .highlighted
     )
-//    button.imageEdgeInsets = UIEdgeInsets(top: 2, left: 2, bottom: 2, right: 2)
+    button.imageEdgeInsets = UIEdgeInsets(top: 2, left: 2, bottom: 2, right: 2)
     button.tintColor = Colors.Gray._4
     return button
   }()

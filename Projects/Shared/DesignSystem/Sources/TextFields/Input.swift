@@ -1,5 +1,8 @@
 import UIKit
 
+import PinLayout
+import FlexLayout
+
 public class Input: UIView {
 
   public enum State {
@@ -29,7 +32,7 @@ public class Input: UIView {
     return label
   }()
 
-  private(set) var textField: UITextField = {
+  public let textField: UITextField = {
     let textField = UITextField()
     textField.font = Fonts.body._3
     textField.selectedTextRange = nil
