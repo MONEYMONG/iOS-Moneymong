@@ -1,5 +1,8 @@
 import UIKit
 
+import PinLayout
+import FlexLayout
+
 public class TextArea: UIView {
 
   public enum State {
