@@ -71,7 +71,7 @@ public final class LineTabViewController: UIViewController {
     rootContainer.pin.all()
     rootContainer.flex.layout()
     
-    tabView.pin.top().left().right().height(50)
+    tabView.pin.top().left().right().height(5.4%)
     pageViewController.view.pin.left().right().bottom().below(of: tabView)
 
   }
