@@ -9,7 +9,9 @@ final class DesignSystemVC: UITableViewController {
     case floatingButton
     case selection
     case snackbar
+    case alert
     case tag
+    case lineTab
     
     var title: String {
       switch self {
@@ -19,7 +21,9 @@ final class DesignSystemVC: UITableViewController {
       case .floatingButton: return "FloatingButton"
       case .selection: return "Selection"
       case .snackbar: return "SnackBar"
+      case .alert: return "Alert"
       case .tag: return "Tag"
+      case .lineTab: return "TineTab"
       }
     }
     
@@ -32,7 +36,9 @@ final class DesignSystemVC: UITableViewController {
       case .floatingButton: vc = FloatingButtonVC()
       case .selection: vc = SelectionVC()
       case .snackbar: vc = SnackBarVC()
+      case .alert: vc = AlertVC()
       case .tag: vc = TagVC()
+      case .lineTab: vc = LineTabVC()
       }
       
       navigationController?.pushViewController(vc, animated: true)
