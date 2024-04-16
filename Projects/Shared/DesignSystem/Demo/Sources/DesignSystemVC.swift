@@ -12,7 +12,6 @@ final class DesignSystemVC: UITableViewController {
     case alert
     case tag
     case lineTab
-    
     case textFields
 
     var title: String {
