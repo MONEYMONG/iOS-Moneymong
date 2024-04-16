@@ -10,11 +10,11 @@ final class TextFieldsVC: UIViewController {
     return label
   }()
 
-  private let input = Input(charactorLimitCount: 20, title: "Input", placeholeder: "플레이스 홀더")
+  private let input = MMTextField(charactorLimitCount: 20, title: "Input", placeholeder: "플레이스 홀더")
 
-  private let searchBar = SearchBar(title: "SearchBar", placeholeder: "플레이스 홀더", didSearch: nil)
+  private let searchBar = MMSearchBar(title: "SearchBar", placeholeder: "플레이스 홀더", didSearch: nil)
 
-  private let textArea = TextArea(charactorLimitCount: 20, title: "TextArea", placeholeder: "플레이스 홀더")
+  private let textArea = MMTextView(charactorLimitCount: 20, title: "TextArea", placeholeder: "플레이스 홀더")
 
   private let rootContainer = UIView()
 

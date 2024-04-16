@@ -3,7 +3,7 @@ import UIKit
 import PinLayout
 import FlexLayout
 
-public class TextArea: UIView {
+public class MMTextView: UIView {
 
   public enum State {
     case active
@@ -29,6 +29,7 @@ public class TextArea: UIView {
 
   private let titleLabel: UILabel = {
     let label = UILabel()
+    label.font = Fonts.body._2
     return label
   }()
 
@@ -114,7 +115,7 @@ public class TextArea: UIView {
   }
 }
 
-extension TextArea: UITextViewDelegate {
+extension MMTextView: UITextViewDelegate {
   public func textViewDidChange(_ textView: UITextView) {
     if charactorLimitCount >= textView.text.count {
       state = .active
@@ -142,7 +143,7 @@ extension TextArea: UITextViewDelegate {
   }
 }
 
-extension TextArea {
+extension MMTextView {
   public func setError(message: String) {
     state = .error
     charactorLimitView.setState(.error(

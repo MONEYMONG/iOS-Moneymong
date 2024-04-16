@@ -3,18 +3,16 @@ import UIKit
 import PinLayout
 import FlexLayout
 
-public class Input: UIView {
+public class MMSearchBar: UIView {
 
   public enum State {
     case active
     case unActive
-    case error
 
     var color: UIColor {
       switch self {
       case .active: return Colors.Blue._4
       case .unActive: return Colors.Gray._5
-      case .error: return Colors.Red._3
       }
     }
   }
@@ -23,12 +21,15 @@ public class Input: UIView {
     didSet { updateState() }
   }
 
-  private let charactorLimitCount: Int
+  // Keyboard Return, Search Button 입력시 호출
+  // Default Return Action = 키보드 비활성화, Default Search Button Action = empty
+  private let didSearch: ((String) -> Void)?
 
   private let rootContainer = UIView()
 
   private let titleLabel: UILabel = {
     let label = UILabel()
+    label.font = Fonts.body._2
     return label
   }()
 
@@ -43,15 +44,14 @@ public class Input: UIView {
     return textField
   }()
 
-  private let clearButton: TouchAreaButton = {
+  private let searchButton: TouchAreaButton = {
     let button = TouchAreaButton(dx: -10, dy: 0)
-    button.isHidden = true
     button.setImage(
-      Images.close?.withRenderingMode(.alwaysTemplate),
+      Images.search?.withRenderingMode(.alwaysTemplate),
       for: .normal
     )
     button.setImage(
-      Images.close?.withRenderingMode(.alwaysTemplate),
+      Images.search?.withRenderingMode(.alwaysTemplate),
       for: .highlighted
     )
     button.imageEdgeInsets = UIEdgeInsets(top: 2, left: 2, bottom: 2, right: 2)
@@ -64,15 +64,13 @@ public class Input: UIView {
     return view
   }()
 
-  private let charactorLimitView: CharacterLimitView
-
-  public init(charactorLimitCount: Int, title: String, placeholeder: String? = "") {
+  public init(
+    title: String,
+    placeholeder: String? = "",
+    didSearch: ((String) -> Void)?
+  ) {
     self.state = .unActive
-    self.charactorLimitCount = charactorLimitCount
-    self.charactorLimitView = CharacterLimitView(
-      state: .default(characterCount: 0),
-      limitCount: charactorLimitCount
-    )
+    self.didSearch = didSearch
     super.init(frame: .zero)
     setupView(with: title, placeholeder: placeholeder)
     setupConstraints()
@@ -94,7 +92,7 @@ public class Input: UIView {
     titleLabel.text = title
     textField.placeholder = placeholeder
     textField.delegate = self
-    clearButton.addTarget(self, action: #selector(didTapClearButton), for: .touchUpInside)
+    searchButton.addTarget(self, action: #selector(didTapSearchButton), for: .touchUpInside)
   }
 
   private func setupConstraints() {
@@ -104,13 +102,11 @@ public class Input: UIView {
 
       flex.addItem().direction(.row).define { flex in
         flex.addItem(textField).grow(1)
-        flex.addItem(clearButton).width(20).height(20)
+        flex.addItem(searchButton).width(20).height(20)
       }
 
       flex.addItem().height(10)
       flex.addItem(colorLineView).height(1).backgroundColor(state.color)
-      flex.addItem().height(2)
-      flex.addItem(charactorLimitView)
     }
   }
 
@@ -120,68 +116,27 @@ public class Input: UIView {
     textField.tintColor = state.color
   }
 
-  @objc private func didTapClearButton() {
-    state = .active
-    charactorLimitView.setState(.default(characterCount: 0))
-    textField.text = nil
-    clearButton.isHidden = true
+  @objc private func didTapSearchButton() {
+    didSearch?(textField.text ?? "")
   }
 }
 
-extension Input: UITextFieldDelegate {
-  public func textField(
-    _ textField: UITextField,
-    shouldChangeCharactersIn range: NSRange,
-    replacementString string: String
-  ) -> Bool {
-    guard let currentText = textField.text,
-          let stringRange = Range(range, in: currentText) else {
-      return false
-    }
-
-    let updatedText = currentText.replacingCharacters(in: stringRange, with: string)
-
-    clearButton.isHidden = updatedText.count == 0
-
-    if charactorLimitCount >= updatedText.count {
-      state = .active
-      charactorLimitView.setState(.default(characterCount: updatedText.count))
-    } else {
-      state = .error
-      charactorLimitView.setState(.error(
-        characterCount: updatedText.count,
-        errorMessage: "글자수를 초과 하였습니다."
-      ))
-    }
-    return true
-  }
-
+extension MMSearchBar: UITextFieldDelegate {
   public func textFieldShouldBeginEditing(_ textField: UITextField) -> Bool {
-    guard let textCount = textField.text?.count, state != .error else { return true }
-
     state = .active
-    charactorLimitView.setState(.default(characterCount: textCount))
     return true
   }
 
   public func textFieldDidEndEditing(_ textField: UITextField) {
-    guard state != .error else { return }
     state = .unActive
   }
 
   public func textFieldShouldReturn(_ textField: UITextField) -> Bool {
-    textField.resignFirstResponder()
+    if didSearch == nil {
+      textField.resignFirstResponder()
+    } else {
+      didSearch?(textField.text ?? "")
+    }
     return true
-  }
-}
-
-extension Input {
-  public func setError(message: String) {
-    guard let textCount = textField.text?.count else { return }
-    state = .error
-    charactorLimitView.setState(.error(
-      characterCount: textCount,
-      errorMessage: message
-    ))
   }
 }

@@ -90,6 +90,7 @@ final class CharacterLimitView: UIView {
     currentCountLabel.flex.markDirty()
     errorMessageLabel.flex.markDirty()
     rootContainer.flex.layout()
+    setNeedsLayout()
   }
 }
 
