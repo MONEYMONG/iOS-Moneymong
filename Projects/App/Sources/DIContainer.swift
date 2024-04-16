@@ -1,24 +1,15 @@
-import BaseFeature
-import SignFeatureInterface
-import AgencyFeatureInterface
-import LedgerFeatureInterface
-import MainFeatureInterface
+import MainFeature
+import SignFeature
+import AgencyFeature
 
-final class DIContainer: DIContainerInterface {
-  var signDIContainer: DIContainerInterface
-  var agencyDIContainer: DIContainerInterface
-  var ledgerDIContainer: DIContainerInterface
-  var myPageDIContainer: DIContainerInterface
+final class AppDIContainer {
+  let signDIContainer: SignDIContainer
+  let mainDIContainer: MainDIContainer
 
-  init(
-    signDIContainer: DIContainerInterface,
-    agencyDIContainer: AgencyDIContainerInterface,
-    ledgerDIContainer: DIContainerInterface,
-    myPageDIContainer: DIContainerInterface
-  ) {
-    self.signDIContainer = signDIContainer
-    self.agencyDIContainer = agencyDIContainer
-    self.ledgerDIContainer = ledgerDIContainer
-    self.myPageDIContainer = myPageDIContainer
+  init() {
+    self.signDIContainer = SignDIContainer()
+    self.mainDIContainer = MainDIContainer(
+      agencyContainer: AgencyDIContainer()
+    )
   }
 }

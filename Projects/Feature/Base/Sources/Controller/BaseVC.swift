@@ -2,31 +2,39 @@ import UIKit
 
 import RxSwift
 import RxCocoa
+import PinLayout
+import FlexLayout
 
 /// BaseViewController
-public class BaseVC: UIViewController {
-  
+open class BaseVC: UIViewController {
+  public let rootContainer = UIView()
+
   public init() {
       super.init(nibName: nil, bundle: nil)
   }
   
   @available(*, unavailable)
-  required init?(coder aDecoder: NSCoder) {
+  required public init?(coder aDecoder: NSCoder) {
       fatalError("init(coder:) has not been implemented")
   }
   
-  public override func viewDidLoad() {
+  open override func viewDidLoad() {
     super.viewDidLoad()
-    
     setupUI()
     setupConstraints()
   }
-  
-  public func setupUI() {
+
+  open override func viewDidLayoutSubviews() {
+    super.viewDidLayoutSubviews()
+    rootContainer.pin.all()
+    rootContainer.flex.layout()
+  }
+
+  open func setupUI() {
     view.backgroundColor = .white
   }
   
-  public func setupConstraints() {
-    
+  open func setupConstraints() {
+    view.addSubview(rootContainer)
   }
 }

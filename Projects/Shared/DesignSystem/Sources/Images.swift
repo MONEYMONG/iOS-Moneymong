@@ -13,6 +13,7 @@ public enum Images {
   public static var mongEditor = UIImage(named: "mong.editor")
   public static var mongGroup = UIImage(named: "mong.group")
   public static var mong = UIImage(named: "mong")
+  public static var mongGray = UIImage(named: "mong.gray")
   public static var mongPass = UIImage(named: "mong.pass")
   public static var mongPassNot = UIImage(named: "mong.pass.not")
   
@@ -40,6 +41,7 @@ public enum Images {
   public static var pencil = UIImage(named: "pencil")
   public static var photo = UIImage(named: "photo")
   public static var plan = UIImage(named: "plan")
+  public static var party = UIImage(named: "party")
   public static var plusCircleFill = UIImage(named: "plus.circle.fill")
   public static var plusCircle = UIImage(named: "plus.circle")
   public static var plus = UIImage(named: "plus")

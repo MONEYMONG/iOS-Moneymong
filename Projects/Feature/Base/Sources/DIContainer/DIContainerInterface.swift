@@ -1,3 +1,1 @@
-public protocol DIContainerInterface: AnyObject {
 
-}

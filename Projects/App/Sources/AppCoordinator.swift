@@ -2,10 +2,11 @@ import UIKit
 
 import BaseFeature
 import MainFeature
+import SignFeature
 
 final class AppCoordinator: Coordinator {  
   var navigationController: UINavigationController
-  var diContainer: BaseFeature.DIContainerInterface = AppDIContainer()
+  var diContainer: AppDIContainer = AppDIContainer()
   weak var parentCoordinator: (BaseFeature.Coordinator)?
   var childCoordinators: [BaseFeature.Coordinator] = []
 
@@ -14,29 +15,32 @@ final class AppCoordinator: Coordinator {
   }
 
   func start(animated: Bool) {
-    main(animated: animated)
+    sign(animated: animated)
+  }
+
+  func coordinatorDidFinish() {
+    main(animated: true)
   }
 }
 
 extension AppCoordinator {
   func sign(animated: Bool) {
-
+    let signCoordinator = SignCoordinator(
+      navigationController: navigationController,
+      diContainer: diContainer.signDIContainer
+    )
+    signCoordinator.start(animated: true)
+    signCoordinator.parentCoordinator = self
+    childCoordinators.append(signCoordinator)
   }
 
   func main(animated: Bool) {
     let mainTabCoordinator = MainTabBarCoordinator(
       navigationController: navigationController,
-      diContainer: diContainer
+      diContainer: diContainer.mainDIContainer
     )
     mainTabCoordinator.start(animated: true)
     mainTabCoordinator.parentCoordinator = self
-  }
-}
-
-final class AppDIContainer: DIContainerInterface {
-  let mainDIContainer: MainDIContainer
-
-  init(mainDIContainer: MainDIContainer = MainDIContainer()) {
-    self.mainDIContainer = mainDIContainer
+    childCoordinators.append(mainTabCoordinator)
   }
 }

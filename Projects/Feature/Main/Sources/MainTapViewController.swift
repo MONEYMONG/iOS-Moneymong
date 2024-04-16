@@ -1,9 +1,10 @@
 import UIKit
 
+import DesignSystem
+
 public final class MainTapViewController: UITabBarController {
   public init() {
     super.init(nibName: nil, bundle: nil)
-    setupTabBar()
   }
   
   @available(*, unavailable)
@@ -13,21 +14,24 @@ public final class MainTapViewController: UITabBarController {
   
   public override func viewDidLoad() {
     super.viewDidLoad()
-    view.backgroundColor = .red
   }
-  
-  private func setupTabBar() {
-    let v1 = UIViewController()
-    v1.view.backgroundColor = .red
-    let vc1 = UINavigationController(rootViewController: v1)
-    let vc2 = UINavigationController(rootViewController: .init())
-    let vc3 = UINavigationController(rootViewController: .init())
-    setViewControllers([vc1, vc2, vc3], animated: true)
+
+  public override func viewWillAppear(_ animated: Bool) {
+    super.viewWillAppear(animated)
     
-    if let items = tabBar.items {
-      items[0].title = "소속"
-      items[1].title = "장부"
-      items[2].title = "마이페이지"
+    setupTabBar()
+  }
+
+  private func setupTabBar() {
+    let titles = ["소속, 장부, 마이페이지"]
+    let images: [UIImage?] = [Images.party, Images.record, Images.mongGray]
+    
+    tabBar.items?.enumerated().forEach { (index, item) in
+      item.title = titles[index]
+      item.image = images[index]
+      item.selectedImage = images[index]?.withRenderingMode(.alwaysTemplate).withTintColor(Colors.Blue._4)
     }
+    
+    tabBar.tintColor = Colors.Blue._4
   }
 }

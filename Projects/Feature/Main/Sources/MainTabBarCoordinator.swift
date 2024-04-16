@@ -1,27 +1,26 @@
 import UIKit
 
-import MainFeatureInterface
 import BaseFeature
 
-public final class MainTabBarCoordinator: MainTabBarCoordinatorInterface {
+public final class MainTabBarCoordinator: Coordinator {
   public var navigationController: UINavigationController
-  public var diContainer: BaseFeature.DIContainerInterface
+  private let diContainer: MainDIContainer
   public weak var parentCoordinator: (BaseFeature.Coordinator)?
   public var childCoordinators: [BaseFeature.Coordinator] = []
 
-  public init(navigationController: UINavigationController, diContainer: DIContainerInterface) {
+  public init(navigationController: UINavigationController, diContainer: MainDIContainer) {
     self.navigationController = navigationController
     self.diContainer = diContainer
   }
 
   public func start(animated: Bool) {
-    main(animated: animated)
+    mainTab(animated: animated)
   }
 }
 
 public extension MainTabBarCoordinator {
-  func main(animated: Bool) {
-    let viewController = MainTapViewController()
-    navigationController.pushViewController(viewController, animated: animated)
+  func mainTab(animated: Bool) {
+    let vc = diContainer.mainTab(with: self)
+    navigationController.viewControllers = [vc]
   }
 }
