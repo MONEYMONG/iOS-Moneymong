@@ -2,6 +2,10 @@ import ProjectDescription
 
 let project = Project(
   name: "DesignSystem",
+  options: .options(
+    disableBundleAccessors: true,
+    disableSynthesizedResourceAccessors: true
+  ),
   packages: [
     .remote(
       url: "https://github.com/layoutBox/FlexLayout",
@@ -12,6 +16,9 @@ let project = Project(
       requirement: .upToNextMajor(from: "1.10.5")
     )
   ],
+  settings: .settings(
+    base: ["ASSETCATALOG_COMPILER_GENERATE_ASSET_SYMBOLS":"NO"]
+  ),
   targets: [
     Target(
       name: "DesignSystem",
@@ -24,7 +31,10 @@ let project = Project(
       dependencies: [
         .package(product: "FlexLayout"),
         .package(product: "PinLayout")
-      ]
+      ],
+      settings: .settings(
+        base: ["ASSETCATALOG_COMPILER_GENERATE_ASSET_SYMBOLS":"NO"]
+      )
     ),
     Target(
       name: "DesignSystemDemo",
@@ -57,3 +67,5 @@ let project = Project(
   ],
   resourceSynthesizers: []
 )
+
+
