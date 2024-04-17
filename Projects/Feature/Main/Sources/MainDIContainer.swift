@@ -7,15 +7,25 @@ import MyPageFeature
 
 public final class MainDIContainer {
   private let agencyContainer: AgencyDIContainer
+  private let myPageContainer: MyPageDIContainer
+  private let ledgerContainer: LedgerDIContainer
 
-  public init(agencyContainer: AgencyDIContainer) {
+  public init(
+    agencyContainer: AgencyDIContainer,
+    myPageContainer: MyPageDIContainer,
+    ledgerContainer: LedgerDIContainer
+  ) {
     self.agencyContainer = agencyContainer
+    self.myPageContainer = myPageContainer
+    self.ledgerContainer = ledgerContainer
   }
 
   func mainTab(with coordinator: Coordinator) -> MainTapViewController {
     let tabVC = MainTapViewController()
     tabVC.setViewControllers(
-      [agencyTab(with: coordinator)],
+      [agencyTab(with: coordinator),
+       ledgerTab(with: coordinator),
+       myPageTab(with: coordinator)],
       animated: false
     )
     return tabVC
@@ -30,6 +40,30 @@ public final class MainDIContainer {
     coordinator.childCoordinators.append(agencyCoordinator)
     agencyCoordinator.parentCoordinator = coordinator
     agencyCoordinator.start(animated: false)
+    return vc
+  }
+  
+  private func ledgerTab(with coordinator: Coordinator) -> UIViewController {
+    let vc = UINavigationController()
+    let ledgerCoordinator = LedgerCoordinator(
+      navigationController: vc,
+      diContainer: ledgerContainer
+    )
+    coordinator.childCoordinators.append(ledgerCoordinator)
+    ledgerCoordinator.parentCoordinator = coordinator
+    ledgerCoordinator.start(animated: false)
+    return vc
+  }
+  
+  private func myPageTab(with coordinator: Coordinator) -> UIViewController {
+    let vc = UINavigationController()
+    let myPageCoordinator = MyPageCoordinator(
+      navigationController: vc,
+      diContainer: myPageContainer
+    )
+    coordinator.childCoordinators.append(myPageCoordinator)
+    myPageCoordinator.parentCoordinator = coordinator
+    myPageCoordinator.start(animated: false)
     return vc
   }
 }

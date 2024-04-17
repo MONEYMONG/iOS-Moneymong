@@ -12,7 +12,7 @@ final class LoginVC: BaseVC, View {
   private let button: UIButton = {
     let button = UIButton()
     button.configuration = UIButton.Configuration.borderedProminent()
-    button.configuration?.title = "로그인"
+    button.configuration?.title = "소셜 로그인"
     return button
   }()
 

@@ -13,6 +13,7 @@ public enum Images {
   public static var mongEditor = UIImage(named: "mong.editor", in: Bundle.module, with: nil)
   public static var mongGroup = UIImage(named: "mong.group", in: Bundle.module, with: nil)
   public static var mong = UIImage(named: "mong", in: Bundle.module, with: nil)
+  public static var mongGray = UIImage(named: "mong.gray", in: Bundle.module, with: nil)
   public static var mongPass = UIImage(named: "mong.pass", in: Bundle.module, with: nil)
   public static var mongPassNot = UIImage(named: "mong.pass.not", in: Bundle.module, with: nil)
   
@@ -43,6 +44,7 @@ public enum Images {
   public static var plusCircleFill = UIImage(named: "plus.circle.fill", in: Bundle.module, with: nil)
   public static var plusCircle = UIImage(named: "plus.circle", in: Bundle.module, with: nil)
   public static var plus = UIImage(named: "plus", in: Bundle.module, with: nil)
+  public static var party = UIImage(named: "party", in: Bundle.module, with: nil)
   public static var record = UIImage(named: "record", in: Bundle.module, with: nil)
   public static var reissue = UIImage(named: "reissue", in: Bundle.module, with: nil)
   public static var scan = UIImage(named: "scan", in: Bundle.module, with: nil)
@@ -53,4 +55,3 @@ public enum Images {
   public static var trash = UIImage(named: "trash", in: Bundle.module, with: nil)
   public static var university = UIImage(named: "university", in: Bundle.module, with: nil)
 }
-

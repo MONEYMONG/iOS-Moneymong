@@ -21,7 +21,7 @@ public final class SignCoordinator: Coordinator {
 public extension SignCoordinator {
   func splash(animated: Bool = false) {
     let vc = diContainer.splash(with: self)
-    navigationController.viewControllers = [vc]
+    navigationController.pushViewController(vc, animated: true)
   }
 
   func login(animated: Bool = true) {
@@ -30,7 +30,7 @@ public extension SignCoordinator {
   }
 
   func main() {
-    parentCoordinator?.coordinatorDidFinish()
-    childDidFinish(self)
+    parentCoordinator?.move(to: .main)
+    remove()
   }
 }

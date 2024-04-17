@@ -18,8 +18,11 @@ final class AppCoordinator: Coordinator {
     sign(animated: animated)
   }
 
-  func coordinatorDidFinish() {
-    main(animated: true)
+  func move(to scene: Scene) {
+    switch scene {
+    case .main:
+      main(animated: true)
+    }
   }
 }
 

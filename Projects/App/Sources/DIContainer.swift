@@ -1,6 +1,8 @@
 import MainFeature
 import SignFeature
 import AgencyFeature
+import LedgerFeature
+import MyPageFeature
 
 final class AppDIContainer {
   let signDIContainer: SignDIContainer
@@ -9,7 +11,9 @@ final class AppDIContainer {
   init() {
     self.signDIContainer = SignDIContainer()
     self.mainDIContainer = MainDIContainer(
-      agencyContainer: AgencyDIContainer()
+      agencyContainer: AgencyDIContainer(),
+      myPageContainer: MyPageDIContainer(),
+      ledgerContainer: LedgerDIContainer()
     )
   }
 }

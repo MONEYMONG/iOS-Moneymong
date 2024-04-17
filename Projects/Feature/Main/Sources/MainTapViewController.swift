@@ -11,10 +11,6 @@ public final class MainTapViewController: UITabBarController {
   required init?(coder: NSCoder) {
     fatalError("init(coder:) has not been implemented")
   }
-  
-  public override func viewDidLoad() {
-    super.viewDidLoad()
-  }
 
   public override func viewWillAppear(_ animated: Bool) {
     super.viewWillAppear(animated)
@@ -23,7 +19,11 @@ public final class MainTapViewController: UITabBarController {
   }
 
   private func setupTabBar() {
-    let titles = ["소속, 장부, 마이페이지"]
+    let appearance = UITabBarItem.appearance()
+    let attributes = [NSAttributedString.Key.font: Fonts.body._2]
+    appearance.setTitleTextAttributes(attributes as [NSAttributedString.Key : Any], for: .normal)
+    
+    let titles = ["소속", "장부", "마이페이지"]
     let images: [UIImage?] = [Images.party, Images.record, Images.mongGray]
     
     tabBar.items?.enumerated().forEach { (index, item) in

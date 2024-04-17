@@ -22,6 +22,5 @@ extension AgencyCoordinator {
   private func agency(animated: Bool) {
     let vc = diContainer.agency(with: self)
     navigationController.viewControllers = [vc]
-//    navigationController.pushViewController(vc, animated: animated)
   }
 }
