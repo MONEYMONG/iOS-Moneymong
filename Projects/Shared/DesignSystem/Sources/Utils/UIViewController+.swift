@@ -44,6 +44,10 @@ public extension UIViewController {
     navigationItem.titleView = label
   }
   
+  func setTitle(_ titleView: UIView) {
+    navigationItem.titleView = titleView
+  }
+  
   func setLeftItem(_ item: BarItem) {
     navigationItem.leftBarButtonItem = item.button
   }
