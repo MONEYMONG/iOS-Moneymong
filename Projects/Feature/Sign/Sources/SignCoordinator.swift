@@ -5,8 +5,8 @@ import BaseFeature
 public final class SignCoordinator: Coordinator {
   public var navigationController: UINavigationController
   private let diContainer: SignDIContainer
-  public weak var parentCoordinator: (BaseFeature.Coordinator)?
-  public var childCoordinators: [BaseFeature.Coordinator] = []
+  public weak var parentCoordinator: Coordinator?
+  public var childCoordinators: [Coordinator] = []
 
   public init(navigationController: UINavigationController, diContainer: SignDIContainer) {
     self.navigationController = navigationController

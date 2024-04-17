@@ -5,8 +5,8 @@ import BaseFeature
 public final class AgencyCoordinator: Coordinator {
   public var navigationController: UINavigationController
   private let diContainer: AgencyDIContainer
-  public weak var parentCoordinator: (BaseFeature.Coordinator)?
-  public var childCoordinators: [BaseFeature.Coordinator] = []
+  public weak var parentCoordinator: Coordinator?
+  public var childCoordinators: [Coordinator] = []
 
   public init(navigationController: UINavigationController, diContainer: AgencyDIContainer) {
     self.navigationController = navigationController
