@@ -2,6 +2,10 @@ import ProjectDescription
 
 let project = Project(
   name: "LocalStorage",
+  options: .options(
+    disableBundleAccessors: true,
+    disableSynthesizedResourceAccessors: true
+  ),
   targets: [
     Target(
       name: "LocalStorage",

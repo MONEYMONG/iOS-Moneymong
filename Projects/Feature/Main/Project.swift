@@ -1,39 +1,42 @@
 import ProjectDescription
 
 let project = Project(
-    name: "SignFeature",
+    name: "MainFeature",
     options: .options(
       disableBundleAccessors: true,
       disableSynthesizedResourceAccessors: true
     ),
     targets: [
         Target(
-            name: "SignFeature",
+            name: "MainFeature",
             platform: .iOS,
             product: .framework,
-            bundleId: "com.framework.moneymong.SignFeature",
+            bundleId: "com.framework.moneymong.MainFeature",
             deploymentTarget: .iOS(targetVersion: "15.0", devices: .iphone),
             sources: ["Sources/**"],
             dependencies: [
-              .project(target: "BaseFeature", path: .relativeToRoot("Projects/Feature/Base"))
+              .project(target: "BaseFeature", path: .relativeToRoot("Projects/Feature/Base")),
+                .project(target: "MyPageFeature", path: .relativeToRoot("Projects/Feature/MyPage")),
+                .project(target: "AgencyFeature", path: .relativeToRoot("Projects/Feature/Agency")),
+                .project(target: "LedgerFeature", path: .relativeToRoot("Projects/Feature/Ledger"))
             ]
         ),
         Target(
-            name: "SignFeatureTests",
+            name: "MainFeatureTests",
             platform: .iOS,
             product: .unitTests,
-            bundleId: "com.framework.moneymong.SignFeatureTests",
+            bundleId: "com.framework.moneymong.MainFeatureTests",
             deploymentTarget: .iOS(targetVersion: "15.0", devices: .iphone),
             sources: ["Tests/**"],
             dependencies: [
-                .target(name: "SignFeature")
+                .target(name: "MainFeature")
             ]
         ),
         Target(
-            name: "SignFeatureDemo",
+            name: "MainFeatureDemo",
             platform: .iOS,
             product: .app,
-            bundleId: "com.framework.moneymong.SignFeatureDemo",
+            bundleId: "com.framework.moneymong.MainFeatureDemo",
             deploymentTarget: .iOS(targetVersion: "15.0", devices: .iphone),
             infoPlist: .extendingDefault(with: [
                 "CFBundleShortVersionString": "1.0",
@@ -43,7 +46,7 @@ let project = Project(
             sources: ["Demo/Sources/**"],
             resources: ["Demo/Resources/**"],
             dependencies: [
-                .target(name: "SignFeature")
+                .target(name: "MainFeature")
             ]
         )
     ]

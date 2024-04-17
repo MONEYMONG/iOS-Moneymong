@@ -2,6 +2,10 @@ import ProjectDescription
 
 let project = Project(
     name: "LedgerFeature",
+    options: .options(
+      disableBundleAccessors: true,
+      disableSynthesizedResourceAccessors: true
+    ),
     targets: [
         Target(
             name: "LedgerFeature",
@@ -11,17 +15,7 @@ let project = Project(
             deploymentTarget: .iOS(targetVersion: "15.0", devices: .iphone),
             sources: ["Sources/**"],
             dependencies: [
-                .target(name: "LedgerFeatureInterface")
-            ]
-        ),
-        Target(
-            name: "LedgerFeatureInterface",
-            platform: .iOS,
-            product: .framework,
-            bundleId: "com.framework.moneymong.LedgerFeatureInterface",
-            deploymentTarget: .iOS(targetVersion: "15.0", devices: .iphone),
-            sources: ["Interface/**"],
-            dependencies: [
+              .project(target: "BaseFeature", path: .relativeToRoot("Projects/Feature/Base"))
             ]
         ),
         Target(

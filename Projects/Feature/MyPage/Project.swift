@@ -2,6 +2,10 @@ import ProjectDescription
 
 let project = Project(
     name: "MyPageFeature",
+    options: .options(
+      disableBundleAccessors: true,
+      disableSynthesizedResourceAccessors: true
+    ),
     targets: [
         Target(
             name: "MyPageFeature",
@@ -11,17 +15,7 @@ let project = Project(
             deploymentTarget: .iOS(targetVersion: "15.0", devices: .iphone),
             sources: ["Sources/**"],
             dependencies: [
-                .target(name: "MyPageFeatureInterface")
-            ]
-        ),
-        Target(
-            name: "MyPageFeatureInterface",
-            platform: .iOS,
-            product: .framework,
-            bundleId: "com.framework.moneymong.MyPageFeatureInterface",
-            deploymentTarget: .iOS(targetVersion: "15.0", devices: .iphone),
-            sources: ["Interface/**"],
-            dependencies: [
+              .project(target: "BaseFeature", path: .relativeToRoot("Projects/Feature/Base"))
             ]
         ),
         Target(
@@ -42,20 +36,9 @@ let project = Project(
             bundleId: "com.framework.moneymong.MyPageFeatureDemo",
             deploymentTarget: .iOS(targetVersion: "15.0", devices: .iphone),
             infoPlist: .extendingDefault(with: [
-              "CFBundleShortVersionString": "1.0",
-              "CFBundleVersion": "1",
-              "UILaunchStoryboardName": "LaunchScreen",
-              "UIApplicationSceneManifest" : [
-                "UIApplicationSupportsMultipleScenes":true,
-                "UISceneConfigurations":[
-                  "UIWindowSceneSessionRoleApplication":[
-                    [
-                      "UISceneConfigurationName":"Default Configuration",
-                      "UISceneDelegateClassName":"$(PRODUCT_MODULE_NAME).SceneDelegate"
-                    ]
-                  ]
-                ]
-              ]
+                "CFBundleShortVersionString": "1.0",
+                "CFBundleVersion": "1",
+                "UILaunchStoryboardName": "LaunchScreen"
             ]),
             sources: ["Demo/Sources/**"],
             resources: ["Demo/Resources/**"],
