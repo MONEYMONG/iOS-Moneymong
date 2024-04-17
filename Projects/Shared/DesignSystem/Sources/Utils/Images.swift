@@ -59,5 +59,8 @@ public enum Images {
   public static var warningFill = UIImage(named: "warning.fill", in: Bundle.module, with: nil)
   public static var warning = UIImage(named: "warning", in: Bundle.module, with: nil)
   public static var party = UIImage(named: "party", in: Bundle.module, with: nil)
+
+  public static var kakao = UIImage(named: "kakao", in: Bundle.module, with: nil)
+  public static var apple = UIImage(named: "apple", in: Bundle.module, with: nil)
 }
 
