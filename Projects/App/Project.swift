@@ -16,11 +16,27 @@ let project = Project(
       infoPlist: .extendingDefault(with: [
         "CFBundleShortVersionString": "1.0",
         "CFBundleVersion": "1",
-        "UILaunchStoryboardName": "LaunchScreen"
+        "UILaunchStoryboardName": "LaunchScreen",
+        "UIApplicationSceneManifest" : [
+          "UIApplicationSupportsMultipleScenes":true,
+          "UISceneConfigurations":[
+            "UIWindowSceneSessionRoleApplication":[
+              [
+                "UISceneConfigurationName":"Default Configuration",
+                "UISceneDelegateClassName":"$(PRODUCT_MODULE_NAME).SceneDelegate"
+              ]
+            ]
+          ]
+        ]
       ]),
       sources: ["Sources/**"],
       resources: ["Resources/**"],
       dependencies: [
+        .project(target: "SignFeature", path: .relativeToRoot("Projects/Feature/Sign")),
+        .project(target: "MainFeature", path: .relativeToRoot("Projects/Feature/Main")),
+        .project(target: "AgencyFeature", path: .relativeToRoot("Projects/Feature/Agency")),
+        .project(target: "MyPageFeature", path: .relativeToRoot("Projects/Feature/MyPage")),
+        .project(target: "LedgerFeature", path: .relativeToRoot("Projects/Feature/Ledger"))
       ]
     )
   ]

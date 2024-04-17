@@ -11,17 +11,7 @@ let project = Project(
             deploymentTarget: .iOS(targetVersion: "15.0", devices: .iphone),
             sources: ["Sources/**"],
             dependencies: [
-                .target(name: "SignFeatureInterface")
-            ]
-        ),
-        Target(
-            name: "SignFeatureInterface",
-            platform: .iOS,
-            product: .framework,
-            bundleId: "com.framework.moneymong.SignFeatureInterface",
-            deploymentTarget: .iOS(targetVersion: "15.0", devices: .iphone),
-            sources: ["Interface/**"],
-            dependencies: [
+              .project(target: "BaseFeature", path: .relativeToRoot("Projects/Feature/Base"))
             ]
         ),
         Target(
@@ -42,9 +32,20 @@ let project = Project(
             bundleId: "com.framework.moneymong.SignFeatureDemo",
             deploymentTarget: .iOS(targetVersion: "15.0", devices: .iphone),
             infoPlist: .extendingDefault(with: [
-                "CFBundleShortVersionString": "1.0",
-                "CFBundleVersion": "1",
-                "UILaunchStoryboardName": "LaunchScreen"
+              "CFBundleShortVersionString": "1.0",
+              "CFBundleVersion": "1",
+              "UILaunchStoryboardName": "LaunchScreen",
+              "UIApplicationSceneManifest" : [
+                "UIApplicationSupportsMultipleScenes":true,
+                "UISceneConfigurations":[
+                  "UIWindowSceneSessionRoleApplication":[
+                    [
+                      "UISceneConfigurationName":"Default Configuration",
+                      "UISceneDelegateClassName":"$(PRODUCT_MODULE_NAME).SceneDelegate"
+                    ]
+                  ]
+                ]
+              ]
             ]),
             sources: ["Demo/Sources/**"],
             resources: ["Demo/Resources/**"],

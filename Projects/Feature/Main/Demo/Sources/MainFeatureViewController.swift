@@ -1,6 +1,6 @@
 import UIKit
 
-final class MoneymongViewController: UIViewController {
+final class MainFeatureViewController: UIViewController {
     init() {
         super.init(nibName: nil, bundle: nil)
     }
