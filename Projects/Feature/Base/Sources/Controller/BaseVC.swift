@@ -32,7 +32,6 @@ open class BaseVC: UIViewController {
 
   open func setupUI() {
     view.backgroundColor = .white
-    navigationController?.navigationBar.isHidden = true
   }
   
   open func setupConstraints() {
