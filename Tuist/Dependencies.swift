@@ -17,6 +17,10 @@ let dependencies = Dependencies(
     .remote(
       url: "https://github.com/ReactiveX/RxSwift",
       requirement: .upToNextMajor(from: "6.6.0")
+    ),
+    .remote(
+      url: "https://github.com/kakao/kakao-ios-sdk",
+      requirement: .upToNextMajor(from: "2.22.0")
     )
   ])
   ,platforms: [.iOS]

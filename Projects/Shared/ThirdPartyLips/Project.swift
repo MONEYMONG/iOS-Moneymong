@@ -17,7 +17,9 @@ let project = Project(
       dependencies: [
         .external(name: "ReactorKit"),
         .external(name: "Kingfisher"),
-        .external(name: "RxCocoa")
+        .external(name: "RxCocoa"),
+        .external(name: "KakaoSDKAuth"),
+        .external(name: "KakaoSDKUser")
       ]
     )
   ]
