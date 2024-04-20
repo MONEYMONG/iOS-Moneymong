@@ -48,6 +48,7 @@ final class UniversityCell: UITableViewCell, ResuableView {
   
   private func setupUI() {
     contentView.addSubview(rootContainer)
+    selectionStyle = .none
   }
   
   private func setupConstraints() {
@@ -55,7 +56,7 @@ final class UniversityCell: UITableViewCell, ResuableView {
       flex.addItem(titleLabel)
         .marginBottom(6)
       
-      flex.addItem().direction(.row).define { flex in
+      flex.addItem().direction(.row).alignItems(.center).define { flex in
         flex.addItem(iconImageView).size(24).marginRight(8)
         flex.addItem(universityLabel)
       }

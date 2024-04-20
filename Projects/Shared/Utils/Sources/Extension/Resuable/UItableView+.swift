@@ -13,7 +13,7 @@ public extension UITableView {
     self.dequeueReusableCell(withIdentifier: T.reuseIdentifier, for: indexPath) as! T
   }
   
-  func dequeueHeaderFooter<T: UITableViewHeaderFooterView>(_ : T.Type, for indexPath: IndexPath) -> T where T: ResuableView {
+  func dequeueHeaderFooter<T: UITableViewHeaderFooterView>(_ : T.Type) -> T where T: ResuableView {
     self.dequeueReusableHeaderFooterView(withIdentifier: T.reuseIdentifier) as! T
   }
 }

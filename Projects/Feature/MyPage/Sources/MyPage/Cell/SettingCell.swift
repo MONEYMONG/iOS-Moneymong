@@ -14,14 +14,15 @@ final class SettingCell: UITableViewCell, ResuableView {
   private let iconImageView: UIImageView = {
     let v = UIImageView()
     v.contentMode = .scaleAspectFit
-    v.tintColor = Colors.Black._1
+    v.tintColor = Colors.Gray._7
     return v
   }()
   
   private let disclosureIndicator: UIImageView = {
     let v = UIImageView()
-    v.image = Images.chevronRight
+    v.image = Images.chevronRight?.withRenderingMode(.alwaysTemplate)
     v.contentMode = .scaleAspectFit
+    v.tintColor = Colors.Gray._7
     return v
   }()
   
@@ -57,7 +58,7 @@ final class SettingCell: UITableViewCell, ResuableView {
   }
   
   private func setupConstraints() {
-    rootContainer.flex.direction(.row).padding(16).define { flex in
+    rootContainer.flex.direction(.row).alignItems(.center).padding(16).define { flex in
       flex.addItem(iconImageView).size(20).marginRight(8)
       flex.addItem(titleLabel)
       flex.addItem(UIView()).grow(1)
