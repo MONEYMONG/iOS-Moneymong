@@ -15,6 +15,7 @@ let project = Project(
             deploymentTarget: .iOS(targetVersion: "15.0", devices: .iphone),
             sources: ["Sources/**"],
             dependencies: [
+              .project(target: "BaseDomain", path: .relativeToRoot("Projects/Domain/Base"))
             ]
         )
     ]
