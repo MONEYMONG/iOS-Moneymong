@@ -11,7 +11,7 @@ final class SplashVC: BaseVC, View {
 
   private let logoImageView: UIImageView = {
     let imageView = UIImageView()
-    imageView.image = Images.mong
+    imageView.image = Images.mongSplash
     return imageView
   }()
 

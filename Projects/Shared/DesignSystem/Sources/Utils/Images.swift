@@ -17,7 +17,8 @@ public enum Images {
   public static var mongPassNot = UIImage(named: "mong.pass.not", in: Bundle.module, with: nil)
   public static var mongGray = UIImage(named: "mong.gray", in: Bundle.module, with: nil)
   public static var mongStudy = UIImage(named: "mong.study", in: Bundle.module, with: nil)
-  
+  public static var mongSplash = UIImage(named: "mong.splash", in: Bundle.module, with: nil)
+
   public static var accountRecord = UIImage(named: "accountRecord", in: Bundle.module, with: nil)
   public static var agencyGray = UIImage(named: "agency.gray", in: Bundle.module, with: nil)
   public static var agency = UIImage(named: "agency", in: Bundle.module, with: nil)
