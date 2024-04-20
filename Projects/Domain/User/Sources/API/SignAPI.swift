@@ -1,5 +1,6 @@
 import Foundation
 import Moya
+import BaseDomain
 
 public enum SignAPI {
   case sign(SignModelRequestDTO)
