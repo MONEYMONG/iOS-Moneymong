@@ -17,6 +17,10 @@ let dependencies = Dependencies(
     .remote(
       url: "https://github.com/ReactiveX/RxSwift",
       requirement: .upToNextMajor(from: "6.6.0")
+    ),
+    .remote(
+      url: "https://github.com/RxSwiftCommunity/RxDataSources",
+      requirement: .upToNextMajor(from: "5.0.2")
     )
   ])
   ,platforms: [.iOS]
