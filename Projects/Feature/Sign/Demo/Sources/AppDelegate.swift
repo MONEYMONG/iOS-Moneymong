@@ -1,6 +1,5 @@
 import UIKit
-
-import KakaoSDKCommon
+import SignFeature
 
 @main
 class AppDelegate: UIResponder, UIApplicationDelegate {
@@ -8,7 +7,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     _ application: UIApplication,
     didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?
   ) -> Bool {
-    KakaoSDK.initSDK(appKey: "e36cd3af5a109d7d1ac6fbc96c7ee318")
+    KakaoAuthManager.shared.initSDK()
     return true
   }
 

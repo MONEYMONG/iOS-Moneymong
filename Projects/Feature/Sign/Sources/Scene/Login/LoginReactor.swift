@@ -12,21 +12,27 @@ final class LoginReactor: Reactor {
   enum Mutation {
     case setIsLoading(Bool)
     case setErrorMessage(String)
-    case setIsSign(Bool?)
+    case setIsSign(Bool)
+    case setInfo(SignInfo)
   }
 
   struct State {
     @Pulse var isLoading: Bool = false
     @Pulse var errorMessage: String?
-    @Pulse var isSign: Bool? = false
+    @Pulse var isSign: Bool = false
+    @Pulse var info: SignInfo? = nil
   }
 
   let initialState: State = State()
-  private let kakaoAuthManager = KakaoSignManager()
-  private let signRepository: SignRepositoryInterface = SignRepository()
+  private let kakaoAuthManager: KakaoAuthManager
+  private let signRepository: SignRepositoryInterface
 
-  init() {
-
+  init(
+    kakaoAuthManager: KakaoAuthManager,
+    signRepository: SignRepositoryInterface
+  ) {
+    self.kakaoAuthManager = kakaoAuthManager
+    self.signRepository = signRepository
   }
 
   func mutate(action: Action) -> Observable<Mutation> {
@@ -38,7 +44,7 @@ final class LoginReactor: Reactor {
             try await self.signRepository.sign(provider: "KAKAO", accessToken: token)
           }
         }
-        .map { .setIsSign($0.loginSuccess) }
+        .map { .setInfo($0) }
 
     case .apple:
       return Observable.just(.setIsSign(false))
@@ -54,6 +60,8 @@ final class LoginReactor: Reactor {
       newState.errorMessage = errorMessage
     case .setIsSign(let isSign):
       newState.isSign = isSign
+    case .setInfo(let info):
+      newState.info = info
     }
     return newState
   }

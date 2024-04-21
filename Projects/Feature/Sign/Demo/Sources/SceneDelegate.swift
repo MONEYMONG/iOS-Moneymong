@@ -1,13 +1,15 @@
 import UIKit
 
 import SignFeature
-import KakaoSDKAuth
 
-class SceneDelegate: UIResponder, UIWindowSceneDelegate {
+final class SceneDelegate: UIResponder, UIWindowSceneDelegate {
   var window: UIWindow?
   private var appCoordinator: SignCoordinator?
 
-  func scene(_ scene: UIScene, willConnectTo session: UISceneSession, options connectionOptions: UIScene.ConnectionOptions) {
+  func scene(
+    _ scene: UIScene, willConnectTo session: UISceneSession,
+    options connectionOptions: UIScene.ConnectionOptions
+  ) {
     let navigationController = UINavigationController()
 
     guard let windowScene = (scene as? UIWindowScene) else { return }
@@ -24,10 +26,7 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
 
   func scene(_ scene: UIScene, openURLContexts URLContexts: Set<UIOpenURLContext>) {
     guard let url = URLContexts.first?.url else { return }
-
-    if AuthApi.isKakaoTalkLoginUrl(url) {
-      _ = AuthController.handleOpenUrl(url: url)
-    }
+    KakaoAuthManager.shared.openURL(url)
   }
 
   func sceneDidDisconnect(_ scene: UIScene) {}

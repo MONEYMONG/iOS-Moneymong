@@ -21,7 +21,7 @@ public final class SignRepository: SignRepositoryInterface {
       .decode(GenericResponse<SignResponseDTO>.self)
 
     guard let data = response.data else {
-      throw MoneyMongError.serverError(errorMessage: "response nil")
+      throw MoneyMongError.serverError(errorMessage: "Response Data Empty")
     }
 
     return data.toEntity

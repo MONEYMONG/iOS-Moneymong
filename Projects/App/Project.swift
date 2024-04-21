@@ -14,6 +14,10 @@ let project = Project(
       bundleId: "com.team.moneymong",
       deploymentTarget: .iOS(targetVersion: "15.0", devices: .iphone),
       infoPlist: .extendingDefault(with: [
+        "QueriedURLSchemes": [
+          "kakaokompassauth",
+          "kakaolink"
+        ],
         "CFBundleShortVersionString": "1.0",
         "CFBundleVersion": "1",
         "UILaunchStoryboardName": "LaunchScreen",
