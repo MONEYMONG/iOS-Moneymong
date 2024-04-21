@@ -8,8 +8,8 @@ public final class LedgerDIContainer {
   func ledger(with coordinator: Coordinator) -> LedgerVC {
     let vc = LedgerVC(
       [
-        childLeger(with: coordinator),
-        childMember(with: coordinator)
+        ledgerTab(),
+        memberTab()
       ]
     )
     vc.reactor = LedgerReactor()
@@ -17,26 +17,17 @@ public final class LedgerDIContainer {
     return vc
   }
   
-  private func childLeger(with coordinator: Coordinator) -> UIViewController {
-    let vc = UINavigationController()
-    let childLedgerCoordinator = ChildLedgerCoordinator(
-      navigationController: vc,
-      diContainer: ChildLedgerDIContainer()
-    )
-    coordinator.childCoordinators.append(childLedgerCoordinator)
-    childLedgerCoordinator.start(animated: false)
+  private func ledgerTab() -> UIViewController {
+    let vc = LedgerTabVC()
+    vc.title = "장부"
+    vc.reactor = LedgerTabReactor()
     return vc
   }
   
-  private func childMember(with coordinator: Coordinator) -> UIViewController {
-    let vc = UINavigationController()
-    let childMemberCoordinator = ChildMemberCoordinator(
-      navigationController: vc,
-      diContainer: ChildMemberDIContainer()
-    )
-    coordinator.childCoordinators.append(childMemberCoordinator)
-    childMemberCoordinator.parentCoordinator = coordinator
-    childMemberCoordinator.start(animated: false)
+  private func memberTab() -> UIViewController {
+    let vc = MemberTabVC()
+    vc.title = "멤버"
+    vc.reactor = MemberTabReactor()
     return vc
   }
 }

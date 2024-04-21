@@ -4,9 +4,8 @@ import BaseFeature
 import ReactorKit
 import DesignSystem
 
-final class ChildLedgerVC: BaseVC, View {
+final class LedgerTabVC: BaseVC, View {
   var disposeBag = DisposeBag()
-  weak var coordinator: Coordinator?
   
   private let floatingButton = FloatingButton()
   
@@ -29,7 +28,7 @@ final class ChildLedgerVC: BaseVC, View {
     ])
   }
   
-  func bind(reactor: ChildLedgerReactor) {
+  func bind(reactor: LedgerTabReactor) {
     
   }
 }

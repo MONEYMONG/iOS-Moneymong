@@ -1,6 +1,6 @@
 import ReactorKit
 
-final class ChildMemberReactor: Reactor {
+final class LedgerTabReactor: Reactor {
 
   enum Action {
 

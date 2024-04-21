@@ -9,18 +9,16 @@ import DesignSystem
 public final class LedgerVC: BaseVC, View {
   public var disposeBag = DisposeBag()
   weak var coordinator: Coordinator?
-  private let childVC: [UIViewController]
   
-  private lazy var lineTab = LineTabViewController(childVC)
+  private let lineTab: LineTabViewController!
   
   init(_ childVC: [UIViewController]) {
-    self.childVC = childVC
+    self.lineTab = LineTabViewController(childVC)
     super.init()
   }
   
   public override func viewDidLayoutSubviews() {
     super.viewDidLayoutSubviews()
-    rootContainer.pin.all(view.safeAreaInsets)
   }
   
   public override func setupUI() {

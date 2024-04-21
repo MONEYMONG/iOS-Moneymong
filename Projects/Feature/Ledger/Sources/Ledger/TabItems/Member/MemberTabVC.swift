@@ -3,9 +3,8 @@ import UIKit
 import BaseFeature
 import ReactorKit
 
-final class ChildMemberVC: BaseVC, View {
+final class MemberTabVC: BaseVC, View {
   var disposeBag = DisposeBag()
-  weak var coordinator: Coordinator?
   
   override func setupUI() {
     super.setupUI()
@@ -15,7 +14,7 @@ final class ChildMemberVC: BaseVC, View {
     super.setupConstraints()
   }
   
-  func bind(reactor: ChildMemberReactor) {
+  func bind(reactor: MemberTabReactor) {
     
   }
 }
