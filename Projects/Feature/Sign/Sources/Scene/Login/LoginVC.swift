@@ -82,7 +82,7 @@ final class LoginVC: BaseVC, View {
   func bind(reactor: LoginReactor) {
     reactor.state
       .map { $0.isSign }
-      .distinctUntilChanged()
+//      .distinctUntilChanged()
       .bind(with: self) { owner, isSign in
         print("asdsadsadasdasdasdsad", isSign)
       }

@@ -3,7 +3,7 @@ import Moya
 import BaseDomain
 
 public enum SignAPI {
-  case sign(SignModelRequestDTO)
+  case sign(SignRequestDTO)
 }
 
 extension SignAPI: TargetType {

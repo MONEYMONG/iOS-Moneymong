@@ -18,7 +18,7 @@ final class LoginReactor: Reactor {
   struct State {
     @Pulse var isLoading: Bool = false
     @Pulse var errorMessage: String?
-    @Pulse var isSign: Bool?
+    @Pulse var isSign: Bool? = false
   }
 
   let initialState: State = State()
@@ -32,23 +32,16 @@ final class LoginReactor: Reactor {
   func mutate(action: Action) -> Observable<Mutation> {
     switch action {
     case .kakao:
-      return kakaoAuthManager.login()
-        .flatMap { token -> Observable<SignModelResponseDTO> in
-          return .task(type: SignModelResponseDTO.self) {
+      return kakaoAuthManager.sign()
+        .flatMap { token -> Observable<SignInfo> in
+          return .task(type: SignInfo.self) {
             try await self.signRepository.sign(provider: "KAKAO", accessToken: token)
           }
         }
         .map { .setIsSign($0.loginSuccess) }
 
     case .apple:
-      return .task(type: SignModelResponseDTO.self) {
-        return SignModelResponseDTO.init(accessToken: nil, refreshToken: nil, loginSuccess: true, schoolInfoExist: nil)
-      }
-      .map { .setIsSign($0.loginSuccess) }
-//      return Observable.create { observer in
-//
-//        return Disposables.create()
-//      }
+      return Observable.just(.setIsSign(false))
     }
   }
 

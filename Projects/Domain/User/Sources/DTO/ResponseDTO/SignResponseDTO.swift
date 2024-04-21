@@ -1,6 +1,6 @@
 import Foundation
 
-public struct SignModelResponseDTO: Decodable {
+public struct SignResponseDTO: Decodable {
   public let accessToken: String?
   public let refreshToken: String?
   public let loginSuccess: Bool?
@@ -12,8 +12,13 @@ public struct SignModelResponseDTO: Decodable {
     self.loginSuccess = loginSuccess
     self.schoolInfoExist = schoolInfoExist
   }
-}
 
-public struct GenericResponse<T: Decodable>: Decodable {
-  let data: T?
+  public var toEntity: SignInfo {
+    .init(
+      accessToken: accessToken ?? "",
+      refreshToken: refreshToken ?? "",
+      loginSuccess: loginSuccess ?? false,
+      schoolInfoExist: schoolInfoExist ?? false
+    )
+  }
 }

@@ -3,7 +3,7 @@ import NetworkService
 import Moya
 
 public protocol SignRepositoryInterface {
-  func sign(provider: String, accessToken: String) async throws -> SignModelResponseDTO
+  func sign(provider: String, accessToken: String) async throws -> SignInfo
 }
 
 public final class SignRepository: SignRepositoryInterface {
@@ -13,17 +13,17 @@ public final class SignRepository: SignRepositoryInterface {
     self.provider = provider
   }
 
-  public func sign(provider: String, accessToken: String) async throws -> SignModelResponseDTO {
-    let request = SignModelRequestDTO(provider: provider, accessToken: accessToken)
+  public func sign(provider: String, accessToken: String) async throws -> SignInfo {
+    let request = SignRequestDTO(provider: provider, accessToken: accessToken)
     let response = try await self.provider
       .request(target: .sign(request))
       .map(\.data)
-      .decode(GenericResponse<SignModelResponseDTO>.self)
+      .decode(GenericResponse<SignResponseDTO>.self)
 
     guard let data = response.data else {
       throw MoneyMongError.serverError(errorMessage: "response nil")
     }
 
-    return data
+    return data.toEntity
   }
 }
