@@ -8,12 +8,12 @@ public enum SignAPI {
 
 extension SignAPI: TargetType {
   public var baseURL: URL {
-    return URL(string: "https://dev.moneymong.site/api/")!
+    return URL(string: "https://dev.moneymong.site/")!
   }
 
   public var path: String {
     switch self {
-    case .sign: return "v1/outbound/countries"
+    case .sign: return "api/v1/users"
     }
   }
 
@@ -36,12 +36,4 @@ extension SignAPI: TargetType {
       "Content-Type": "application/json;charset=UTF-8",
     ]
   }
-
-//  var sampleData: Data {
-//    switch self {
-//    case .getCourseList: NSDataAsset(name: "CourseListSampleData")!.data
-//    case .getCourse: NSDataAsset(name: "CourseSampleData")!.data
-//    case .getLectureList: NSDataAsset(name: "LectureListSampleData")!.data
-//    }
-//  }
 }

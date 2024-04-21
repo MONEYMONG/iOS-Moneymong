@@ -80,9 +80,24 @@ final class LoginVC: BaseVC, View {
   }
 
   func bind(reactor: LoginReactor) {
+    reactor.state
+      .map { $0.isSign }
+      .distinctUntilChanged()
+      .bind(with: self) { owner, isSign in
+        print("asdsadsadasdasdasdsad", isSign)
+      }
+      .disposed(by: disposeBag)
+
+    appleLogin.rx.tap
+      .bind(with: self) { owner, _ in
+        reactor.action.onNext(.apple)
+      }
+      .disposed(by: disposeBag)
+
     kakaoLogin.rx.tap
       .bind(with: self) { owner, _ in
-        owner.coordinator?.main()
+        reactor.action.onNext(.kakao)
+//        owner.coordinator?.main()
       }
       .disposed(by: disposeBag)
   }

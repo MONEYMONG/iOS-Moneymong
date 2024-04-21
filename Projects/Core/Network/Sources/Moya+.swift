@@ -1,11 +1,4 @@
-//
-//  Moya+.swift
-//  Network
-//
-//  Created by 김동욱 on 4/4/24.
-//
-
-import Foundation
+import Moya
 
 public extension MoyaProvider {
   func request(target: Target) async -> Result<Response, MoyaError> {

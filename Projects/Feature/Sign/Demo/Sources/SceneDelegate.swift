@@ -1,21 +1,42 @@
 import UIKit
 
+import SignFeature
+import KakaoSDKAuth
+
 class SceneDelegate: UIResponder, UIWindowSceneDelegate {
-    var window: UIWindow?
-    func scene(_ scene: UIScene, willConnectTo session: UISceneSession, options connectionOptions: UIScene.ConnectionOptions) {
-        guard let windowScene = (scene as? UIWindowScene) else { return }
-        window = UIWindow(windowScene: windowScene)
-        window?.rootViewController = SignFeatureViewController()
-        window?.makeKeyAndVisible()
+  var window: UIWindow?
+  private var appCoordinator: SignCoordinator?
+
+  func scene(_ scene: UIScene, willConnectTo session: UISceneSession, options connectionOptions: UIScene.ConnectionOptions) {
+    let navigationController = UINavigationController()
+
+    guard let windowScene = (scene as? UIWindowScene) else { return }
+    window = UIWindow(windowScene: windowScene)
+    self.window?.makeKeyAndVisible()
+    self.window?.rootViewController = navigationController
+
+    self.appCoordinator = SignCoordinator(
+      navigationController: navigationController,
+      diContainer: SignDIContainer()
+    )
+    appCoordinator?.start(animated: false)
+  }
+
+  func scene(_ scene: UIScene, openURLContexts URLContexts: Set<UIOpenURLContext>) {
+    guard let url = URLContexts.first?.url else { return }
+
+    if AuthApi.isKakaoTalkLoginUrl(url) {
+      _ = AuthController.handleOpenUrl(url: url)
     }
+  }
 
-    func sceneDidDisconnect(_ scene: UIScene) {}
+  func sceneDidDisconnect(_ scene: UIScene) {}
 
-    func sceneDidBecomeActive(_ scene: UIScene) {}
+  func sceneDidBecomeActive(_ scene: UIScene) {}
+  
+  func sceneWillResignActive(_ scene: UIScene) {}
 
-    func sceneWillResignActive(_ scene: UIScene) {}
+  func sceneWillEnterForeground(_ scene: UIScene) {}
 
-    func sceneWillEnterForeground(_ scene: UIScene) {}
-
-    func sceneDidEnterBackground(_ scene: UIScene) {}
+  func sceneDidEnterBackground(_ scene: UIScene) {}
 }
