@@ -18,7 +18,10 @@ let project = Project(
         .external(name: "ReactorKit"),
         .external(name: "Kingfisher"),
         .external(name: "RxCocoa"),
-        .external(name: "RxDataSources")
+        .external(name: "RxDataSources"),
+        .external(name: "Moya"),
+        .external(name: "KakaoSDKAuth"),
+        .external(name: "KakaoSDKUser")
       ]
     )
   ]
