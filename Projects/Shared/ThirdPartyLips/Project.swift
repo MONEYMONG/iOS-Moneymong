@@ -19,7 +19,7 @@ let project = Project(
         .external(name: "Kingfisher"),
         .external(name: "RxCocoa"),
         .external(name: "RxDataSources"),
-        .external(name: "Moya"),
+        .external(name: "Alamofire"),
         .external(name: "KakaoSDKAuth"),
         .external(name: "KakaoSDKUser")
       ]
