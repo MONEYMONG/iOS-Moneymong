@@ -1,21 +1,23 @@
 import ProjectDescription
 
 let project = Project(
-  name: "NetworkService",
+  name: "Core",
   options: .options(
     disableBundleAccessors: true,
     disableSynthesizedResourceAccessors: true
   ),
   targets: [
     Target(
-      name: "NetworkService",
+      name: "Core",
       platform: .iOS,
       product: .framework,
-      bundleId: "com.framework.moneymong.NetworkService",
+      bundleId: "com.framework.moneymong.Core",
       deploymentTarget: .iOS(targetVersion: "15.0", devices: .iphone),
       sources: ["Sources/**"],
       dependencies: [
-        .project(target: "ThirdPartyLips", path: .relativeToRoot("Projects/Shared/ThirdPartyLips"))
+        .project(target: "Network", path: .relativeToRoot("Projects/Core/Network")),
+        .project(target: "LocalStorage", path: .relativeToRoot("Projects/Core/LocalStorage")),
+        .project(target: "Utility", path: .relativeToRoot("Projects/Core/Utility"))
       ]
     )
   ]

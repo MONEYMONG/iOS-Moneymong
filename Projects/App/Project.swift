@@ -37,10 +37,7 @@ let project = Project(
       resources: ["Resources/**"],
       dependencies: [
         .project(target: "SignFeature", path: .relativeToRoot("Projects/Feature/Sign")),
-        .project(target: "MainFeature", path: .relativeToRoot("Projects/Feature/Main")),
-        .project(target: "AgencyFeature", path: .relativeToRoot("Projects/Feature/Agency")),
-        .project(target: "MyPageFeature", path: .relativeToRoot("Projects/Feature/MyPage")),
-        .project(target: "LedgerFeature", path: .relativeToRoot("Projects/Feature/Ledger"))
+        .project(target: "MainFeature", path: .relativeToRoot("Projects/Feature/Main"))
       ]
     )
   ]
