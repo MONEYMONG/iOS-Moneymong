@@ -15,7 +15,7 @@ let project = Project(
       deploymentTarget: .iOS(targetVersion: "15.0", devices: .iphone),
       sources: ["Sources/**"],
       dependencies: [
-        .project(target: "Network", path: .relativeToRoot("Projects/Core/Network")),
+        .project(target: "NetworkService", path: .relativeToRoot("Projects/Core/Network")),
         .project(target: "LocalStorage", path: .relativeToRoot("Projects/Core/LocalStorage")),
         .project(target: "Utility", path: .relativeToRoot("Projects/Core/Utility"))
       ]
