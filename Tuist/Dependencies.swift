@@ -7,8 +7,8 @@ let dependencies = Dependencies(
       requirement: .upToNextMajor(from: "3.2.0")
     ),
     .remote(
-      url: "https://github.com/Moya/Moya",
-      requirement: .upToNextMajor(from: "15.0.0")
+      url: "https://github.com/Alamofire/Alamofire",
+      requirement: .upToNextMajor(from: "5.9.1")
     ),
     .remote(
       url: "https://github.com/onevcat/Kingfisher",
