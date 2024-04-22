@@ -21,11 +21,11 @@ public final class SignDIContainer {
 
   func login(with coordinator: SignCoordinator) -> LoginVC {
     let vc = LoginVC()
-//    vc.reactor = LoginReactor(
-//      kakaoAuthManager: kakaoAuthManager,
-//      signRepository: signRepository
-//    )
-//    vc.coordinator = coordinator
+    vc.reactor = LoginReactor(
+      kakaoAuthManager: kakaoAuthManager,
+      signRepository: signRepository
+    )
+    vc.coordinator = coordinator
     return vc
   }
 }
