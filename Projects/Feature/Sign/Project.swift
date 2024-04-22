@@ -1,10 +1,28 @@
 import ProjectDescription
 
 let project = Project(
-    name: "SignFeature",
-    options: .options(
-      disableBundleAccessors: true,
-      disableSynthesizedResourceAccessors: true
+  name: "SignFeature",
+  options: .options(
+    disableBundleAccessors: true,
+    disableSynthesizedResourceAccessors: true
+  ),
+  targets: [
+    Target(
+      name: "SignFeature",
+      platform: .iOS,
+      product: .framework,
+      bundleId: "com.framework.moneymong.SignFeature",
+      deploymentTarget: .iOS(targetVersion: "15.0", devices: .iphone),
+      infoPlist: .extendingDefault(with: [
+        "QueriedURLSchemes": [
+          "kakaokompassauth",
+          "kakaolink"
+        ]
+      ]),
+      sources: ["Sources/**"],
+      dependencies: [
+        .project(target: "BaseFeature", path: .relativeToRoot("Projects/Feature/Base"))
+      ]
     ),
     targets: [
         Target(
