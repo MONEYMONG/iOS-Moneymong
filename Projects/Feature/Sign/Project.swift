@@ -21,8 +21,7 @@ let project = Project(
       ]),
       sources: ["Sources/**"],
       dependencies: [
-        .project(target: "BaseFeature", path: .relativeToRoot("Projects/Feature/Base")),
-        .project(target: "UserDomain", path: .relativeToRoot("Projects/Domain/User"))
+        .project(target: "BaseFeature", path: .relativeToRoot("Projects/Feature/Base"))
       ]
     ),
     Target(

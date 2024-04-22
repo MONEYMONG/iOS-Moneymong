@@ -1,6 +1,5 @@
 import ReactorKit
-
-import UserDomain
+import NetworkService
 
 final class LoginReactor: Reactor {
 
