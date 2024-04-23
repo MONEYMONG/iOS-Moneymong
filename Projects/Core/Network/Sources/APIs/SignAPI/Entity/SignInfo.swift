@@ -1,4 +1,4 @@
-public struct SignInfo {
+public struct SignInfo: Equatable {
   public let accessToken: String
   public let refreshToken: String
   public let loginSuccess: Bool

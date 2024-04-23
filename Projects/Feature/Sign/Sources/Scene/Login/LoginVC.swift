@@ -43,6 +43,12 @@ final class LoginVC: BaseVC, View {
     return button
   }()
 
+  public override func viewDidLayoutSubviews() {
+    super.viewDidLayoutSubviews()
+    rootContainer.pin.all()
+    rootContainer.flex.layout()
+  }
+
   override func setupConstraints() {
     super.setupConstraints()
     rootContainer.flex
@@ -81,11 +87,27 @@ final class LoginVC: BaseVC, View {
 
   func bind(reactor: LoginReactor) {
     reactor.state
-      .map { $0.info }
-//      .distinctUntilChanged()
+      .compactMap { $0.isSign }
+      .distinctUntilChanged()
       .bind(with: self) { owner, isSign in
         print("asdsadsadasdasdasdsad", isSign)
       }
+      .disposed(by: disposeBag)
+
+    reactor.state
+      .compactMap { $0.errorMessage }
+      .distinctUntilChanged()
+      .observe(on: MainScheduler.instance)
+      .bind(with: self) { owner, errorMessage in
+        AlertsManager.show(owner, title: errorMessage, subTitle: nil, okAction: {}, cancelAction: nil)
+      }
+      .disposed(by: disposeBag)
+
+    reactor.state
+      .map { $0.isLoading }
+      .distinctUntilChanged()
+      .observe(on: MainScheduler.instance)
+      .bind(to: rx.isLoading())
       .disposed(by: disposeBag)
 
     appleLogin.rx.tap
@@ -97,7 +119,6 @@ final class LoginVC: BaseVC, View {
     kakaoLogin.rx.tap
       .bind(with: self) { owner, _ in
         reactor.action.onNext(.kakao)
-//        owner.coordinator?.main()
       }
       .disposed(by: disposeBag)
   }

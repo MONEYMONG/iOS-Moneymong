@@ -15,6 +15,12 @@ final class SplashVC: BaseVC, View {
     return imageView
   }()
 
+  public override func viewDidLayoutSubviews() {
+    super.viewDidLayoutSubviews()
+    rootContainer.pin.all()
+    rootContainer.flex.layout()
+  }
+
   override func setupConstraints() {
     super.setupConstraints()
     rootContainer.flex

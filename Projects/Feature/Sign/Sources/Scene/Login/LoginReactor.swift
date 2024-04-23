@@ -1,5 +1,6 @@
 import ReactorKit
 import NetworkService
+import LocalStorage
 
 final class LoginReactor: Reactor {
 
@@ -17,7 +18,7 @@ final class LoginReactor: Reactor {
 
   struct State {
     @Pulse var isLoading: Bool = false
-    @Pulse var errorMessage: String?
+    @Pulse var errorMessage: String? = nil
     @Pulse var isSign: Bool = false
     @Pulse var info: SignInfo? = nil
   }
@@ -38,12 +39,20 @@ final class LoginReactor: Reactor {
     switch action {
     case .kakao:
       return kakaoAuthManager.sign()
-        .flatMap { token -> Observable<SignInfo> in
-          return .task(type: SignInfo.self) {
-            try await self.signRepository.sign(provider: "KAKAO", accessToken: token)
-          }
+        .flatMap { token -> Observable<Mutation> in
+          Observable.concat([
+            .just(.setIsLoading(true)),
+            .task(type: SignInfo.self) {
+              try await self.signRepository.sign(provider: "KAKAO", accessToken: token)
+            }
+              .compactMap { .setInfo($0) }
+              .catch { error in
+                  .just(.setErrorMessage(error.localizedDescription))
+              }
+            ,
+            .just(.setIsLoading(false)),
+          ])
         }
-        .map { .setInfo($0) }
 
     case .apple:
       return Observable.just(.setIsSign(false))
@@ -63,22 +72,5 @@ final class LoginReactor: Reactor {
       newState.info = info
     }
     return newState
-  }
-}
-
-extension Observable {
-  static func task<T>(type: T.Type, _ c: @escaping () async throws -> T) -> Observable<T> {
-    return Single<T>.create { single in
-      Task {
-        do {
-          let v = try await c()
-          single(.success(v))
-        } catch {
-          single(.failure(error))
-        }
-      }
-      return Disposables.create()
-    }
-    .asObservable()
   }
 }

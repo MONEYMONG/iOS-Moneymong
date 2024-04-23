@@ -8,7 +8,7 @@ import RxSwift
 public final class KakaoAuthManager {
   public static var shared = KakaoAuthManager()
 
-  private let nativeKey = "e36cd3af5a109d7d1ac6fbc96c7ee318"
+  private let nativeKey = "5412cf7a0e53089ab63f4e04b10622c5"
 
   public init() {}
 
@@ -64,20 +64,4 @@ extension KakaoAuthManager {
       return Disposables.create()
     }
   }
-
-//  private func requestUserId() -> Observable<Int> {
-//    return Observable.create { observer in
-//      UserApi.shared.me { user, error in
-//        if let error {
-//          observer.onError(error)
-//        }
-//        if let userID = user?.id {
-//          observer.onNext(Int(userID))
-//        } else {
-////          observer.onError(Erro)
-//        }
-//      }
-//      return Disposables.create()
-//    }
-//  }
 }
