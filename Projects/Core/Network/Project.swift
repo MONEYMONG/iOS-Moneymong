@@ -1,14 +1,14 @@
 import ProjectDescription
 
 let project = Project(
-  name: "Network",
+  name: "NetworkService",
   options: .options(
     disableBundleAccessors: true,
     disableSynthesizedResourceAccessors: true
   ),
   targets: [
     Target(
-      name: "Network",
+      name: "NetworkService",
       platform: .iOS,
       product: .framework,
       bundleId: "com.framework.moneymong.Network",
