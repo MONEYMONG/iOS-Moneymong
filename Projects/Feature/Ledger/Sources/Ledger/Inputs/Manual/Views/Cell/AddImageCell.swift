@@ -1,12 +1,13 @@
 import UIKit
 
 import DesignSystem
+import Utility
 
-final class AddImageButton: UIButton {
-  private let plusIcon = UIImageView(image: Images.plusCircleFill)
+final class AddImageCell: UICollectionViewCell, ReusableView {
+  private let rootContainer = UIView()
   
-  init() {
-    super.init(frame: .zero)
+  override init(frame: CGRect) {
+    super.init(frame: frame)
     setupView()
     setupConstraints()
   }
@@ -18,7 +19,8 @@ final class AddImageButton: UIButton {
   
   override func layoutSubviews() {
     super.layoutSubviews()
-    flex.layout()
+    rootContainer.pin.all()
+    rootContainer.flex.layout()
   }
 
   private func setupView() {
@@ -29,16 +31,12 @@ final class AddImageButton: UIButton {
   }
   
   private func setupConstraints() {
-    let width = UIScreen.main.bounds.width * 0.28
-    let height = width * 1.33
-    
-    self.flex
-      .width(width)
-      .height(height)
+    addSubview(rootContainer)
+    rootContainer.flex
       .justifyContent(.center)
       .alignItems(.center)
       .define { flex in
-      flex.addItem(plusIcon)
+      flex.addItem(UIImageView(image: Images.plusCircleFill))
     }
   }
 }
