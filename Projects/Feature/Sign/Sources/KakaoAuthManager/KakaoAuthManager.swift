@@ -1,4 +1,5 @@
 import Foundation
+import NetworkService
 
 import KakaoSDKCommon
 import KakaoSDKAuth
@@ -44,6 +45,8 @@ extension KakaoAuthManager {
         }
         if let idToken = oauthToken?.idToken {
           observer.onNext(idToken)
+        } else {
+          observer.onError(KakaoSDKCommon.SdkError.AuthFailed(reason: .Unknown, errorInfo: nil))
         }
       }
       return Disposables.create()
@@ -57,8 +60,10 @@ extension KakaoAuthManager {
           observer.onError(error)
           return
         }
-        if let idToken = oauthToken?.idToken {
+        if let idToken = oauthToken?.accessToken {
           observer.onNext(idToken)
+        } else {
+          observer.onError(MoneyMongError.unknown("유저 id 없음"))
         }
       }
       return Disposables.create()

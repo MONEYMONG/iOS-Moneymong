@@ -7,20 +7,21 @@ final class LoginReactor: Reactor {
   enum Action {
     case kakao
     case apple
+    case requestLogin(provider: String, accessToken: String)
+    //    case moveToMainScene
+    //    case moveToSignUpScene
   }
 
   enum Mutation {
     case setIsLoading(Bool)
     case setErrorMessage(String)
-    case setIsSign(Bool)
-    case setInfo(SignInfo)
+    case setSchoolInfoExist(Bool)
   }
 
   struct State {
     @Pulse var isLoading: Bool = false
-    @Pulse var errorMessage: String? = nil
-    @Pulse var isSign: Bool = false
-    @Pulse var info: SignInfo? = nil
+    @Pulse var errorMessage: String?
+    @Pulse var schoolInfoExist: Bool?
   }
 
   let initialState: State = State()
@@ -39,23 +40,35 @@ final class LoginReactor: Reactor {
     switch action {
     case .kakao:
       return kakaoAuthManager.sign()
-        .flatMap { token -> Observable<Mutation> in
-          Observable.concat([
-            .just(.setIsLoading(true)),
-            .task(type: SignInfo.self) {
-              try await self.signRepository.sign(provider: "KAKAO", accessToken: token)
-            }
-              .compactMap { .setInfo($0) }
-              .catch { error in
-                  .just(.setErrorMessage(error.localizedDescription))
-              }
-            ,
-            .just(.setIsLoading(false)),
-          ])
+        .flatMap { [unowned self] accessToken in
+          self.mutate(action: .requestLogin(provider: "KAKAO", accessToken: accessToken))
         }
 
     case .apple:
-      return Observable.just(.setIsSign(false))
+      return Observable.create { observer in
+        Disposables.create()
+      }
+
+    case let .requestLogin(provider, accessToken):
+      return Observable.create { [unowned self] observer in
+        observer.onNext(.setIsLoading(true))
+        Task {
+          do {
+            let signInfo = try await self.signRepository.sign(
+              provider: provider,
+              accessToken: accessToken
+            )
+            KeychainHelper.shared.create(key: .accessToken, value: signInfo.accessToken)
+            KeychainHelper.shared.create(key: .refreshToken, value: signInfo.refreshToken)
+            observer.onNext(.setSchoolInfoExist(signInfo.schoolInfoExist))
+          } catch {
+            observer.onNext(.setErrorMessage(error.localizedDescription))
+          }
+        }
+
+        observer.onNext(.setIsLoading(false))
+        return Disposables.create()
+      }
     }
   }
 
@@ -66,10 +79,8 @@ final class LoginReactor: Reactor {
       newState.isLoading = isLoading
     case .setErrorMessage(let errorMessage):
       newState.errorMessage = errorMessage
-    case .setIsSign(let isSign):
-      newState.isSign = isSign
-    case .setInfo(let info):
-      newState.info = info
+    case .setSchoolInfoExist(let schoolInfoExist):
+      newState.schoolInfoExist = schoolInfoExist
     }
     return newState
   }

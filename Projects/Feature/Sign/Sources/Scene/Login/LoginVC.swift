@@ -87,10 +87,11 @@ final class LoginVC: BaseVC, View {
 
   func bind(reactor: LoginReactor) {
     reactor.state
-      .compactMap { $0.isSign }
+      .compactMap { $0.schoolInfoExist }
       .distinctUntilChanged()
-      .bind(with: self) { owner, isSign in
-        print("asdsadsadasdasdasdsad", isSign)
+      .observe(on: MainScheduler.instance)
+      .bind(with: self) { owner, schoolInfoExist in
+        owner.coordinator?.main()
       }
       .disposed(by: disposeBag)
 

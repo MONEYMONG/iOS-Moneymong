@@ -6,49 +6,83 @@ public final class KeychainHelper {
 
   private init() { }
 
-  // Create
-  public func create(key: KeychainServiceKey, value: String) {
-    let query: NSDictionary = [
+  @discardableResult
+  public func create(key: KeychainServiceKey, value: String) -> Bool {
+    let addQuery: [CFString: Any] = [
       kSecClass: kSecClassGenericPassword,
       kSecAttrAccount: key,
-      kSecValueData: value.data(using: .utf8, allowLossyConversion: false) as Any
+      kSecValueData: (value as AnyObject).data(using: String.Encoding.utf8.rawValue) as Any
     ]
-    SecItemDelete(query)
 
-    let status = SecItemAdd(query, nil)
-    assert(status == noErr, "failed to save Value")
+    let result: Bool = {
+      let status = SecItemAdd(addQuery as CFDictionary, nil)
+      if status == errSecSuccess {
+        return true
+      } else if status == errSecDuplicateItem {
+        return update(key: key, value: value)
+      }
+
+      debugPrint("addItem Error : \(key))")
+      return false
+    }()
+
+    return result
   }
 
-  // Read
+  @discardableResult
   public func read(key: KeychainServiceKey) -> String? {
-    let query: NSDictionary = [
+    let getQuery: [CFString: Any] = [
       kSecClass: kSecClassGenericPassword,
-      kSecAttrAccount: key,
-      kSecReturnData: kCFBooleanTrue as Any,
-      kSecMatchLimit: kSecMatchLimitOne
+      kSecAttrAccount: key.rawValue,
+      kSecReturnAttributes: true,
+      kSecReturnData: true
     ]
+    var item: CFTypeRef?
+    let result = SecItemCopyMatching(getQuery as CFDictionary, &item)
 
-    var dataTypeRef: AnyObject?
-    let status = SecItemCopyMatching(query, &dataTypeRef)
-
-    if status == errSecSuccess {
-      if let retrievedData: Data = dataTypeRef as? Data {
-        let value = String(data: retrievedData, encoding: String.Encoding.utf8)
-        return value
-      } else { return nil }
-    } else {
-      print("failed to loading, status code = \(status)")
-      return nil
+    if result == errSecSuccess {
+      if let existingItem = item as? [String: Any],
+         let data = existingItem[kSecValueData as String] as? Data,
+         let password = String(data: data, encoding: .utf8) {
+        return password
+      }
     }
+
+    debugPrint("getItem Error : \(key)")
+    return nil
   }
 
-  // Delete
-  public func delete(key: KeychainServiceKey) {
-    let query: NSDictionary = [
+  @discardableResult
+  public func update(key: KeychainServiceKey, value: String) -> Bool {
+    let prevQuery: [CFString: Any] = [
       kSecClass: kSecClassGenericPassword,
-      kSecAttrAccount: key
+      kSecAttrAccount: key.rawValue
     ]
-    let status = SecItemDelete(query)
-    assert(status == noErr, "failed to delete the value, status code = \(status)")
+    let updateQuery: [CFString: Any] = [
+      kSecValueData: (value as AnyObject).data(using: String.Encoding.utf8.rawValue) as Any
+    ]
+
+    let result: Bool = {
+      let status = SecItemUpdate(prevQuery as CFDictionary, updateQuery as CFDictionary)
+      if status == errSecSuccess { return true }
+
+      debugPrint("updateItem Error : \(key.rawValue)")
+      return false
+    }()
+
+    return result
+  }
+
+  @discardableResult
+  public func delete(key: KeychainServiceKey) -> Bool {
+    let query: [CFString: Any] = [
+      kSecClass: kSecClassGenericPassword,
+      kSecAttrAccount: key.rawValue
+    ]
+    let status = SecItemDelete(query as CFDictionary)
+    if status == errSecSuccess { return true }
+
+    debugPrint("delete Error : \(key.rawValue)")
+    return false
   }
 }

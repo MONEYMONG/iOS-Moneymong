@@ -1,5 +1,7 @@
 import UIKit
 
+import SignFeature
+
 class SceneDelegate: UIResponder, UIWindowSceneDelegate {
   private var appCoordinator: AppCoordinator?
   var window: UIWindow?
@@ -15,7 +17,12 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
     self.appCoordinator = AppCoordinator(navigationController: navigationController)
     appCoordinator?.start(animated: false)
   }
-  
+
+  func scene(_ scene: UIScene, openURLContexts URLContexts: Set<UIOpenURLContext>) {
+    guard let url = URLContexts.first?.url else { return }
+    KakaoAuthManager.shared.openURL(url)
+  }
+
   func sceneDidDisconnect(_ scene: UIScene) {}
   
   func sceneDidBecomeActive(_ scene: UIScene) {}

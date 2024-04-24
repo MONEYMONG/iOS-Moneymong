@@ -15,7 +15,7 @@ public final class SignRepository: SignRepositoryInterface {
   public func sign(provider: String, accessToken: String) async throws -> SignInfo {
     let request = SignRequestDTO(provider: provider, accessToken: accessToken)
     let targetType = SignAPI.sign(request)
-    let dto = try await networkManager.request(target: targetType, of: GenericResponse<SignResponseDTO>.self)
+    let dto = try await networkManager.request(target: targetType, of: SignResponseDTO.self)
 
     return dto.toEntity
   }

@@ -1,4 +1,4 @@
 public enum KeychainServiceKey: String {
-  case token
+  case accessToken
   case refreshToken
 }
