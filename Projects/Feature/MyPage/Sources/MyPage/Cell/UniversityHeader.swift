@@ -1,8 +1,8 @@
 import UIKit
 
-import Utils
+import Utility
 import DesignSystem
 
-final class UniversityHeader: UITableViewHeaderFooterView, ResuableView {
+final class UniversityHeader: UITableViewHeaderFooterView, ReusableView {
   
 }

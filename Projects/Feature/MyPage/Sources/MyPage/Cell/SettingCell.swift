@@ -1,9 +1,9 @@
 import UIKit
 
-import Utils
+import Utility
 import DesignSystem
 
-final class SettingCell: UITableViewCell, ResuableView {
+final class SettingCell: UITableViewCell, ReusableView {
   private let titleLabel: UILabel = {
     let v = UILabel()
     v.textColor = Colors.Gray._6
@@ -28,6 +28,7 @@ final class SettingCell: UITableViewCell, ResuableView {
   
   private let versionLabel: UILabel = {
     let v = UILabel()
+    v.setTextWithLineHeight(text: "1.0.0", lineHeight: 24)
     v.textColor = Colors.Blue._4
     v.font = Fonts.body._4
     return v
@@ -75,35 +76,31 @@ final class SettingCell: UITableViewCell, ResuableView {
   }
   
   @discardableResult
-  func configure(with item: MyPageSectionItem) -> Self {
-    switch item {
-    case .university: break
-    case .service:
-      iconImageView.image = Images.paper?.withRenderingMode(.alwaysTemplate)
-      titleLabel.setTextWithLineHeight(text: "서비스 이용약관", lineHeight: 24)
+  func configure(with item: MyPageSectionItemModel.Item) -> Self {
+    guard case let .setting(model) = item else { return self }
+    
+    iconImageView.image = model.icon?.withRenderingMode(.alwaysTemplate)
+    titleLabel.setTextWithLineHeight(text: model.title, lineHeight: 24)
+    
+    switch model.accessoryType {
+    case .disclosureIndicator:
+      disclosureIndicator.flex.view?.isHidden = false
+      versionLabel.flex.view?.isHidden = true
+      
       disclosureIndicator.flex.isIncludedInLayout(true).markDirty()
-      versionLabel.flex.isIncludedInLayout(false).markDirty()
-    case .privacy:
-      iconImageView.image = Images.document?.withRenderingMode(.alwaysTemplate)
-      titleLabel.setTextWithLineHeight(text: "개인정보 처리 방침", lineHeight: 24)
-      disclosureIndicator.flex.isIncludedInLayout(true).markDirty()
-      versionLabel.flex.isIncludedInLayout(false).markDirty()
-    case .withdrawl:
-      iconImageView.image = Images.trash?.withRenderingMode(.alwaysTemplate)
-      titleLabel.setTextWithLineHeight(text: "회원탈퇴", lineHeight: 24)
-      disclosureIndicator.flex.isIncludedInLayout(true).markDirty()
-      versionLabel.flex.isIncludedInLayout(false).markDirty()
-    case .logout:
-      iconImageView.image = Images.logout?.withRenderingMode(.alwaysTemplate)
-      titleLabel.setTextWithLineHeight(text: "로그아웃", lineHeight: 24)
-      disclosureIndicator.flex.isIncludedInLayout(false).markDirty()
       versionLabel.flex.isIncludedInLayout(false).markDirty()
     case .version:
-      iconImageView.image = Images.warning?.withRenderingMode(.alwaysTemplate)
-      titleLabel.setTextWithLineHeight(text: "버전정보", lineHeight: 24)
-      versionLabel.setTextWithLineHeight(text: "1.0.0", lineHeight: 24)
+      disclosureIndicator.flex.view?.isHidden = true
+      versionLabel.flex.view?.isHidden = false
+      
       disclosureIndicator.flex.isIncludedInLayout(false).markDirty()
       versionLabel.flex.isIncludedInLayout(true).markDirty()
+    case .no:
+      disclosureIndicator.flex.view?.isHidden = true
+      versionLabel.flex.view?.isHidden = true
+      
+      disclosureIndicator.flex.isIncludedInLayout(false).markDirty()
+      versionLabel.flex.isIncludedInLayout(false).markDirty()
     }
     
     contentView.setNeedsLayout()

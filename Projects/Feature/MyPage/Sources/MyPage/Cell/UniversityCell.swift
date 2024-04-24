@@ -1,9 +1,9 @@
 import UIKit
 
-import Utils
+import Utility
 import DesignSystem
 
-final class UniversityCell: UITableViewCell, ResuableView {
+final class UniversityCell: UITableViewCell, ReusableView {
   private let titleLabel: UILabel = {
     let v = UILabel()
     v.textColor = Colors.Black._1
@@ -71,10 +71,17 @@ final class UniversityCell: UITableViewCell, ResuableView {
   }
   
   @discardableResult
-  func configure(with item: MyPageSectionItem) -> Self {
-    universityLabel.setTextWithLineHeight(text: "머니몽대학교 4학년", lineHeight: 24)
-    universityLabel.flex.markDirty()
-    contentView.setNeedsLayout()
+  func configure(with item: MyPageSectionItemModel.Item) -> Self {
+    switch item {
+    case let .university(userInfo):
+      universityLabel.setTextWithLineHeight(
+        text: "\(userInfo.universityName) \(userInfo.grade)학년",
+        lineHeight: 24
+      )
+      universityLabel.flex.markDirty()
+      contentView.setNeedsLayout()
+    case .setting: break
+    }
     
     return self
   }

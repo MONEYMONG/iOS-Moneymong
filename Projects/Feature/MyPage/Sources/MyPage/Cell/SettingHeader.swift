@@ -1,9 +1,9 @@
 import UIKit
 
-import Utils
+import Utility
 import DesignSystem
 
-final class SettingHeader: UITableViewHeaderFooterView, ResuableView {
+final class SettingHeader: UITableViewHeaderFooterView, ReusableView {
   
   private let titleLabel: UILabel = {
     let v = UILabel()

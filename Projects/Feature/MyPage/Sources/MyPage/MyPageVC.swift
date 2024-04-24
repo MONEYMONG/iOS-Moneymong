@@ -1,43 +1,14 @@
 import UIKit
 
 import BaseFeature
+import NetworkService
+import Utility
 import DesignSystem
-import Utils
 
 import ReactorKit
 import RxDataSources
 import PinLayout
 import FlexLayout
-
-enum MyPageSection: Hashable {
-  case account
-  case setting
-}
-
-enum MyPageSectionItem: Hashable {
-  case university
-  case service
-  case privacy
-  case withdrawl
-  case logout
-  case version
-}
-
-enum SectionModel {
-  
-}
-
-enum ItemModel {
-  case university
-  case service
-  case privacy
-  case withdrawl
-  case logout
-  case version
-}
-
-private typealias DataSource = UITableViewDiffableDataSource<MyPageSection, MyPageSectionItem>
-private typealias SnapShot = NSDiffableDataSourceSnapshot<MyPageSection, MyPageSectionItem>
 
 public final class MyPageVC: BaseVC, View {
   public var disposeBag = DisposeBag()
@@ -52,19 +23,18 @@ public final class MyPageVC: BaseVC, View {
     return v
   }()
   
-//  private lazy var dataSource = DataSource(tableView: tableView) { tableView, indexPath, item in
-//    switch indexPath.section {
-//    case 0:
-//      return tableView
-//        .dequeueCell(UniversityCell.self, for: indexPath)
-//        .configure(with: item)
-//    case 1:
-//      return tableView
-//        .dequeueCell(SettingCell.self, for: indexPath)
-//        .configure(with: item)
-//    default: fatalError()
-//    }
-//  }
+  private lazy var dataSource = RxTableViewSectionedReloadDataSource<MyPageSectionItemModel.Model> { dataSource, tableView, indexPath, item in
+    
+    switch item {
+    case let .university(model):
+      return tableView.dequeue(UniversityCell.self, for: indexPath)
+        .configure(with: .university(model))
+      
+    case let .setting(model):
+      return tableView.dequeue(SettingCell.self, for: indexPath)
+        .configure(with: .setting(model))
+    }
+  }
   
   
   public override func setupUI() {
@@ -82,40 +52,53 @@ public final class MyPageVC: BaseVC, View {
   }
   
   public func bind(reactor: MyPageReactor) {
-    // Life Cycle
+    // Action Binding
     rx.viewDidLoad
-      .bind(with: self) { owner, _ in
-        
+      .map { Reactor.Action.onappear }
+      .bind(to: reactor.action)
+      .disposed(by: disposeBag)
+    
+    tableView.rx.setDelegate(self)
+      .disposed(by: disposeBag)
+    
+    // Data Binding
+    reactor.state.map(\.showToast)
+      .filter { $0 }
+      .asDriver(onErrorJustReturn: false)
+      .drive(with: self) { owner, event in
+        SnackBarManager.show(title: "다시 시도해 주세요")
       }
       .disposed(by: disposeBag)
     
-    
-    
-    tableView.rx
-      .setDelegate(self)
-      .disposed(by: disposeBag)
-    
-    tableView.rx
-      .modelSelected(Any.self)
-      .bind(with: self) { owner, item in
-        print(item)
-      }
-      .disposed(by: disposeBag)
-    
-    // State
-    reactor.state.map { (sections: $0.sections, items: $0.items) }
-      .asDriver(onErrorRecover: { _ in .empty() })
+    Observable.zip(
+      tableView.rx.modelSelected(MyPageSectionItemModel.Item.self),
+      tableView.rx.itemSelected
+    )
+    .observe(on: MainScheduler.instance)
+    .bind(with: self) { owner, event in
+      let (item, indexPath) = (event.0, event.1)
+      owner.tableView.deselectRow(at: indexPath, animated: true)
       
-//      .drive(with: self) { (owner, data) in
-//        var snapshot = SnapShot()
-//        snapshot.appendSections(data.sections)
-//        snapshot.appendItems(data.items[0], toSection: data.sections[0])
-//        snapshot.appendItems(data.items[1], toSection: data.sections[1])
-//        owner.dataSource.apply(snapshot, animatingDifferences: false)
-//      }
-//      .disposed(by: disposeBag)
+      // TODO: Coordinator!
+      switch item {
+      case .setting(.service): break
+      case .setting(.privacy): break
+      case .setting(.withdrawal): break
+      case .setting(.logout): break
+      default: break
+      }
+    }
+    .disposed(by: disposeBag)
     
-    // Action
+    reactor.state.map(\.item)
+      .bind(to: tableView.rx.items(dataSource: dataSource))
+      .disposed(by: disposeBag)
+    
+    reactor.state.map(\.isLoading)
+      .bind { value in
+        // TODO: 인디케이터 보여주기 (전역적으로 구현하자)
+      }
+      .disposed(by: disposeBag)
   }
 }
 
@@ -123,12 +106,11 @@ extension MyPageVC: UITableViewDelegate {
   public func tableView(_ tableView: UITableView, viewForHeaderInSection section: Int) -> UIView? {
     switch section {
     case 0:
-      let header = tableView.dequeueHeaderFooter(UniversityHeader.self)
-      return header
+      return tableView.dequeueHeaderFooter(UniversityHeader.self)
+        
     case 1:
-      let header = tableView.dequeueHeaderFooter(SettingHeader.self)
-      return header
-    default: fatalError()
+      return tableView.dequeueHeaderFooter(SettingHeader.self)
+    default: return nil
     }
   }
 }
