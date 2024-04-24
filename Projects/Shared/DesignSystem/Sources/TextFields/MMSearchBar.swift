@@ -12,7 +12,7 @@ public class MMSearchBar: UIView {
     var color: UIColor {
       switch self {
       case .active: return Colors.Blue._4
-      case .unActive: return Colors.Gray._5
+      case .unActive: return Colors.Gray._6
       }
     }
   }
@@ -74,6 +74,7 @@ public class MMSearchBar: UIView {
     super.init(frame: .zero)
     setupView(with: title, placeholeder: placeholeder)
     setupConstraints()
+    updateState()
   }
 
   @available(*, unavailable)
@@ -111,8 +112,8 @@ public class MMSearchBar: UIView {
   }
 
   private func updateState() {
-    titleLabel.textColor = state == .unActive ? Colors.Gray._6 : state.color
-    colorLineView.backgroundColor = state.color
+    titleLabel.textColor = state.color
+    colorLineView.backgroundColor = state == .unActive ? Colors.Gray._2 : state.color
     textField.tintColor = state.color
   }
 
