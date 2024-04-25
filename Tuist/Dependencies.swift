@@ -24,7 +24,7 @@ let dependencies = Dependencies(
     ),
     .remote(
       url: "https://github.com/kakao/kakao-ios-sdk",
-      requirement: .branch("master"))
+      requirement: .branch("master")
     )
   ])
   ,platforms: [.iOS]
