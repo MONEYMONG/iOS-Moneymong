@@ -7,7 +7,7 @@ public final class KeychainHelper {
   private init() { }
 
   @discardableResult
-  public func create(key: KeychainServiceKey, value: String) -> Bool {
+  public func create<T: Codable>(to key: KeychainServiceKey, value: T) -> Bool {
     let addQuery: [CFString: Any] = [
       kSecClass: kSecClassGenericPassword,
       kSecAttrAccount: key,
@@ -30,7 +30,7 @@ public final class KeychainHelper {
   }
 
   @discardableResult
-  public func read(key: KeychainServiceKey) -> String? {
+  public func read<T: Codable>(key: KeychainServiceKey, type: T.Type) -> T? {
     let getQuery: [CFString: Any] = [
       kSecClass: kSecClassGenericPassword,
       kSecAttrAccount: key.rawValue,
@@ -42,18 +42,21 @@ public final class KeychainHelper {
 
     if result == errSecSuccess {
       if let existingItem = item as? [String: Any],
-         let data = existingItem[kSecValueData as String] as? Data,
-         let password = String(data: data, encoding: .utf8) {
-        return password
+         let data = existingItem[kSecValueData as String] as? Data {
+        do {
+          let decodedValue = try JSONDecoder().decode(type, from: data)
+          return decodedValue
+        } catch {
+          debugPrint("Decoding Error: \(error)")
+        }
       }
     }
-
-    debugPrint("getItem Error : \(key)")
+    debugPrint("getItem Error: \(key)")
     return nil
   }
 
   @discardableResult
-  public func update(key: KeychainServiceKey, value: String) -> Bool {
+  public func update<T: Codable>(key: KeychainServiceKey, value: T) -> Bool {
     let prevQuery: [CFString: Any] = [
       kSecClass: kSecClassGenericPassword,
       kSecAttrAccount: key.rawValue

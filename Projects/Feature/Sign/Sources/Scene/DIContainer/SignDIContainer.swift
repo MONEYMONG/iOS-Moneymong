@@ -1,14 +1,21 @@
 import NetworkService
+import LocalStorage
 
 public final class SignDIContainer {
-  private let signRepository: SignRepositoryInterface
+  private let appleAuthManager: AppleAuthManager
   private let kakaoAuthManager: KakaoAuthManager
+  private let localStorage: LocalStorageInterface
+  private let signRepository: SignRepositoryInterface
 
   public init(
+    appleAuthManager: AppleAuthManager = AppleAuthManager(),
     kakaoAuthManager: KakaoAuthManager = KakaoAuthManager.shared,
+    localStorage: LocalStorageInterface = LocalStorageManager(),
     signRepository: SignRepositoryInterface = SignRepository()
   ) {
+    self.appleAuthManager = appleAuthManager
     self.kakaoAuthManager = kakaoAuthManager
+    self.localStorage = localStorage
     self.signRepository = signRepository
   }
 
@@ -22,7 +29,9 @@ public final class SignDIContainer {
   func login(with coordinator: SignCoordinator) -> LoginVC {
     let vc = LoginVC()
     vc.reactor = LoginReactor(
+      appleAuthManager: appleAuthManager,
       kakaoAuthManager: kakaoAuthManager,
+      localStorage: localStorage,
       signRepository: signRepository
     )
     vc.coordinator = coordinator

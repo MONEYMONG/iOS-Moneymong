@@ -43,10 +43,8 @@ extension KakaoAuthManager {
           observer.onError(error)
           return
         }
-        if let idToken = oauthToken?.idToken {
+        if let idToken = oauthToken?.accessToken {
           observer.onNext(idToken)
-        } else {
-          observer.onError(KakaoSDKCommon.SdkError.AuthFailed(reason: .Unknown, errorInfo: nil))
         }
       }
       return Disposables.create()

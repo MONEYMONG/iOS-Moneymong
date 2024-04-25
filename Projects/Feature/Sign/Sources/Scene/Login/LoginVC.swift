@@ -86,12 +86,16 @@ final class LoginVC: BaseVC, View {
   }
 
   func bind(reactor: LoginReactor) {
+    // State Binding
+
     reactor.state
       .compactMap { $0.schoolInfoExist }
       .distinctUntilChanged()
       .observe(on: MainScheduler.instance)
       .bind(with: self) { owner, schoolInfoExist in
-        owner.coordinator?.main()
+        schoolInfoExist
+        ? owner.coordinator?.main()
+        : owner.coordinator?.main()
       }
       .disposed(by: disposeBag)
 
@@ -110,6 +114,8 @@ final class LoginVC: BaseVC, View {
       .observe(on: MainScheduler.instance)
       .bind(to: rx.isLoading())
       .disposed(by: disposeBag)
+
+    // Action Binding
 
     appleLogin.rx.tap
       .bind(with: self) { owner, _ in

@@ -5,19 +5,7 @@ import RxSwift
 
 public final class AppleAuthManager: NSObject {
 
-  private var authorizationObserver: AnyObserver<String>? {
-    didSet {
-      if let authorization = self.authorization {
-        authorizationObserver?.onNext(authorization)
-      }
-    }
-  }
-
-  private var authorization: String? {
-    didSet {
-      authorizationObserver?.onNext(authorization!)
-    }
-  }
+  private var authorizationObserver: AnyObserver<String>?
 
   var keyWindow: UIWindow? {
     return UIApplication.shared.connectedScenes
@@ -28,7 +16,7 @@ public final class AppleAuthManager: NSObject {
       .filter { $0.isKeyWindow }.first
   }
 
-  func requestLogin() -> Observable<String> {
+  func sign() -> Observable<String> {
     return Observable.create { observer in
       let appleIDProvider = ASAuthorizationAppleIDProvider()
       let request = appleIDProvider.createRequest()

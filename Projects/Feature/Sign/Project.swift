@@ -14,10 +14,13 @@ let project = Project(
       bundleId: "com.framework.moneymong.SignFeature",
       deploymentTarget: .iOS(targetVersion: "15.0", devices: .iphone),
       infoPlist: .extendingDefault(with: [
-        "QueriedURLSchemes": [
-          "kakaokompassauth",
-          "kakaolink"
-        ]
+        "LSApplicationQueriesSchemes": ["kakaokompassauth", "kakaolink"],
+        "CFBundleURLTypes": [
+          [
+            "CFBundleURLSchemes": ["kakao5412cf7a0e53089ab63f4e04b10622c5"],
+            "CFBundleURLName": "com.salmal.app"
+          ]
+        ],
       ]),
       sources: ["Sources/**"],
       dependencies: [

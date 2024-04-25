@@ -8,8 +8,6 @@ final class LoginReactor: Reactor {
     case kakao
     case apple
     case requestLogin(provider: String, accessToken: String)
-    //    case moveToMainScene
-    //    case moveToSignUpScene
   }
 
   enum Mutation {
@@ -25,13 +23,19 @@ final class LoginReactor: Reactor {
   }
 
   let initialState: State = State()
+  private let appleAuthManager: AppleAuthManager
   private let kakaoAuthManager: KakaoAuthManager
+  private let localStorage: LocalStorageInterface
   private let signRepository: SignRepositoryInterface
 
   init(
+    appleAuthManager: AppleAuthManager,
     kakaoAuthManager: KakaoAuthManager,
+    localStorage: LocalStorageInterface,
     signRepository: SignRepositoryInterface
   ) {
+    self.localStorage = localStorage
+    self.appleAuthManager = appleAuthManager
     self.kakaoAuthManager = kakaoAuthManager
     self.signRepository = signRepository
   }
@@ -45,9 +49,10 @@ final class LoginReactor: Reactor {
         }
 
     case .apple:
-      return Observable.create { observer in
-        Disposables.create()
-      }
+      return appleAuthManager.sign()
+        .flatMap { [unowned self] accessToken in
+          self.mutate(action: .requestLogin(provider: "APPLE", accessToken: accessToken))
+        }
 
     case let .requestLogin(provider, accessToken):
       return Observable.create { [unowned self] observer in
@@ -58,14 +63,14 @@ final class LoginReactor: Reactor {
               provider: provider,
               accessToken: accessToken
             )
-            KeychainHelper.shared.create(key: .accessToken, value: signInfo.accessToken)
-            KeychainHelper.shared.create(key: .refreshToken, value: signInfo.refreshToken)
+            self.localStorage.create(to: .accessToken, value: signInfo.accessToken)
+            self.localStorage.create(to: .refreshToken, value: signInfo.accessToken)
+            let dd = self.localStorage.read(to: .accessToken, type: String.self)
             observer.onNext(.setSchoolInfoExist(signInfo.schoolInfoExist))
           } catch {
             observer.onNext(.setErrorMessage(error.localizedDescription))
           }
         }
-
         observer.onNext(.setIsLoading(false))
         return Disposables.create()
       }

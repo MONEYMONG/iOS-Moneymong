@@ -40,7 +40,7 @@ final class LoadingIndicatorViewController: UIViewController {
   }
 
   private func setLayouts() {
-    flexContainer.flex.backgroundColor(UIColor(white: 0, alpha: 0.10))
+    flexContainer.flex.backgroundColor(UIColor(white: 0, alpha: 0.9))
       .alignItems(.center)
       .justifyContent(.center)
       .define { flex in
