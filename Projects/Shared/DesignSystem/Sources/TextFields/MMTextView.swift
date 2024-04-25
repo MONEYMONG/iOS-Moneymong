@@ -13,7 +13,7 @@ public class MMTextView: UIView {
     var color: UIColor {
       switch self {
       case .active: return Colors.Blue._4
-      case .unActive: return Colors.Gray._5
+      case .unActive: return Colors.Gray._6
       case .error: return Colors.Red._3
       }
     }
@@ -34,10 +34,11 @@ public class MMTextView: UIView {
   }()
 
   private(set) var textView: UITextView = {
-    let textField = UITextView()
-    textField.font = Fonts.body._3
-    textField.selectedTextRange = nil
-    return textField
+    let textView = UITextView()
+    textView.font = Fonts.body._3
+    textView.selectedTextRange = nil
+    textView.isScrollEnabled = false
+    return textView
   }()
 
   private let placeholderLabel: UILabel = {
@@ -55,16 +56,18 @@ public class MMTextView: UIView {
 
   private let charactorLimitView: CharacterLimitView
 
-  public init(charactorLimitCount: Int, title: String, placeholeder: String? = "") {
+  public init(charactorLimitCount: Int = 0, title: String) {
     self.state = .unActive
     self.charactorLimitCount = charactorLimitCount
     self.charactorLimitView = CharacterLimitView(
       state: .default(characterCount: 0),
       limitCount: charactorLimitCount
     )
+    self.charactorLimitView.isHidden = charactorLimitCount == 0
     super.init(frame: .zero)
-    setupView(with: title, placeholeder: placeholeder)
+    setupView(with: title)
     setupConstraints()
+    updateState()
   }
 
   @available(*, unavailable)
@@ -75,22 +78,21 @@ public class MMTextView: UIView {
   public override func layoutSubviews() {
     super.layoutSubviews()
     rootContainer.pin.all()
-    rootContainer.flex.layout()
+    rootContainer.flex.layout(mode: .adjustHeight)
   }
 
-  private func setupView(with title: String, placeholeder: String?) {
+  private func setupView(with title: String) {
     addSubview(rootContainer)
     titleLabel.text = title
-    placeholderLabel.text = placeholeder
     textView.delegate = self
   }
 
   private func setupConstraints() {
-    rootContainer.flex.direction(.column).height(204).define { flex in
+    rootContainer.flex.backgroundColor(.white).define { flex in
       flex.addItem(titleLabel)
 
-      flex.addItem().direction(.row).grow(1).define { flex in
-        flex.addItem(textView).grow(1)
+      flex.addItem().direction(.row).define { flex in
+        flex.addItem(textView).minHeight(150).grow(1)
         flex.addItem(placeholderLabel).position(.absolute).top(8).left(3)
       }
 
@@ -102,8 +104,8 @@ public class MMTextView: UIView {
   }
 
   private func updateState() {
-    titleLabel.textColor = state == .unActive ? Colors.Gray._6 : state.color
-    colorLineView.backgroundColor = state.color
+    titleLabel.textColor = state.color
+    colorLineView.backgroundColor = state == .unActive ? Colors.Gray._2 : state.color
     textView.tintColor = state.color
     placeholderLabel.isHidden = textView.text.count != 0
   }
@@ -120,13 +122,17 @@ extension MMTextView: UITextViewDelegate {
     if charactorLimitCount >= textView.text.count {
       state = .active
       charactorLimitView.setState(.default(characterCount: textView.text.count))
-    } else {
+    } else if charactorLimitCount != 0 {
       state = .error
       charactorLimitView.setState(.error(
         characterCount: textView.text.count,
         errorMessage: "글자수를 초과 하였습니다"
       ))
     }
+
+    textView.flex.height(textView.intrinsicContentSize.height)
+    textView.flex.markDirty()
+    setNeedsLayout()
   }
 
   public func textViewShouldBeginEditing(_ textView: UITextView) -> Bool {
@@ -150,5 +156,9 @@ extension MMTextView {
       characterCount: textView.text.count,
       errorMessage: message
     ))
+  }
+
+  public func setPlaceholder(to text: String) {
+    placeholderLabel.text = text
   }
 }

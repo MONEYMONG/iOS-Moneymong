@@ -13,7 +13,7 @@ public class MMTextField: UIView {
     var color: UIColor {
       switch self {
       case .active: return Colors.Blue._4
-      case .unActive: return Colors.Gray._5
+      case .unActive: return Colors.Gray._6
       case .error: return Colors.Red._3
       }
     }
@@ -30,6 +30,14 @@ public class MMTextField: UIView {
   private let titleLabel: UILabel = {
     let label = UILabel()
     label.font = Fonts.body._2
+    return label
+  }()
+
+  private let asteriskLabel: UILabel = {
+    let label = UILabel()
+    label.font = Fonts.body._2
+    label.textColor = Colors.Red._3
+    label.text = "*"
     return label
   }()
 
@@ -64,16 +72,18 @@ public class MMTextField: UIView {
 
   private let charactorLimitView: CharacterLimitView
 
-  public init(charactorLimitCount: Int, title: String, placeholeder: String? = "") {
+  public init(charactorLimitCount: Int = 0, title: String) {
     self.state = .unActive
     self.charactorLimitCount = charactorLimitCount
     self.charactorLimitView = CharacterLimitView(
       state: .default(characterCount: 0),
       limitCount: charactorLimitCount
     )
+    self.charactorLimitView.isHidden = charactorLimitCount == 0
     super.init(frame: .zero)
-    setupView(with: title, placeholeder: placeholeder)
+    setupView(with: title)
     setupConstraints()
+    updateState()
   }
 
   @available(*, unavailable)
@@ -87,34 +97,39 @@ public class MMTextField: UIView {
     rootContainer.flex.layout()
   }
 
-  private func setupView(with title: String, placeholeder: String?) {
+  private func setupView(with title: String) {
     addSubview(rootContainer)
     titleLabel.text = title
-    textField.placeholder = placeholeder
     textField.delegate = self
     clearButton.addTarget(self, action: #selector(didTapClearButton), for: .touchUpInside)
   }
 
   private func setupConstraints() {
-    rootContainer.flex.direction(.column).height(56).define { flex in
-      flex.addItem(titleLabel)
-      flex.addItem().height(8)
+    rootContainer.flex.direction(.column)
+      .height(charactorLimitView.isHidden ? 56 : 74)
+      .define { flex in
+        flex.addItem().direction(.row).define { flex in
+          flex.addItem(titleLabel)
+          flex.addItem().width(2)
+          flex.addItem(asteriskLabel)
+        }
+        flex.addItem().height(8)
 
-      flex.addItem().direction(.row).define { flex in
-        flex.addItem(textField).grow(1)
-        flex.addItem(clearButton).width(20).height(20)
+        flex.addItem().direction(.row).define { flex in
+          flex.addItem(textField).grow(1)
+          flex.addItem(clearButton).width(20).height(20)
+        }
+
+        flex.addItem().height(10)
+        flex.addItem(colorLineView).height(1).backgroundColor(state.color)
+
+        flex.addItem(charactorLimitView)
       }
-
-      flex.addItem().height(10)
-      flex.addItem(colorLineView).height(1).backgroundColor(state.color)
-      flex.addItem().height(2)
-      flex.addItem(charactorLimitView)
-    }
   }
 
   private func updateState() {
-    titleLabel.textColor = state == .unActive ? Colors.Gray._6 : state.color
-    colorLineView.backgroundColor = state.color
+    titleLabel.textColor = state.color
+    colorLineView.backgroundColor = state == .unActive ? Colors.Gray._2 : state.color
     textField.tintColor = state.color
   }
 
@@ -144,7 +159,7 @@ extension MMTextField: UITextFieldDelegate {
     if charactorLimitCount >= updatedText.count {
       state = .active
       charactorLimitView.setState(.default(characterCount: updatedText.count))
-    } else {
+    } else if charactorLimitCount != 0 {
       state = .error
       charactorLimitView.setState(.error(
         characterCount: updatedText.count,
@@ -181,5 +196,18 @@ extension MMTextField {
       characterCount: textCount,
       errorMessage: message
     ))
+  }
+
+  public func setPlaceholder(to text: String) {
+    textField.placeholder = text
+  }
+
+  public func setKeyboardType(to type: UIKeyboardType) {
+    textField.keyboardType = type
+  }
+
+  // asterisk(*) 표기 유무
+  public func setRequireMark(to value: Bool = true) {
+    asteriskLabel.isHidden = !value
   }
 }

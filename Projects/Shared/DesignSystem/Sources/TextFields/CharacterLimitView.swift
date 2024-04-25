@@ -66,7 +66,8 @@ final class CharacterLimitView: UIView {
   }
 
   private func setupConstraints() {
-    rootContainer.flex.backgroundColor(.white).define { flex in
+    rootContainer.flex.height(18).define { flex in
+      flex.addItem().height(2)
       flex.direction(.row).justifyContent(.spaceBetween).define { flex in
         flex.addItem(errorMessageLabel)
         flex.addItem().grow(1)
