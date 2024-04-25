@@ -12,7 +12,7 @@ public class MMSearchBar: UIView {
     var color: UIColor {
       switch self {
       case .active: return Colors.Blue._4
-      case .unActive: return Colors.Gray._5
+      case .unActive: return Colors.Gray._6
       }
     }
   }
@@ -66,14 +66,14 @@ public class MMSearchBar: UIView {
 
   public init(
     title: String,
-    placeholeder: String? = "",
     didSearch: ((String) -> Void)?
   ) {
     self.state = .unActive
     self.didSearch = didSearch
     super.init(frame: .zero)
-    setupView(with: title, placeholeder: placeholeder)
+    setupView(with: title)
     setupConstraints()
+    updateState()
   }
 
   @available(*, unavailable)
@@ -87,10 +87,9 @@ public class MMSearchBar: UIView {
     rootContainer.flex.layout()
   }
 
-  private func setupView(with title: String, placeholeder: String?) {
+  private func setupView(with title: String) {
     addSubview(rootContainer)
     titleLabel.text = title
-    textField.placeholder = placeholeder
     textField.delegate = self
     searchButton.addTarget(self, action: #selector(didTapSearchButton), for: .touchUpInside)
   }
@@ -111,8 +110,8 @@ public class MMSearchBar: UIView {
   }
 
   private func updateState() {
-    titleLabel.textColor = state == .unActive ? Colors.Gray._6 : state.color
-    colorLineView.backgroundColor = state.color
+    titleLabel.textColor = state.color
+    colorLineView.backgroundColor = state == .unActive ? Colors.Gray._2 : state.color
     textField.tintColor = state.color
   }
 
@@ -138,5 +137,11 @@ extension MMSearchBar: UITextFieldDelegate {
       didSearch?(textField.text ?? "")
     }
     return true
+  }
+}
+
+extension MMSearchBar {
+  public func setPlaceholder(to text: String) {
+    textField.placeholder = text
   }
 }
