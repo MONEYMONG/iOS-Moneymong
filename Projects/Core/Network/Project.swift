@@ -11,11 +11,11 @@ let project = Project(
       name: "NetworkService",
       platform: .iOS,
       product: .framework,
-      bundleId: "com.framework.moneymong.Network",
+      bundleId: "com.framework.moneymong.NetworkService",
       deploymentTarget: .iOS(targetVersion: "15.0", devices: .iphone),
       sources: ["Sources/**"],
       dependencies: [
-        .project(target: "ThirdPartyLips", path: .relativeToRoot("Projects/Shared/ThirdPartyLips")),
+        .project(target: "ThirdPartyLips", path: .relativeToRoot("Projects/Shared/ThirdPartyLips"))
       ]
     )
   ]
