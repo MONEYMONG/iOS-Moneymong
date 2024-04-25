@@ -104,12 +104,16 @@ public final class MyPageVC: BaseVC, View {
 
 extension MyPageVC: UITableViewDelegate {
   public func tableView(_ tableView: UITableView, viewForHeaderInSection section: Int) -> UIView? {
+    
     switch section {
     case 0:
+      guard let sectionModel = dataSource.sectionModels.first?.model else { return nil }
       return tableView.dequeueHeaderFooter(UniversityHeader.self)
-        
+        .configure(with: sectionModel)
+    
     case 1:
       return tableView.dequeueHeaderFooter(SettingHeader.self)
+    
     default: return nil
     }
   }
