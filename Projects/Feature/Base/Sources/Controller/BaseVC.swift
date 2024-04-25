@@ -8,7 +8,7 @@ import FlexLayout
 /// BaseViewController
 open class BaseVC: UIViewController {
   public let rootContainer = UIView()
-
+  
   public init() {
       super.init(nibName: nil, bundle: nil)
   }
@@ -32,7 +32,6 @@ open class BaseVC: UIViewController {
 
   open func setupUI() {
     view.backgroundColor = .white
-    navigationController?.navigationBar.isHidden = true
   }
   
   open func setupConstraints() {

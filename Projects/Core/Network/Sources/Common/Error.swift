@@ -1,15 +1,15 @@
 import Foundation
-import Moya
+import Alamofire
 
 public enum MoneyMongError: LocalizedError {
-  case networkError(moyaError: MoyaError)
+  case networkError(AFerror: AFError)
   case serverError(errorMessage: String)
   case unknown(String? = nil)
 
   public var errorDescription: String? {
     switch self {
-    case .networkError(let moyaError):
-      return moyaError.errorDescription
+    case .networkError(let AFerror):
+      return AFerror.errorDescription
     case .serverError(let errorMessage):
       return errorMessage
     case .unknown(let errorDescription):
