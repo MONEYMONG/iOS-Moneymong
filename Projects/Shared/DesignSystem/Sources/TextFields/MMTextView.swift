@@ -38,8 +38,6 @@ public class MMTextView: UIView {
     textView.font = Fonts.body._3
     textView.selectedTextRange = nil
     textView.isScrollEnabled = false
-    textView.setContentHuggingPriority(.defaultLow, for: .vertical)
-    textView.setContentCompressionResistancePriority(.defaultLow, for: .vertical)
     return textView
   }()
 
@@ -58,7 +56,7 @@ public class MMTextView: UIView {
 
   private let charactorLimitView: CharacterLimitView
 
-  public init(charactorLimitCount: Int = 0, title: String, placeholeder: String? = "") {
+  public init(charactorLimitCount: Int = 0, title: String) {
     self.state = .unActive
     self.charactorLimitCount = charactorLimitCount
     self.charactorLimitView = CharacterLimitView(
@@ -67,7 +65,7 @@ public class MMTextView: UIView {
     )
     self.charactorLimitView.isHidden = charactorLimitCount == 0
     super.init(frame: .zero)
-    setupView(with: title, placeholeder: placeholeder)
+    setupView(with: title)
     setupConstraints()
     updateState()
   }
@@ -80,18 +78,17 @@ public class MMTextView: UIView {
   public override func layoutSubviews() {
     super.layoutSubviews()
     rootContainer.pin.all()
-    rootContainer.flex.layout()
+    rootContainer.flex.layout(mode: .adjustHeight)
   }
 
-  private func setupView(with title: String, placeholeder: String?) {
+  private func setupView(with title: String) {
     addSubview(rootContainer)
     titleLabel.text = title
-    placeholderLabel.text = placeholeder
     textView.delegate = self
   }
 
   private func setupConstraints() {
-    rootContainer.flex.direction(.column).height(.infinity).grow(1).define { flex in
+    rootContainer.flex.backgroundColor(.white).define { flex in
       flex.addItem(titleLabel)
 
       flex.addItem().direction(.row).define { flex in
@@ -102,7 +99,7 @@ public class MMTextView: UIView {
       flex.addItem().height(10)
       flex.addItem(colorLineView).height(1).backgroundColor(state.color)
       flex.addItem().height(2)
-      flex.addItem(charactorLimitView).grow(0)
+      flex.addItem(charactorLimitView)
     }
   }
 
@@ -133,12 +130,9 @@ extension MMTextView: UITextViewDelegate {
       ))
     }
 
+    textView.flex.height(textView.intrinsicContentSize.height)
     textView.flex.markDirty()
-    textView.flex.layout()
-    textView.setNeedsLayout()
-    rootContainer.flex.markDirty()
-    rootContainer.flex.layout()
-    rootContainer.setNeedsLayout()
+    setNeedsLayout()
   }
 
   public func textViewShouldBeginEditing(_ textView: UITextView) -> Bool {
@@ -162,5 +156,9 @@ extension MMTextView {
       characterCount: textView.text.count,
       errorMessage: message
     ))
+  }
+
+  public func setPlaceholder(to text: String) {
+    placeholderLabel.text = text
   }
 }

@@ -10,23 +10,24 @@ final class TextFieldsVC: UIViewController {
     return label
   }()
 
-  private let input = MMTextField(
-    charactorLimitCount: 20,
-    title: "Input",
-    placeholeder: "플레이스 홀더"
-  )
+  private let input: MMTextField = {
+    let input = MMTextField(charactorLimitCount: 20, title: "Input")
+    input.setRequireMark()
+    input.setPlaceholder(to: "플레이스 홀더")
+    return input
+  }()
 
-  private let searchBar = MMSearchBar(
-    title: "SearchBar",
-    placeholeder: "플레이스 홀더",
-    didSearch: nil
-  )
+  private let searchBar: MMSearchBar = {
+    let searchBar = MMSearchBar(title: "SearchBar", didSearch: nil)
+    searchBar.setPlaceholder(to: "플레이스 홀더")
+    return searchBar
+  }()
 
-  private let textArea = MMTextView(
-    charactorLimitCount: 20,
-    title: "TextArea",
-    placeholeder: "플레이스 홀더"
-  )
+  private let textArea: MMTextView = {
+    let textView = MMTextView(charactorLimitCount: 20, title: "TextArea")
+    textView.setPlaceholder(to: "플레이스 홀더")
+    return textView
+  }()
 
   private let rootContainer = UIView()
 

@@ -66,13 +66,12 @@ public class MMSearchBar: UIView {
 
   public init(
     title: String,
-    placeholeder: String? = "",
     didSearch: ((String) -> Void)?
   ) {
     self.state = .unActive
     self.didSearch = didSearch
     super.init(frame: .zero)
-    setupView(with: title, placeholeder: placeholeder)
+    setupView(with: title)
     setupConstraints()
     updateState()
   }
@@ -88,10 +87,9 @@ public class MMSearchBar: UIView {
     rootContainer.flex.layout()
   }
 
-  private func setupView(with title: String, placeholeder: String?) {
+  private func setupView(with title: String) {
     addSubview(rootContainer)
     titleLabel.text = title
-    textField.placeholder = placeholeder
     textField.delegate = self
     searchButton.addTarget(self, action: #selector(didTapSearchButton), for: .touchUpInside)
   }
@@ -139,5 +137,11 @@ extension MMSearchBar: UITextFieldDelegate {
       didSearch?(textField.text ?? "")
     }
     return true
+  }
+}
+
+extension MMSearchBar {
+  public func setPlaceholder(to text: String) {
+    textField.placeholder = text
   }
 }

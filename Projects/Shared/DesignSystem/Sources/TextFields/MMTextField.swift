@@ -72,13 +72,7 @@ public class MMTextField: UIView {
 
   private let charactorLimitView: CharacterLimitView
 
-  public init(
-    charactorLimitCount: Int = 0,
-    title: String,
-    placeholeder: String? = "",
-    keyboardType: UIKeyboardType = .default,
-    isRequire: Bool = false                     // asterisk(*) 표기 유무
-  ) {
+  public init(charactorLimitCount: Int = 0, title: String) {
     self.state = .unActive
     self.charactorLimitCount = charactorLimitCount
     self.charactorLimitView = CharacterLimitView(
@@ -87,12 +81,7 @@ public class MMTextField: UIView {
     )
     self.charactorLimitView.isHidden = charactorLimitCount == 0
     super.init(frame: .zero)
-    setupView(
-      with: title,
-      placeholeder: placeholeder,
-      isRequire: isRequire,
-      keyboardType: keyboardType
-    )
+    setupView(with: title)
     setupConstraints()
     updateState()
   }
@@ -108,18 +97,10 @@ public class MMTextField: UIView {
     rootContainer.flex.layout()
   }
 
-  private func setupView(
-    with title: String,
-    placeholeder: String?,
-    isRequire: Bool,
-    keyboardType: UIKeyboardType
-  ) {
+  private func setupView(with title: String) {
     addSubview(rootContainer)
     titleLabel.text = title
-    textField.placeholder = placeholeder
-    textField.keyboardType = keyboardType
     textField.delegate = self
-    asteriskLabel.isHidden = isRequire
     clearButton.addTarget(self, action: #selector(didTapClearButton), for: .touchUpInside)
   }
 
@@ -215,5 +196,18 @@ extension MMTextField {
       characterCount: textCount,
       errorMessage: message
     ))
+  }
+
+  public func setPlaceholder(to text: String) {
+    textField.placeholder = text
+  }
+
+  public func setKeyboardType(to type: UIKeyboardType) {
+    textField.keyboardType = type
+  }
+
+  // asterisk(*) 표기 유무
+  public func setRequireMark(to value: Bool = true) {
+    asteriskLabel.isHidden = !value
   }
 }
