@@ -1,13 +1,7 @@
 public protocol LocalStorageInterface: AnyObject {
-  func create<T: Codable>(to key: LocalStorageKey, value: T)
-  func read<T: Codable>(to key: LocalStorageKey, type: T.Type) -> T?
+  func create(to key: LocalStorageKey, value: String)
+  func read(to key: LocalStorageKey) -> String?
 }
-
-public enum LocalStorageKey: String {
-  case accessToken
-  case refreshToken
-}
-
 public final class LocalStorageManager: LocalStorageInterface {
   private let keychainHelper: KeychainHelper
 
@@ -15,7 +9,7 @@ public final class LocalStorageManager: LocalStorageInterface {
     self.keychainHelper = keychainHelper
   }
 
-  public func create<T: Codable>(to key: LocalStorageKey, value: T) {
+  public func create(to key: LocalStorageKey, value: String) {
     switch key {
     case .accessToken:
       keychainHelper.create(to: .accessToken, value: value)
@@ -24,12 +18,12 @@ public final class LocalStorageManager: LocalStorageInterface {
     }
   }
 
-  public func read<T: Codable>(to key: LocalStorageKey, type: T.Type) -> T? {
+  public func read(to key: LocalStorageKey) -> String? {
     switch key {
     case .accessToken:
-      keychainHelper.read(key: .accessToken, type: type)
+      keychainHelper.read(to: .accessToken)
     case .refreshToken:
-      keychainHelper.read(key: .refreshToken, type: type)
+      keychainHelper.read(to: .refreshToken)
     }
   }
 }

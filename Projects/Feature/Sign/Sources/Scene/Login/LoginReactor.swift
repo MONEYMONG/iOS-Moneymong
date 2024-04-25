@@ -65,7 +65,7 @@ final class LoginReactor: Reactor {
             )
             self.localStorage.create(to: .accessToken, value: signInfo.accessToken)
             self.localStorage.create(to: .refreshToken, value: signInfo.accessToken)
-            let dd = self.localStorage.read(to: .accessToken, type: String.self)
+            let dd = KeychainHelper.shared.read(to: .accessToken)
             observer.onNext(.setSchoolInfoExist(signInfo.schoolInfoExist))
           } catch {
             observer.onNext(.setErrorMessage(error.localizedDescription))

@@ -7,10 +7,10 @@ public final class KeychainHelper {
   private init() { }
 
   @discardableResult
-  public func create<T: Codable>(to key: KeychainServiceKey, value: T) -> Bool {
+  public func create(to key: KeychainServiceKey, value: String) -> Bool {
     let addQuery: [CFString: Any] = [
       kSecClass: kSecClassGenericPassword,
-      kSecAttrAccount: key,
+      kSecAttrAccount: key.rawValue,
       kSecValueData: (value as AnyObject).data(using: String.Encoding.utf8.rawValue) as Any
     ]
 
@@ -19,7 +19,7 @@ public final class KeychainHelper {
       if status == errSecSuccess {
         return true
       } else if status == errSecDuplicateItem {
-        return update(key: key, value: value)
+        return update(to: key, value: value)
       }
 
       debugPrint("addItem Error : \(key))")
@@ -30,7 +30,7 @@ public final class KeychainHelper {
   }
 
   @discardableResult
-  public func read<T: Codable>(key: KeychainServiceKey, type: T.Type) -> T? {
+  public func read(to key: KeychainServiceKey) -> String? {
     let getQuery: [CFString: Any] = [
       kSecClass: kSecClassGenericPassword,
       kSecAttrAccount: key.rawValue,
@@ -42,21 +42,18 @@ public final class KeychainHelper {
 
     if result == errSecSuccess {
       if let existingItem = item as? [String: Any],
-         let data = existingItem[kSecValueData as String] as? Data {
-        do {
-          let decodedValue = try JSONDecoder().decode(type, from: data)
-          return decodedValue
-        } catch {
-          debugPrint("Decoding Error: \(error)")
-        }
+         let data = existingItem[kSecValueData as String] as? Data,
+         let password = String(data: data, encoding: .utf8) {
+        return password
       }
     }
-    debugPrint("getItem Error: \(key)")
+
+    debugPrint("getItem Error : \(key)")
     return nil
   }
 
   @discardableResult
-  public func update<T: Codable>(key: KeychainServiceKey, value: T) -> Bool {
+  public func update(to key: KeychainServiceKey, value: String) -> Bool {
     let prevQuery: [CFString: Any] = [
       kSecClass: kSecClassGenericPassword,
       kSecAttrAccount: key.rawValue
@@ -69,7 +66,7 @@ public final class KeychainHelper {
       let status = SecItemUpdate(prevQuery as CFDictionary, updateQuery as CFDictionary)
       if status == errSecSuccess { return true }
 
-      debugPrint("updateItem Error : \(key.rawValue)")
+      debugPrint("updateItem Error : \(key)")
       return false
     }()
 
@@ -77,7 +74,7 @@ public final class KeychainHelper {
   }
 
   @discardableResult
-  public func delete(key: KeychainServiceKey) -> Bool {
+  public func delete(to key: KeychainServiceKey) -> Bool {
     let query: [CFString: Any] = [
       kSecClass: kSecClassGenericPassword,
       kSecAttrAccount: key.rawValue
@@ -85,7 +82,7 @@ public final class KeychainHelper {
     let status = SecItemDelete(query as CFDictionary)
     if status == errSecSuccess { return true }
 
-    debugPrint("delete Error : \(key.rawValue)")
+    debugPrint("delete Error : \(key)")
     return false
   }
 }
