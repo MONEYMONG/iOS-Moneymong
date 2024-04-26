@@ -1,6 +1,6 @@
 import UIKit
 
-final class SmogContainer: UIView {
+final class SmogView: UIView {
   let gradientLayer: CAGradientLayer = {
     let gradient = CAGradientLayer()
     gradient.colors = [
