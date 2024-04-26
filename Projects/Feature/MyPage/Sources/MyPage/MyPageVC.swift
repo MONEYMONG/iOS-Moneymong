@@ -81,10 +81,15 @@ public final class MyPageVC: BaseVC, View {
       
       // TODO: Coordinator!
       switch item {
-      case .setting(.service): break
-      case .setting(.privacy): break
+      case .setting(.service):
+        owner.coordinator?.presentWeb(urlString: "https://www.notion.so/moneymong/8a382c0e511448838d2d350e16df3a95?pvs=4")
+      case .setting(.privacy):
+        owner.coordinator?.presentWeb(urlString: "https://www.notion.so/moneymong/7f4338eda8564c1ca4177caecf5aedc8?pvs=4")
       case .setting(.withdrawal): break
-      case .setting(.logout): break
+      case .setting(.logout):
+        owner.coordinator?.presentAlert(title: "정말 로그아웃 하시겠습니까?", subTitle: "로그인한 계정이 로그아웃됩니다", okAction: {
+          
+        })
       default: break
       }
     }
