@@ -38,6 +38,7 @@ public final class MMButton: UIButton {
   public init(title: String, type: `Type`) {
     self.type = type
     super.init(frame: .zero)
+    updateState()
     setupView(with: title)
   }
 
