@@ -44,6 +44,7 @@ public class MMTextField: UIView {
   public let textField: UITextField = {
     let textField = UITextField()
     textField.font = Fonts.body._3
+    textField.textColor = Colors.Gray._8
     textField.selectedTextRange = nil
     textField.attributedPlaceholder = NSAttributedString(
       string: "Placeholder Text",
