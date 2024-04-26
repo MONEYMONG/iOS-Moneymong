@@ -70,11 +70,21 @@ public final class MyPageVC: BaseVC, View {
       }
       .disposed(by: disposeBag)
     
+    reactor.state.map(\.destination)
+      .compactMap { $0 }
+      .bind { destination in
+        switch destination {
+        case .login:
+          // TODO: 로그인 화면으로 이동
+          break
+        }
+      }
+      .disposed(by: disposeBag)
+    
     Observable.zip(
       tableView.rx.modelSelected(MyPageSectionItemModel.Item.self),
       tableView.rx.itemSelected
     )
-    .observe(on: MainScheduler.instance)
     .bind(with: self) { owner, event in
       let (item, indexPath) = (event.0, event.1)
       owner.tableView.deselectRow(at: indexPath, animated: true)
@@ -87,9 +97,13 @@ public final class MyPageVC: BaseVC, View {
         owner.coordinator?.presentWeb(urlString: "https://www.notion.so/moneymong/7f4338eda8564c1ca4177caecf5aedc8?pvs=4")
       case .setting(.withdrawal): break
       case .setting(.logout):
-        owner.coordinator?.presentAlert(title: "정말 로그아웃 하시겠습니까?", subTitle: "로그인한 계정이 로그아웃됩니다", okAction: {
-          
-        })
+        owner.coordinator?.presentAlert(
+          title: "정말 로그아웃 하시겠습니까?",
+          subTitle: "로그인한 계정이 로그아웃됩니다",
+          okAction: {
+            reactor.action.onNext(.logout)
+          }
+        )
       default: break
       }
     }
@@ -100,8 +114,8 @@ public final class MyPageVC: BaseVC, View {
       .disposed(by: disposeBag)
     
     reactor.state.map(\.isLoading)
-      .bind { value in
-        // TODO: 인디케이터 보여주기 (전역적으로 구현하자)
+      .bind { isLoading in
+        // TODO: 로딩인디케이터 돌리기
       }
       .disposed(by: disposeBag)
   }

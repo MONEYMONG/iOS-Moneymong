@@ -2,30 +2,35 @@ import Foundation
 import Alamofire
 
 enum UserAPI {
-  case user
+  case user // 내정보 조회
+  case logout // 로그아웃
 }
 
 extension UserAPI: TargetType {
   var baseURL: URL? {
-    return try? "https://dev.moneymong.site/".asURL()
+    return try? "https://dev.moneymong.site/api/v1".asURL()
   }
   
   var path: String {
     switch self {
     case .user:
-      return "api/v1/users/me"
+      return "/users/me"
+    case .logout:
+      return "/tokens"
     }
   }
   
   var method: Alamofire.HTTPMethod {
     switch self {
     case .user: return .get
+    case .logout: return .delete
     }
   }
   
   var task: HTTPTask {
     switch self {
     case .user: return .plain
+    case .logout: return .plain
     }
   }
   

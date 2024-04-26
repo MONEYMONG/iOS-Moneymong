@@ -9,17 +9,24 @@ public final class MyPageReactor: Reactor {
   
   public enum Action {
     case onappear
+    case logout
   }
   
   public enum Mutation {
     case setItem(UserInfo)
     case setLoading(Bool)
+    case setDestination(State.Destination)
   }
   
   public struct State {
     @Pulse var isLoading = false
     @Pulse var item = [MyPageSectionItemModel.Model]()
     @Pulse var showToast = false
+    @Pulse var destination: Destination?
+    
+    public enum Destination {
+      case login
+    }
   }
   
   public let initialState: State = State()
@@ -46,14 +53,33 @@ public final class MyPageReactor: Reactor {
             }
           }
           
-          return Disposables.create {
-            task.cancel()
-          }
+          return Disposables.create { task.cancel() }
         }
           .asObservable()
           .map { return .setItem($0)},
         
-        .just(.setLoading(true)),
+          .just(.setLoading(true)),
+      ])
+    case .logout:
+      return Observable.concat([
+        .just(.setLoading(false)),
+        Single.create { observer in
+          let task = Task {
+            do {
+//              try await self.userRepo.logout()
+              // TODO: 실제 토큰 나오면 로그아웃 테스트 (현재는 무조건 성공)
+              observer(.success(()))
+            } catch {
+              observer(.failure(error))
+            }
+          }
+          
+          return Disposables.create { task.cancel() }
+        }
+          .asObservable()
+          .map { _ in return .setDestination(.login)}
+        ,
+        .just(.setLoading(true))
       ])
     }
   }
@@ -76,8 +102,10 @@ public final class MyPageReactor: Reactor {
       
     case let .setLoading(value):
       newState.isLoading = value
+      
+    case let .setDestination(value):
+      newState.destination = value
     }
-    
     
     return newState
   }
