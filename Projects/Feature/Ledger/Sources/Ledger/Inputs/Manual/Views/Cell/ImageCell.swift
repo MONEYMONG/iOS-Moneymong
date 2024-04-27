@@ -7,7 +7,7 @@ import RxSwift
 
 final class ImageCell: UICollectionViewCell, ReusableView {
   private let disposeBag = DisposeBag()
-  private var id: UUID?
+  private var itme: ImageSectionModel.Item?
   private let rootContainer = UIView()
   private let deleteButton: UIButton = {
     let v = UIButton()
@@ -59,14 +59,14 @@ final class ImageCell: UICollectionViewCell, ReusableView {
   private func bind() {
     deleteButton.rx.tap
       .bind(with: self) { owner, _ in
-        NotificationCenter.default.post(name: .didTapImageDeleteButton, object: owner.id)
+        NotificationCenter.default.post(name: .didTapImageDeleteButton, object: owner.itme)
       }.disposed(by: disposeBag)
   }
   
-  func configure(with item: SingleSectionModel.Item) -> Self {
-    guard case let .image(model) = item else { return self }
-    id = model.id
-    imageView.image = UIImage(data: model.data)
+  func configure(with item: ImageSectionModel.Item) -> Self {
+    guard case let .image(image, _) = item else { return self }
+    self.itme = item
+    imageView.image = UIImage(data: image.data)
     return self
   }
 }
