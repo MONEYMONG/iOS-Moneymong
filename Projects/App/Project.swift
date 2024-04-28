@@ -11,7 +11,7 @@ let project = Project(
       name: "Moneymong",
       platform: .iOS,
       product: .app,
-      bundleId: "com.team.moneymong",
+      bundleId: "com.yapp.moneymong",
       deploymentTarget: .iOS(targetVersion: "15.0", devices: .iphone),
       infoPlist: .extendingDefault(with: [
         "LSApplicationQueriesSchemes": ["kakaokompassauth", "kakaolink"],
@@ -38,6 +38,7 @@ let project = Project(
       ]),
       sources: ["Sources/**"],
       resources: ["Resources/**"],
+      entitlements: "Resources/App.entitlements",
       dependencies: [
         .project(target: "SignFeature", path: .relativeToRoot("Projects/Feature/Sign")),
         .project(target: "MainFeature", path: .relativeToRoot("Projects/Feature/Main"))

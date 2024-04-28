@@ -18,8 +18,8 @@ final class LoginReactor: Reactor {
 
   struct State {
     @Pulse var isLoading: Bool = false
-    @Pulse var errorMessage: String?
-    @Pulse var schoolInfoExist: Bool?
+    @Pulse var errorMessage: String = ""
+    @Pulse var schoolInfoExist: Bool = false
   }
 
   let initialState: State = State()
@@ -47,6 +47,9 @@ final class LoginReactor: Reactor {
         .flatMap { [unowned self] accessToken in
           self.mutate(action: .requestLogin(provider: "KAKAO", accessToken: accessToken))
         }
+        .catch { error in
+            .just(.setErrorMessage(error.localizedDescription))
+        }
 
     case .apple:
       return appleAuthManager.sign()
@@ -65,7 +68,6 @@ final class LoginReactor: Reactor {
             )
             self.localStorage.create(to: .accessToken, value: signInfo.accessToken)
             self.localStorage.create(to: .refreshToken, value: signInfo.accessToken)
-            let dd = KeychainHelper.shared.read(to: .accessToken)
             observer.onNext(.setSchoolInfoExist(signInfo.schoolInfoExist))
           } catch {
             observer.onNext(.setErrorMessage(error.localizedDescription))

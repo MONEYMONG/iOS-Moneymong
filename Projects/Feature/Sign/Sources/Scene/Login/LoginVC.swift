@@ -88,9 +88,7 @@ final class LoginVC: BaseVC, View {
   func bind(reactor: LoginReactor) {
     // State Binding
 
-    reactor.state
-      .compactMap { $0.schoolInfoExist }
-      .distinctUntilChanged()
+    reactor.pulse(\.$schoolInfoExist)
       .observe(on: MainScheduler.instance)
       .bind(with: self) { owner, schoolInfoExist in
         schoolInfoExist
@@ -99,18 +97,14 @@ final class LoginVC: BaseVC, View {
       }
       .disposed(by: disposeBag)
 
-    reactor.state
-      .compactMap { $0.errorMessage }
-      .distinctUntilChanged()
+    reactor.pulse(\.$errorMessage)
       .observe(on: MainScheduler.instance)
       .bind(with: self) { owner, errorMessage in
         AlertsManager.show(owner, title: errorMessage, subTitle: nil, okAction: {}, cancelAction: nil)
       }
       .disposed(by: disposeBag)
 
-    reactor.state
-      .map { $0.isLoading }
-      .distinctUntilChanged()
+    reactor.pulse(\.$isLoading)
       .observe(on: MainScheduler.instance)
       .bind(to: rx.isLoading())
       .disposed(by: disposeBag)

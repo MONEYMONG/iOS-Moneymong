@@ -48,12 +48,13 @@ extension AppleAuthManager: ASAuthorizationControllerDelegate {
     controller: ASAuthorizationController,
     didCompleteWithAuthorization authorization: ASAuthorization
   ) {
-    guard let appIDCredntial = authorization.credential as? ASAuthorizationAppleIDCredential else {
+    guard let appIDCredntial = authorization.credential as? ASAuthorizationAppleIDCredential,
+    let authorizationCode = appIDCredntial.authorizationCode,
+    let authorizationCodeString = String(data: authorizationCode, encoding: .utf8) else {
+      debugPrint("Invalid Apple Code Error")
       return
     }
-    let accessToken = appIDCredntial.user
-    authorizationObserver?.onNext(accessToken)
-    authorizationObserver?.onCompleted()
+    authorizationObserver?.onNext(authorizationCodeString)
   }
 
   public func authorizationController(
