@@ -6,6 +6,8 @@ import DesignSystem
 
 final class LedgerTabVC: BaseVC, View {
   var disposeBag = DisposeBag()
+  weak var coordinator: LedgerCoordinator?
+
   
   private let floatingButton = FloatingButton()
   
@@ -15,6 +17,9 @@ final class LedgerTabVC: BaseVC, View {
   
   override func setupUI() {
     super.setupUI()
+    floatingButton.addWriteAction { [weak self] in
+      self?.coordinator?.manualInput(animated: true)
+    }
   }
   
   override func setupConstraints() {

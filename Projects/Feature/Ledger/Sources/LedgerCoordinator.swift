@@ -23,4 +23,10 @@ extension LedgerCoordinator {
     let vc = diContainer.ledger(with: self)
     navigationController.viewControllers = [vc]
   }
+  
+  func manualInput(animated: Bool) {
+    let vc = diContainer.manualInput(with: self)
+    vc.modalPresentationStyle = .fullScreen
+    navigationController.present(vc, animated: animated)
+  }
 }

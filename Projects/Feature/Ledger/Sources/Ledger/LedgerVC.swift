@@ -8,7 +8,7 @@ import DesignSystem
 
 public final class LedgerVC: BaseVC, View {
   public var disposeBag = DisposeBag()
-  weak var coordinator: Coordinator?
+  weak var coordinator: LedgerCoordinator?
   
   private let lineTab: LineTabViewController!
   

@@ -6,7 +6,8 @@ import DesignSystem
 import ReactorKit
 import RxDataSources
 
-final class ManualInputViewController: BaseVC, View {
+final class ManualInputVC: BaseVC, View {
+  weak var coordinator: ManualInputCoordinator?
   private struct ViewSize {
     static var cell: CGSize {
       let width = UIScreen.main.bounds.width * 0.28
@@ -122,13 +123,6 @@ final class ManualInputViewController: BaseVC, View {
     return v
   }()
   
-  private var imagePicker: UIImagePickerController = {
-    let picker = UIImagePickerController()
-    picker.sourceType = .photoLibrary
-    picker.modalPresentationStyle = .fullScreen
-    return picker
-  }()
-  
   override init() {
     super.init()
     setRightItem(.closeBlack)
@@ -144,11 +138,6 @@ final class ManualInputViewController: BaseVC, View {
     super.viewDidLayoutSubviews()
     completeButton.pin.height(56).bottom(view.safeAreaInsets.bottom + 12).horizontally(20)
     scrollView.contentSize = content.frame.size
-  }
-  
-  override func setupUI() {
-    super.setupUI()
-    imagePicker.delegate = self
   }
   
   override func setupConstraints() {
@@ -183,7 +172,7 @@ final class ManualInputViewController: BaseVC, View {
     // MARK: - Action Bind
     navigationItem.rightBarButtonItem?.rx.tap
       .bind(with: self) { owner, _ in
-        owner.dismiss(animated: true)
+        owner.coordinator?.dismiss(animated: true)
       }
       .disposed(by: disposeBag)
     
@@ -247,7 +236,7 @@ final class ManualInputViewController: BaseVC, View {
     reactor.pulse(\.$selectedSection)
       .compactMap { $0 }
       .bind(with: self) { owner, _ in
-        owner.present(owner.imagePicker, animated: true)
+        owner.coordinator?.imagePicker(animated: true, delegate: owner)
       }
       .disposed(by: disposeBag)
   }
@@ -265,7 +254,7 @@ final class ManualInputViewController: BaseVC, View {
   }
 }
 
-extension ManualInputViewController: UICollectionViewDelegateFlowLayout {
+extension ManualInputVC: UICollectionViewDelegateFlowLayout {
   func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, referenceSizeForHeaderInSection section: Int) -> CGSize {
     if section == 0 {
       return CGSize(
@@ -281,7 +270,7 @@ extension ManualInputViewController: UICollectionViewDelegateFlowLayout {
   }
 }
 
-extension ManualInputViewController: UIImagePickerControllerDelegate, UINavigationControllerDelegate {
+extension ManualInputVC: UIImagePickerControllerDelegate, UINavigationControllerDelegate {
   func imagePickerController(_ picker: UIImagePickerController, didFinishPickingMediaWithInfo info: [UIImagePickerController.InfoKey : Any]) {
     if let image = info[.originalImage] as? UIImage {
       Task {
