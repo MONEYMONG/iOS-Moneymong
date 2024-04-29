@@ -1,10 +1,19 @@
 import NetworkService
+import LocalStorage
 
 public final class MyPageDIContainer {
+  private let localStorage: LocalStorageInterface
+  private let networkManager: NetworkManagerInterfacae
+
   private let userRepo: UserRepositoryInterface
   
-  public init(userRepo: UserRepositoryInterface) {
-    self.userRepo = userRepo
+  public init(
+    localStorage: LocalStorageInterface,
+    networkManager: NetworkManagerInterfacae
+  ) {
+    self.localStorage = localStorage
+    self.networkManager = networkManager
+    self.userRepo = UserRepository(networkManager: networkManager)
   }
 
   func myPage(with coordinator: MyPageCoordinator) -> MyPageVC {

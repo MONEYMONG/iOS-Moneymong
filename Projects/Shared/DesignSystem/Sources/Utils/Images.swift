@@ -18,12 +18,13 @@ public enum Images {
   public static var mongGray = UIImage(named: "mong.gray", in: Bundle.module, with: nil)
   public static var mongStudy = UIImage(named: "mong.study", in: Bundle.module, with: nil)
   public static var mongBackgroundCircle = UIImage(named: "mong.background.circle", in: Bundle.module, with: nil)
-  
+  public static var mongSplash = UIImage(named: "mong.splash", in: Bundle.module, with: nil)
   public static var accountRecord = UIImage(named: "accountRecord", in: Bundle.module, with: nil)
   public static var agencyGray = UIImage(named: "agency.gray", in: Bundle.module, with: nil)
   public static var agency = UIImage(named: "agency", in: Bundle.module, with: nil)
   public static var camera = UIImage(named: "camera", in: Bundle.module, with: nil)
   public static var check = UIImage(named: "check", in: Bundle.module, with: nil)
+  public static var selectedCheck = UIImage(named: "selectedCheck", in: Bundle.module, with: nil)
   public static var checkboxCheck = UIImage(named: "checkbox.check", in: Bundle.module, with: nil)
   public static var checkboxFill = UIImage(named: "checkbox.fill", in: Bundle.module, with: nil)
   public static var checkbox = UIImage(named: "checkbox", in: Bundle.module, with: nil)
@@ -63,5 +64,8 @@ public enum Images {
   public static var warningFill = UIImage(named: "warning.fill", in: Bundle.module, with: nil)
   public static var warning = UIImage(named: "warning", in: Bundle.module, with: nil)
   public static var party = UIImage(named: "party", in: Bundle.module, with: nil)
+
+  public static var kakaoButton = UIImage(named: "kakaoButton", in: Bundle.module, with: nil)
+  public static var appleButton = UIImage(named: "appleButton", in: Bundle.module, with: nil)
 }
 

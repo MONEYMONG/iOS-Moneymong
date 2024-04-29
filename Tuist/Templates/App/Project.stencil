@@ -11,7 +11,7 @@ let project = Project(
             name: "{{ name }}",
             platform: .iOS,
             product: .app,
-            bundleId: "com.team.moneymong",
+            bundleId: "com.yapp.moneymong",
             deploymentTarget: .iOS(targetVersion: "15.0", devices: .iphone),
             infoPlist: .extendingDefault(with: [
                 "CFBundleShortVersionString": "1.0",

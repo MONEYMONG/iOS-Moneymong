@@ -5,23 +5,34 @@ import LedgerFeature
 import MyPageFeature
 
 import NetworkService
+import LocalStorage
 
 final class AppDIContainer {
+
+  private let localStorage = LocalStorageManager()
+  private let networkManager: NetworkManagerInterfacae
+  private let tokenIntercepter: TokenRequestIntercepter
+
   let signDIContainer: SignDIContainer
   let mainDIContainer: MainDIContainer
-  
-  let userRepo: UserRepositoryInterface
-  
-  init(
-    userRepo: UserRepositoryInterface = UserRepository()
-  ) {
-    self.userRepo = userRepo
+
+  init() {
+    self.tokenIntercepter = TokenRequestIntercepter(
+      localStorage: localStorage,
+      tokenRepository: TokenRepository()
+    )
     
-    self.signDIContainer = SignDIContainer()
+    let networkManager = NetworkManager()
+    networkManager.tokenIntercepter = tokenIntercepter
+    self.networkManager = networkManager
+
+    self.signDIContainer = SignDIContainer(
+      localStorage: localStorage,
+      networkManager: networkManager
+    )
     self.mainDIContainer = MainDIContainer(
-      agencyContainer: .init(),
-      myPageContainer: .init(userRepo: userRepo),
-      ledgerContainer: .init()
+      localStorage: localStorage,
+      networkManager: networkManager
     )
   }
 }

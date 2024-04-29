@@ -1,21 +1,41 @@
 import UIKit
 
-class SceneDelegate: UIResponder, UIWindowSceneDelegate {
-    var window: UIWindow?
-    func scene(_ scene: UIScene, willConnectTo session: UISceneSession, options connectionOptions: UIScene.ConnectionOptions) {
-        guard let windowScene = (scene as? UIWindowScene) else { return }
-        window = UIWindow(windowScene: windowScene)
-        window?.rootViewController = SignFeatureViewController()
-        window?.makeKeyAndVisible()
-    }
+import SignFeature
 
-    func sceneDidDisconnect(_ scene: UIScene) {}
+final class SceneDelegate: UIResponder, UIWindowSceneDelegate {
+  var window: UIWindow?
+  private var appCoordinator: SignCoordinator?
 
-    func sceneDidBecomeActive(_ scene: UIScene) {}
+  func scene(
+    _ scene: UIScene, willConnectTo session: UISceneSession,
+    options connectionOptions: UIScene.ConnectionOptions
+  ) {
+    let navigationController = UINavigationController()
 
-    func sceneWillResignActive(_ scene: UIScene) {}
+    guard let windowScene = (scene as? UIWindowScene) else { return }
+    window = UIWindow(windowScene: windowScene)
+    self.window?.makeKeyAndVisible()
+    self.window?.rootViewController = navigationController
 
-    func sceneWillEnterForeground(_ scene: UIScene) {}
+    self.appCoordinator = SignCoordinator(
+      navigationController: navigationController,
+      diContainer: SignDIContainer()
+    )
+    appCoordinator?.start(animated: false)
+  }
 
-    func sceneDidEnterBackground(_ scene: UIScene) {}
+  func scene(_ scene: UIScene, openURLContexts URLContexts: Set<UIOpenURLContext>) {
+    guard let url = URLContexts.first?.url else { return }
+    KakaoAuthManager.shared.openURL(url)
+  }
+
+  func sceneDidDisconnect(_ scene: UIScene) {}
+
+  func sceneDidBecomeActive(_ scene: UIScene) {}
+  
+  func sceneWillResignActive(_ scene: UIScene) {}
+
+  func sceneWillEnterForeground(_ scene: UIScene) {}
+
+  func sceneDidEnterBackground(_ scene: UIScene) {}
 }

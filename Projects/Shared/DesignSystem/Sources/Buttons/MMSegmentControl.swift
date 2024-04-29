@@ -76,7 +76,7 @@ public final class MMSegmentControl: UIView {
     allButtons.enumerated().forEach { (index, button) in
       button.addAction { [weak self] in
         guard let self else { return }
-        
+
         selectedIndex = index
         allButtons.forEach {
           self.unselection(with: $0)

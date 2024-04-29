@@ -11,9 +11,15 @@ final class SplashVC: BaseVC, View {
 
   private let logoImageView: UIImageView = {
     let imageView = UIImageView()
-    imageView.image = Images.mong
+    imageView.image = Images.mongSplash
     return imageView
   }()
+
+  public override func viewDidLayoutSubviews() {
+    super.viewDidLayoutSubviews()
+    rootContainer.pin.all()
+    rootContainer.flex.layout()
+  }
 
   override func setupConstraints() {
     super.setupConstraints()

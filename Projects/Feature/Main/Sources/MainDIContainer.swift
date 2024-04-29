@@ -1,23 +1,33 @@
 import UIKit
-import BaseFeature
 
+import BaseFeature
 import AgencyFeature
 import LedgerFeature
 import MyPageFeature
+import NetworkService
+import LocalStorage
 
 public final class MainDIContainer {
+  private let localStorage: LocalStorageInterface
+  private let networkManager: NetworkManagerInterfacae
+
   private let agencyContainer: AgencyDIContainer
   private let myPageContainer: MyPageDIContainer
   private let ledgerContainer: LedgerDIContainer
 
   public init(
-    agencyContainer: AgencyDIContainer,
-    myPageContainer: MyPageDIContainer,
-    ledgerContainer: LedgerDIContainer
+    localStorage: LocalStorageInterface,
+    networkManager: NetworkManagerInterfacae
   ) {
-    self.agencyContainer = agencyContainer
-    self.myPageContainer = myPageContainer
-    self.ledgerContainer = ledgerContainer
+    self.localStorage = localStorage
+    self.networkManager = networkManager
+
+    self.agencyContainer = .init()
+    self.myPageContainer = .init(
+      localStorage: localStorage,
+      networkManager: networkManager
+    )
+    self.ledgerContainer = .init()
   }
 
   func mainTab(with coordinator: Coordinator) -> MainTapViewController {
