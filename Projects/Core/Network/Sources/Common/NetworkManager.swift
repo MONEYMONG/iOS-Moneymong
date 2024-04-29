@@ -3,13 +3,20 @@ import Foundation
 import Alamofire
 
 public protocol NetworkManagerInterfacae {
+  @discardableResult
   func request<DTO: Responsable>(target: TargetType, of type: DTO.Type) async throws -> DTO
+}
+
+extension NetworkManagerInterfacae {
+  func request<DTO: Responsable>(target: TargetType, of type: DTO.Type = EmptyResponse.self) async throws {
+    try await self.request(target: target, of: type)
+  }
 }
 
 public final class NetworkManager: NetworkManagerInterfacae {
   
   public init() {}
-  
+
   public func request<DTO: Responsable>(target: TargetType, of type: DTO.Type) async throws -> DTO {
     let dataResponse = await AF.request(target)
       .serializingData()

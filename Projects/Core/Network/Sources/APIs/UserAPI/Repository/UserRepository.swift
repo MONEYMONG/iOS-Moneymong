@@ -24,14 +24,15 @@ public final class UserRepository: UserRepositoryInterface {
   public func logout() async throws {
     // TODO: RefreshToken 넣어주기
     let targetType = UserAPI.logout(.init(refreshToken: "refreshToken"))
-    // TODO: Empty Entity Response
+    try await networkManager.request(target: targetType)
+    
     // TODO: token전부삭제
   }
   
   /// Delete: 회원탈퇴
   public func withdrawl() async throws {
     let targetType = UserAPI.withdrawl
-    // TODO: Empty Entity Response
+    try await networkManager.request(target: targetType)
     // TODO: token전부삭제
   }
 }

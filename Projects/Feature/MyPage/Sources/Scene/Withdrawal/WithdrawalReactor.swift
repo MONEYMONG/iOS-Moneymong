@@ -42,7 +42,8 @@ public final class WithdrawalReactor: Reactor {
         Single.create { observer in
           let task = Task {
             do {
-              try await self.userRepo.withdrawl()
+              // TODO: 실제토큰으로 호출
+//              try await self.userRepo.withdrawl()
               observer(.success(()))
             } catch {
               observer(.failure(error))
