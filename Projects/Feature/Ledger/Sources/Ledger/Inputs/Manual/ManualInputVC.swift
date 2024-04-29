@@ -1,4 +1,5 @@
 import UIKit
+import Combine
 
 import BaseFeature
 import DesignSystem
@@ -21,6 +22,7 @@ final class ManualInputVC: BaseVC, View {
   }
   
   var disposeBag = DisposeBag()
+  private var anyCancellable = Set<AnyCancellable>()
   
   private let scrollView: UIScrollView = {
     let v = UIScrollView()
@@ -62,10 +64,11 @@ final class ManualInputVC: BaseVC, View {
     return v
   }()
   
-  private let transactionTypeSelection = MMSegmentControl(
-    titles: ["지출", "수입"],
-    type: .round
-  )
+  private let transactionTypeSelection: MMSegmentControl = {
+    let v = MMSegmentControl(titles: ["지출", "수입"], type: .round)
+    v.selectedIndex = 1
+    return v
+  }()
   
   private let dateTextField: MMTextField = {
     let v = MMTextField(title: "날짜")
@@ -74,7 +77,7 @@ final class ManualInputVC: BaseVC, View {
     return v
   }()
   
-  private let tiemTextField: MMTextField = {
+  private let timeTextField: MMTextField = {
     let v = MMTextField(title: "시간")
     v.setPlaceholder(to: "00:00:00(24시 단위)")
     v.setRequireMark()
@@ -152,7 +155,7 @@ final class ManualInputVC: BaseVC, View {
             flex.addItem(transactionTypeSelection)
           }.marginBottom(24)
           flex.addItem(dateTextField).marginBottom(24)
-          flex.addItem(tiemTextField).marginBottom(24)
+          flex.addItem(timeTextField).marginBottom(24)
           flex.addItem().define { flex in
             flex.addItem(collectionView).marginRight(-8)
           }.marginBottom(24)
@@ -190,6 +193,51 @@ final class ManualInputVC: BaseVC, View {
       .bind(with: self) { owner, _ in
         print("작성 완료")
       }
+      .disposed(by: disposeBag)
+    
+    sourceTextField.textField.rx.text
+      .compactMap { $0 }
+      .map { Reactor.Action.inputContent($0, type: .source) }
+      .bind(to: reactor.action)
+      .disposed(by: disposeBag)
+    
+    sourceTextField.clearButton.rx.tap
+      .map { Reactor.Action.inputContent("", type: .source) }
+      .bind(to: reactor.action)
+      .disposed(by: disposeBag)
+    
+    amountTextField.textField.rx.text
+      .compactMap { $0 }
+      .map { Reactor.Action.inputContent($0, type: .amount) }
+      .bind(to: reactor.action)
+      .disposed(by: disposeBag)
+    
+    amountTextField.clearButton.rx.tap
+      .map { Reactor.Action.inputContent("", type: .amount) }
+      .bind(to: reactor.action)
+      .disposed(by: disposeBag)
+    
+    timeTextField.textField.rx.text
+      .compactMap { $0 }
+      .map { Reactor.Action.inputContent($0, type: .time) }
+      .bind(to: reactor.action)
+      .disposed(by: disposeBag)
+    
+    timeTextField.clearButton.rx.tap
+      .map { Reactor.Action.inputContent("", type: .time) }
+      .bind(to: reactor.action)
+      .disposed(by: disposeBag)
+    
+    transactionTypeSelection.$selectedIndex
+      .sink { [weak self] in
+        self?.amountTextField.textField.resignFirstResponder()
+        reactor.action.onNext(.inputContent("\($0)", type: .transactionType))
+    }.store(in: &anyCancellable)
+    
+    dateTextField.textField.rx.text
+      .compactMap { $0 }
+      .map { Reactor.Action.inputContent($0, type: .date) }
+      .bind(to: reactor.action)
       .disposed(by: disposeBag)
     
     memoTextView.textView.rx.text
@@ -238,6 +286,18 @@ final class ManualInputVC: BaseVC, View {
       .bind(with: self) { owner, _ in
         owner.coordinator?.imagePicker(animated: true, delegate: owner)
       }
+      .disposed(by: disposeBag)
+    
+    reactor.pulse(\.content.$amount)
+      .bind(to: amountTextField.textField.rx.text)
+      .disposed(by: disposeBag)
+    
+    reactor.pulse(\.content.$date)
+      .bind(to: dateTextField.textField.rx.text)
+      .disposed(by: disposeBag)
+    
+    reactor.pulse(\.content.$time)
+      .bind(to: timeTextField.textField.rx.text)
       .disposed(by: disposeBag)
   }
   
@@ -317,3 +377,5 @@ struct ImageSectionModel {
   let model: Section
   var items: [Item]
 }
+
+

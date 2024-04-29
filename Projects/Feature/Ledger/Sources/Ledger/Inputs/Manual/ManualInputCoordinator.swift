@@ -25,8 +25,8 @@ extension ManualInputCoordinator {
   }
   
   func dismiss(animated: Bool) {
-    navigationController.dismiss(animated: animated) {
-      self.remove()
+    navigationController.dismiss(animated: animated) { [weak self] in
+      self?.remove()
     }
   }
   
