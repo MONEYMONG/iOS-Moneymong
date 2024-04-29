@@ -66,26 +66,6 @@ public final class MyPageVC: BaseVC, View {
     tableView.rx.setDelegate(self)
       .disposed(by: disposeBag)
     
-    // Data Binding
-    reactor.pulse(\.$showToast)
-      .filter { $0 }
-      .asDriver(onErrorJustReturn: false)
-      .drive(with: self) { owner, event in
-        SnackBarManager.show(title: "다시 시도해 주세요")
-      }
-      .disposed(by: disposeBag)
-    
-    reactor.pulse(\.$destination)
-      .compactMap { $0 }
-      .bind { destination in
-        switch destination {
-        case .login:
-          // TODO: 로그인 화면으로 이동
-          break
-        }
-      }
-      .disposed(by: disposeBag)
-    
     Observable.zip(
       tableView.rx.modelSelected(MyPageSectionItemModel.Item.self),
       tableView.rx.itemSelected
@@ -94,7 +74,6 @@ public final class MyPageVC: BaseVC, View {
       let (item, indexPath) = (event.0, event.1)
       owner.tableView.deselectRow(at: indexPath, animated: true)
       
-      // TODO: Coordinator!
       switch item {
       case .setting(.service):
         owner.coordinator?.presentWeb(urlString: "https://www.notion.so/moneymong/8a382c0e511448838d2d350e16df3a95?pvs=4")
@@ -115,11 +94,34 @@ public final class MyPageVC: BaseVC, View {
     }
     .disposed(by: disposeBag)
     
+    // Data Binding
+    reactor.pulse(\.$showToast)
+      .filter { $0 }
+      .asDriver(onErrorJustReturn: false)
+      .drive(with: self) { owner, event in
+        SnackBarManager.show(title: "다시 시도해 주세요")
+      }
+      .disposed(by: disposeBag)
+    
+    reactor.pulse(\.$destination)
+      .compactMap { $0 }
+      .observe(on: MainScheduler.instance)
+      .bind { destination in
+        switch destination {
+        case .login:
+          // TODO: 로그인 화면으로 이동
+          break
+        }
+      }
+      .disposed(by: disposeBag)
+    
     reactor.pulse(\.$item)
+      .observe(on: MainScheduler.instance)
       .bind(to: tableView.rx.items(dataSource: dataSource))
       .disposed(by: disposeBag)
     
     reactor.pulse(\.$isLoading)
+      .observe(on: MainScheduler.instance)
       .bind { isLoading in
         // TODO: 로딩인디케이터 돌리기
       }

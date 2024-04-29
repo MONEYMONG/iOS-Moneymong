@@ -105,7 +105,7 @@ public final class WithdrawalVC: BaseVC, View {
     
     // Data Binding
     reactor.pulse(\.$isAgree)
-      .subscribe(on: MainScheduler.instance)
+      .observe(on: MainScheduler.instance)
       .bind(with: self) { owner, value in
         owner.checkBoxButton.isSelected = value
         owner.withdrawalButton.setState(value ? .primary : .disable)
@@ -114,7 +114,7 @@ public final class WithdrawalVC: BaseVC, View {
     
     reactor.pulse(\.$destination)
       .compactMap { $0 }
-      .subscribe(on: MainScheduler.instance)
+      .observe(on: MainScheduler.instance)
       .bind(with: self) { owner, value in
         // TODO: 로그인으로 이동
       }
