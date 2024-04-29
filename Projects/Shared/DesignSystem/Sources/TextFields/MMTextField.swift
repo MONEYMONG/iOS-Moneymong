@@ -44,6 +44,7 @@ public class MMTextField: UIView {
   public let textField: UITextField = {
     let textField = UITextField()
     textField.font = Fonts.body._3
+    textField.textColor = Colors.Gray._8
     textField.selectedTextRange = nil
     textField.attributedPlaceholder = NSAttributedString(
       string: "Placeholder Text",
@@ -52,7 +53,7 @@ public class MMTextField: UIView {
     return textField
   }()
 
-  private let clearButton: TouchAreaButton = {
+  public let clearButton: TouchAreaButton = {
     let button = TouchAreaButton(dx: -10, dy: 0)
     button.isHidden = true
     button.setImage(

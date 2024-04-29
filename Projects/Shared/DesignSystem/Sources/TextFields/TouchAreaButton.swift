@@ -1,6 +1,6 @@
 import UIKit
 
-final class TouchAreaButton: UIButton {
+public final class TouchAreaButton: UIButton {
   private let dx: CGFloat
   private let dy: CGFloat
 
@@ -15,7 +15,7 @@ final class TouchAreaButton: UIButton {
     fatalError("init(coder:) has not been implemented")
   }
 
-  override func hitTest(_ point: CGPoint, with event: UIEvent?) -> UIView? {
+  public override func hitTest(_ point: CGPoint, with event: UIEvent?) -> UIView? {
     if isHidden || !isUserInteractionEnabled || alpha < 0.01 {
       return nil
     }
@@ -29,7 +29,7 @@ final class TouchAreaButton: UIButton {
     return super.hitTest(point, with: event)
   }
 
-  override var isHighlighted: Bool {
+  public override var isHighlighted: Bool {
     didSet { alpha = isHighlighted && !alpha.isNaN ? 0.5 : 1.0 }
   }
 }

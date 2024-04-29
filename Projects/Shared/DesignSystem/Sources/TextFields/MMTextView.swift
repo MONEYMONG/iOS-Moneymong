@@ -33,11 +33,12 @@ public class MMTextView: UIView {
     return label
   }()
 
-  private(set) var textView: UITextView = {
+  public var textView: UITextView = {
     let textView = UITextView()
     textView.font = Fonts.body._3
     textView.selectedTextRange = nil
     textView.isScrollEnabled = false
+    textView.textColor = Colors.Gray._8
     return textView
   }()
 
@@ -92,7 +93,7 @@ public class MMTextView: UIView {
       flex.addItem(titleLabel)
 
       flex.addItem().direction(.row).define { flex in
-        flex.addItem(textView).minHeight(150).grow(1)
+        flex.addItem(textView).backgroundColor(.white).minHeight(150).grow(1)
         flex.addItem(placeholderLabel).position(.absolute).top(8).left(3)
       }
 

@@ -36,6 +36,9 @@ let project = Project(
             bundleId: "com.framework.moneymong.LedgerFeatureDemo",
             deploymentTarget: .iOS(targetVersion: "15.0", devices: .iphone),
             infoPlist: .extendingDefault(with: [
+              "NSCameraUsageDescription": "머니몽의 장부 내역 등록을 위해 카메라 및 사진에 접근하도록 허용합니다.",
+              "NSPhotoLibraryUsageDescription": "머니몽의 장부 내역 등록을 위해 카메라 및 사진에 접근하도록 허용합니다.",
+              "UIUserInterfaceStyle": "Light",
               "CFBundleShortVersionString": "1.0",
               "CFBundleVersion": "1",
               "UILaunchStoryboardName": "LaunchScreen",
