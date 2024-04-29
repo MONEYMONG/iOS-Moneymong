@@ -8,8 +8,8 @@ public protocol NetworkManagerInterfacae {
 }
 
 extension NetworkManagerInterfacae {
-  func request<DTO: Responsable>(target: TargetType, of type: DTO.Type = EmptyResponse.self) async throws {
-    try await self.request(target: target, of: type)
+  func request(target: TargetType) async throws {
+    try await self.request(target: target, of: EmptyResponse.self)
   }
 }
 
