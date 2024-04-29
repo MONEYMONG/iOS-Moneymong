@@ -26,7 +26,7 @@ open class BaseVC: UIViewController {
 
   open override func viewDidLayoutSubviews() {
     super.viewDidLayoutSubviews()
-    rootContainer.pin.all()
+    rootContainer.pin.all(view.pin.safeArea)
     rootContainer.flex.layout()
   }
 

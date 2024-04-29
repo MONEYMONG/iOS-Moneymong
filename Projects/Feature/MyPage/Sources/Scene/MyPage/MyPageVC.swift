@@ -1,13 +1,11 @@
 import UIKit
 
 import BaseFeature
-import NetworkService
 import Utility
 import DesignSystem
 
 import ReactorKit
 import RxDataSources
-import PinLayout
 import FlexLayout
 
 public final class MyPageVC: BaseVC, View {
@@ -51,6 +49,13 @@ public final class MyPageVC: BaseVC, View {
     }
   }
   
+  public override func viewDidLayoutSubviews() {
+    super.viewDidLayoutSubviews()
+    
+    rootContainer.pin.all()
+    rootContainer.flex.layout()
+  }
+  
   public func bind(reactor: MyPageReactor) {
     // Action Binding
     rx.viewDidLoad
@@ -62,7 +67,7 @@ public final class MyPageVC: BaseVC, View {
       .disposed(by: disposeBag)
     
     // Data Binding
-    reactor.state.map(\.showToast)
+    reactor.pulse(\.$showToast)
       .filter { $0 }
       .asDriver(onErrorJustReturn: false)
       .drive(with: self) { owner, event in
@@ -70,7 +75,7 @@ public final class MyPageVC: BaseVC, View {
       }
       .disposed(by: disposeBag)
     
-    reactor.state.map(\.destination)
+    reactor.pulse(\.$destination)
       .compactMap { $0 }
       .bind { destination in
         switch destination {
@@ -95,7 +100,8 @@ public final class MyPageVC: BaseVC, View {
         owner.coordinator?.presentWeb(urlString: "https://www.notion.so/moneymong/8a382c0e511448838d2d350e16df3a95?pvs=4")
       case .setting(.privacy):
         owner.coordinator?.presentWeb(urlString: "https://www.notion.so/moneymong/7f4338eda8564c1ca4177caecf5aedc8?pvs=4")
-      case .setting(.withdrawal): break
+      case .setting(.withdrawal):
+        owner.coordinator?.pushWithDrawal()
       case .setting(.logout):
         owner.coordinator?.presentAlert(
           title: "정말 로그아웃 하시겠습니까?",
@@ -109,11 +115,11 @@ public final class MyPageVC: BaseVC, View {
     }
     .disposed(by: disposeBag)
     
-    reactor.state.map(\.item)
+    reactor.pulse(\.$item)
       .bind(to: tableView.rx.items(dataSource: dataSource))
       .disposed(by: disposeBag)
     
-    reactor.state.map(\.isLoading)
+    reactor.pulse(\.$isLoading)
       .bind { isLoading in
         // TODO: 로딩인디케이터 돌리기
       }

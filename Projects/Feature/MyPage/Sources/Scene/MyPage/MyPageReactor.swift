@@ -1,6 +1,5 @@
 import UIKit
 
-import DesignSystem
 import NetworkService
 
 import ReactorKit
@@ -31,7 +30,7 @@ public final class MyPageReactor: Reactor {
   
   public let initialState: State = State()
   
-  init(userRepo: UserRepositoryInterface = UserRepository()) {
+  init(userRepo: UserRepositoryInterface) {
     self.userRepo = userRepo
   }
   
@@ -66,8 +65,7 @@ public final class MyPageReactor: Reactor {
         Single.create { observer in
           let task = Task {
             do {
-//              try await self.userRepo.logout()
-              // TODO: 실제 토큰 나오면 로그아웃 테스트 (현재는 무조건 성공)
+              try await self.userRepo.logout()
               observer(.success(()))
             } catch {
               observer(.failure(error))

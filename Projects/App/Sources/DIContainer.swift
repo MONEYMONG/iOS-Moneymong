@@ -12,7 +12,9 @@ final class AppDIContainer {
     self.signDIContainer = SignDIContainer()
     self.mainDIContainer = MainDIContainer(
       agencyContainer: AgencyDIContainer(),
-      myPageContainer: MyPageDIContainer(),
+      myPageContainer: MyPageDIContainer(
+        userRepo: UserRepository()
+      ),
       ledgerContainer: LedgerDIContainer()
     )
   }

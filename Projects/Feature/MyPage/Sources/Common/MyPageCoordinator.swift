@@ -19,6 +19,15 @@ public final class MyPageCoordinator: Coordinator {
     myPage(animated: animated)
   }
   
+  func pushWithDrawal(animated: Bool = true) {
+    let vc = diContainer.withDrawl(with: self)
+    navigationController.pushViewController(vc, animated: true)
+  }
+  
+  func pop(animated: Bool = true) {
+    navigationController.popViewController(animated: animated)
+  }
+  
   func presentWeb(urlString: String) {
     guard let url = URL(string: urlString) else {
       return debugPrint("Invalid URL", #function)

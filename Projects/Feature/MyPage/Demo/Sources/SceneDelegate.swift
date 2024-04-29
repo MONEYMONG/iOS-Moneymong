@@ -1,5 +1,6 @@
 import UIKit
 
+import NetworkService
 import MyPageFeature
 import DesignSystem
 
@@ -14,7 +15,7 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
     Fonts.registerFont()
     let rootNavigation = UINavigationController()
     
-    self.diContainer = MyPageDIContainer()
+    self.diContainer = MyPageDIContainer(userRepo: UserRepository())
     self.coordinator = MyPageCoordinator(navigationController: rootNavigation, diContainer: diContainer)
     
     window = UIWindow(windowScene: windowScene)
