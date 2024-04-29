@@ -20,7 +20,7 @@ public final class TokenRequestIntercepter: RequestInterceptor {
     for session: Session,
     completion: @escaping (Result<URLRequest, Error>) -> Void
   ) {
-    guard urlRequest.url?.absoluteString.hasPrefix("https://api.agify.io") == true,
+    guard urlRequest.url?.absoluteString.hasPrefix("https://dev.moneymong.site/") == true,
           let accessToken = localStorage.read(to: .accessToken) else {
       completion(.success(urlRequest))
       return
