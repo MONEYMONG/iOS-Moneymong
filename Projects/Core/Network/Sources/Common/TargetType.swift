@@ -23,7 +23,7 @@ extension TargetType {
     else {
       debugPrint("잘못된 URL")
       let urlError = AFError.createURLRequestFailed(error: URLError(.badURL))
-      throw MoneyMongError.networkError(AFerror: urlError)
+      throw MoneyMongError.networkError(error: urlError)
     }
 
     guard let fullURL = baseURL?
@@ -33,7 +33,7 @@ extension TargetType {
     else {
       debugPrint("잘못된 URL")
       let urlError = AFError.createURLRequestFailed(error: URLError(.badURL))
-      throw MoneyMongError.networkError(AFerror: urlError)
+      throw MoneyMongError.networkError(error: urlError)
     }
 
     var urlRequest = try URLRequest(url: fullURL, method: method)
