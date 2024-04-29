@@ -15,7 +15,7 @@ final class MMSnackBar: UIView {
     let button = UIButton()
     let image = Images.close?
       .withRenderingMode(.alwaysTemplate)
-    button.setTitleColor(.red, for: .normal)
+    button.setTitleColor(Colors.Red._3, for: .normal)
     button.setImage(image, for: .normal)
     button.tintColor = .white
     return button
@@ -66,7 +66,7 @@ final class MMSnackBar: UIView {
     if let action {
       rightButton.addAction { action() }
       rightButton.setImage(nil, for: .normal)
-      rightButton.setTitle("retry", for: .normal)
+      rightButton.setTitle("다시입력", for: .normal)
       rightButton.flex.marginRight(20)
     }
     // close 일떄

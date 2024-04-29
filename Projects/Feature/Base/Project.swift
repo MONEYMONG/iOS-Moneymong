@@ -16,7 +16,6 @@ let project = Project(
             sources: ["Sources/**"],
             dependencies: [
               .project(target: "DesignSystem", path: .relativeToRoot("Projects/Shared/DesignSystem")),
-              .project(target: "ThirdPartyLips", path: .relativeToRoot("Projects/Shared/ThirdPartyLips")),
               .project(target: "Core", path: .relativeToRoot("Projects/Core/Core"))
             ]
         )
