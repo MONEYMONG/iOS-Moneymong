@@ -46,6 +46,12 @@ public final class SnackBarManager {
       UIView.animate(withDuration: 0.3) {
         snackBar.alpha = 1.0
         keyWindow.layoutIfNeeded()
+      } completion: { _ in
+        if action == nil {
+          DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
+            remove()
+          }
+        }
       }
     }
   }
