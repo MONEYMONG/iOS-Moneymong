@@ -1,15 +1,9 @@
 import NetworkService
 
 public final class SignDIContainer {
-  private let signRepository: SignRepositoryInterface
-  private let kakaoAuthManager: KakaoAuthManager
-
-  public init(
-    kakaoAuthManager: KakaoAuthManager = KakaoAuthManager.shared,
-    signRepository: SignRepositoryInterface = SignRepository()
-  ) {
-    self.kakaoAuthManager = kakaoAuthManager
-    self.signRepository = signRepository
+  
+  public init() {
+    
   }
 
   func splash(with coordinator: SignCoordinator) -> SplashVC {
@@ -21,10 +15,7 @@ public final class SignDIContainer {
 
   func login(with coordinator: SignCoordinator) -> LoginVC {
     let vc = LoginVC()
-    vc.reactor = LoginReactor(
-      kakaoAuthManager: kakaoAuthManager,
-      signRepository: signRepository
-    )
+    vc.reactor = LoginReactor()
     vc.coordinator = coordinator
     return vc
   }
