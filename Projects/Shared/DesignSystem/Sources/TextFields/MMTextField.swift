@@ -53,7 +53,7 @@ public class MMTextField: UIView {
     return textField
   }()
 
-  private let clearButton: TouchAreaButton = {
+  public let clearButton: TouchAreaButton = {
     let button = TouchAreaButton(dx: -10, dy: 0)
     button.isHidden = true
     button.setImage(
