@@ -2,21 +2,15 @@ import NetworkService
 import LocalStorage
 
 public final class SignDIContainer {
-  private let appleAuthManager: AppleAuthManager
-  private let kakaoAuthManager: KakaoAuthManager
+  private let networkManager: NetworkManagerInterfacae
   private let localStorage: LocalStorageInterface
-  private let signRepository: SignRepositoryInterface
 
   public init(
-    appleAuthManager: AppleAuthManager = AppleAuthManager(),
-    kakaoAuthManager: KakaoAuthManager = KakaoAuthManager.shared,
-    localStorage: LocalStorageInterface = LocalStorageManager(),
-    signRepository: SignRepositoryInterface = SignRepository()
+    networkManager: NetworkManagerInterfacae = NetworkManager(),
+    localStorage: LocalStorageInterface = LocalStorageManager()
   ) {
-    self.appleAuthManager = appleAuthManager
-    self.kakaoAuthManager = kakaoAuthManager
+    self.networkManager = networkManager
     self.localStorage = localStorage
-    self.signRepository = signRepository
   }
 
   func splash(with coordinator: SignCoordinator) -> SplashVC {
@@ -28,11 +22,16 @@ public final class SignDIContainer {
 
   func login(with coordinator: SignCoordinator) -> LoginVC {
     let vc = LoginVC()
-    vc.reactor = LoginReactor(
-      appleAuthManager: appleAuthManager,
-      kakaoAuthManager: kakaoAuthManager,
+    let signRepository = SignRepository(
+      networkManager: networkManager,
       localStorage: localStorage,
-      signRepository: signRepository
+      kakaoAuthManager: KakaoAuthManager(),
+      appleAuthManager: AppleAuthManager()
+    )
+    let universityRepository = UniversityRepository(networkManager: networkManager)
+    vc.reactor = LoginReactor(
+      signRepository: signRepository,
+      universityRepository: universityRepository
     )
     vc.coordinator = coordinator
     return vc

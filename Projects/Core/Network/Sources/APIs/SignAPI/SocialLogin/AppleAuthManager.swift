@@ -1,23 +1,16 @@
 import Foundation
 import AuthenticationServices
 
-import RxSwift
+import Utility
 
 public final class AppleAuthManager: NSObject {
 
-  private var authorizationObserver: AnyObserver<String>?
+  var continuation: CheckedContinuation<String, Error>?
 
-  var keyWindow: UIWindow? {
-    return UIApplication.shared.connectedScenes
-      .filter { $0.activationState == .foregroundActive }
-      .map { $0 as? UIWindowScene }
-      .compactMap { $0 }
-      .first?.windows
-      .filter { $0.isKeyWindow }.first
-  }
+  public func sign() async throws -> String {
+    return try await withCheckedThrowingContinuation { continuation in
+      self.continuation = continuation
 
-  func sign() -> Observable<String> {
-    return Observable.create { observer in
       let appleIDProvider = ASAuthorizationAppleIDProvider()
       let request = appleIDProvider.createRequest()
       request.requestedScopes = [.fullName, .email]
@@ -26,20 +19,15 @@ public final class AppleAuthManager: NSObject {
       authController.delegate = self
       authController.presentationContextProvider = self
       authController.performRequests()
-
-      self.authorizationObserver = observer
-
-      return Disposables.create {
-        authController.delegate = nil
-        authController.presentationContextProvider = nil
-      }
     }
   }
 }
 
 extension AppleAuthManager: ASAuthorizationControllerPresentationContextProviding {
-  public func presentationAnchor(for controller: ASAuthorizationController) -> ASPresentationAnchor {
-    return keyWindow!
+  public func presentationAnchor(
+    for controller: ASAuthorizationController
+  ) -> ASPresentationAnchor {
+    return UIWindow.firstWindow!
   }
 }
 
@@ -54,13 +42,14 @@ extension AppleAuthManager: ASAuthorizationControllerDelegate {
       debugPrint("Invalid Apple Code Error")
       return
     }
-    authorizationObserver?.onNext(authorizationCodeString)
+    continuation?.resume(returning: authorizationCodeString)
   }
 
   public func authorizationController(
     controller: ASAuthorizationController,
     didCompleteWithError error: Error
   ) {
-    authorizationObserver?.onError(error)
+    debugPrint("apple login 실패 \(error.localizedDescription)")
+    continuation?.resume(throwing: error)
   }
 }

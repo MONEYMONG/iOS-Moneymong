@@ -2,9 +2,8 @@ import Foundation
 import Security
 
 public final class KeychainHelper {
-  public static let shared = KeychainHelper()
 
-  private init() { }
+  public init() { }
 
   @discardableResult
   public func create(to key: KeychainServiceKey, value: String) -> Bool {

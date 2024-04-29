@@ -1,6 +1,6 @@
 import UIKit
 
-import SignFeature
+import NetworkService
 
 class SceneDelegate: UIResponder, UIWindowSceneDelegate {
   private var appCoordinator: AppCoordinator?

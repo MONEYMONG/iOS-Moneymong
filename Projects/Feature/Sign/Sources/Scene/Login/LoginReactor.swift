@@ -2,73 +2,75 @@ import ReactorKit
 import NetworkService
 import LocalStorage
 
+enum LoginType {
+  case Kakao
+  case Apple
+
+  var value: String {
+    switch self {
+    case .Kakao: "KAKAO"
+    case .Apple: "APPLE"
+    }
+  }
+}
+
 final class LoginReactor: Reactor {
 
   enum Action {
-    case kakao
-    case apple
-    case requestLogin(provider: String, accessToken: String)
+    case login(LoginType)
   }
 
   enum Mutation {
     case setIsLoading(Bool)
     case setErrorMessage(String)
-    case setSchoolInfoExist(Bool)
+    case moveToMain(Void)
   }
 
   struct State {
-    @Pulse var isLoading: Bool = false
-    @Pulse var errorMessage: String = ""
-    @Pulse var schoolInfoExist: Bool = false
+    @Pulse var isLoading: Bool?
+    @Pulse var errorMessage: String?
+    @Pulse var moveToMain: Void?
   }
 
   let initialState: State = State()
-  private let appleAuthManager: AppleAuthManager
-  private let kakaoAuthManager: KakaoAuthManager
-  private let localStorage: LocalStorageInterface
   private let signRepository: SignRepositoryInterface
+  private let universityRepository: UniversityRepository
 
   init(
-    appleAuthManager: AppleAuthManager,
-    kakaoAuthManager: KakaoAuthManager,
-    localStorage: LocalStorageInterface,
-    signRepository: SignRepositoryInterface
+    signRepository: SignRepositoryInterface,
+    universityRepository: UniversityRepository
   ) {
-    self.localStorage = localStorage
-    self.appleAuthManager = appleAuthManager
-    self.kakaoAuthManager = kakaoAuthManager
     self.signRepository = signRepository
+    self.universityRepository = universityRepository
   }
 
   func mutate(action: Action) -> Observable<Mutation> {
     switch action {
-    case .kakao:
-      return kakaoAuthManager.sign()
-        .flatMap { [unowned self] accessToken in
-          self.mutate(action: .requestLogin(provider: "KAKAO", accessToken: accessToken))
-        }
-        .catch { error in
-            .just(.setErrorMessage(error.localizedDescription))
-        }
-
-    case .apple:
-      return appleAuthManager.sign()
-        .flatMap { [unowned self] accessToken in
-          self.mutate(action: .requestLogin(provider: "APPLE", accessToken: accessToken))
-        }
-
-    case let .requestLogin(provider, accessToken):
+    case .login(let loginType):
       return Observable.create { [unowned self] observer in
-        observer.onNext(.setIsLoading(true))
         Task {
           do {
+            var accessToken = ""
+            switch loginType {
+            case .Kakao:
+              accessToken = try await self.signRepository.kakaoSign()
+            case .Apple:
+              accessToken = try await self.signRepository.appleSign()
+            }
+
+            observer.onNext(.setIsLoading(true))
+
             let signInfo = try await self.signRepository.sign(
-              provider: provider,
+              provider: loginType.value,
               accessToken: accessToken
             )
-            self.localStorage.create(to: .accessToken, value: signInfo.accessToken)
-            self.localStorage.create(to: .refreshToken, value: signInfo.accessToken)
-            observer.onNext(.setSchoolInfoExist(signInfo.schoolInfoExist))
+
+            let result = try await universityRepository.university(name: "홍익 대학교", grade: 4)
+
+            if result {
+              observer.onNext(.moveToMain(()))
+            }
+
           } catch {
             observer.onNext(.setErrorMessage(error.localizedDescription))
           }
@@ -86,8 +88,8 @@ final class LoginReactor: Reactor {
       newState.isLoading = isLoading
     case .setErrorMessage(let errorMessage):
       newState.errorMessage = errorMessage
-    case .setSchoolInfoExist(let schoolInfoExist):
-      newState.schoolInfoExist = schoolInfoExist
+    case .moveToMain(let result):
+      newState.moveToMain = result
     }
     return newState
   }

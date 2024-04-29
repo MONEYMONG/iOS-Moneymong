@@ -1,6 +1,6 @@
 import UIKit
 
-import SignFeature
+import NetworkService
 
 @main
 class AppDelegate: UIResponder, UIApplicationDelegate {

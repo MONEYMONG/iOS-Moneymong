@@ -43,6 +43,11 @@ final class LoginVC: BaseVC, View {
     return button
   }()
 
+  public override func viewDidLoad() {
+    super.viewDidLoad()
+    navigationController?.navigationBar.isHidden = true
+  }
+
   public override func viewDidLayoutSubviews() {
     super.viewDidLayoutSubviews()
     rootContainer.pin.all()
@@ -55,7 +60,6 @@ final class LoginVC: BaseVC, View {
       .backgroundColor(Colors.Blue._4)
       .alignItems(.center)
       .justifyContent(.center)
-      .direction(.column)
       .define { flex in
 
         flex.addItem()
@@ -88,39 +92,38 @@ final class LoginVC: BaseVC, View {
   func bind(reactor: LoginReactor) {
     // State Binding
 
-    reactor.pulse(\.$schoolInfoExist)
+    reactor.pulse(\.$moveToMain)
+      .compactMap { $0 }
       .observe(on: MainScheduler.instance)
-      .bind(with: self) { owner, schoolInfoExist in
-        schoolInfoExist
-        ? owner.coordinator?.main()
-        : owner.coordinator?.main()
+      .bind(with: self) { owner, _ in
+        owner.coordinator?.main()
       }
       .disposed(by: disposeBag)
 
     reactor.pulse(\.$errorMessage)
+      .compactMap { $0 }
       .observe(on: MainScheduler.instance)
       .bind(with: self) { owner, errorMessage in
         AlertsManager.show(owner, title: errorMessage, subTitle: nil, okAction: {}, cancelAction: nil)
       }
       .disposed(by: disposeBag)
 
-    reactor.pulse(\.$isLoading)
-      .observe(on: MainScheduler.instance)
-      .bind(to: rx.isLoading())
-      .disposed(by: disposeBag)
+    //    reactor.pulse(\.$isLoading)
+    //      .compactMap { $0 }
+    //      .observe(on: MainScheduler.instance)
+    //      .bind(to: rx.isLoading())
+    //      .disposed(by: disposeBag)
 
     // Action Binding
 
     appleLogin.rx.tap
-      .bind(with: self) { owner, _ in
-        reactor.action.onNext(.apple)
-      }
+      .map { Reactor.Action.login(.Apple) }
+      .bind(to: reactor.action)
       .disposed(by: disposeBag)
 
     kakaoLogin.rx.tap
-      .bind(with: self) { owner, _ in
-        reactor.action.onNext(.kakao)
-      }
+      .map { Reactor.Action.login(.Kakao) }
+      .bind(to: reactor.action)
       .disposed(by: disposeBag)
   }
 }
