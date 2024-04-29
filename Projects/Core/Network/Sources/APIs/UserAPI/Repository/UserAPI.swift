@@ -1,5 +1,4 @@
 import Foundation
-import Alamofire
 
 enum UserAPI {
   case user // 내정보 조회
@@ -20,7 +19,7 @@ extension UserAPI: TargetType {
     }
   }
   
-  var method: Alamofire.HTTPMethod {
+  var method: HTTPMethod {
     switch self {
     case .user: return .get
     case .logout: return .delete

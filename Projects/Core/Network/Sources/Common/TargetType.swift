@@ -8,6 +8,8 @@ public enum HTTPTask {
   case upload(MultipartFormData)
 }
 
+public typealias HTTPMethod = Alamofire.HTTPMethod
+
 public protocol TargetType: URLRequestConvertible {
   var baseURL: URL? { get }
   var path: String { get }

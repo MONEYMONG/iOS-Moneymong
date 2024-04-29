@@ -1,5 +1,4 @@
 import Foundation
-import Alamofire
 
 enum SignAPI {
   case sign(SignRequestDTO)

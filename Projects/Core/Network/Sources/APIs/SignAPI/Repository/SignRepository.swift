@@ -1,5 +1,4 @@
 import Foundation
-import Alamofire
 
 public protocol SignRepositoryInterface {
   func sign(provider: String, accessToken: String) async throws -> SignInfo

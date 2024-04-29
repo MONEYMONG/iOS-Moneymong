@@ -1,5 +1,4 @@
 import Foundation
-import Alamofire
 
 public protocol UserRepositoryInterface {
   func user() async throws -> UserInfo
