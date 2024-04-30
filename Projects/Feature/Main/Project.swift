@@ -41,7 +41,9 @@ let project = Project(
             infoPlist: .extendingDefault(with: [
                 "CFBundleShortVersionString": "1.0",
                 "CFBundleVersion": "1",
-                "UILaunchStoryboardName": "LaunchScreen"
+                "UILaunchStoryboardName": "LaunchScreen",
+                "NSLocalNetworkUsageDescription": "Network usage required for debugging purposes",
+                "NSBonjourServices": ["_pulse._tcp"]
             ]),
             sources: ["Demo/Sources/**"],
             resources: ["Demo/Resources/**"],

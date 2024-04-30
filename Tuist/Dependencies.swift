@@ -11,6 +11,10 @@ let dependencies = Dependencies(
       requirement: .upToNextMajor(from: "5.9.1")
     ),
     .remote(
+      url: "https://github.com/kean/Pulse",
+      requirement: .branch("main")
+    ),
+    .remote(
       url: "https://github.com/onevcat/Kingfisher",
       requirement: .upToNextMajor(from: "7.11.0")
     ),

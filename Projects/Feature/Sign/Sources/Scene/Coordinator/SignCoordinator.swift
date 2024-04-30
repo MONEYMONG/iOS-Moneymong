@@ -16,6 +16,10 @@ public final class SignCoordinator: Coordinator {
   public func start(animated: Bool) {
     splash()
   }
+  
+  deinit {
+    print(#function)
+  }
 }
 
 public extension SignCoordinator {

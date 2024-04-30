@@ -1,4 +1,5 @@
 import UIKit
+import SwiftUI
 import SafariServices
 
 import BaseFeature
@@ -14,30 +15,47 @@ public final class MyPageCoordinator: Coordinator {
     self.navigationController = navigationController
     self.diContainer = diContainer
   }
-
+  
+  enum Scene {
+    case alert(title: String, subTitle: String, okAction: () -> Void)
+    case web(urlString: String)
+    case withrawal
+    case debug
+  }
+  
   public func start(animated: Bool) {
     myPage(animated: animated)
   }
   
-  func pushWithDrawal(animated: Bool = true) {
-    let vc = diContainer.withDrawl(with: self)
-    navigationController.pushViewController(vc, animated: true)
+  func push(_ scene: Scene, animated: Bool = true) {
+    switch scene {
+    case .alert: break
+    case .web: break
+    case .withrawal: withdrawl()
+    case .debug: debug()
+    }
+  }
+  
+  func present(_ scene: Scene, animated: Bool = true) {
+    switch scene {
+    case let .alert(title, subTitle, action): alert(title: title, subTitle: subTitle, okAction: action)
+    case let .web(urlString): web(urlString: urlString)
+    case .withrawal: break
+    case .debug: break
+    }
+  }
+  
+  func goLogin() {
+    parentCoordinator?.move(to: .login)
+    remove()
   }
   
   func pop(animated: Bool = true) {
     navigationController.popViewController(animated: animated)
   }
   
-  func presentWeb(urlString: String) {
-    guard let url = URL(string: urlString) else {
-      return debugPrint("Invalid URL", #function)
-    }
-    let vc = SFSafariViewController(url: url)
-    navigationController.present(vc, animated: true)
-  }
-  
-  func presentAlert(title: String, subTitle: String, okAction: @escaping () -> Void) {
-    AlertsManager.show(navigationController, title: title, subTitle: subTitle, okAction: okAction, cancelAction: { })
+  deinit {
+    print(#function)
   }
 }
 
@@ -45,5 +63,27 @@ extension MyPageCoordinator {
   private func myPage(animated: Bool) {
     let vc = diContainer.myPage(with: self)
     navigationController.setViewControllers([vc], animated: true)
+  }
+  
+  private func withdrawl(animated: Bool = true) {
+    let vc = diContainer.withDrawl(with: self)
+    navigationController.pushViewController(vc, animated: animated)
+  }
+  
+  private func alert(title: String, subTitle: String, okAction: @escaping () -> Void) {
+    AlertsManager.show(navigationController, title: title, subTitle: subTitle, okAction: okAction, cancelAction: { })
+  }
+  
+  private func web(urlString: String, animated: Bool = true) {
+    guard let url = URL(string: urlString) else {
+      return debugPrint("Invalid URL", #function)
+    }
+    
+    let vc = SFSafariViewController(url: url)
+    navigationController.topViewController?.present(vc, animated: animated)
+  }
+  
+  private func debug(animated: Bool = true) {
+    navigationController.pushViewController(UIHostingController(rootView: PulseView()), animated: animated)
   }
 }

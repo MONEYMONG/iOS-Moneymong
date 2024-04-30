@@ -1,4 +1,5 @@
 import UIKit
+import SwiftUI
 
 import BaseFeature
 import Utility
@@ -8,7 +9,7 @@ import ReactorKit
 import RxDataSources
 import FlexLayout
 
-public final class MyPageVC: BaseVC, View {
+public final class MyPageVC: BaseVC, ReactorKit.View {
   public var disposeBag = DisposeBag()
   weak var coordinator: MyPageCoordinator?
   
@@ -76,19 +77,21 @@ public final class MyPageVC: BaseVC, View {
       
       switch item {
       case .setting(.service):
-        owner.coordinator?.presentWeb(urlString: "https://www.notion.so/moneymong/8a382c0e511448838d2d350e16df3a95?pvs=4")
+        owner.coordinator?.present(.web(urlString: "https://www.notion.so/moneymong/8a382c0e511448838d2d350e16df3a95?pvs=4"))
       case .setting(.privacy):
-        owner.coordinator?.presentWeb(urlString: "https://www.notion.so/moneymong/7f4338eda8564c1ca4177caecf5aedc8?pvs=4")
+        owner.coordinator?.present(.web(urlString: "https://www.notion.so/moneymong/7f4338eda8564c1ca4177caecf5aedc8?pvs=4"))
       case .setting(.withdrawal):
-        owner.coordinator?.pushWithDrawal()
+        owner.coordinator?.push(.withrawal)
       case .setting(.logout):
-        owner.coordinator?.presentAlert(
+        owner.coordinator?.present(.alert(
           title: "정말 로그아웃 하시겠습니까?",
           subTitle: "로그인한 계정이 로그아웃됩니다",
-          okAction: {
-            reactor.action.onNext(.logout)
-          }
+          okAction: { reactor.action.onNext(.logout) })
         )
+      case .setting(.versionInfo):
+        #if DEBUG
+        owner.coordinator?.push(.debug)
+        #endif
       default: break
       }
     }
@@ -106,11 +109,10 @@ public final class MyPageVC: BaseVC, View {
     reactor.pulse(\.$destination)
       .compactMap { $0 }
       .observe(on: MainScheduler.instance)
-      .bind { destination in
+      .bind(with: self) { owner, destination in
         switch destination {
         case .login:
-          // TODO: 로그인 화면으로 이동
-          break
+          owner.coordinator?.goLogin()
         }
       }
       .disposed(by: disposeBag)
@@ -137,10 +139,10 @@ extension MyPageVC: UITableViewDelegate {
       guard let sectionModel = dataSource.sectionModels.first?.model else { return nil }
       return tableView.dequeueHeaderFooter(UniversityHeader.self)
         .configure(with: sectionModel)
-    
+      
     case 1:
       return tableView.dequeueHeaderFooter(SettingHeader.self)
-    
+      
     default: return nil
     }
   }

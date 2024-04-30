@@ -25,8 +25,24 @@ public final class TokenRequestIntercepter: RequestInterceptor {
       completion(.success(urlRequest))
       return
     }
-
-    let acc = localStorage.read(to: .accessToken)
+    
+    // 로그인
+    if urlRequest.url?.absoluteString.hasSuffix("/users") == true {
+      completion(.success(urlRequest))
+      return
+    }
+    
+    // 로그아웃
+    if urlRequest.url?.absoluteString.hasSuffix("/tokens") == true {
+      completion(.success(urlRequest))
+      return
+    }
+    
+    // 토큰 재발급
+    if urlRequest.url?.absoluteString.hasSuffix("/tokens") == true {
+      completion(.success(urlRequest))
+      return
+    }
 
     var urlRequest = urlRequest
     urlRequest.setValue("Bearer " + accessToken, forHTTPHeaderField: "Authorization")

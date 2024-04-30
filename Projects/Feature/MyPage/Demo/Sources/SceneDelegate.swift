@@ -1,6 +1,7 @@
 import UIKit
 
 import NetworkService
+import LocalStorage
 import MyPageFeature
 import DesignSystem
 
@@ -9,13 +10,24 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
   var coordinator: MyPageCoordinator!
   var diContainer: MyPageDIContainer!
   
+  private let localStorage: LocalStorageInterface = LocalStorageManager()
+  
+  private lazy var networkManager: NetworkManagerInterfacae = {
+    let manager = NetworkManager()
+    manager.tokenIntercepter = .init(
+      localStorage: localStorage,
+      tokenRepository: TokenRepository(networkManager: manager, localStorage: localStorage))
+    
+    return manager
+  }()
+  
   func scene(_ scene: UIScene, willConnectTo session: UISceneSession, options connectionOptions: UIScene.ConnectionOptions) {
     guard let windowScene = (scene as? UIWindowScene) else { return }
 
     Fonts.registerFont()
     let rootNavigation = UINavigationController()
     
-    self.diContainer = MyPageDIContainer(userRepo: UserRepository())
+    self.diContainer = MyPageDIContainer(localStorage: LocalStorageManager(), networkManager: NetworkManager())
     self.coordinator = MyPageCoordinator(navigationController: rootNavigation, diContainer: diContainer)
     
     window = UIWindow(windowScene: windowScene)

@@ -21,7 +21,9 @@ let project = Project(
         .external(name: "RxDataSources"),
         .external(name: "Alamofire"),
         .external(name: "KakaoSDKAuth"),
-        .external(name: "KakaoSDKUser")
+        .external(name: "KakaoSDKUser"),
+        .external(name: "Pulse"),
+        .external(name: "PulseUI"),
       ]
     )
   ]

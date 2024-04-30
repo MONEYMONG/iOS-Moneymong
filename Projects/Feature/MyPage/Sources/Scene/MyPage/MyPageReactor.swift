@@ -65,8 +65,7 @@ public final class MyPageReactor: Reactor {
         Single.create { observer in
           let task = Task {
             do {
-              // TODO: 실제토큰으로 호출
-//              try await self.userRepo.logout()
+              try await self.userRepo.logout()
               observer(.success(()))
             } catch {
               observer(.failure(error))
