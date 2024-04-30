@@ -22,7 +22,13 @@ final class AppCoordinator: Coordinator {
     switch scene {
     case .main:
       main(animated: true)
+    case .login:
+      sign(animated: true)
     }
+  }
+  
+  deinit {
+    print(#function)
   }
 }
 

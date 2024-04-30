@@ -16,6 +16,21 @@ public final class MainTabBarCoordinator: Coordinator {
   public func start(animated: Bool) {
     mainTab(animated: animated)
   }
+  
+  public func move(to scene: Scene) {
+    switch scene {
+    case .main:
+      print("main")
+      break
+    case .login:
+      parentCoordinator?.move(to: .login)
+      remove()
+    }
+  }
+  
+  deinit {
+    print(#function)
+  }
 }
 
 public extension MainTabBarCoordinator {

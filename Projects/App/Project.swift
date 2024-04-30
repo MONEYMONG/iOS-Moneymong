@@ -34,7 +34,9 @@ let project = Project(
               ]
             ]
           ]
-        ]
+        ],
+        "NSLocalNetworkUsageDescription": "Network usage required for debugging purposes",
+        "NSBonjourServices": ["_pulse._tcp"]
       ]),
       sources: ["Sources/**"],
       resources: ["Resources/**"],

@@ -13,7 +13,7 @@ public final class MyPageDIContainer {
   ) {
     self.localStorage = localStorage
     self.networkManager = networkManager
-    self.userRepo = UserRepository(networkManager: networkManager)
+    self.userRepo = UserRepository(networkManager: networkManager, localStorage: localStorage)
   }
 
   func myPage(with coordinator: MyPageCoordinator) -> MyPageVC {

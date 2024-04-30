@@ -93,12 +93,10 @@ public final class WithdrawalVC: BaseVC, View {
     
     withdrawalButton.rx.tap
       .bind(with: self) { owner, _ in
-        owner.coordinator?.presentAlert(
+        owner.coordinator?.present(.alert(
           title: "정말 탈퇴 하시겠습니까?",
           subTitle: "탈퇴시 계정은 삭제되며 복구되지 않습니다",
-          okAction: {
-            reactor.action.onNext(.tapWithdrawlButton)
-          }
+          okAction: { reactor.action.onNext(.tapWithdrawlButton)})
         )
       }
       .disposed(by: disposeBag)
@@ -116,7 +114,7 @@ public final class WithdrawalVC: BaseVC, View {
       .compactMap { $0 }
       .observe(on: MainScheduler.instance)
       .bind(with: self) { owner, value in
-        // TODO: 로그인으로 이동
+        owner.coordinator?.goLogin()
       }
       .disposed(by: disposeBag)
   }
