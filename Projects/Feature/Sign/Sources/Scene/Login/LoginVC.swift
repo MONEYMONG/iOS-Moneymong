@@ -103,7 +103,7 @@ final class LoginVC: BaseVC, View {
       .bind(with: self) { owner, destination in
         switch destination {
         case .main:
-          owner.coordinator?.signUp()
+          owner.coordinator?.main()
         case .signUp:
           owner.coordinator?.signUp()
         }
