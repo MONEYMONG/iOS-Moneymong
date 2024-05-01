@@ -43,9 +43,14 @@ final class LoginVC: BaseVC, View {
     return button
   }()
 
-  public override func viewDidLoad() {
-    super.viewDidLoad()
+  override func viewWillAppear(_ animated: Bool) {
+    super.viewWillAppear(animated)
     navigationController?.navigationBar.isHidden = true
+  }
+
+  override func viewDidAppear(_ animated: Bool) {
+    super.viewDidAppear(animated)
+    navigationController?.navigationBar.isHidden = false
   }
 
   public override func viewDidLayoutSubviews() {
@@ -92,11 +97,16 @@ final class LoginVC: BaseVC, View {
   func bind(reactor: LoginReactor) {
     // State Binding
 
-    reactor.pulse(\.$moveToMain)
+    reactor.pulse(\.$destination)
       .compactMap { $0 }
       .observe(on: MainScheduler.instance)
-      .bind(with: self) { owner, _ in
-        owner.coordinator?.main()
+      .bind(with: self) { owner, destination in
+        switch destination {
+        case .main:
+          owner.coordinator?.signUp()
+        case .signUp:
+          owner.coordinator?.signUp()
+        }
       }
       .disposed(by: disposeBag)
 
@@ -104,15 +114,16 @@ final class LoginVC: BaseVC, View {
       .compactMap { $0 }
       .observe(on: MainScheduler.instance)
       .bind(with: self) { owner, errorMessage in
-        AlertsManager.show(owner, title: errorMessage, subTitle: nil, okAction: {}, cancelAction: nil)
+        owner.coordinator?.alert(title: errorMessage, subTitle: "", okAction: {})
       }
       .disposed(by: disposeBag)
 
-    //    reactor.pulse(\.$isLoading)
-    //      .compactMap { $0 }
-    //      .observe(on: MainScheduler.instance)
-    //      .bind(to: rx.isLoading())
-    //      .disposed(by: disposeBag)
+    reactor.pulse(\.$isLoading)
+      .observe(on: MainScheduler.instance)
+      .bind { isLoading in
+        // TODO: 로딩인디케이터 돌리기
+      }
+      .disposed(by: disposeBag)
 
     // Action Binding
 

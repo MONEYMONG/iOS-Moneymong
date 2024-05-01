@@ -11,3 +11,20 @@ public struct UniversityResponseDTO: Responsable {
     .init(id: id ?? 0, schoolName: schoolName ?? "")
   }
 }
+
+public struct UniversitiesResponseDTO: Responsable {
+  public let universities: [UniversityResponseDTO]?
+
+  public init(universities: [UniversityResponseDTO]?) {
+    self.universities = universities
+  }
+
+  public var toEntity: Universities {
+    .init(universities: universities?.compactMap { $0.toEntity } ?? [])
+  }
+}
+
+public struct Universities {
+  public let universities: [University]
+}
+

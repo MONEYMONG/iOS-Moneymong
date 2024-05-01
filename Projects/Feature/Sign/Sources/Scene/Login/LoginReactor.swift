@@ -23,25 +23,25 @@ final class LoginReactor: Reactor {
   enum Mutation {
     case setIsLoading(Bool)
     case setErrorMessage(String)
-    case moveToMain(Void)
+    case setDestination(Destination)
   }
 
   struct State {
     @Pulse var isLoading: Bool?
     @Pulse var errorMessage: String?
-    @Pulse var moveToMain: Void?
+    @Pulse var destination: Destination?
+  }
+
+  public enum Destination {
+    case main
+    case signUp
   }
 
   let initialState: State = State()
   private let signRepository: SignRepositoryInterface
-  private let universityRepository: UniversityRepository
 
-  init(
-    signRepository: SignRepositoryInterface,
-    universityRepository: UniversityRepository
-  ) {
+  init(signRepository: SignRepositoryInterface) {
     self.signRepository = signRepository
-    self.universityRepository = universityRepository
   }
 
   func mutate(action: Action) -> Observable<Mutation> {
@@ -64,11 +64,8 @@ final class LoginReactor: Reactor {
               provider: loginType.value,
               accessToken: accessToken
             )
-
-            if !response.schoolInfoExist {
-              try await universityRepository.university(name: "홍익 대학교", grade: 4)
-            }
-            observer.onNext(.moveToMain(()))
+            let destination: Destination = response.schoolInfoExist ? .main : .signUp
+            observer.onNext(.setDestination(destination))
 
           } catch {
             observer.onNext(.setErrorMessage(error.localizedDescription))
@@ -87,8 +84,8 @@ final class LoginReactor: Reactor {
       newState.isLoading = isLoading
     case .setErrorMessage(let errorMessage):
       newState.errorMessage = errorMessage
-    case .moveToMain(let result):
-      newState.moveToMain = result
+    case .setDestination(let destination):
+      newState.destination = destination
     }
     return newState
   }

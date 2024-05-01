@@ -1,6 +1,7 @@
 import UIKit
 
 import BaseFeature
+import DesignSystem
 
 public final class SignCoordinator: Coordinator {
   public var navigationController: UINavigationController
@@ -36,5 +37,24 @@ public extension SignCoordinator {
   func main() {
     parentCoordinator?.move(to: .main)
     remove()
+  }
+
+  func signUp(animated: Bool = true) {
+    let vc = diContainer.signUp(with: self)
+    navigationController.pushViewController(vc, animated: animated)
+  }
+
+  func pop(animated: Bool = true) {
+    navigationController.popViewController(animated: animated)
+  }
+
+  func alert(title: String, subTitle: String, okAction: @escaping () -> Void) {
+    AlertsManager.show(
+      navigationController,
+      title: title,
+      subTitle: subTitle,
+      okAction: okAction,
+      cancelAction: { }
+    )
   }
 }

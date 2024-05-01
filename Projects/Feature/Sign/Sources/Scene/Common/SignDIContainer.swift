@@ -28,11 +28,15 @@ public final class SignDIContainer {
       kakaoAuthManager: KakaoAuthManager(),
       appleAuthManager: AppleAuthManager()
     )
+    vc.reactor = LoginReactor(signRepository: signRepository)
+    vc.coordinator = coordinator
+    return vc
+  }
+
+  func signUp(with coordinator: SignCoordinator) -> SignUpVC {
+    let vc = SignUpVC()
     let universityRepository = UniversityRepository(networkManager: networkManager)
-    vc.reactor = LoginReactor(
-      signRepository: signRepository,
-      universityRepository: universityRepository
-    )
+    vc.reactor = SignUpReactor(universityRepository: universityRepository)
     vc.coordinator = coordinator
     return vc
   }
