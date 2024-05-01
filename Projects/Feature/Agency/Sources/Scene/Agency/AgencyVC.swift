@@ -3,6 +3,7 @@ import UIKit
 import DesignSystem
 import BaseFeature
 import Utility
+import NetworkService
 
 import ReactorKit
 import RxDataSources
@@ -25,6 +26,12 @@ public final class AgencyVC: BaseVC, View {
     return v
   }()
   
+  private let registerAgencyButton: UIButton = {
+    let v = UIButton()
+    v.setBackgroundImage(Images.plusCircleFillRed, for: .normal)
+    return v
+  }()
+  
   private lazy var dataSource = RxCollectionViewSectionedAnimatedDataSource<AgencySectionModel> { dataSource, collectionView, indexPath, item in
     return collectionView.dequeueCell(AgencyCell.self, for: indexPath)
       .configure(with: item)
@@ -38,8 +45,12 @@ public final class AgencyVC: BaseVC, View {
   public override func setupConstraints() {
     super.setupConstraints()
     
+    let tabHeight = tabBarController?.tabBar.frame.height ?? 80
+    
     rootContainer.flex.define { flex in
       flex.addItem(collectionView).width(100%).height(100%)
+      flex.addItem(registerAgencyButton).position(.absolute).size(60)
+        .right(14).bottom(tabHeight + 14)
     }
   }
   
@@ -55,6 +66,12 @@ public final class AgencyVC: BaseVC, View {
     rx.viewWillAppear
       .map { _ in Reactor.Action.requestAgencyList }
       .bind(to: reactor.action)
+      .disposed(by: disposeBag)
+    
+    collectionView.rx.modelSelected(Agency.self)
+      .bind(with: self) { owner, item in
+        print(item)
+      }
       .disposed(by: disposeBag)
     
     // Data Binding

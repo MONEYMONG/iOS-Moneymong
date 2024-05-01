@@ -59,6 +59,7 @@ public enum Images {
   
   public static var closeCircleFill = UIImage(named: "close.circle.fill", in: Bundle.module, with: nil)
   public static var plusCircleFillGreen = UIImage(named: "plus.circle.fill.green", in: Bundle.module, with: nil)
+  public static var plusCircleFillRed = UIImage(named: "plus.circle.fill.red", in: Bundle.module, with: nil)
   public static var pencilCircleFill = UIImage(named: "pencil.circle.fill", in: Bundle.module, with: nil)
   public static var scanCircleFill = UIImage(named: "scan.circle.fill", in: Bundle.module, with: nil)
   public static var warningFill = UIImage(named: "warning.fill", in: Bundle.module, with: nil)
