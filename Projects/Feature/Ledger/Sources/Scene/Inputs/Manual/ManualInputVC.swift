@@ -64,7 +64,7 @@ final class ManualInputVC: BaseVC, View {
     return v
   }()
   
-  private let transactionTypeSelection: MMSegmentControl = {
+  private let fundTypeSelection: MMSegmentControl = {
     let v = MMSegmentControl(titles: ["지출", "수입"], type: .round)
     v.selectedIndex = 1
     return v
@@ -74,6 +74,7 @@ final class ManualInputVC: BaseVC, View {
     let v = MMTextField(title: "날짜")
     v.setPlaceholder(to: "YYYY/MM/DD")
     v.setRequireMark()
+    v.setKeyboardType(to: .numberPad)
     return v
   }()
   
@@ -81,6 +82,7 @@ final class ManualInputVC: BaseVC, View {
     let v = MMTextField(title: "시간")
     v.setPlaceholder(to: "00:00:00(24시 단위)")
     v.setRequireMark()
+    v.setKeyboardType(to: .numberPad)
     return v
   }()
   
@@ -152,7 +154,7 @@ final class ManualInputVC: BaseVC, View {
           flex.addItem(amountTextField).marginBottom(24)
           flex.addItem().define { flex in
             flex.addItem(selectionLabel).marginBottom(8)
-            flex.addItem(transactionTypeSelection)
+            flex.addItem(fundTypeSelection)
           }.marginBottom(24)
           flex.addItem(dateTextField).marginBottom(24)
           flex.addItem(timeTextField).marginBottom(24)
@@ -172,7 +174,11 @@ final class ManualInputVC: BaseVC, View {
   }
   
   func bind(reactor: ManualInputReactor) {
-    // MARK: - Action Bind
+    bindAction(reactor: reactor)
+    bindState(reactor: reactor)
+  }
+  
+  private func bindAction(reactor: ManualInputReactor) {
     navigationItem.rightBarButtonItem?.rx.tap
       .bind(with: self) { owner, _ in
         owner.coordinator?.dismiss(animated: true)
@@ -228,10 +234,9 @@ final class ManualInputVC: BaseVC, View {
       .bind(to: reactor.action)
       .disposed(by: disposeBag)
     
-    transactionTypeSelection.$selectedIndex
-      .sink { [weak self] in
-        self?.amountTextField.textField.resignFirstResponder()
-        reactor.action.onNext(.inputContent("\($0)", type: .transactionType))
+    fundTypeSelection.$selectedIndex
+      .sink {
+        reactor.action.onNext(.inputContent("\($0)", type: .fundType))
     }.store(in: &anyCancellable)
     
     dateTextField.textField.rx.text
@@ -242,7 +247,7 @@ final class ManualInputVC: BaseVC, View {
     
     memoTextView.textView.rx.text
       .bind(with: self) { owner, _ in
-        owner.viewDidLayoutSubviews()
+        owner.view.setNeedsLayout()
       }
       .disposed(by: disposeBag)
     
@@ -267,8 +272,9 @@ final class ManualInputVC: BaseVC, View {
       .map { Reactor.Action.didTapImageDeleteButton($0) }
       .bind(to: reactor.action)
       .disposed(by: disposeBag)
-    
-    // MARK: - State Bind
+  }
+  
+  private func bindState(reactor: ManualInputReactor) {
     reactor.pulse(\.$images)
       .observe(on: MainScheduler.instance)
       .bind(to: collectionView.rx.items(dataSource: dataSource))
@@ -310,7 +316,7 @@ final class ManualInputVC: BaseVC, View {
     collectionView.flex.height(
       baseH + (ViewSize.cell.height + ViewSize.cellSpacing) * (receiptLineCount + supportingLineCount - 2)
     ).markDirty()
-    viewDidLayoutSubviews()
+    view.setNeedsLayout()
   }
 }
 
