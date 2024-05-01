@@ -153,12 +153,8 @@ private extension ManualInputReactor {
   }
   
   func formatAmount(_ value: String) -> String? {
-    var amountString = value
-    if amountString.contains(",") {
-      amountString = amountString.replacingOccurrences(of: ",", with: "")
-    }
-    guard let num = Int(amountString) else { return nil }
-    return numberFormatter.string(for: num)
+    guard let num = Int(value.filter { $0.isNumber }) else { return nil }
+    return numberFormatter.string(from: NSNumber(value: num))
   }
   
   func formatDate(_ value: String) -> String {
