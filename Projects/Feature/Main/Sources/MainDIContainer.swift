@@ -22,11 +22,16 @@ public final class MainDIContainer {
     self.localStorage = localStorage
     self.networkManager = networkManager
 
-    self.agencyContainer = .init()
+    self.agencyContainer = .init(
+      localStorage: localStorage,
+      networkManager: networkManager
+    )
+    
     self.myPageContainer = .init(
       localStorage: localStorage,
       networkManager: networkManager
     )
+    
     self.ledgerContainer = .init()
   }
 
