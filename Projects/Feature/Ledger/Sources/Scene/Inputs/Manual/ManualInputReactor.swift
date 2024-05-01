@@ -100,10 +100,9 @@ private extension ManualInputReactor {
     case .source:
       state.content.source = value
     case .amount:
-      state.content.amount = formatAmount(state, value)
+      state.content.amount = formatAmount(state, value) ?? ""
     case .transactionType:
       state.content.amountSign = Int(value)!
-      setAmountSign(&state)
     case .date:
       state.content.date = formatDate(value)
     case .time:
@@ -111,32 +110,14 @@ private extension ManualInputReactor {
     }
   }
   
-  func setAmountSign(_ state: inout State) {
-    var amount = state.content.amount
-    guard !amount.isEmpty else { return }
-    if Int(amount.prefix(1)) == nil {
-      amount.removeFirst()
-    }
-    let sign = state.content.amountSign == 0 ? "-" : "+"
-    state.content.amount = sign + amount
-  }
-  
-  func formatAmount(_ state: State, _ value: String) -> String {
+  func formatAmount(_ state: State, _ value: String) -> String? {
     var amountString = value
     let amountSet = Set(amountString)
     if amountSet.contains(",") {
       amountString = amountString.replacingOccurrences(of: ",", with: "")
     }
-    
-    if amountSet.contains("+") || amountSet.contains("-") {
-      amountString.removeFirst()
-    }
-    
-    if let num = Int(amountString) {
-      let sign = state.content.amountSign == 0 ? "-" : "+"
-      return sign + (numberFormatter.string(for: num) ?? "")
-    }
-    return ""
+    guard let num = Int(amountString) else { return nil }
+    return numberFormatter.string(for: num)
   }
   
   func formatDate(_ value: String) -> String {
