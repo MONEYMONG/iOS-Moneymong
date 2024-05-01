@@ -25,3 +25,4 @@ public final class UniversityRepository: UniversityRepositoryInterface {
     try await networkManager.request(target: targetType)
   }
 }
+

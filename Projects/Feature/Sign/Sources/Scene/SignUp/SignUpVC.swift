@@ -35,10 +35,17 @@ final class SignUpVC: BaseVC, View {
     return searchBar
   }()
 
+  private let emptyListView: EmptyListView = {
+    let view = EmptyListView()
+    view.isHidden = true
+    return view
+  }()
+
   private let tableView: UITableView = {
     let tableView = UITableView()
     tableView.register(UniversityCell.self)
     tableView.separatorStyle = .none
+    tableView.showsVerticalScrollIndicator = false
     return tableView
   }()
 
@@ -70,6 +77,7 @@ final class SignUpVC: BaseVC, View {
         flex.addItem().grow(1).define { flex in
           flex.addItem(searchBar).marginBottom(4)
           flex.addItem(tableView).grow(1)
+          flex.addItem(emptyListView).grow(1)
           flex.addItem(gradeInputView).grow(1)
         }
 
@@ -105,6 +113,14 @@ final class SignUpVC: BaseVC, View {
         cellType: UniversityCell.self
       )) { row, item, cell in
         cell.configure(with: item)
+      }
+      .disposed(by: disposeBag)
+
+    reactor.pulse(\.$isEmptyList)
+      .compactMap { $0 }
+      .observe(on: MainScheduler.instance)
+      .bind(with: self) { owner, value in
+        owner.setIsNoSearchResults(to: value)
       }
       .disposed(by: disposeBag)
 
@@ -229,6 +245,17 @@ final class SignUpVC: BaseVC, View {
       rootContainer.flex.layout()
       rootContainer.setNeedsLayout()
     }
+  }
+
+  private func setIsNoSearchResults(to value: Bool) {
+    tableView.isHidden = value
+    tableView.flex.display(value ? .none : .flex)
+    emptyListView.isHidden = !value
+    emptyListView.flex.display(value ? .flex : .none)
+
+    rootContainer.flex.markDirty()
+    rootContainer.flex.layout()
+    rootContainer.setNeedsLayout()
   }
 }
 

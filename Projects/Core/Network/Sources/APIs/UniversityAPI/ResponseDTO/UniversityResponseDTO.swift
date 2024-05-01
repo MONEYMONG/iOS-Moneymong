@@ -23,8 +23,3 @@ public struct UniversitiesResponseDTO: Responsable {
     .init(universities: universities?.compactMap { $0.toEntity } ?? [])
   }
 }
-
-public struct Universities {
-  public let universities: [University]
-}
-
