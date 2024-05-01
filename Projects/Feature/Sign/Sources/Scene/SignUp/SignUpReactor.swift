@@ -55,25 +55,25 @@ final class SignUpReactor: Reactor {
   func mutate(action: Action) -> Observable<Mutation> {
     switch action {
     case .searchKeyword(let keyword):
-//      return Observable.just([
-//        University(id: 0, schoolName: "말랑대학교"),
-//        University(id: 1, schoolName: "두두대학교"),
-//        University(id: 2, schoolName: "사파리대학교")
-//      ])
-//      .map { .setSchoolList($0) }
-      return Observable.create { [unowned self] observer in
-        observer.onNext(.setIsLoading(true))
-        Task {
-          do {
-            let universityList = try await universityRepository.universities(keyword: keyword)
-            observer.onNext(.setSchoolList(universityList))
-          } catch {
-            observer.onNext(.setErrorMessage(error.localizedDescription))
-          }
-        }
-        observer.onNext(.setIsLoading(false))
-        return Disposables.create()
-      }
+      return Observable.just([
+        University(id: 0, schoolName: "말랑대학교"),
+        University(id: 1, schoolName: "두두대학교"),
+        University(id: 2, schoolName: "사파리대학교")
+      ])
+      .map { .setSchoolList($0) }
+//      return Observable.create { [unowned self] observer in
+//        observer.onNext(.setIsLoading(true))
+//        Task {
+//          do {
+//            let universityList = try await universityRepository.universities(keyword: keyword)
+//            observer.onNext(.setSchoolList(universityList))
+//          } catch {
+//            observer.onNext(.setErrorMessage(error.localizedDescription))
+//          }
+//        }
+//        observer.onNext(.setIsLoading(false))
+//        return Disposables.create()
+//      }
 
     case .selectUniversity(let university):
       selectedUniversity = university
@@ -104,10 +104,10 @@ final class SignUpReactor: Reactor {
               observer.onNext(.setErrorMessage("필수 입력값을 입력해 주세요."))
               return Disposables.create()
             }
-            try await universityRepository.university(
-              name: selectedUniversity.schoolName,
-              grade: selectedGrade
-            )
+//            try await universityRepository.university(
+//              name: selectedUniversity.schoolName,
+//              grade: selectedGrade
+//            )
             observer.onNext(.setDestination(.congratulations))
           } catch {
             observer.onNext(.setErrorMessage(error.localizedDescription))

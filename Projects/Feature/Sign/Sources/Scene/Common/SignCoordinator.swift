@@ -44,6 +44,11 @@ public extension SignCoordinator {
     navigationController.pushViewController(vc, animated: animated)
   }
 
+  func congratulations(animated: Bool = true) {
+    let vc = diContainer.congratulations(with: self)
+    navigationController.pushViewController(vc, animated: animated)
+  }
+
   func pop(animated: Bool = true) {
     navigationController.popViewController(animated: animated)
   }

@@ -46,7 +46,7 @@ final class SignUpVC: BaseVC, View {
 
   private let gradeInputView: GradeInputView = {
     let view = GradeInputView()
-//    view.isHidden = true
+    view.isHidden = true
     return view
   }()
 
@@ -133,7 +133,7 @@ final class SignUpVC: BaseVC, View {
       .bind(with: self) { owner, destination in
         switch destination {
         case .congratulations:
-          owner.coordinator?.main()
+          owner.coordinator?.congratulations()
         }
       }
       .disposed(by: disposeBag)

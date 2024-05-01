@@ -40,4 +40,11 @@ public final class SignDIContainer {
     vc.coordinator = coordinator
     return vc
   }
+
+  func congratulations(with coordinator: SignCoordinator) -> CongratulationsVC {
+    let vc = CongratulationsVC()
+    vc.reactor = CongratulationsReactor()
+    vc.coordinator = coordinator
+    return vc
+  }
 }

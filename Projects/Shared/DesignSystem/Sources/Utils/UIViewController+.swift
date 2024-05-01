@@ -8,7 +8,8 @@ public extension UIViewController {
     case closeWhite
     case trash
     case 수정완료
-    
+    case none
+
     var button: UIBarButtonItem {
       let button = UIBarButtonItem()
       
@@ -29,6 +30,8 @@ public extension UIViewController {
         button.title = "수정완료"
         button.setTitleTextAttributes([.font: Fonts.body._3], for: .normal)
         button.tintColor = Colors.Blue._4
+      case .none:
+        button.image = UIImage()
       }
       
       return button
