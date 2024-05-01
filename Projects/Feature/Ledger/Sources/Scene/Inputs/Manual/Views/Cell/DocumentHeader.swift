@@ -40,7 +40,6 @@ final class DocumentHeader: UICollectionReusableView, ReusableView {
   
   override func layoutSubviews() {
     super.layoutSubviews()
-    
     rootContainer.pin.all()
     rootContainer.flex.layout()
   }

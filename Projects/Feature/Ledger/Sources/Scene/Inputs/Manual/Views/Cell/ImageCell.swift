@@ -43,7 +43,7 @@ final class ImageCell: UICollectionViewCell, ReusableView {
   private func setupView() {}
   
   private func setupConstraints() {
-    addSubview(rootContainer)
+    contentView.addSubview(rootContainer)
     rootContainer.flex
       .justifyContent(.center)
       .alignItems(.center)

@@ -26,12 +26,6 @@ final class ReceiptHeader: UICollectionReusableView, ReusableView {
   
   private let rootContainer = UIView()
   
-  override func sizeThatFits(_ size: CGSize) -> CGSize {
-    bounds.size.width = size.width
-    flex.layout(mode: .adjustHeight)
-    return frame.size
-  }
-  
   override init(frame: CGRect) {
     super.init(frame: frame)
     setupUI()
