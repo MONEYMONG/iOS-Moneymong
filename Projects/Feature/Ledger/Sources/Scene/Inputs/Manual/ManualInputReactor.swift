@@ -7,9 +7,10 @@ final class ManualInputReactor: Reactor {
   enum ContentType {
     case source
     case amount
-    case transactionType
+    case fundType
     case date
     case time
+    case memo
   }
   
   enum Action {
@@ -33,6 +34,14 @@ final class ManualInputReactor: Reactor {
     ]
     @Pulse var selectedSection: ImageSectionModel.Section? = nil
     var content = Content()
+    @Pulse var isValids: [ContentType: Bool?] = [
+      .source: nil,
+      .amount: nil,
+      .fundType: nil,
+      .date: nil,
+      .time: nil,
+      .memo: nil
+    ]
   }
   
   struct Content {
@@ -41,6 +50,7 @@ final class ManualInputReactor: Reactor {
     @Pulse var amountSign: Int = 1
     @Pulse var date: String = ""
     @Pulse var time: String = ""
+    @Pulse var memo: String = ""
   }
   
   let initialState: State = State()
@@ -88,32 +98,63 @@ final class ManualInputReactor: Reactor {
     case .setSection(let section):
       newState.selectedSection = section
     case .setContent(let value, let type):
-      setContent(&newState, value: value, type: type)
+      setContent(&newState.content, value: value, type: type)
+      newState.isValids[type] = checkContent(newState.content, type: type)
     }
     return newState
   }
 }
 
 private extension ManualInputReactor {
-  func setContent(_ state: inout State, value: String, type: ContentType) {
+  func setContent(_ content: inout Content, value: String, type: ContentType) {
     switch type {
     case .source:
-      state.content.source = value
+      content.source = value
     case .amount:
-      state.content.amount = formatAmount(state, value) ?? ""
-    case .transactionType:
-      state.content.amountSign = Int(value)!
+      content.amount = formatAmount(value) ?? ""
+    case .fundType:
+      content.amountSign = Int(value)!
     case .date:
-      state.content.date = formatDate(value)
+      content.date = formatDate(value)
     case .time:
-      state.content.time = formatItme(value)
+      content.time = formatItme(value)
+    case .memo:
+      content.memo = value
     }
   }
   
-  func formatAmount(_ state: State, _ value: String) -> String? {
+  func checkContent(_ content: Content, type: ContentType) -> Bool? {
+    var pattern: String!
+    var value: String!
+    switch type {
+    case .source:
+      if content.source.isEmpty { return nil }
+      return content.source.count <= 20
+    case .amount:
+      if content.amount.isEmpty { return nil }
+      return Int(content.amount.replacingOccurrences(of: ",", with: ""))! <= 999999999
+    case .fundType:
+      return content.amountSign == 1 || content.amountSign == 0
+    case .date:
+      pattern = "^\\d{4}/(0[1-9]|1[012])/(0[1-9]|[12]\\d|3[01])$"
+      value = content.date
+    case .time:
+      pattern = "^([01]?[0-9]|2[0-3]):[0-5][0-9](:[0-5][0-9])?$"
+      value = content.time
+    case .memo:
+      if content.memo.isEmpty { return nil }
+      return content.memo.count <= 300
+    }
+    
+    let regex = try! NSRegularExpression(pattern: pattern)
+    let result = regex.firstMatch(in: value, range: NSRange(location: 0, length: value.count))
+
+    return result != nil
+  }
+  
+  func formatAmount(_ value: String) -> String? {
     var amountString = value
-    let amountSet = Set(amountString)
-    if amountSet.contains(",") {
+    if amountString.contains(",") {
       amountString = amountString.replacingOccurrences(of: ",", with: "")
     }
     guard let num = Int(amountString) else { return nil }
