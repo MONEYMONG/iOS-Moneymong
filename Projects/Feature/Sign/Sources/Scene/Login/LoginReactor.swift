@@ -3,13 +3,13 @@ import NetworkService
 import LocalStorage
 
 enum LoginType {
-  case Kakao
-  case Apple
+  case kakao
+  case apple
 
   var value: String {
     switch self {
-    case .Kakao: "KAKAO"
-    case .Apple: "APPLE"
+    case .kakao: "KAKAO"
+    case .apple: "APPLE"
     }
   }
 }
@@ -52,9 +52,9 @@ final class LoginReactor: Reactor {
           do {
             var accessToken = ""
             switch loginType {
-            case .Kakao:
+            case .kakao:
               accessToken = try await self.signRepository.kakaoSign()
-            case .Apple:
+            case .apple:
               accessToken = try await self.signRepository.appleSign()
             }
 

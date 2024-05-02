@@ -166,7 +166,7 @@ final class SignUpVC: BaseVC, View {
     searchBar.textField.rx.text
       .orEmpty
       .distinctUntilChanged()
-      .debounce(.seconds(1), scheduler: MainScheduler.instance)
+      .debounce(.milliseconds(500), scheduler: MainScheduler.instance)
       .map { Reactor.Action.searchKeyword($0) }
       .bind(to: reactor.action)
       .disposed(by: disposeBag)
@@ -196,7 +196,7 @@ final class SignUpVC: BaseVC, View {
       .store(in: &anyCancellable)
 
     confirmButton.rx.tap
-      .throttle(.seconds(1), scheduler: MainScheduler.instance)
+      .throttle(.milliseconds(505), scheduler: MainScheduler.instance)
       .map { Reactor.Action.confirm }
       .bind(to: reactor.action)
       .disposed(by: disposeBag)

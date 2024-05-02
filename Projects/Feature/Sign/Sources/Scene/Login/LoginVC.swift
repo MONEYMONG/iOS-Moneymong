@@ -43,20 +43,15 @@ final class LoginVC: BaseVC, View {
     return button
   }()
 
-  override func viewWillAppear(_ animated: Bool) {
-    super.viewWillAppear(animated)
-    navigationController?.navigationBar.isHidden = true
-  }
-
-  override func viewDidAppear(_ animated: Bool) {
-    super.viewDidAppear(animated)
-    navigationController?.navigationBar.isHidden = false
-  }
-
   public override func viewDidLayoutSubviews() {
     super.viewDidLayoutSubviews()
     rootContainer.pin.all()
     rootContainer.flex.layout()
+  }
+
+  override func setupUI() {
+    super.setupUI()
+    setLeftItem(.none)
   }
 
   override func setupConstraints() {
@@ -128,12 +123,14 @@ final class LoginVC: BaseVC, View {
     // Action Binding
 
     appleLogin.rx.tap
-      .map { Reactor.Action.login(.Apple) }
+      .throttle(.milliseconds(500), scheduler: MainScheduler.instance)
+      .map { Reactor.Action.login(.apple) }
       .bind(to: reactor.action)
       .disposed(by: disposeBag)
 
     kakaoLogin.rx.tap
-      .map { Reactor.Action.login(.Kakao) }
+      .throttle(.milliseconds(500), scheduler: MainScheduler.instance)
+      .map { Reactor.Action.login(.kakao) }
       .bind(to: reactor.action)
       .disposed(by: disposeBag)
   }

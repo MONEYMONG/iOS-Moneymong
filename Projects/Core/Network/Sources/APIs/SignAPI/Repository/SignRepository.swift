@@ -52,6 +52,7 @@ public final class SignRepository: SignRepositoryInterface {
 
     localStorage.create(to: .accessToken, value: entity.accessToken)
     localStorage.create(to: .refreshToken, value: entity.refreshToken)
+    localStorage.create(to: .recentLoginType, value: provider)
 
     return entity
   }

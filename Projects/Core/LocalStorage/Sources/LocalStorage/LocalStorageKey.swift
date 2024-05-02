@@ -1,4 +1,5 @@
 public enum LocalStorageKey: String {
   case accessToken
   case refreshToken
+  case recentLoginType
 }
