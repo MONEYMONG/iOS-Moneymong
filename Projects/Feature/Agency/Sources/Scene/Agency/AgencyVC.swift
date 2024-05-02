@@ -75,9 +75,8 @@ public final class AgencyVC: BaseVC, View {
       .disposed(by: disposeBag)
     
     collectionView.rx.modelSelected(Agency.self)
-      .bind(with: self) { owner, item in
-        print(item)
-      }
+      .map { Reactor.Action.tap($0) }
+      .bind(to: reactor.action)
       .disposed(by: disposeBag)
     
     // Data Binding

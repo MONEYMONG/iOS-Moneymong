@@ -56,12 +56,12 @@ public final class AgencyReactor: Reactor {
     
     case let .tap(agency):
       if currentState.myAgency.contains(agency) {
-        return .just(.setDestination(.joinAgency))
-      } else {
         return .just(.setAlert(
           title: "이미 가입한 소속입니다.",
           subTitle: "장부 페이지에서 가입한 소속을 확인해보세요"
         ))
+      } else {
+        return .just(.setDestination(.joinAgency))
       }
     }
   }

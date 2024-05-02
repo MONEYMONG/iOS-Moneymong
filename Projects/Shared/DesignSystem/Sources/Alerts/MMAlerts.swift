@@ -23,6 +23,8 @@ final class MMAlerts: UIViewController {
     v.textColor = Colors.Gray._6
     v.font = Fonts.body._4
     v.text = "서브 타이틀"
+    v.textAlignment = .center
+    v.numberOfLines = 2
     return v
   }()
   

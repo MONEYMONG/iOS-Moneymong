@@ -33,7 +33,6 @@ final class AgencyCell: UICollectionViewCell, ReusableView {
   override init(frame: CGRect) {
     super.init(frame: frame)
     
-    setupUI()
     setupConstraints()
   }
   
@@ -53,10 +52,6 @@ final class AgencyCell: UICollectionViewCell, ReusableView {
     contentView.bounds.size.width = size.width
     contentView.flex.layout(mode: .adjustHeight)
     return contentView.frame.size
-  }
-  
-  private func setupUI() {
-    
   }
   
   private func setupConstraints() {
