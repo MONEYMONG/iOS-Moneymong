@@ -26,6 +26,10 @@ public final class AgencyVC: BaseVC, View {
     return v
   }()
   
+  private let emptyView = EmptyAgencyView()
+  
+  private let button = UIButton()
+  
   private let registerAgencyButton: UIButton = {
     let v = UIButton()
     v.setBackgroundImage(Images.plusCircleFillRed, for: .normal)
@@ -46,17 +50,17 @@ public final class AgencyVC: BaseVC, View {
     super.setupConstraints()
     
     let tabHeight = tabBarController?.tabBar.frame.height ?? 80
-    
-    rootContainer.flex.define { flex in
+
+    rootContainer.flex.justifyContent(.center).alignItems(.center).define { flex in
       flex.addItem(collectionView).width(100%).height(100%)
-      flex.addItem(registerAgencyButton).position(.absolute).size(60)
-        .right(14).bottom(tabHeight + 14)
+      flex.addItem(emptyView).position(.absolute).width(100%).height(100%).backgroundColor(Colors.White._1)
+      flex.addItem(registerAgencyButton).position(.absolute).size(70).right(14).bottom(tabHeight)
     }
   }
   
   public override func viewDidLayoutSubviews() {
     super.viewDidLayoutSubviews()
-    
+
     rootContainer.pin.all()
     rootContainer.flex.layout()
   }
@@ -64,8 +68,10 @@ public final class AgencyVC: BaseVC, View {
   public func bind(reactor: AgencyReactor) {
     // Action Binding
     rx.viewWillAppear
-      .map { _ in Reactor.Action.requestAgencyList }
-      .bind(to: reactor.action)
+      .bind {
+        reactor.action.onNext(.requestAgencyList)
+        reactor.action.onNext(.requestMyAgency)
+      }
       .disposed(by: disposeBag)
     
     collectionView.rx.modelSelected(Agency.self)
@@ -77,6 +83,32 @@ public final class AgencyVC: BaseVC, View {
     // Data Binding
     reactor.pulse(\.$items)
       .bind(to: collectionView.rx.items(dataSource: dataSource))
+      .disposed(by: disposeBag)
+    
+    reactor.pulse(\.$items)
+      .map(\.isEmpty)
+      .observe(on: MainScheduler.instance)
+      .bind(to: emptyView.isVisable)
+      .disposed(by: disposeBag)
+    
+    reactor.pulse(\.$error)
+      .compactMap { $0 }
+      .observe(on: MainScheduler.instance)
+      .bind(with: self) { owner, error in
+        print(error)
+      }
+      .disposed(by: disposeBag)
+    
+    reactor.pulse(\.$alert)
+      .compactMap { $0 }
+      .observe(on: MainScheduler.instance)
+      .bind(with: self) { owner, alert in
+        owner.coordinator?.present(.alert(
+          title: alert.title,
+          subTitle: alert.subTitle,
+          okAction: {}
+        ))
+      }
       .disposed(by: disposeBag)
   }
 }
