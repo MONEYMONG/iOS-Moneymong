@@ -2,21 +2,9 @@ import ReactorKit
 import NetworkService
 import LocalStorage
 
-enum LoginType {
-  case kakao
-  case apple
-
-  var value: String {
-    switch self {
-    case .kakao: "KAKAO"
-    case .apple: "APPLE"
-    }
-  }
-}
-
 final class LoginReactor: Reactor {
-
   enum Action {
+    case onAppear
     case login(LoginType)
   }
 
@@ -26,10 +14,16 @@ final class LoginReactor: Reactor {
     case setDestination(Destination)
   }
 
-  struct State {
-    @Pulse var isLoading: Bool?
-    @Pulse var errorMessage: String?
-    @Pulse var destination: Destination?
+  enum LoginType: String {
+    case kakao
+    case apple
+
+    var value: String {
+      switch self {
+      case .kakao: "KAKAO"
+      case .apple: "APPLE"
+      }
+    }
   }
 
   public enum Destination {
@@ -37,10 +31,18 @@ final class LoginReactor: Reactor {
     case signUp
   }
 
-  let initialState: State = State()
+  struct State {
+    @Pulse var isLoading: Bool?
+    @Pulse var errorMessage: String?
+    @Pulse var destination: Destination?
+    @Pulse var recentLoginType: LoginType?
+  }
+
+  let initialState: State
   private let signRepository: SignRepositoryInterface
 
-  init(signRepository: SignRepositoryInterface) {
+  init(recentLoginType: LoginType?, signRepository: SignRepositoryInterface) {
+    initialState = State(recentLoginType: recentLoginType)
     self.signRepository = signRepository
   }
 
@@ -72,6 +74,12 @@ final class LoginReactor: Reactor {
           }
         }
         observer.onNext(.setIsLoading(false))
+        return Disposables.create()
+      }
+
+    case .onAppear:
+      return Observable.create { [unowned self] observer in
+//         initialState.recentLoginType
         return Disposables.create()
       }
     }

@@ -49,8 +49,6 @@ final class SignUpVC: BaseVC, View {
     return tableView
   }()
 
-  private let schoolNameInputView = SchoolNameInputView()
-
   private let gradeInputView: GradeInputView = {
     let view = GradeInputView()
     view.isHidden = true

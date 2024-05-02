@@ -4,6 +4,7 @@ import Alamofire
 import LocalStorage
 
 public protocol SignRepositoryInterface {
+  func autoSign() async throws -> SignInfo
   func sign(provider: String, accessToken: String) async throws -> SignInfo
   func kakaoSign() async throws -> String
   func appleSign() async throws -> String
@@ -44,6 +45,15 @@ public final class SignRepository: SignRepositoryInterface {
     }
   }
 
+  public func autoSign() async throws -> SignInfo {
+    guard let provider = localStorage.read(to: .recentLoginType),
+          let accessToken = localStorage.read(to: .socialAccessToken) else {
+      throw MoneyMongError.unknown("저장된 유저 정보가 없습니다.")
+    }
+
+    return try await sign(provider: provider, accessToken: accessToken)
+  }
+
   public func sign(provider: String, accessToken: String) async throws -> SignInfo {
     let request = SignRequestDTO(provider: provider, accessToken: accessToken)
     let targetType = SignAPI.sign(request)
@@ -52,8 +62,21 @@ public final class SignRepository: SignRepositoryInterface {
 
     localStorage.create(to: .accessToken, value: entity.accessToken)
     localStorage.create(to: .refreshToken, value: entity.refreshToken)
+    localStorage.create(to: .socialAccessToken, value: accessToken)
     localStorage.create(to: .recentLoginType, value: provider)
 
     return entity
+  }
+
+  public func logout() async throws {
+    guard let refreshToken = localStorage.read(to: .refreshToken) else {
+      return debugPrint("Refresh Token이 없음")
+    }
+    let targetType = UserAPI.logout(.init(refreshToken: refreshToken))
+    try await networkManager.request(target: targetType)
+
+    localStorage.delete(to: .refreshToken)
+    localStorage.delete(to: .accessToken)
+    localStorage.delete(to: .socialAccessToken)
   }
 }

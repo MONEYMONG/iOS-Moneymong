@@ -15,7 +15,13 @@ public final class SignDIContainer {
 
   func splash(with coordinator: SignCoordinator) -> SplashVC {
     let vc = SplashVC()
-    vc.reactor = SplashReactor()
+    let signRepository = SignRepository(
+      networkManager: networkManager,
+      localStorage: localStorage,
+      kakaoAuthManager: KakaoAuthManager(),
+      appleAuthManager: AppleAuthManager()
+    )
+    vc.reactor = SplashReactor(signRepository: signRepository)
     vc.coordinator = coordinator
     return vc
   }
@@ -28,7 +34,13 @@ public final class SignDIContainer {
       kakaoAuthManager: KakaoAuthManager(),
       appleAuthManager: AppleAuthManager()
     )
-    vc.reactor = LoginReactor(signRepository: signRepository)
+    let recentLoginType = LoginReactor.LoginType(
+      rawValue: localStorage.read(to: .recentLoginType)?.lowercased() ?? ""
+    )
+    vc.reactor = LoginReactor(
+      recentLoginType: recentLoginType,
+      signRepository: signRepository
+    )
     vc.coordinator = coordinator
     return vc
   }

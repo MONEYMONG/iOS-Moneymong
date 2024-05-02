@@ -31,7 +31,7 @@ public extension SignCoordinator {
 
   func login(animated: Bool = false) {
     let vc = diContainer.login(with: self)
-    navigationController.pushViewController(vc, animated: animated)
+    self.navigationController.pushViewController(vc, animated: animated)
   }
 
   func main() {

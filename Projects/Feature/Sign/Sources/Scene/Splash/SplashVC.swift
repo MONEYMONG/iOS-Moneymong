@@ -12,6 +12,7 @@ final class SplashVC: BaseVC, View {
   private let logoImageView: UIImageView = {
     let imageView = UIImageView()
     imageView.image = Images.mongSplash
+    imageView.contentMode = .scaleAspectFit
     return imageView
   }()
 
@@ -31,24 +32,44 @@ final class SplashVC: BaseVC, View {
       .define { flex in
 
         flex.addItem(logoImageView)
-          .width(120)
-          .height(120)
-          .aspectRatio(of: logoImageView)
+          .width(12)
+          .height(12)
       }
   }
 
   func bind(reactor: SplashReactor) {
+    reactor.pulse(\.$destination)
+      .compactMap { $0 }
+      .observe(on: MainScheduler.instance)
+      .delay(.milliseconds(900), scheduler: MainScheduler.instance)
+      .bind(with: self) { owner, destination in
+        switch destination {
+        case .login:
+          owner.coordinator?.login()
+        case .main:
+          owner.coordinator?.main()
+        }
+      }
+      .disposed(by: disposeBag)
+
     rx.viewDidLoad
+      .map { Reactor.Action.onAppear }
+      .bind(to: reactor.action)
+      .disposed(by: disposeBag)
+
+    rx.viewDidAppear
       .bind(with: self) { owner, _ in
-        owner.transitionToMainScene()
+        owner.onAnimation()
       }
       .disposed(by: disposeBag)
   }
 
-  private func transitionToMainScene() {
-    DispatchQueue.main.asyncAfter(deadline: .now() + 1.5) { [weak self] in
-      guard let self = self else { return }
-      self.coordinator?.login()
+  private func onAnimation() {
+    view.setNeedsLayout()
+    logoImageView.flex.width(120).height(120).markDirty()
+
+    UIView.animate(withDuration: 0.5) {
+      self.view.layoutIfNeeded()
     }
   }
 }

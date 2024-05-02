@@ -37,6 +37,7 @@ public final class UserRepository: UserRepositoryInterface {
     
     localStorage.delete(to: .refreshToken)
     localStorage.delete(to: .accessToken)
+    localStorage.delete(to: .socialAccessToken)
   }
   
   /// Delete: 회원탈퇴
@@ -46,5 +47,7 @@ public final class UserRepository: UserRepositoryInterface {
     
     localStorage.delete(to: .refreshToken)
     localStorage.delete(to: .accessToken)
+    localStorage.delete(to: .socialAccessToken)
+    localStorage.delete(to: .recentLoginType)
   }
 }
