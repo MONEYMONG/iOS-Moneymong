@@ -20,3 +20,9 @@ public enum MoneyMongError: LocalizedError {
     }
   }
 }
+
+public extension Error {
+  var toMMError: MoneyMongError {
+    return self as? MoneyMongError ?? .unknown(localizedDescription)
+  }
+}

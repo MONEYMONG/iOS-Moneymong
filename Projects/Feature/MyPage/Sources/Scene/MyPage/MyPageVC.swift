@@ -118,7 +118,6 @@ public final class MyPageVC: BaseVC, ReactorKit.View {
       .disposed(by: disposeBag)
     
     reactor.pulse(\.$item)
-      .observe(on: MainScheduler.instance)
       .bind(to: tableView.rx.items(dataSource: dataSource))
       .disposed(by: disposeBag)
     
