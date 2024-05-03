@@ -1,8 +1,11 @@
 import Foundation
 
+import NetworkService
+
 import ReactorKit
 
 final class ManualInputReactor: Reactor {
+  private let repo: LedgerRepositoryInterface
     
   enum ContentType {
     case source
@@ -14,17 +17,19 @@ final class ManualInputReactor: Reactor {
   }
   
   enum Action {
-    case selectedImage(_ item: ImageSectionModel.Item)
+    case didTapCompleteButton
     case didTapImageDeleteButton(_ item: ImageSectionModel.Item)
     case didTapImageAddButton(_ section: ImageSectionModel.Section)
+    case selectedImage(_ item: ImageSectionModel.Item)
     case inputContent(_ value: String, type: ContentType)
   }
   
   enum Mutation {
     case addImage(_ image: ImageSectionModel.Item)
     case deleteImage(_ id: UUID, _ section: ImageSectionModel.Section)
-    case setSection(_ section: ImageSectionModel.Section)
     case setContent(_ value: String, type: ContentType)
+    case setSection(_ section: ImageSectionModel.Section)
+    case requestCreateAPI(Result<Void, MoneyMongError>)
   }
   
   struct State {
@@ -33,7 +38,8 @@ final class ManualInputReactor: Reactor {
       .init(model: .document, items: [.button(.document)])
     ]
     @Pulse var selectedSection: ImageSectionModel.Section? = nil
-    var content = Content()
+    @Pulse var isCompleted = false
+    @Pulse var errorMessage: String? = nil
     @Pulse var isValids: [ContentType: Bool?] = [
       .source: nil,
       .amount: nil,
@@ -42,12 +48,13 @@ final class ManualInputReactor: Reactor {
       .time: nil,
       .memo: nil
     ]
+    var content = Content()
   }
   
   struct Content {
     @Pulse var source: String = ""
     @Pulse var amount: String = ""
-    @Pulse var amountSign: Int = 1
+    @Pulse var amountSign: Int = -1
     @Pulse var date: String = ""
     @Pulse var time: String = ""
     @Pulse var memo: String = ""
@@ -61,7 +68,9 @@ final class ManualInputReactor: Reactor {
     return formatter
   }()
   
-  init() {}
+  init(repo: LedgerRepositoryInterface) {
+    self.repo = repo
+  }
   
   func mutate(action: Action) -> Observable<Mutation> {
     switch action {
@@ -74,12 +83,30 @@ final class ManualInputReactor: Reactor {
       return .just(.setSection(section))
     case .inputContent(let value, let type):
       return .just(.setContent(value, type: type))
+    case .didTapCompleteButton:
+      return .task {
+        return try await repo.create(
+          id: 0,
+          storeInfo: currentState.content.source,
+          fundType: currentState.content.amountSign == 1 ? .income : .expense,
+          amount: 0,
+          description: currentState.content.memo,
+          paymentDate: "",
+          receiptImageUrls: [],
+          documentImageUrls: []
+        )
+      }
+      .map { .requestCreateAPI(.success(())) }
+      .catch {
+        return .just(.requestCreateAPI(.failure($0.toMMError)))
+      }
     }
   }
   
   func reduce(state: State, mutation: Mutation) -> State {
     var newState = state
     newState.selectedSection = nil
+    newState.errorMessage = nil
     switch mutation {
     case .addImage(let item):
       guard case let .image(_, section) = item else { return newState }
@@ -100,6 +127,13 @@ final class ManualInputReactor: Reactor {
     case .setContent(let value, let type):
       setContent(&newState.content, value: value, type: type)
       newState.isValids[type] = checkContent(newState.content, type: type)
+    case .requestCreateAPI(let result):
+      switch result {
+      case .success(_):
+        newState.isCompleted = true
+      case .failure(let failure):
+        newState.errorMessage = failure.errorDescription
+      }
     }
     return newState
   }
@@ -191,5 +225,24 @@ private extension ManualInputReactor {
     }
     
     return String(timeArray)
+  }
+}
+
+public extension Observable {
+  static func task<T>(@_implicitSelfCapture _ c: @escaping () async throws -> T) -> Observable<T> {
+    return Single<T>.create { single in
+      let task = Task {
+        do {
+          let result = try await c()
+          single(.success(result))
+        } catch {
+          single(.failure(error))
+        }
+      }
+      return Disposables.create {
+        task.cancel()
+      }
+    }
+    .asObservable()
   }
 }

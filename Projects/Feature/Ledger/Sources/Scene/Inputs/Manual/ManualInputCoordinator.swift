@@ -2,18 +2,18 @@ import UIKit
 
 import BaseFeature
 
-public final class ManualInputCoordinator: Coordinator {
-  public var navigationController: UINavigationController
+final class ManualInputCoordinator: Coordinator {
+  var navigationController: UINavigationController
   private let diContainer: ManualInputDIContainer
-  public weak var parentCoordinator: (Coordinator)?
-  public var childCoordinators: [Coordinator] = []
+  weak var parentCoordinator: (Coordinator)?
+  var childCoordinators: [Coordinator] = []
 
-  public init(navigationController: UINavigationController, diContainer: ManualInputDIContainer) {
+  init(navigationController: UINavigationController, diContainer: ManualInputDIContainer) {
     self.navigationController = navigationController
     self.diContainer = diContainer
   }
 
-  public func start(animated: Bool) {
+  func start(animated: Bool) {
     manualInput(animated: animated)
   }
 }

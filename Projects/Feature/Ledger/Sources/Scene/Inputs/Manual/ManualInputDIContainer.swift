@@ -1,13 +1,17 @@
 import UIKit
 
-import BaseFeature
+import NetworkService
 
-public final class ManualInputDIContainer {
-  public init() {}
+final class ManualInputDIContainer {
+  private let ledgerRepo: LedgerRepositoryInterface
+  
+  init(repo: LedgerRepositoryInterface) {
+    self.ledgerRepo = repo
+  }
   
   func manualInput(with coordinator: ManualInputCoordinator) -> ManualInputVC {
     let vc = ManualInputVC()
-    vc.reactor = ManualInputReactor()
+    vc.reactor = ManualInputReactor(repo: ledgerRepo)
     vc.coordinator = coordinator
     return vc
   }

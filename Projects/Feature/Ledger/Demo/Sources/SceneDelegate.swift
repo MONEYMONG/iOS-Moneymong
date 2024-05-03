@@ -2,6 +2,8 @@ import UIKit
 
 import LedgerFeature
 import DesignSystem
+import LocalStorage
+import NetworkService
 
 class SceneDelegate: UIResponder, UIWindowSceneDelegate {
   var coordinator: LedgerCoordinator?
@@ -12,7 +14,10 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
     window = UIWindow(windowScene: windowScene)
     coordinator = LedgerCoordinator(
       navigationController: .init(),
-      diContainer: .init()
+      diContainer: .init(ledgerRepo: LedgerRepository(
+        networkManager: NetworkManager(),
+        localStorage: LocalStorageManager()
+      ))
     )
     coordinator?.start(animated: false)
     window?.rootViewController = coordinator?.navigationController

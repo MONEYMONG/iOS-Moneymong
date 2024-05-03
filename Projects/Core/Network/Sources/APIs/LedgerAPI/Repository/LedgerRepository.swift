@@ -1,4 +1,4 @@
-import Foundation
+import LocalStorage
 
 public protocol LedgerRepositoryInterface {
   func create(
@@ -15,9 +15,14 @@ public protocol LedgerRepositoryInterface {
 
 public final class LedgerRepository: LedgerRepositoryInterface {
   private let networkManager: NetworkManagerInterfacae
+  private let localStorage: LocalStorageInterface
 
-  public init(networkManager: NetworkManagerInterfacae = NetworkManager()) {
+  public init(
+    networkManager: NetworkManagerInterfacae,
+    localStorage: LocalStorageInterface
+  ) {
     self.networkManager = networkManager
+    self.localStorage = localStorage
   }
   
   public func create(

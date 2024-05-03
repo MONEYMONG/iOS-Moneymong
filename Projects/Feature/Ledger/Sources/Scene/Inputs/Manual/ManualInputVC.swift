@@ -64,11 +64,10 @@ final class ManualInputVC: BaseVC, View {
     return v
   }()
   
-  private let fundTypeSelection: MMSegmentControl = {
-    let v = MMSegmentControl(titles: ["지출", "수입"], type: .round)
-    v.selectedIndex = 1
-    return v
-  }()
+  private let fundTypeSelection = MMSegmentControl(
+    titles: ["지출", "수입"],
+    type: .round
+  )
   
   private let dateTextField: MMTextField = {
     let v = MMTextField(title: "날짜")
@@ -130,8 +129,6 @@ final class ManualInputVC: BaseVC, View {
   
   override init() {
     super.init()
-    setRightItem(.closeBlack)
-    setTitle("장부 작성")
   }
   
   @available(*, unavailable)
@@ -143,6 +140,12 @@ final class ManualInputVC: BaseVC, View {
     super.viewDidLayoutSubviews()
     completeButton.pin.height(56).bottom(view.safeAreaInsets.bottom + 12).horizontally(20)
     scrollView.contentSize = content.frame.size
+  }
+  
+  override func setupUI() {
+    super.setupUI()
+    setTitle("장부 작성")
+
   }
   
   override func setupConstraints() {
@@ -165,15 +168,13 @@ final class ManualInputVC: BaseVC, View {
         }.paddingBottom(50)
       }
       flex.addItem(keyboardSpaceView).backgroundColor(.clear).height(60)
-      flex.addItem(smogView).position(.absolute)
-        .bottom(0)
-        .horizontally(0)
-        .height(100)
+      flex.addItem(smogView).position(.absolute).bottom(0).horizontally(0).height(100)
     }
     view.addSubview(completeButton)
   }
   
   func bind(reactor: ManualInputReactor) {
+    setRightItem(.closeBlack)
     bindAction(reactor: reactor)
     bindState(reactor: reactor)
   }
@@ -246,8 +247,10 @@ final class ManualInputVC: BaseVC, View {
       .disposed(by: disposeBag)
     
     memoTextView.textView.rx.text
-      .bind(with: self) { owner, _ in
+      .compactMap { $0 }
+      .bind(with: self) { owner, value in
         owner.view.setNeedsLayout()
+        reactor.action.onNext(.inputContent(value, type: .memo))
       }
       .disposed(by: disposeBag)
     
@@ -305,6 +308,17 @@ final class ManualInputVC: BaseVC, View {
     reactor.pulse(\.content.$time)
       .bind(to: timeTextField.textField.rx.text)
       .disposed(by: disposeBag)
+//    
+//    reactor.pulse(\.$isValids)
+//      .compactMap { $0[.amount] }
+//      .distinctUntilChanged()
+//      .filter { $0 == false }
+//      .bind(with: self, onNext: { owner, isValid in
+//        owner.amountTextField.setError(message: "999,999,999원 이내로 입력해주세요")
+//        owner.amountTextField.flex.markDirty()
+//        owner.view.setNeedsLayout()
+//      })
+//      .disposed(by: disposeBag)
   }
   
   private func updateCollectionHeigh(images: [ImageSectionModel.Model]) {
@@ -360,28 +374,3 @@ extension ManualInputVC: UIImagePickerControllerDelegate, UINavigationController
     dismiss(animated: true, completion: nil)
   }
 }
-
-struct ImageInfo: Equatable {
-  let id: UUID
-  let data: Data
-}
-
-// 섹션 모델
-struct ImageSectionModel {
-  typealias Model = SectionModel<Section, Item>
-  
-  enum Section: Int, Equatable {
-    case receipt
-    case document
-  }
-
-  enum Item: Equatable {
-    case button(_ section: Section)
-    case image(_ info: ImageInfo, _ section: Section)
-  }
-  
-  let model: Section
-  var items: [Item]
-}
-
-
