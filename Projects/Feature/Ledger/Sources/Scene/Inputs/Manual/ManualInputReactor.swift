@@ -25,21 +25,24 @@ final class ManualInputReactor: Reactor {
   }
   
   enum Mutation {
-    case addImage(_ image: ImageSectionModel.Item)
-    case deleteImage(_ id: UUID, _ section: ImageSectionModel.Section)
+    case addImage(Result<ImageSectionModel.Item, MoneyMongError>)
+    case deleteImage(Result<(UUID, ImageSectionModel.Section) ,MoneyMongError>)
+    case deleteImageURL(Int, ImageSectionModel.Section)
     case setContent(_ value: String, type: ContentType)
     case setSection(_ section: ImageSectionModel.Section)
+    case addImageURL(_ image: ImageURL, _ section: ImageSectionModel.Section)
     case requestCreateAPI(Result<Void, MoneyMongError>)
   }
   
   struct State {
+    @Pulse var agencyId: Int
     @Pulse var images: [ImageSectionModel.Model] = [
       .init(model: .receipt, items: [.button(.receipt)]),
       .init(model: .document, items: [.button(.document)])
     ]
     @Pulse var selectedSection: ImageSectionModel.Section? = nil
     @Pulse var isCompleted = false
-    @Pulse var errorMessage: String? = nil
+    @Pulse var alertMessage: (String, String?)? = nil
     @Pulse var isValids: [ContentType: Bool?] = [
       .source: nil,
       .amount: nil,
@@ -58,10 +61,10 @@ final class ManualInputReactor: Reactor {
     @Pulse var date: String = ""
     @Pulse var time: String = ""
     @Pulse var memo: String = ""
+    @Pulse var receiptImageURLs = [ImageURL]()
+    @Pulse var documentImageURLs = [ImageURL]()
   }
-  
-  let initialState: State = State()
-  
+    
   private let numberFormatter: NumberFormatter = {
     let formatter = NumberFormatter()
     formatter.numberStyle = .decimal
@@ -70,30 +73,71 @@ final class ManualInputReactor: Reactor {
   
   init(repo: LedgerRepositoryInterface) {
     self.repo = repo
+    self.initialState = State(agencyId: 19)
   }
+  
+  let initialState: State
   
   func mutate(action: Action) -> Observable<Mutation> {
     switch action {
     case .selectedImage(let item):
-      return .just(.addImage(item))
+      guard case let .image(imageInfo, section) = item else { return .empty() }
+      return .task {
+        var entity = try await repo.imageUpload(imageInfo.data)
+        entity.id = imageInfo.id
+        return entity
+      }
+      .flatMap { Observable<Mutation>.concat([
+        .just(.addImage(.success(item))),
+        .just(.addImageURL($0, section))
+      ]) }
+      .catch { .just(.addImage(.failure($0.toMMError))) }
     case .didTapImageDeleteButton(let item):
       guard case let .image(image, section) = item else { return .empty() }
-      return .just(.deleteImage(image.id, section))
+      return .task {
+        var index: Int!
+        var imageURL: ImageURL!
+        switch section {
+        case .receipt:
+          index = currentState.content.receiptImageURLs.firstIndex(where: {
+            $0.id == image.id
+          })
+          imageURL = currentState.content.receiptImageURLs[index]
+        case .document:
+          index = currentState.content.documentImageURLs.firstIndex(where: {
+            $0.id == image.id
+          })
+          imageURL = currentState.content.documentImageURLs[index]
+        }
+        try await repo.imageDelete(imageURL)
+        return index
+      }
+      .flatMap { Observable<Mutation>.concat([
+        .just(.deleteImage(.success((image.id, section)))),
+        .just(.deleteImageURL($0, section))
+      ]) }
+      .catch { .just(.deleteImage(.failure($0.toMMError))) }
     case .didTapImageAddButton(let section):
       return .just(.setSection(section))
     case .inputContent(let value, let type):
       return .just(.setContent(value, type: type))
     case .didTapCompleteButton:
       return .task {
+        guard let amount = Int(currentState.content.amount.filter { $0.isNumber }) else {
+          throw MoneyMongError.appError(errorMessage: "금액을 확인해 주세요")
+        }
+        guard let date = convertDateString(currentState.content.date + " " + currentState.content.time) else {
+          throw MoneyMongError.appError(errorMessage: "날짜 및 시간을 확인해 주세요")
+        }
         return try await repo.create(
-          id: 0,
+          id: currentState.agencyId,
           storeInfo: currentState.content.source,
           fundType: currentState.content.amountSign == 1 ? .income : .expense,
-          amount: 0,
+          amount: amount,
           description: currentState.content.memo,
-          paymentDate: "",
-          receiptImageUrls: [],
-          documentImageUrls: []
+          paymentDate: date,
+          receiptImageUrls: currentState.content.receiptImageURLs.map(\.url),
+          documentImageUrls: currentState.content.documentImageURLs.map(\.url)
         )
       }
       .map { .requestCreateAPI(.success(())) }
@@ -106,22 +150,33 @@ final class ManualInputReactor: Reactor {
   func reduce(state: State, mutation: Mutation) -> State {
     var newState = state
     newState.selectedSection = nil
-    newState.errorMessage = nil
+    newState.alertMessage = nil
     switch mutation {
-    case .addImage(let item):
-      guard case let .image(_, section) = item else { return newState }
-      newState.images[section.rawValue].items.append(item)
-      if newState.images[section.rawValue].items.count > 12 {
-        newState.images[section.rawValue].items.removeFirst()
+    case .addImage(let result):
+      switch result {
+      case .success(let item):
+        guard case let .image(_, section) = item else { return newState }
+        newState.images[section.rawValue].items.append(item)
+        if newState.images[section.rawValue].items.count > 12 {
+          newState.images[section.rawValue].items.removeFirst()
+        }
+      case .failure(let failure):
+        newState.alertMessage = ("에러", failure.errorDescription)
       }
-    case .deleteImage(let id, let section):
-      newState.images[section.rawValue].items.removeAll {
-        guard case let .image(model, _) = $0 else { return false }
-        return model.id == id
+    case .deleteImage(let result):
+      switch result {
+      case .success((let id, let section)):
+        newState.images[section.rawValue].items.removeAll {
+          guard case let .image(model, _) = $0 else { return false }
+          return model.id == id
+        }
+        if !newState.images[section.rawValue].items.contains(.button(section)) {
+          newState.images[section.rawValue].items.insert(.button(section), at: 0)
+        }
+      case .failure(let failure):
+        newState.alertMessage = ("에러", failure.errorDescription)
       }
-      if !newState.images[section.rawValue].items.contains(.button(section)) {
-        newState.images[section.rawValue].items.insert(.button(section), at: 0)
-      }
+      
     case .setSection(let section):
       newState.selectedSection = section
     case .setContent(let value, let type):
@@ -132,7 +187,21 @@ final class ManualInputReactor: Reactor {
       case .success(_):
         newState.isCompleted = true
       case .failure(let failure):
-        newState.errorMessage = failure.errorDescription
+        newState.alertMessage = ("에러", failure.errorDescription)
+      }
+    case .addImageURL(let imageURL, let section):
+      switch section {
+      case .receipt:
+        newState.content.receiptImageURLs.append(imageURL)
+      case .document:
+        newState.content.documentImageURLs.append(imageURL)
+      }
+    case .deleteImageURL(let index, let section):
+      switch section {
+      case .receipt:
+        newState.content.receiptImageURLs.remove(at: index)
+      case .document:
+        newState.content.documentImageURLs.remove(at: index)
       }
     }
     return newState
@@ -225,6 +294,18 @@ private extension ManualInputReactor {
     }
     
     return String(timeArray)
+  }
+  
+  func convertDateString(_ dateString: String) -> String? {
+    let inputFormatter = DateFormatter()
+    inputFormatter.dateFormat = "YYYY/MM/DD HH:mm:ss"
+    inputFormatter.timeZone = TimeZone(abbreviation: "UTC")
+    guard let date = inputFormatter.date(from: dateString) else { return nil }
+    let outputFormatter = ISO8601DateFormatter()
+    outputFormatter.formatOptions = [.withInternetDateTime, .withFractionalSeconds]
+    outputFormatter.timeZone = TimeZone(abbreviation: "UTC")
+    let isoDateString = outputFormatter.string(from: date)
+    return isoDateString
   }
 }
 

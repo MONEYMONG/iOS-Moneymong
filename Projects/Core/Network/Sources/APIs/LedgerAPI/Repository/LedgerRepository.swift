@@ -1,3 +1,5 @@
+import Foundation
+
 import LocalStorage
 
 public protocol LedgerRepositoryInterface {
@@ -11,6 +13,8 @@ public protocol LedgerRepositoryInterface {
     receiptImageUrls: [String],
     documentImageUrls: [String]
   ) async throws
+  func imageUpload(_ data: Data) async throws -> ImageURL
+  func imageDelete(_ image: ImageURL) async throws
 }
 
 public final class LedgerRepository: LedgerRepositoryInterface {
@@ -48,6 +52,18 @@ public final class LedgerRepository: LedgerRepositoryInterface {
       )
     )
     _ = try await networkManager.request(target: targetType, of: LedgerDetailResponseDTO.self)
+  }
+  
+  public func imageUpload(_ data: Data) async throws -> ImageURL {
+    let targetType = LedgerAPI.uploadImage(data)
+    return try await networkManager.request(target: targetType, of: ImageResponseDTO.self).toEntity
+  }
+  
+  public func imageDelete(_ image: ImageURL) async throws {
+    let targetType = LedgerAPI.deleteImage(
+      param: .init(key: image.key, path: image.url)
+    )
+    try await networkManager.request(target: targetType)
   }
 }
 

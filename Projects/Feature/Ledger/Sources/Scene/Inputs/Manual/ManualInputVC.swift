@@ -293,7 +293,7 @@ final class ManualInputVC: BaseVC, View {
     reactor.pulse(\.$selectedSection)
       .compactMap { $0 }
       .bind(with: self) { owner, _ in
-        owner.coordinator?.imagePicker(animated: true, delegate: owner)
+        owner.coordinator?.present(.imagePicker(delegate: owner))
       }
       .disposed(by: disposeBag)
     
@@ -308,7 +308,17 @@ final class ManualInputVC: BaseVC, View {
     reactor.pulse(\.content.$time)
       .bind(to: timeTextField.textField.rx.text)
       .disposed(by: disposeBag)
-//    
+    
+    reactor.pulse(\.$alertMessage)
+      .compactMap { $0 }
+      .bind(with: self) { owner, message in
+        owner.coordinator?.present(
+          .alert(title: message.0, subTitle: message.1, okAction: {}),
+          animated: false
+        )
+      }
+      .disposed(by: disposeBag)
+//
 //    reactor.pulse(\.$isValids)
 //      .compactMap { $0[.amount] }
 //      .distinctUntilChanged()
