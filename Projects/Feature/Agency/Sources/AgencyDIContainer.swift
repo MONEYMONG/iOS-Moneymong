@@ -19,9 +19,16 @@ public final class AgencyDIContainer {
     self.agencyRepo = AgencyRepository(networkManager: networkManager)
   }
 
-  func agency(with coordinator: AgencyCoordinator) -> AgencyVC {
-    let vc = AgencyVC()
-    vc.reactor = AgencyReactor(agencyRepo: agencyRepo)
+  func agency(with coordinator: AgencyCoordinator) -> AgencyListVC {
+    let vc = AgencyListVC()
+    vc.reactor = AgencyListReactor(agencyRepo: agencyRepo)
+    vc.coordinator = coordinator
+    return vc
+  }
+  
+  func createAgency(with coordinator: AgencyCoordinator) -> CreateAgencyVC {
+    let vc = CreateAgencyVC()
+    vc.reactor = CreateAgencyReactor(agencyRepo: agencyRepo)
     vc.coordinator = coordinator
     return vc
   }

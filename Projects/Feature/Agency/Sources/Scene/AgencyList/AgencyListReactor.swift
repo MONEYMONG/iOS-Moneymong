@@ -2,7 +2,7 @@
 
 import NetworkService
 
-public final class AgencyReactor: Reactor {
+public final class AgencyListReactor: Reactor {
 
   public enum Action {
     case requestAgencyList

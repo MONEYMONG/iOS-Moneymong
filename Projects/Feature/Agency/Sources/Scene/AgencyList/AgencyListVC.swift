@@ -10,7 +10,7 @@ import RxDataSources
 import PinLayout
 import FlexLayout
 
-public final class AgencyVC: BaseVC, View {
+public final class AgencyListVC: BaseVC, View {
   public var disposeBag = DisposeBag()
   weak var coordinator: AgencyCoordinator?
   
@@ -30,7 +30,7 @@ public final class AgencyVC: BaseVC, View {
   
   private let button = UIButton()
   
-  private let registerAgencyButton: UIButton = {
+  private let createAgencyButton: UIButton = {
     let v = UIButton()
     v.setBackgroundImage(Images.plusCircleFillRed, for: .normal)
     return v
@@ -54,7 +54,7 @@ public final class AgencyVC: BaseVC, View {
     rootContainer.flex.justifyContent(.center).alignItems(.center).define { flex in
       flex.addItem(collectionView).width(100%).height(100%)
       flex.addItem(emptyView).position(.absolute).width(100%).height(100%).backgroundColor(Colors.White._1)
-      flex.addItem(registerAgencyButton).position(.absolute).size(70).right(14).bottom(tabHeight)
+      flex.addItem(createAgencyButton).position(.absolute).size(70).right(14).bottom(tabHeight)
     }
   }
   
@@ -65,7 +65,7 @@ public final class AgencyVC: BaseVC, View {
     rootContainer.flex.layout()
   }
 
-  public func bind(reactor: AgencyReactor) {
+  public func bind(reactor: AgencyListReactor) {
     // Action Binding
     rx.viewWillAppear
       .bind {
@@ -77,6 +77,12 @@ public final class AgencyVC: BaseVC, View {
     collectionView.rx.modelSelected(Agency.self)
       .map { Reactor.Action.tap($0) }
       .bind(to: reactor.action)
+      .disposed(by: disposeBag)
+    
+    createAgencyButton.rx.tap
+      .bind(with: self) { owner, _ in
+        owner.coordinator?.present(.createAgency)
+      }
       .disposed(by: disposeBag)
     
     // Data Binding
@@ -95,6 +101,16 @@ public final class AgencyVC: BaseVC, View {
       .observe(on: MainScheduler.instance)
       .bind(with: self) { owner, error in
         print(error)
+      }
+      .disposed(by: disposeBag)
+    
+    reactor.pulse(\.$destination)
+      .compactMap { $0 }
+      .observe(on: MainScheduler.instance)
+      .bind(with: self) { owner, destination in
+        switch destination {
+        case .joinAgency: break
+        }
       }
       .disposed(by: disposeBag)
     
