@@ -15,8 +15,20 @@ public final class AlertsManager {
       okAction: okAction,
       cancelAction: cancelAction
     )
+    
     alert.modalPresentationStyle = .overFullScreen
     alert.modalTransitionStyle = .crossDissolve
+    
+    guard let vc = UIApplication.shared.connectedScenes
+      .filter({ $0.activationState == .foregroundActive })
+      .compactMap({ $0 as? UIWindowScene })
+      .first?.windows
+      .filter({ $0.isKeyWindow }).first?
+      .rootViewController?.presentedViewController
+    else {
+      return
+    }
+    
     vc.present(alert, animated: true)
   }
 }
