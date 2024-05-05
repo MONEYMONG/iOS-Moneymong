@@ -58,7 +58,6 @@ extension ManualInputCoordinator {
     cancelAction: (() -> Void)?
   ) {
     AlertsManager.show(
-      navigationController,
       title: title,
       subTitle: subTitle,
       okAction: okAction,
