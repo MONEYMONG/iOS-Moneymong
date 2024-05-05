@@ -315,7 +315,7 @@ final class ManualInputVC: BaseVC, View {
         let (title, subTitle, type) = content
         let action: () -> Void = {
           switch type {
-          case .error:
+          case .error(_):
             break
           case .deleteImage(let item):
             reactor.action.onNext(.didTapImageDeleteAlertButton(item))

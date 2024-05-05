@@ -201,7 +201,7 @@ final class ManualInputReactor: Reactor {
       switch type {
       case .error(let moneyMongError):
         newState.alertMessage = ("네트워크 연결을 확인해주세요", moneyMongError.errorDescription, type)
-      case .deleteImage(let item):
+      case .deleteImage(_):
         newState.alertMessage = ("사진을 삭제하시겠습니까?", "삭제된 사진은 되돌릴 수 없습니다", type)
       case .end:
         newState.alertMessage = ("정말 나가시겠습니까?", "작성한 내용이 저장되지 않았습니다", type)
