@@ -11,7 +11,7 @@ final class ManualInputCoordinator: Coordinator {
   
   enum Scene {
     case imagePicker(delegate: UIImagePickerControllerDelegate & UINavigationControllerDelegate)
-    case alert(title: String, subTitle: String?, okAction: () -> Void)
+    case alert(title: String, subTitle: String?, okAction: () -> Void, cancelAction: (() -> Void)?)
   }
 
   init(navigationController: UINavigationController, diContainer: ManualInputDIContainer) {
@@ -32,7 +32,7 @@ final class ManualInputCoordinator: Coordinator {
   func present(_ scene: Scene, animated: Bool = true) {
     switch scene {
     case let .imagePicker(delegate): imagePicker(animated: animated, delegate: delegate)
-    case let .alert(title, subTitle, okAction): alert(animated: animated, title: title, subTitle: subTitle, okAction: okAction)
+    case let .alert(title, subTitle, okAction, cancelAction): alert(animated: animated, title: title, subTitle: subTitle, okAction: okAction, cancelAction: cancelAction)
     }
   }
 }
@@ -50,13 +50,19 @@ extension ManualInputCoordinator {
     navigationController.present(picker, animated: animated)
   }
   
-  private func alert(animated: Bool, title: String, subTitle: String?, okAction: @escaping () -> Void) {
+  private func alert(
+    animated: Bool,
+    title: String,
+    subTitle: String?,
+    okAction: @escaping () -> Void,
+    cancelAction: (() -> Void)?
+  ) {
     AlertsManager.show(
       navigationController,
       title: title,
       subTitle: subTitle,
       okAction: okAction,
-      cancelAction: {}
+      cancelAction: cancelAction
     )
   }
 }

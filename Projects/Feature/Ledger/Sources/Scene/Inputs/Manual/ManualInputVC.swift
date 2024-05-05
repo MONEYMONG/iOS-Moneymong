@@ -313,7 +313,7 @@ final class ManualInputVC: BaseVC, View {
       .observe(on: MainScheduler.instance)
       .bind(with: self) { owner, content in
         let (title, subTitle, type) = content
-        let action: () -> Void = {
+        let okAction: () -> Void = {
           switch type {
           case .error(_):
             break
@@ -323,8 +323,18 @@ final class ManualInputVC: BaseVC, View {
             owner.coordinator?.dismiss(animated: true)
           }
         }
+        var cancelAction: (() -> Void)? = nil
+        switch type {
+        case .error(_): break
+        case .deleteImage(_), .end: cancelAction = {}
+        }
         owner.coordinator?.present(
-          .alert(title: title, subTitle: subTitle, okAction: action),
+          .alert(
+            title: title,
+            subTitle: subTitle,
+            okAction: okAction,
+            cancelAction: cancelAction
+          ),
           animated: false
         )
       }
