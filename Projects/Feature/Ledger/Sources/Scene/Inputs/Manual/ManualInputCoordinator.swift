@@ -56,7 +56,7 @@ extension ManualInputCoordinator {
       title: title,
       subTitle: subTitle,
       okAction: okAction,
-      cancelAction: nil
+      cancelAction: {}
     )
   }
 }

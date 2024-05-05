@@ -181,9 +181,8 @@ final class ManualInputVC: BaseVC, View {
   
   private func bindAction(reactor: ManualInputReactor) {
     navigationItem.rightBarButtonItem?.rx.tap
-      .bind(with: self) { owner, _ in
-        owner.coordinator?.dismiss(animated: true)
-      }
+      .map { Reactor.Action.presentedAlert(.end) }
+      .bind(to: reactor.action)
       .disposed(by: disposeBag)
     
     collectionView.rx.setDelegate(self)
@@ -272,7 +271,7 @@ final class ManualInputVC: BaseVC, View {
     
     NotificationCenter.default.rx.notification(.didTapImageDeleteButton)
       .map { $0.object as! ImageSectionModel.Item }
-      .map { Reactor.Action.didTapImageDeleteButton($0) }
+      .map { Reactor.Action.presentedAlert(.deleteImage($0)) }
       .bind(to: reactor.action)
       .disposed(by: disposeBag)
   }
@@ -311,9 +310,21 @@ final class ManualInputVC: BaseVC, View {
     
     reactor.pulse(\.$alertMessage)
       .compactMap { $0 }
-      .bind(with: self) { owner, message in
+      .observe(on: MainScheduler.instance)
+      .bind(with: self) { owner, content in
+        let (title, subTitle, type) = content
+        let action: () -> Void = {
+          switch type {
+          case .error:
+            break
+          case .deleteImage(let item):
+            reactor.action.onNext(.didTapImageDeleteAlertButton(item))
+          case .end:
+            owner.coordinator?.dismiss(animated: true)
+          }
+        }
         owner.coordinator?.present(
-          .alert(title: message.0, subTitle: message.1, okAction: {}),
+          .alert(title: title, subTitle: subTitle, okAction: action),
           animated: false
         )
       }

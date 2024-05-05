@@ -16,22 +16,30 @@ final class ManualInputReactor: Reactor {
     case memo
   }
   
+  enum AlertType {
+    case error(MoneyMongError)
+    case deleteImage(ImageSectionModel.Item)
+    case end
+  }
+  
   enum Action {
     case didTapCompleteButton
-    case didTapImageDeleteButton(_ item: ImageSectionModel.Item)
+    case presentedAlert(AlertType)
+    case didTapImageDeleteAlertButton(_ item: ImageSectionModel.Item)
     case didTapImageAddButton(_ section: ImageSectionModel.Section)
     case selectedImage(_ item: ImageSectionModel.Item)
     case inputContent(_ value: String, type: ContentType)
   }
   
   enum Mutation {
-    case addImage(Result<ImageSectionModel.Item, MoneyMongError>)
-    case deleteImage(Result<(UUID, ImageSectionModel.Section) ,MoneyMongError>)
+    case addImage(ImageSectionModel.Item)
+    case deleteImage(UUID, ImageSectionModel.Section)
     case deleteImageURL(Int, ImageSectionModel.Section)
     case setContent(_ value: String, type: ContentType)
     case setSection(_ section: ImageSectionModel.Section)
     case addImageURL(_ image: ImageURL, _ section: ImageSectionModel.Section)
-    case requestCreateAPI(Result<Void, MoneyMongError>)
+    case requestCreateAPI
+    case setAlertContent(AlertType)
   }
   
   struct State {
@@ -42,7 +50,7 @@ final class ManualInputReactor: Reactor {
     ]
     @Pulse var selectedSection: ImageSectionModel.Section? = nil
     @Pulse var isCompleted = false
-    @Pulse var alertMessage: (String, String?)? = nil
+    @Pulse var alertMessage: (String, String?, AlertType)? = nil
     @Pulse var isValids: [ContentType: Bool?] = [
       .source: nil,
       .amount: nil,
@@ -88,11 +96,13 @@ final class ManualInputReactor: Reactor {
         return entity
       }
       .flatMap { Observable<Mutation>.concat([
-        .just(.addImage(.success(item))),
+        .just(.addImage(item)),
         .just(.addImageURL($0, section))
       ]) }
-      .catch { .just(.addImage(.failure($0.toMMError))) }
-    case .didTapImageDeleteButton(let item):
+      .catch { .just(.setAlertContent(.error($0.toMMError))) }
+    case .presentedAlert(let type):
+        return .just(.setAlertContent(type))
+    case .didTapImageDeleteAlertButton(let item):
       guard case let .image(image, section) = item else { return .empty() }
       return .task {
         var index: Int!
@@ -113,10 +123,10 @@ final class ManualInputReactor: Reactor {
         return index
       }
       .flatMap { Observable<Mutation>.concat([
-        .just(.deleteImage(.success((image.id, section)))),
+        .just(.deleteImage(image.id, section)),
         .just(.deleteImageURL($0, section))
       ]) }
-      .catch { .just(.deleteImage(.failure($0.toMMError))) }
+      .catch { .just(.setAlertContent(.error($0.toMMError))) }
     case .didTapImageAddButton(let section):
       return .just(.setSection(section))
     case .inputContent(let value, let type):
@@ -140,9 +150,9 @@ final class ManualInputReactor: Reactor {
           documentImageUrls: currentState.content.documentImageURLs.map(\.url)
         )
       }
-      .map { .requestCreateAPI(.success(())) }
+      .map { .requestCreateAPI }
       .catch {
-        return .just(.requestCreateAPI(.failure($0.toMMError)))
+          return .just(.setAlertContent(.error($0.toMMError)))
       }
     }
   }
@@ -152,20 +162,13 @@ final class ManualInputReactor: Reactor {
     newState.selectedSection = nil
     newState.alertMessage = nil
     switch mutation {
-    case .addImage(let result):
-      switch result {
-      case .success(let item):
-        guard case let .image(_, section) = item else { return newState }
-        newState.images[section.rawValue].items.append(item)
-        if newState.images[section.rawValue].items.count > 12 {
-          newState.images[section.rawValue].items.removeFirst()
-        }
-      case .failure(let failure):
-        newState.alertMessage = ("에러", failure.errorDescription)
+    case .addImage(let item):
+      guard case let .image(_, section) = item else { return newState }
+      newState.images[section.rawValue].items.append(item)
+      if newState.images[section.rawValue].items.count > 12 {
+        newState.images[section.rawValue].items.removeFirst()
       }
-    case .deleteImage(let result):
-      switch result {
-      case .success((let id, let section)):
+    case .deleteImage(let id, let section):
         newState.images[section.rawValue].items.removeAll {
           guard case let .image(model, _) = $0 else { return false }
           return model.id == id
@@ -173,22 +176,13 @@ final class ManualInputReactor: Reactor {
         if !newState.images[section.rawValue].items.contains(.button(section)) {
           newState.images[section.rawValue].items.insert(.button(section), at: 0)
         }
-      case .failure(let failure):
-        newState.alertMessage = ("에러", failure.errorDescription)
-      }
-      
     case .setSection(let section):
       newState.selectedSection = section
     case .setContent(let value, let type):
       setContent(&newState.content, value: value, type: type)
       newState.isValids[type] = checkContent(newState.content, type: type)
-    case .requestCreateAPI(let result):
-      switch result {
-      case .success(_):
-        newState.isCompleted = true
-      case .failure(let failure):
-        newState.alertMessage = ("에러", failure.errorDescription)
-      }
+    case .requestCreateAPI:
+      newState.isCompleted = true
     case .addImageURL(let imageURL, let section):
       switch section {
       case .receipt:
@@ -202,6 +196,15 @@ final class ManualInputReactor: Reactor {
         newState.content.receiptImageURLs.remove(at: index)
       case .document:
         newState.content.documentImageURLs.remove(at: index)
+      }
+    case .setAlertContent(let type):
+      switch type {
+      case .error(let moneyMongError):
+        newState.alertMessage = ("네트워크 연결을 확인해주세요", moneyMongError.errorDescription, type)
+      case .deleteImage(let item):
+        newState.alertMessage = ("사진을 삭제하시겠습니까?", "삭제된 사진은 되돌릴 수 없습니다", type)
+      case .end:
+        newState.alertMessage = ("정말 나가시겠습니까?", "작성한 내용이 저장되지 않았습니다", type)
       }
     }
     return newState

@@ -53,13 +53,13 @@ final class MMAlerts: UIViewController {
     titleLabel.text = title
     subTitleLabel.text = subTitle
     okButton.addAction {
-      okAction()
       self.dismiss(animated: true)
+      okAction()
     }
     if let cancelAction {
       cancelButton.addAction {
-        cancelAction()
         self.dismiss(animated: true)
+        cancelAction()
       }
     }
   }
