@@ -270,7 +270,7 @@ final class ManualInputVC: BaseVC, View {
       }.disposed(by: disposeBag)
     
     NotificationCenter.default.rx.notification(.didTapImageDeleteButton)
-      .map { $0.object as! ImageSectionModel.Item }
+      .compactMap { $0.object as? ImageSectionModel.Item }
       .map { Reactor.Action.presentedAlert(.deleteImage($0)) }
       .bind(to: reactor.action)
       .disposed(by: disposeBag)
