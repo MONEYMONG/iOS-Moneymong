@@ -115,7 +115,6 @@ public final class AgencyListVC: BaseVC, View {
       .disposed(by: disposeBag)
     
     reactor.pulse(\.$alert)
-      .debug("alert")
       .compactMap { $0 }
       .observe(on: MainScheduler.instance)
       .bind(with: self) { owner, alert in

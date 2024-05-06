@@ -46,10 +46,6 @@ final class CreateAgencyVC: BaseVC, View {
   
   private let createButton: MMButton = MMButton(title: "등록하기", type: .disable)
   
-  override func setupUI() {
-    super.setupUI()
-  }
-  
   override func setupConstraints() {
     super.setupConstraints()
     
@@ -79,6 +75,7 @@ final class CreateAgencyVC: BaseVC, View {
       .disposed(by: disposeBag)
     
     agencyTextField.textField.rx.text
+      .compactMap { $0 }
       .map { Reactor.Action.textFieldDidChange($0) }
       .bind(to: reactor.action)
       .disposed(by: disposeBag)
@@ -117,5 +114,12 @@ final class CreateAgencyVC: BaseVC, View {
       }
       .disposed(by: disposeBag)
     
+    reactor.pulse(\.$error)
+      .compactMap { $0 }
+      .observe(on: MainScheduler.instance)
+      .bind(with: self) { owner, value in
+        // TODO: 에러처리
+      }
+      .disposed(by: disposeBag)
   }
 }

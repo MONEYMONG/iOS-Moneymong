@@ -9,7 +9,7 @@ public final class AgencyCoordinator: Coordinator {
   public weak var parentCoordinator: Coordinator?
   public var childCoordinators: [Coordinator] = []
   
-  public weak var secondFlowNavigationController: UINavigationController?
+  weak var secondFlowNavigationController: UINavigationController?
 
   public init(navigationController: UINavigationController, diContainer: AgencyDIContainer) {
     self.navigationController = navigationController
