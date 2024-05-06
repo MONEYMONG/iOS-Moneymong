@@ -31,22 +31,19 @@ final class LoginVC: BaseVC, View {
     return label
   }()
 
-  private let appleLogin: UIButton = {
-    let button = UIButton()
-    button.setImage(Images.appleButton, for: .normal)
-    return button
+  private let recentProviderToolTip: ToolTip = {
+    let tooltip = ToolTip(type: .bottom)
+    tooltip.setTitle(with: Const.bubbleTitle)
+    tooltip.setBackgroundColor(with: Colors.White._1)
+    tooltip.setCorneradius(8)
+    tooltip.setFonts(with: Fonts.body._3)
+    tooltip.setTitleColor(with: Colors.Blue._4)
+    tooltip.isHidden = true
+    return tooltip
   }()
 
-  private let kakaoLogin: UIButton = {
-    let button = UIButton()
-    button.setImage(Images.kakaoButton, for: .normal)
-    return button
-  }()
-
-  public override func viewDidLoad() {
-    super.viewDidLoad()
-    navigationController?.navigationBar.isHidden = true
-  }
+  private let appleLoginButton = SocialLoginButton(type: .apple)
+  private let kakaoLoginButton = SocialLoginButton(type: .kakao)
 
   public override func viewDidLayoutSubviews() {
     super.viewDidLayoutSubviews()
@@ -54,18 +51,25 @@ final class LoginVC: BaseVC, View {
     rootContainer.flex.layout()
   }
 
+  override func setupUI() {
+    super.setupUI()
+    setLeftItem(.none)
+  }
+
   override func setupConstraints() {
     super.setupConstraints()
+
     rootContainer.flex
       .backgroundColor(Colors.Blue._4)
-      .alignItems(.center)
-      .justifyContent(.center)
       .define { flex in
+
+        flex.addItem().grow(1)
 
         flex.addItem()
           .direction(.column)
           .alignSelf(.center)
           .alignItems(.center)
+          .marginTop(46)
           .justifyContent(.center)
           .define { flex in
             flex.addItem(imageView)
@@ -75,28 +79,65 @@ final class LoginVC: BaseVC, View {
             flex.addItem(descriptionLabel)
           }
 
+        flex.addItem().grow(1)
+
         flex.addItem()
-          .position(.absolute).bottom(46)
-          .alignItems(.center)
-          .justifyContent(.center)
           .direction(.column)
           .paddingHorizontal(20)
+          .marginBottom(46)
           .define { flex in
-            flex.addItem(appleLogin)
+
+            flex.addItem(appleLoginButton)
+              .backgroundColor(Colors.Black._1)
+              .height(56)
+
             flex.addItem().height(12)
-            flex.addItem(kakaoLogin)
+
+            flex.addItem(kakaoLoginButton)
+              .backgroundColor(Colors.Yellow._1)
+              .height(56)
           }
       }
+
+    rootContainer.addSubview(recentProviderToolTip)
   }
 
   func bind(reactor: LoginReactor) {
     // State Binding
 
-    reactor.pulse(\.$moveToMain)
+    reactor.pulse(\.$destination)
       .compactMap { $0 }
       .observe(on: MainScheduler.instance)
-      .bind(with: self) { owner, _ in
-        owner.coordinator?.main()
+      .bind(with: self) { owner, destination in
+        switch destination {
+        case .main:
+          owner.coordinator?.main()
+        case .signUp:
+          owner.coordinator?.signUp()
+        }
+      }
+      .disposed(by: disposeBag)
+
+    reactor.pulse(\.$recentLoginType)
+      .compactMap { $0 }
+      .delay(.milliseconds(10), scheduler: MainScheduler.instance)
+      .bind(with: self) { owner, type in
+
+        owner.recentProviderToolTip.isHidden = false
+
+        switch type {
+        case .apple:
+          owner.recentProviderToolTip.pin
+            .hCenter()
+            .after(of: owner.appleLoginButton, aligned: .bottom)
+            .marginBottom(63)
+
+        case .kakao:
+          owner.recentProviderToolTip.pin
+            .hCenter()
+            .after(of: owner.kakaoLoginButton, aligned: .bottom)
+            .marginBottom(63)
+        }
       }
       .disposed(by: disposeBag)
 
@@ -104,25 +145,33 @@ final class LoginVC: BaseVC, View {
       .compactMap { $0 }
       .observe(on: MainScheduler.instance)
       .bind(with: self) { owner, errorMessage in
-        AlertsManager.show(owner, title: errorMessage, subTitle: nil, okAction: {}, cancelAction: nil)
+        owner.coordinator?.alert(title: errorMessage, okAction: {}, cancelAction: nil)
       }
       .disposed(by: disposeBag)
 
-    //    reactor.pulse(\.$isLoading)
-    //      .compactMap { $0 }
-    //      .observe(on: MainScheduler.instance)
-    //      .bind(to: rx.isLoading())
-    //      .disposed(by: disposeBag)
+    reactor.pulse(\.$isLoading)
+      .observe(on: MainScheduler.instance)
+      .bind { isLoading in
+        // TODO: 로딩인디케이터 돌리기
+      }
+      .disposed(by: disposeBag)
 
     // Action Binding
 
-    appleLogin.rx.tap
-      .map { Reactor.Action.login(.Apple) }
+    rx.viewDidAppear
+      .map { Reactor.Action.onAppear }
       .bind(to: reactor.action)
       .disposed(by: disposeBag)
 
-    kakaoLogin.rx.tap
-      .map { Reactor.Action.login(.Kakao) }
+    appleLoginButton.rx.tap
+      .throttle(.seconds(1), scheduler: MainScheduler.instance)
+      .map { Reactor.Action.login(.apple) }
+      .bind(to: reactor.action)
+      .disposed(by: disposeBag)
+
+    kakaoLoginButton.rx.tap
+      .throttle(.seconds(1), scheduler: MainScheduler.instance)
+      .map { Reactor.Action.login(.kakao) }
       .bind(to: reactor.action)
       .disposed(by: disposeBag)
   }
@@ -131,4 +180,7 @@ final class LoginVC: BaseVC, View {
 fileprivate enum Const {
   static var title: String { "교내 회계 관리를 편리하게" }
   static var description: String { "수기 기록은 이제 그만! 간단하게 기록해요." }
+  static var bubbleTitle: String { "마지막으로 로그인한 계정이에요" }
+  static var kakaoButtonTitle: String { "카카오 로그인" }
+  static var appleButtonTitle: String { "Apple로 로그인" }
 }

@@ -2,7 +2,8 @@ import Foundation
 import Alamofire
 
 public protocol UniversityRepositoryInterface {
-  func universities(keyword: String) async throws -> University
+  func university(name: String, grade: Int) async throws
+  func universities(keyword: String) async throws -> [University]
 }
 
 public final class UniversityRepository: UniversityRepositoryInterface {
@@ -12,10 +13,10 @@ public final class UniversityRepository: UniversityRepositoryInterface {
     self.networkManager = networkManager
   }
 
-  public func universities(keyword: String) async throws -> University {
+  public func universities(keyword: String) async throws -> [University] {
     let targetType = UniversityAPI.universities(keyword)
-    let dto = try await networkManager.request(target: targetType, of: UniversityResponseDTO.self)
-    return dto.toEntity
+    let dto = try await networkManager.request(target: targetType, of: UniversitiesResponseDTO.self)
+    return dto.toEntity.universities
   }
 
   public func university(name: String, grade: Int) async throws {
@@ -24,3 +25,4 @@ public final class UniversityRepository: UniversityRepositoryInterface {
     try await networkManager.request(target: targetType)
   }
 }
+

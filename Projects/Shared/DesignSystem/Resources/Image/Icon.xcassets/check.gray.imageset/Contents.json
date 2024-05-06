@@ -1,17 +1,17 @@
 {
   "images" : [
     {
-      "filename" : "appleButton.png",
+      "filename" : "checkGray.png",
       "idiom" : "universal",
       "scale" : "1x"
     },
     {
-      "filename" : "appleButton@2x.png",
+      "filename" : "checkGray@2x.png",
       "idiom" : "universal",
       "scale" : "2x"
     },
     {
-      "filename" : "appleButton@3x.png",
+      "filename" : "checkGray@3x.png",
       "idiom" : "universal",
       "scale" : "3x"
     }

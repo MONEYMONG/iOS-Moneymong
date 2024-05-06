@@ -2,81 +2,61 @@ import ReactorKit
 import NetworkService
 import LocalStorage
 
-enum LoginType {
-  case Kakao
-  case Apple
-
-  var value: String {
-    switch self {
-    case .Kakao: "KAKAO"
-    case .Apple: "APPLE"
-    }
-  }
-}
-
 final class LoginReactor: Reactor {
-
   enum Action {
+    case onAppear
     case login(LoginType)
   }
 
   enum Mutation {
     case setIsLoading(Bool)
     case setErrorMessage(String)
-    case moveToMain(Void)
+    case setDestination(Destination)
+    case setRecentLoginType(LoginType?)
+  }
+
+  enum Destination {
+    case main
+    case signUp
   }
 
   struct State {
     @Pulse var isLoading: Bool?
     @Pulse var errorMessage: String?
-    @Pulse var moveToMain: Void?
+    @Pulse var destination: Destination?
+    @Pulse var recentLoginType: LoginType?
   }
 
   let initialState: State = State()
   private let signRepository: SignRepositoryInterface
-  private let universityRepository: UniversityRepository
 
-  init(
-    signRepository: SignRepositoryInterface,
-    universityRepository: UniversityRepository
-  ) {
+  init(signRepository: SignRepositoryInterface) {
     self.signRepository = signRepository
-    self.universityRepository = universityRepository
   }
 
   func mutate(action: Action) -> Observable<Mutation> {
     switch action {
+
+    case .onAppear:
+      return .just(.setRecentLoginType(signRepository.recentLoginType()))
+
     case .login(let loginType):
-      return Observable.create { [unowned self] observer in
-        Task {
-          do {
-            var accessToken = ""
-            switch loginType {
-            case .Kakao:
-              accessToken = try await self.signRepository.kakaoSign()
-            case .Apple:
-              accessToken = try await self.signRepository.appleSign()
-            }
-
-            observer.onNext(.setIsLoading(true))
-
-            let response = try await self.signRepository.sign(
-              provider: loginType.value,
-              accessToken: accessToken
-            )
-
-            if !response.schoolInfoExist {
-              try await universityRepository.university(name: "홍익 대학교", grade: 4)
-            }
-            observer.onNext(.moveToMain(()))
-
-          } catch {
-            observer.onNext(.setErrorMessage(error.localizedDescription))
-          }
+      return .task {
+        var accessToken = ""
+        switch loginType {
+        case .kakao:
+          accessToken = try await self.signRepository.kakaoSign()
+        case .apple:
+          accessToken = try await self.signRepository.appleSign()
         }
-        observer.onNext(.setIsLoading(false))
-        return Disposables.create()
+
+        return try await self.signRepository.sign(
+          provider: loginType.value,
+          accessToken: accessToken
+        )
       }
+      .map { .setDestination($0.schoolInfoExist ? .main : .signUp) }
+      .catch { .just(.setErrorMessage($0.localizedDescription)) }
     }
   }
 
@@ -87,8 +67,10 @@ final class LoginReactor: Reactor {
       newState.isLoading = isLoading
     case .setErrorMessage(let errorMessage):
       newState.errorMessage = errorMessage
-    case .moveToMain(let result):
-      newState.moveToMain = result
+    case .setDestination(let destination):
+      newState.destination = destination
+    case .setRecentLoginType(let recentLoginType):
+      newState.recentLoginType = recentLoginType
     }
     return newState
   }

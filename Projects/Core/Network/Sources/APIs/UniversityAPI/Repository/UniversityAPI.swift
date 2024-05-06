@@ -13,7 +13,7 @@ extension UniversityAPI: TargetType {
 
   var path: String {
     switch self {
-    case .universities: return "api/v1/universities"
+    case .universities(let keyword): return "api/v1/universities?keyword=\(keyword)"
     case .university: return "api/v1/user-university"
     }
   }
@@ -27,13 +27,13 @@ extension UniversityAPI: TargetType {
 
   var task: HTTPTask {
     switch self {
-    case .universities(let keywork):
-      return .requestJSONEncodable(keywork)
+    case .universities:
+      return .plain
     case .university(let requestDTO):
       return .requestJSONEncodable(requestDTO)
     }
   }
-
+  
   public var headers: [String: String]? {
     return [
       "Content-Type": "application/json;charset=UTF-8",

@@ -39,9 +39,10 @@ public final class KakaoAuthManager {
 extension KakaoAuthManager {
   private func kakaoAppSign(continuation: CheckedContinuation<String, any Error>) async throws {
     UserApi.shared.loginWithKakaoTalk { oauthToken, error in
-      if let error {
-        continuation.resume(throwing: MoneyMongError.unknown(error.localizedDescription))
-        return
+      if let kakaoError = error as? SdkError {
+        let reason = kakaoError.getClientError().reason
+        if reason == .Cancelled { return }
+        continuation.resume(throwing: MoneyMongError.unknown(kakaoError.localizedDescription))
       }
       if let accessToken = oauthToken?.accessToken {
         continuation.resume(returning: accessToken)
@@ -51,9 +52,10 @@ extension KakaoAuthManager {
 
   private func kakaoWebSign(continuation: CheckedContinuation<String, any Error>) async throws {
     UserApi.shared.loginWithKakaoAccount { oauthToken, error in
-      if let error {
-        continuation.resume(throwing: MoneyMongError.unknown(error.localizedDescription))
-        return
+      if let kakaoError = error as? SdkError {
+        let reason = kakaoError.getClientError().reason
+        if reason == .Cancelled { return }
+        continuation.resume(throwing: MoneyMongError.unknown(kakaoError.localizedDescription))
       }
       if let accessToken = oauthToken?.accessToken {
         continuation.resume(returning: accessToken)

@@ -12,17 +12,20 @@ final class SplashVC: BaseVC, View {
   private let logoImageView: UIImageView = {
     let imageView = UIImageView()
     imageView.image = Images.mongSplash
+    imageView.contentMode = .scaleAspectFit
     return imageView
   }()
 
-  public override func viewDidLayoutSubviews() {
-    super.viewDidLayoutSubviews()
-    rootContainer.pin.all()
-    rootContainer.flex.layout()
+  override func setupUI() {
+    super.setupUI()
+    setLeftItem(.none)
   }
 
   override func setupConstraints() {
     super.setupConstraints()
+
+    view.backgroundColor = Colors.Blue._4
+
     rootContainer.flex
       .backgroundColor(Colors.Blue._4)
       .direction(.column)
@@ -30,25 +33,39 @@ final class SplashVC: BaseVC, View {
       .alignItems(.center)
       .define { flex in
 
-        flex.addItem(logoImageView)
-          .width(120)
-          .height(120)
-          .aspectRatio(of: logoImageView)
+        flex.addItem(logoImageView).size(12)
       }
   }
 
   func bind(reactor: SplashReactor) {
-    rx.viewDidLoad
+    reactor.pulse(\.$destination)
+      .compactMap { $0 }
+      .observe(on: MainScheduler.instance)
+      .delay(.milliseconds(900), scheduler: MainScheduler.instance)
+      .bind(with: self) { owner, destination in
+        switch destination {
+        case .login:
+          owner.coordinator?.login()
+        case .main:
+          owner.coordinator?.main()
+        }
+      }
+      .disposed(by: disposeBag)
+
+    rx.viewDidAppear
       .bind(with: self) { owner, _ in
-        owner.transitionToMainScene()
+        reactor.action.onNext(.onAppear)
+        owner.onAnimation()
       }
       .disposed(by: disposeBag)
   }
 
-  private func transitionToMainScene() {
-    DispatchQueue.main.asyncAfter(deadline: .now() + 1.5) { [weak self] in
-      guard let self = self else { return }
-      self.coordinator?.login()
+  private func onAnimation() {
+    view.setNeedsLayout()
+    logoImageView.flex.width(120).height(120).markDirty()
+
+    UIView.animate(withDuration: 0.5) {
+      self.view.layoutIfNeeded()
     }
   }
 }

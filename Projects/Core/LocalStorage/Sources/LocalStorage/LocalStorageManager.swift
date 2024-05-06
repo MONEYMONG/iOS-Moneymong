@@ -10,9 +10,14 @@ public protocol LocalStorageInterface: AnyObject {
 
 public final class LocalStorageManager: LocalStorageInterface {
   private let keychainHelper: KeychainHelper
+  private let userDefaultHelper: UserDefaultsHelper
 
-  public init(keychainHelper: KeychainHelper = KeychainHelper()) {
+  public init(
+    keychainHelper: KeychainHelper = KeychainHelper(),
+    userDefaultHelper: UserDefaultsHelper = UserDefaultsHelper()
+  ) {
     self.keychainHelper = keychainHelper
+    self.userDefaultHelper = userDefaultHelper
   }
 
   @discardableResult
@@ -22,6 +27,10 @@ public final class LocalStorageManager: LocalStorageInterface {
       return keychainHelper.create(to: .accessToken, value: value)
     case .refreshToken:
       return keychainHelper.create(to: .refreshToken, value: value)
+    case .socialAccessToken:
+      return keychainHelper.create(to: .socialAccessToken, value: value)
+    case .recentLoginType:
+      return userDefaultHelper.saveData(newValue: value, forKey: .recentLoginType)
     }
   }
 
@@ -31,6 +40,10 @@ public final class LocalStorageManager: LocalStorageInterface {
       return keychainHelper.read(to: .accessToken)
     case .refreshToken:
       return keychainHelper.read(to: .refreshToken)
+    case .socialAccessToken:
+      return keychainHelper.read(to: .socialAccessToken)
+    case .recentLoginType:
+      return userDefaultHelper.retrieveData(forKey: .recentLoginType, type: String.self)
     }
   }
 
@@ -41,6 +54,10 @@ public final class LocalStorageManager: LocalStorageInterface {
       return keychainHelper.delete(to: .accessToken)
     case .refreshToken:
       return keychainHelper.delete(to: .refreshToken)
+    case .socialAccessToken:
+      return keychainHelper.delete(to: .socialAccessToken)
+    case .recentLoginType:
+      return userDefaultHelper.delete(forKey: .recentLoginType, type: String.self)
     }
   }
 }

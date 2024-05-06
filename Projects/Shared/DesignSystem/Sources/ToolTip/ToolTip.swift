@@ -44,6 +44,9 @@ public class ToolTip: UIView {
 
   private func setupUI() {
     addSubview(rootContainer)
+    rootContainer.layer.borderColor = UIColor.clear.cgColor
+    rootContainer.layer.borderWidth = 1
+    rootContainer.setShadow(location: .bottom)
   }
 
   private func setupConstraints() {

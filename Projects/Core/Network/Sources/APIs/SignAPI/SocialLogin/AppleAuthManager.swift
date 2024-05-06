@@ -50,6 +50,5 @@ extension AppleAuthManager: ASAuthorizationControllerDelegate {
     didCompleteWithError error: Error
   ) {
     debugPrint("apple login 실패 \(error.localizedDescription)")
-    continuation?.resume(throwing: error)
   }
 }
