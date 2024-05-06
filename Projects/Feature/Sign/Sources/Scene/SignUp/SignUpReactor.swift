@@ -21,6 +21,8 @@ final class SignUpReactor: Reactor {
     case setInputType(InputType)
     case setIsConfirm(Bool)
     case setDestination(Destination)
+    case setSelectedUniversity(University)
+    case setSelectedGrade(Int)
   }
 
   enum InputType {
@@ -40,17 +42,14 @@ final class SignUpReactor: Reactor {
     @Pulse var isEmptyList: Bool?
     @Pulse var inputType: InputType = .university
     @Pulse var destination: Destination?
+    var selectedUniversity: University?
+    var selectedGrade: Int?
   }
 
   let initialState: State = State()
   private let universityRepository: UniversityRepositoryInterface
 
-  var selectedUniversity: University?
-  var selectedGrade: Int?
-
-  init(
-    universityRepository: UniversityRepositoryInterface
-  ) {
+  init(universityRepository: UniversityRepositoryInterface) {
     self.universityRepository = universityRepository
   }
 
@@ -79,12 +78,13 @@ final class SignUpReactor: Reactor {
       }
 
     case .selectUniversity(let university):
-      selectedUniversity = university
-      return .just(.setInputType(.grade(university)))
+      return Observable.create { observer in
+        observer.onNext(.setSelectedUniversity(university))
+        observer.onNext(.setInputType(.grade(university)))
+        return Disposables.create()
+      }
 
     case .unSelectUniversity:
-      selectedUniversity = nil
-      selectedGrade = nil
       return Observable.create { observer in
         observer.onNext(.setIsConfirm(false))
         observer.onNext(.setInputType(.university))
@@ -92,34 +92,35 @@ final class SignUpReactor: Reactor {
       }
 
     case .selectGrade(let grade):
-      selectedGrade = grade
-      if selectedUniversity != nil, selectedGrade != nil {
-        return .just(.setIsConfirm(true))
-      }
-      return .just(.setIsConfirm(false))
-
-    case .confirm:
       return Observable.create { [unowned self] observer in
-        observer.onNext(.setIsLoading(true))
-        Task {
-          do {
-            guard let selectedUniversity, let selectedGrade else {
-              observer.onNext(.setErrorMessage("필수 입력값을 입력해 주세요."))
-              return Disposables.create()
-            }
-            try await universityRepository.university(
-              name: selectedUniversity.schoolName,
-              grade: selectedGrade
-            )
-            observer.onNext(.setDestination(.congratulations))
-          } catch {
-            observer.onNext(.setErrorMessage(error.localizedDescription))
-          }
-          return Disposables.create()
+        observer.onNext(.setSelectedGrade(grade))
+
+        if currentState.selectedUniversity != nil, currentState.selectedGrade != nil {
+          observer.onNext(.setIsConfirm(true))
+        } else {
+          observer.onNext(.setIsConfirm(false))
         }
-        observer.onNext(.setIsLoading(false))
         return Disposables.create()
       }
+
+    case .confirm:
+      return Observable.concat([
+        .just(.setIsLoading(true)),
+        .task { [unowned self] in
+          guard let university = currentState.selectedUniversity,
+                let grade = currentState.selectedGrade else {
+            throw MoneyMongError.appError(errorMessage: "필수 입력값을 입력해주세요.")
+          }
+          return try await universityRepository.university(
+            name: university.schoolName,
+            grade: grade
+          )
+        }
+          .map {.setDestination(.congratulations) }
+          .catch { error in .just(.setErrorMessage(error.localizedDescription)) },
+
+          .just(.setIsLoading(false))
+      ])
     }
   }
 
@@ -140,6 +141,10 @@ final class SignUpReactor: Reactor {
       newState.destination = destination
     case .setEmptyList(let value):
       newState.isEmptyList = value
+    case .setSelectedUniversity(let university):
+      newState.selectedUniversity = university
+    case .setSelectedGrade(let grade):
+      newState.selectedGrade = grade
     }
     return newState
   }
