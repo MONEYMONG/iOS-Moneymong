@@ -64,16 +64,16 @@ final class ManualInputVC: BaseVC, View {
     return v
   }()
   
-  private let transactionTypeSelection: MMSegmentControl = {
-    let v = MMSegmentControl(titles: ["지출", "수입"], type: .round)
-    v.selectedIndex = 1
-    return v
-  }()
+  private let fundTypeSelection = MMSegmentControl(
+    titles: ["지출", "수입"],
+    type: .round
+  )
   
   private let dateTextField: MMTextField = {
     let v = MMTextField(title: "날짜")
     v.setPlaceholder(to: "YYYY/MM/DD")
     v.setRequireMark()
+    v.setKeyboardType(to: .numberPad)
     return v
   }()
   
@@ -81,6 +81,7 @@ final class ManualInputVC: BaseVC, View {
     let v = MMTextField(title: "시간")
     v.setPlaceholder(to: "00:00:00(24시 단위)")
     v.setRequireMark()
+    v.setKeyboardType(to: .numberPad)
     return v
   }()
   
@@ -125,22 +126,16 @@ final class ManualInputVC: BaseVC, View {
     v.setPlaceholder(to: "메모할 내용을 입력하세요")
     return v
   }()
-  
-  override init() {
-    super.init()
-    setRightItem(.closeBlack)
-    setTitle("장부 작성")
-  }
-  
-  @available(*, unavailable)
-  required public init?(coder aDecoder: NSCoder) {
-    fatalError("init(coder:) has not been implemented")
-  }
 
   override func viewDidLayoutSubviews() {
     super.viewDidLayoutSubviews()
     completeButton.pin.height(56).bottom(view.safeAreaInsets.bottom + 12).horizontally(20)
     scrollView.contentSize = content.frame.size
+  }
+  
+  override func setupUI() {
+    super.setupUI()
+    setTitle("장부 작성")
   }
   
   override func setupConstraints() {
@@ -152,7 +147,7 @@ final class ManualInputVC: BaseVC, View {
           flex.addItem(amountTextField).marginBottom(24)
           flex.addItem().define { flex in
             flex.addItem(selectionLabel).marginBottom(8)
-            flex.addItem(transactionTypeSelection)
+            flex.addItem(fundTypeSelection)
           }.marginBottom(24)
           flex.addItem(dateTextField).marginBottom(24)
           flex.addItem(timeTextField).marginBottom(24)
@@ -163,20 +158,21 @@ final class ManualInputVC: BaseVC, View {
         }.paddingBottom(50)
       }
       flex.addItem(keyboardSpaceView).backgroundColor(.clear).height(60)
-      flex.addItem(smogView).position(.absolute)
-        .bottom(0)
-        .horizontally(0)
-        .height(100)
+      flex.addItem(smogView).position(.absolute).bottom(0).horizontally(0).height(100)
     }
     view.addSubview(completeButton)
   }
   
   func bind(reactor: ManualInputReactor) {
-    // MARK: - Action Bind
+    setRightItem(.closeBlack)
+    bindAction(reactor: reactor)
+    bindState(reactor: reactor)
+  }
+  
+  private func bindAction(reactor: ManualInputReactor) {
     navigationItem.rightBarButtonItem?.rx.tap
-      .bind(with: self) { owner, _ in
-        owner.coordinator?.dismiss(animated: true)
-      }
+      .map { Reactor.Action.presentedAlert(.end) }
+      .bind(to: reactor.action)
       .disposed(by: disposeBag)
     
     collectionView.rx.setDelegate(self)
@@ -228,10 +224,9 @@ final class ManualInputVC: BaseVC, View {
       .bind(to: reactor.action)
       .disposed(by: disposeBag)
     
-    transactionTypeSelection.$selectedIndex
-      .sink { [weak self] in
-        self?.amountTextField.textField.resignFirstResponder()
-        reactor.action.onNext(.inputContent("\($0)", type: .transactionType))
+    fundTypeSelection.$selectedIndex
+      .sink {
+        reactor.action.onNext(.inputContent("\($0)", type: .fundType))
     }.store(in: &anyCancellable)
     
     dateTextField.textField.rx.text
@@ -241,8 +236,10 @@ final class ManualInputVC: BaseVC, View {
       .disposed(by: disposeBag)
     
     memoTextView.textView.rx.text
-      .bind(with: self) { owner, _ in
-        owner.viewDidLayoutSubviews()
+      .compactMap { $0 }
+      .bind(with: self) { owner, value in
+        owner.view.setNeedsLayout()
+        reactor.action.onNext(.inputContent(value, type: .memo))
       }
       .disposed(by: disposeBag)
     
@@ -263,19 +260,18 @@ final class ManualInputVC: BaseVC, View {
       }.disposed(by: disposeBag)
     
     NotificationCenter.default.rx.notification(.didTapImageDeleteButton)
-      .map { $0.object as! ImageSectionModel.Item }
-      .map { Reactor.Action.didTapImageDeleteButton($0) }
+      .compactMap { $0.object as? ImageSectionModel.Item }
+      .map { Reactor.Action.presentedAlert(.deleteImage($0)) }
       .bind(to: reactor.action)
       .disposed(by: disposeBag)
-    
-    // MARK: - State Bind
+  }
+  
+  private func bindState(reactor: ManualInputReactor) {
     reactor.pulse(\.$images)
-      .observe(on: MainScheduler.instance)
       .bind(to: collectionView.rx.items(dataSource: dataSource))
       .disposed(by: disposeBag)
     
     reactor.pulse(\.$images)
-      .observe(on: MainScheduler.instance)
       .bind(with: self) { owner, value in
         owner.updateCollectionHeigh(images: value)
       }
@@ -284,7 +280,7 @@ final class ManualInputVC: BaseVC, View {
     reactor.pulse(\.$selectedSection)
       .compactMap { $0 }
       .bind(with: self) { owner, _ in
-        owner.coordinator?.imagePicker(animated: true, delegate: owner)
+        owner.coordinator?.present(.imagePicker(delegate: owner))
       }
       .disposed(by: disposeBag)
     
@@ -299,6 +295,47 @@ final class ManualInputVC: BaseVC, View {
     reactor.pulse(\.content.$time)
       .bind(to: timeTextField.textField.rx.text)
       .disposed(by: disposeBag)
+    
+    reactor.pulse(\.$alertMessage)
+      .compactMap { $0 }
+      .observe(on: MainScheduler.instance)
+      .bind(with: self) { owner, content in
+        let (title, subTitle, type) = content
+        let okAction: () -> Void
+        let cancelAction: (() -> Void)?
+        switch type {
+        case .error(_):
+          okAction = {}
+          cancelAction = nil
+        case .deleteImage(let item):
+          okAction = { reactor.action.onNext(.didTapImageDeleteAlertButton(item)) }
+          cancelAction = {}
+        case .end:
+          okAction = { owner.coordinator?.dismiss(animated: true) }
+          cancelAction = {}
+        }
+        owner.coordinator?.present(
+          .alert(
+            title: title,
+            subTitle: subTitle,
+            okAction: okAction,
+            cancelAction: cancelAction
+          ),
+          animated: false
+        )
+      }
+      .disposed(by: disposeBag)
+//
+//    reactor.pulse(\.$isValids)
+//      .compactMap { $0[.amount] }
+//      .distinctUntilChanged()
+//      .filter { $0 == false }
+//      .bind(with: self, onNext: { owner, isValid in
+//        owner.amountTextField.setError(message: "999,999,999원 이내로 입력해주세요")
+//        owner.amountTextField.flex.markDirty()
+//        owner.view.setNeedsLayout()
+//      })
+//      .disposed(by: disposeBag)
   }
   
   private func updateCollectionHeigh(images: [ImageSectionModel.Model]) {
@@ -310,7 +347,7 @@ final class ManualInputVC: BaseVC, View {
     collectionView.flex.height(
       baseH + (ViewSize.cell.height + ViewSize.cellSpacing) * (receiptLineCount + supportingLineCount - 2)
     ).markDirty()
-    viewDidLayoutSubviews()
+    view.setNeedsLayout()
   }
 }
 
@@ -354,28 +391,3 @@ extension ManualInputVC: UIImagePickerControllerDelegate, UINavigationController
     dismiss(animated: true, completion: nil)
   }
 }
-
-struct ImageInfo: Equatable {
-  let id: UUID
-  let data: Data
-}
-
-// 섹션 모델
-struct ImageSectionModel {
-  typealias Model = SectionModel<Section, Item>
-  
-  enum Section: Int, Equatable {
-    case receipt
-    case document
-  }
-
-  enum Item: Equatable {
-    case button(_ section: Section)
-    case image(_ info: ImageInfo, _ section: Section)
-  }
-  
-  let model: Section
-  var items: [Item]
-}
-
-

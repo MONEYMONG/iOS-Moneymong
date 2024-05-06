@@ -1,10 +1,17 @@
 import UIKit
 
 import BaseFeature
+import NetworkService
 
 public final class LedgerDIContainer {
-  public init() {}
+  private let ledgerRepo: LedgerRepositoryInterface
   
+  public init(
+    ledgerRepo: LedgerRepositoryInterface
+  ) {
+    self.ledgerRepo = ledgerRepo
+  }
+
   func ledger(with coordinator: LedgerCoordinator) -> LedgerVC {
     let vc = LedgerVC(
       [
@@ -36,7 +43,7 @@ public final class LedgerDIContainer {
     let vc = UINavigationController()
     let manualInputCoordinator = ManualInputCoordinator(
       navigationController: vc,
-      diContainer: ManualInputDIContainer()
+      diContainer: ManualInputDIContainer(repo: ledgerRepo)
     )
     coordinator.childCoordinators.append(manualInputCoordinator)
     manualInputCoordinator.parentCoordinator = coordinator

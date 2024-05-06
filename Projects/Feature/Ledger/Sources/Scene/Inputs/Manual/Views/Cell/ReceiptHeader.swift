@@ -6,11 +6,20 @@ import DesignSystem
 import PinLayout
 import FlexLayout
 
-final class DocumentHeader: UICollectionReusableView, ReusableView {
-  private let documentLabel: UILabel = {
+final class ReceiptHeader: UICollectionReusableView, ReusableView {
+  private let receiptLabel1: UILabel = {
     let v = UILabel()
     v.textColor = Colors.Gray._6
-    v.text = "증빙 자료 (최대 12장)"
+    v.text = "영수증 (최대 12장)"
+    v.font = Fonts.body._2
+    return v
+  }()
+  
+  private let receiptLabel2: UILabel = {
+    let v = UILabel()
+    v.textColor = Colors.Blue._4
+    v.numberOfLines = 0
+    v.text = "*지출일 경우 영수증을 꼭 제출해주세요"
     v.font = Fonts.body._2
     return v
   }()
@@ -34,14 +43,17 @@ final class DocumentHeader: UICollectionReusableView, ReusableView {
   
   private func setupConstraints() {
     rootContainer.flex.define { flex in
-      flex.addItem(documentLabel)
+      flex.addItem(receiptLabel1)
+      flex.addItem(receiptLabel2)
     }
   }
   
   override func layoutSubviews() {
     super.layoutSubviews()
-    
     rootContainer.pin.all()
     rootContainer.flex.layout()
   }
 }
+
+
+
