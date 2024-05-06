@@ -278,12 +278,10 @@ final class ManualInputVC: BaseVC, View {
   
   private func bindState(reactor: ManualInputReactor) {
     reactor.pulse(\.$images)
-      .observe(on: MainScheduler.instance)
       .bind(to: collectionView.rx.items(dataSource: dataSource))
       .disposed(by: disposeBag)
     
     reactor.pulse(\.$images)
-      .observe(on: MainScheduler.instance)
       .bind(with: self) { owner, value in
         owner.updateCollectionHeigh(images: value)
       }
