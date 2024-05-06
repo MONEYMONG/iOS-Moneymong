@@ -1,6 +1,6 @@
 import Foundation
 
-struct ImageInfo: Equatable {
+struct ImageData: Equatable {
   let id: UUID
   let data: Data
 }

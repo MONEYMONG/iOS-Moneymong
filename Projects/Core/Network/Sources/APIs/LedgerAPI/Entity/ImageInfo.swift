@@ -1,6 +1,6 @@
 import Foundation
 
-public struct ImageURL {
+public struct ImageInfo {
   public let key: String
   public let url: String
   public var id: UUID?

@@ -4,7 +4,7 @@ struct ImageResponseDTO: Responsable {
   let key: String
   let path: String
   
-  var toEntity: ImageURL {
-    return ImageURL(key: key, url: path)
+  var toEntity: ImageInfo {
+    return ImageInfo(key: key, url: path)
   }
 }

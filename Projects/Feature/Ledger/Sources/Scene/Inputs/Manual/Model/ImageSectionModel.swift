@@ -11,8 +11,8 @@ struct ImageSectionModel {
   }
 
   enum Item: Equatable {
-    case button(_ section: Section)
-    case image(_ info: ImageInfo, _ section: Section)
+    case button(Section)
+    case image(ImageData, Section)
   }
   
   let model: Section

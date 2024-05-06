@@ -37,7 +37,7 @@ final class ManualInputReactor: Reactor {
     case deleteImageURL(Int, ImageSectionModel.Section)
     case setContent(_ value: String, type: ContentType)
     case setSection(_ section: ImageSectionModel.Section)
-    case addImageURL(_ image: ImageURL, _ section: ImageSectionModel.Section)
+    case addImageURL(_ image: ImageInfo, _ section: ImageSectionModel.Section)
     case requestCreateAPI
     case setAlertContent(AlertType)
   }
@@ -69,8 +69,8 @@ final class ManualInputReactor: Reactor {
     @Pulse var date: String = ""
     @Pulse var time: String = ""
     @Pulse var memo: String = ""
-    @Pulse var receiptImageURLs = [ImageURL]()
-    @Pulse var documentImageURLs = [ImageURL]()
+    @Pulse var receiptImages = [ImageInfo]()
+    @Pulse var documentImages = [ImageInfo]()
   }
     
   private let numberFormatter: NumberFormatter = {
@@ -106,18 +106,18 @@ final class ManualInputReactor: Reactor {
       guard case let .image(image, section) = item else { return .empty() }
       return .task {
         var index: Int!
-        var imageURL: ImageURL!
+        var imageURL: ImageInfo!
         switch section {
         case .receipt:
-          index = currentState.content.receiptImageURLs.firstIndex(where: {
+          index = currentState.content.receiptImages.firstIndex(where: {
             $0.id == image.id
           })
-          imageURL = currentState.content.receiptImageURLs[index]
+          imageURL = currentState.content.receiptImages[index]
         case .document:
-          index = currentState.content.documentImageURLs.firstIndex(where: {
+          index = currentState.content.documentImages.firstIndex(where: {
             $0.id == image.id
           })
-          imageURL = currentState.content.documentImageURLs[index]
+          imageURL = currentState.content.documentImages[index]
         }
         try await repo.imageDelete(imageURL)
         return index
@@ -146,8 +146,8 @@ final class ManualInputReactor: Reactor {
           amount: amount,
           description: currentState.content.memo,
           paymentDate: date,
-          receiptImageUrls: currentState.content.receiptImageURLs.map(\.url),
-          documentImageUrls: currentState.content.documentImageURLs.map(\.url)
+          receiptImageUrls: currentState.content.receiptImages.map(\.url),
+          documentImageUrls: currentState.content.documentImages.map(\.url)
         )
       }
       .map { .requestCreateAPI }
@@ -186,16 +186,16 @@ final class ManualInputReactor: Reactor {
     case .addImageURL(let imageURL, let section):
       switch section {
       case .receipt:
-        newState.content.receiptImageURLs.append(imageURL)
+        newState.content.receiptImages.append(imageURL)
       case .document:
-        newState.content.documentImageURLs.append(imageURL)
+        newState.content.documentImages.append(imageURL)
       }
     case .deleteImageURL(let index, let section):
       switch section {
       case .receipt:
-        newState.content.receiptImageURLs.remove(at: index)
+        newState.content.receiptImages.remove(at: index)
       case .document:
-        newState.content.documentImageURLs.remove(at: index)
+        newState.content.documentImages.remove(at: index)
       }
     case .setAlertContent(let type):
       switch type {
