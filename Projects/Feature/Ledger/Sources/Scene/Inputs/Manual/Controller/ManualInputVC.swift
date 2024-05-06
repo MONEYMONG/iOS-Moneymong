@@ -126,15 +126,6 @@ final class ManualInputVC: BaseVC, View {
     v.setPlaceholder(to: "메모할 내용을 입력하세요")
     return v
   }()
-  
-  override init() {
-    super.init()
-  }
-  
-  @available(*, unavailable)
-  required public init?(coder aDecoder: NSCoder) {
-    fatalError("init(coder:) has not been implemented")
-  }
 
   override func viewDidLayoutSubviews() {
     super.viewDidLayoutSubviews()
@@ -145,7 +136,6 @@ final class ManualInputVC: BaseVC, View {
   override func setupUI() {
     super.setupUI()
     setTitle("장부 작성")
-
   }
   
   override func setupConstraints() {
