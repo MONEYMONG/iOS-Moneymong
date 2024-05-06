@@ -23,7 +23,7 @@ public final class AlertsManager {
       .compactMap({ $0 as? UIWindowScene })
       .first?.windows
       .filter({ $0.isKeyWindow }).first?
-      .rootViewController?.topViewController()
+      .rootViewController?.searchTopViewController()
     else {
       return
     }
