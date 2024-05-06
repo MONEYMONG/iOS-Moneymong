@@ -6,7 +6,8 @@ import ReactorKit
 
 final class ManualInputReactor: Reactor {
   private let repo: LedgerRepositoryInterface
-    
+  private let formatter = ContentFormatter()
+  
   enum ContentType {
     case source
     case amount
@@ -72,12 +73,7 @@ final class ManualInputReactor: Reactor {
     @Pulse var receiptImages = [ImageInfo]()
     @Pulse var documentImages = [ImageInfo]()
   }
-    
-  private let numberFormatter: NumberFormatter = {
-    let formatter = NumberFormatter()
-    formatter.numberStyle = .decimal
-    return formatter
-  }()
+ 
   
   init(repo: LedgerRepositoryInterface) {
     self.repo = repo
@@ -136,7 +132,7 @@ final class ManualInputReactor: Reactor {
         guard let amount = Int(currentState.content.amount.filter { $0.isNumber }) else {
           throw MoneyMongError.appError(errorMessage: "금액을 확인해 주세요")
         }
-        guard let date = convertDateString(currentState.content.date + " " + currentState.content.time) else {
+        guard let date = formatter.dateBodyParameter(currentState.content.date + " " + currentState.content.time) else {
           throw MoneyMongError.appError(errorMessage: "날짜 및 시간을 확인해 주세요")
         }
         return try await repo.create(
@@ -217,13 +213,13 @@ private extension ManualInputReactor {
     case .source:
       content.source = value
     case .amount:
-      content.amount = formatAmount(value) ?? ""
+      content.amount = formatter.amount(value) ?? ""
     case .fundType:
       content.amountSign = Int(value)!
     case .date:
-      content.date = formatDate(value)
+      content.date = formatter.date(value)
     case .time:
-      content.time = formatItme(value)
+      content.time = formatter.time(value)
     case .memo:
       content.memo = value
     }
@@ -256,59 +252,6 @@ private extension ManualInputReactor {
     let result = regex.firstMatch(in: value, range: NSRange(location: 0, length: value.count))
 
     return result != nil
-  }
-  
-  func formatAmount(_ value: String) -> String? {
-    guard let num = Int(value.filter { $0.isNumber }) else { return nil }
-    return numberFormatter.string(from: NSNumber(value: num))
-  }
-  
-  func formatDate(_ value: String) -> String {
-    var dateString = value
-    if value.last == "/" {
-      dateString.removeLast()
-      return dateString
-    }
-    
-    var dateArray = Array(dateString)
-    
-    if dateArray.count == 5 {
-      dateArray.insert("/", at: 4)
-    } else if dateArray.count == 8 {
-      dateArray.insert("/", at: 7)
-    }
-    
-    return String(dateArray)
-  }
-  
-  func formatItme (_ value: String) -> String {
-    var timeString = value
-    if value.last == ":" {
-      timeString.removeLast()
-      return timeString
-    }
-    
-    var timeArray = Array(timeString)
-    
-    if timeArray.count == 3 {
-      timeArray.insert(":", at: 2)
-    } else if timeArray.count == 6 {
-      timeArray.insert(":", at: 5)
-    }
-    
-    return String(timeArray)
-  }
-  
-  func convertDateString(_ dateString: String) -> String? {
-    let inputFormatter = DateFormatter()
-    inputFormatter.dateFormat = "YYYY/MM/DD HH:mm:ss"
-    inputFormatter.timeZone = TimeZone(abbreviation: "UTC")
-    guard let date = inputFormatter.date(from: dateString) else { return nil }
-    let outputFormatter = ISO8601DateFormatter()
-    outputFormatter.formatOptions = [.withInternetDateTime, .withFractionalSeconds]
-    outputFormatter.timeZone = TimeZone(abbreviation: "UTC")
-    let isoDateString = outputFormatter.string(from: date)
-    return isoDateString
   }
 }
 
