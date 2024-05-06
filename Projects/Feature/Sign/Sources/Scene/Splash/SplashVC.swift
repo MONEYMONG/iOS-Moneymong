@@ -33,9 +33,7 @@ final class SplashVC: BaseVC, View {
       .alignItems(.center)
       .define { flex in
 
-        flex.addItem(logoImageView)
-          .width(12)
-          .height(12)
+        flex.addItem(logoImageView).size(12)
       }
   }
 

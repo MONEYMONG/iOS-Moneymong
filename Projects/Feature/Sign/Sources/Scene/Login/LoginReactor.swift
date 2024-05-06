@@ -15,7 +15,7 @@ final class LoginReactor: Reactor {
     case setRecentLoginType(LoginType?)
   }
 
-  public enum Destination {
+  enum Destination {
     case main
     case signUp
   }

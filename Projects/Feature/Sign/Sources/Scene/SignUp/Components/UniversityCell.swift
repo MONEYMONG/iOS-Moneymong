@@ -57,10 +57,10 @@ final class UniversityCell: UITableViewCell, ReusableView {
       flex.addItem()
         .alignItems(.center)
         .direction(.row).define { flex in
-          flex.addItem(schoolImageView).height(22).width(22)
+          flex.addItem(schoolImageView).size(22)
           flex.addItem().width(10)
           flex.addItem(nameLabel).grow(1)
-          flex.addItem(checkButton).height(24).width(24)
+          flex.addItem(checkButton).size(24)
         }
     }
   }
@@ -73,7 +73,6 @@ final class UniversityCell: UITableViewCell, ReusableView {
 
   override func prepareForReuse() {
     super.prepareForReuse()
-    nameLabel.text = nil
     checkButton.isSelected = false
   }
 

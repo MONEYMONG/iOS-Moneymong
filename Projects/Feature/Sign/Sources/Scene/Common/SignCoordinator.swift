@@ -53,13 +53,18 @@ public extension SignCoordinator {
     navigationController.popViewController(animated: animated)
   }
 
-  func alert(title: String, subTitle: String, okAction: @escaping () -> Void) {
+  func alert(
+    title: String,
+    subTitle: String? = nil,
+    okAction: @escaping () -> Void,
+    cancelAction: (() -> Void)?
+  ) {
     AlertsManager.show(
       navigationController,
       title: title,
       subTitle: subTitle,
       okAction: okAction,
-      cancelAction: { }
+      cancelAction: cancelAction
     )
   }
 }

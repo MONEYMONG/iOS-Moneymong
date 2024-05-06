@@ -78,18 +78,16 @@ final class SignUpReactor: Reactor {
       }
 
     case .selectUniversity(let university):
-      return Observable.create { observer in
-        observer.onNext(.setSelectedUniversity(university))
-        observer.onNext(.setInputType(.grade(university)))
-        return Disposables.create()
-      }
+      return Observable.concat([
+        .just(.setSelectedUniversity(university)),
+        .just(.setInputType(.grade(university)))
+      ])
 
     case .unSelectUniversity:
-      return Observable.create { observer in
-        observer.onNext(.setIsConfirm(false))
-        observer.onNext(.setInputType(.university))
-        return Disposables.create()
-      }
+      return Observable.concat([
+        .just(.setIsConfirm(false)),
+        .just(.setInputType(.university))
+      ])
 
     case .selectGrade(let grade):
       return Observable.create { [unowned self] observer in

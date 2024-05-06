@@ -39,7 +39,7 @@ final class EmptyListView: UIView {
       .alignItems(.center)
       .define { flex in
         flex.addItem().height(32)
-        flex.addItem(schoolImageView).width(52).height(52)
+        flex.addItem(schoolImageView).size(52)
         flex.addItem().height(4)
         flex.addItem(titleLabel)
       }

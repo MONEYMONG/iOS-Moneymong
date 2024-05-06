@@ -145,7 +145,7 @@ final class LoginVC: BaseVC, View {
       .compactMap { $0 }
       .observe(on: MainScheduler.instance)
       .bind(with: self) { owner, errorMessage in
-        owner.coordinator?.alert(title: errorMessage, subTitle: "", okAction: {})
+        owner.coordinator?.alert(title: errorMessage, okAction: {}, cancelAction: nil)
       }
       .disposed(by: disposeBag)
 
