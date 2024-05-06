@@ -3,6 +3,7 @@ import Foundation
 import Alamofire
 
 public protocol NetworkManagerInterfacae {
+  @discardableResult
   func request<DTO: Responsable>(target: TargetType, of type: DTO.Type) async throws -> DTO
   func request(target: TargetType) async throws
 }
@@ -14,12 +15,6 @@ public final class NetworkManager: NetworkManagerInterfacae {
   public init() {}
   
   public func request(target: TargetType) async throws {
-    if #available(iOS 16.0, *) {
-      print("start")
-      try! await Task.sleep(for: .seconds(2))
-      print("end")
-    }
-    
     let dataResponse = await AF.request(target, interceptor: tokenIntercepter)
       .serializingData()
       .response
@@ -45,11 +40,6 @@ public final class NetworkManager: NetworkManagerInterfacae {
   }
 
   public func request<DTO: Responsable>(target: TargetType, of type: DTO.Type) async throws -> DTO {
-    if #available(iOS 16.0, *) {
-      print("start")
-      try! await Task.sleep(for: .seconds(2))
-      print("end")
-    }
     
     let dataResponse = await AF.request(target, interceptor: tokenIntercepter)
       .serializingData()

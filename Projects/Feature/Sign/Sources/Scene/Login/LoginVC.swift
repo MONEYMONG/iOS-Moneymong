@@ -103,8 +103,8 @@ final class LoginVC: BaseVC, View {
     reactor.pulse(\.$errorMessage)
       .compactMap { $0 }
       .observe(on: MainScheduler.instance)
-      .bind(with: self) { owner, errorMessage in
-        AlertsManager.show(owner, title: errorMessage, subTitle: nil, okAction: {}, cancelAction: nil)
+      .bind { errorMessage in
+        AlertsManager.show(title: errorMessage, subTitle: nil, okAction: {}, cancelAction: nil)
       }
       .disposed(by: disposeBag)
 

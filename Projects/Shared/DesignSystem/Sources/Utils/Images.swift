@@ -23,6 +23,7 @@ public enum Images {
   public static var agencyGray = UIImage(named: "agency.gray", in: Bundle.module, with: nil)
   public static var agencyFill = UIImage(named: "agency.fill", in: Bundle.module, with: nil)
   public static var agency = UIImage(named: "agency", in: Bundle.module, with: nil)
+  public static var agencyCongrats = UIImage(named: "agency.congrats", in: Bundle.module, with: nil)
   
   public static var camera = UIImage(named: "camera", in: Bundle.module, with: nil)
   public static var check = UIImage(named: "check", in: Bundle.module, with: nil)

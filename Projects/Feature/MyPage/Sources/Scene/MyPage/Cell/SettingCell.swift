@@ -62,7 +62,7 @@ final class SettingCell: UITableViewCell, ReusableView {
     rootContainer.flex.direction(.row).alignItems(.center).padding(16).define { flex in
       flex.addItem(iconImageView).size(20).marginRight(8)
       flex.addItem(titleLabel)
-      flex.addItem(UIView()).grow(1)
+      flex.addItem().grow(1)
       flex.addItem(disclosureIndicator).size(24)
       flex.addItem(versionLabel)
     }
