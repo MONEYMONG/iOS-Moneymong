@@ -31,17 +31,11 @@ final class SplashReactor: Reactor {
   func mutate(action: Action) -> Observable<Mutation> {
     switch action {
     case .onAppear:
-      return Observable.create { [unowned self] observer in
-        Task {
-          do {
-            let signInfo = try await signRepository.autoSign()
-            observer.onNext(.setDestination(signInfo.loginSuccess ? .main : .login))
-          } catch {
-            observer.onNext(.setDestination(.login))
-          }
-        }
-        return Disposables.create()
+      return .task {
+        return try await signRepository.autoSign()
       }
+      .map { .setDestination($0.loginSuccess ? .main : .login) }
+      .catch { _ in .just(.setDestination(.login)) }
     }
   }
 

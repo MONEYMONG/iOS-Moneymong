@@ -34,13 +34,7 @@ public final class SignDIContainer {
       kakaoAuthManager: KakaoAuthManager(),
       appleAuthManager: AppleAuthManager()
     )
-    let recentLoginType = LoginReactor.LoginType(
-      rawValue: localStorage.read(to: .recentLoginType)?.lowercased() ?? ""
-    )
-    vc.reactor = LoginReactor(
-      recentLoginType: recentLoginType,
-      signRepository: signRepository
-    )
+    vc.reactor = LoginReactor(signRepository: signRepository)
     vc.coordinator = coordinator
     return vc
   }

@@ -12,18 +12,7 @@ final class LoginReactor: Reactor {
     case setIsLoading(Bool)
     case setErrorMessage(String)
     case setDestination(Destination)
-  }
-
-  enum LoginType: String {
-    case kakao
-    case apple
-
-    var value: String {
-      switch self {
-      case .kakao: "KAKAO"
-      case .apple: "APPLE"
-      }
-    }
+    case setRecentLoginType(LoginType?)
   }
 
   public enum Destination {
@@ -38,50 +27,36 @@ final class LoginReactor: Reactor {
     @Pulse var recentLoginType: LoginType?
   }
 
-  let initialState: State
+  let initialState: State = State()
   private let signRepository: SignRepositoryInterface
 
-  init(recentLoginType: LoginType?, signRepository: SignRepositoryInterface) {
-    initialState = State(recentLoginType: recentLoginType)
+  init(signRepository: SignRepositoryInterface) {
     self.signRepository = signRepository
   }
 
   func mutate(action: Action) -> Observable<Mutation> {
     switch action {
-    case .login(let loginType):
-      return Observable.create { [unowned self] observer in
-        Task {
-          do {
-            var accessToken = ""
-            switch loginType {
-            case .kakao:
-              accessToken = try await self.signRepository.kakaoSign()
-            case .apple:
-              accessToken = try await self.signRepository.appleSign()
-            }
-
-            observer.onNext(.setIsLoading(true))
-
-            let response = try await self.signRepository.sign(
-              provider: loginType.value,
-              accessToken: accessToken
-            )
-            let destination: Destination = response.schoolInfoExist ? .main : .signUp
-            observer.onNext(.setDestination(destination))
-
-          } catch {
-            observer.onNext(.setErrorMessage(error.localizedDescription))
-          }
-        }
-        observer.onNext(.setIsLoading(false))
-        return Disposables.create()
-      }
 
     case .onAppear:
-      return Observable.create { [unowned self] observer in
-//         initialState.recentLoginType
-        return Disposables.create()
+      return .just(.setRecentLoginType(signRepository.recentLoginType()))
+
+    case .login(let loginType):
+      return .task {
+        var accessToken = ""
+        switch loginType {
+        case .kakao:
+          accessToken = try await self.signRepository.kakaoSign()
+        case .apple:
+          accessToken = try await self.signRepository.appleSign()
+        }
+
+        return try await self.signRepository.sign(
+          provider: loginType.value,
+          accessToken: accessToken
+        )
       }
+      .map { .setDestination($0.schoolInfoExist ? .main : .signUp) }
+      .catch { .just(.setErrorMessage($0.localizedDescription)) }
     }
   }
 
@@ -94,6 +69,8 @@ final class LoginReactor: Reactor {
       newState.errorMessage = errorMessage
     case .setDestination(let destination):
       newState.destination = destination
+    case .setRecentLoginType(let recentLoginType):
+      newState.recentLoginType = recentLoginType
     }
     return newState
   }

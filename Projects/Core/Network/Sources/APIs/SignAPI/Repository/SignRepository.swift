@@ -8,6 +8,7 @@ public protocol SignRepositoryInterface {
   func sign(provider: String, accessToken: String) async throws -> SignInfo
   func kakaoSign() async throws -> String
   func appleSign() async throws -> String
+  func recentLoginType() -> LoginType?
 }
 
 public final class SignRepository: SignRepositoryInterface {
@@ -27,6 +28,14 @@ public final class SignRepository: SignRepositoryInterface {
     self.localStorage = localStorage
     self.kakaoAuthManager = kakaoAuthManager
     self.appleAuthManager = appleAuthManager
+  }
+
+  public func recentLoginType() -> LoginType? {
+    guard let loginType = localStorage.read(to: .recentLoginType)?.lowercased(),
+          let recentLoginType = LoginType(rawValue: loginType) else {
+      return nil
+    }
+    return recentLoginType
   }
 
   public func kakaoSign() async throws -> String {

@@ -16,14 +16,16 @@ final class SplashVC: BaseVC, View {
     return imageView
   }()
 
-  public override func viewDidLayoutSubviews() {
-    super.viewDidLayoutSubviews()
-    rootContainer.pin.all()
-    rootContainer.flex.layout()
+  override func setupUI() {
+    super.setupUI()
+    setLeftItem(.none)
   }
 
   override func setupConstraints() {
     super.setupConstraints()
+
+    view.backgroundColor = Colors.Blue._4
+
     rootContainer.flex
       .backgroundColor(Colors.Blue._4)
       .direction(.column)
@@ -52,13 +54,9 @@ final class SplashVC: BaseVC, View {
       }
       .disposed(by: disposeBag)
 
-    rx.viewDidLoad
-      .map { Reactor.Action.onAppear }
-      .bind(to: reactor.action)
-      .disposed(by: disposeBag)
-
     rx.viewDidAppear
       .bind(with: self) { owner, _ in
+        reactor.action.onNext(.onAppear)
         owner.onAnimation()
       }
       .disposed(by: disposeBag)
