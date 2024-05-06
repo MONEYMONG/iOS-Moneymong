@@ -35,7 +35,12 @@ public final class AgencyCoordinator: Coordinator {
   func present(_ scene: Scene, animated: Bool = true) {
     switch scene {
     case let .alert(title, subTitle, okAction):
-      AlertsManager.show(navigationController, title: title, subTitle: subTitle, okAction: okAction, cancelAction: nil)
+      AlertsManager.show(
+        title: title,
+        subTitle: subTitle,
+        okAction: okAction,
+        cancelAction: nil
+      )
     case .joinAgency: break
     case .createAgency:
       createAgency(animated: animated)
@@ -43,6 +48,9 @@ public final class AgencyCoordinator: Coordinator {
   }
   
   func dismiss(animated: Bool = true) {
+    print(navigationController.topViewController?.presentedViewController)
+    print(navigationController.topViewController?.presentingViewController)
+    
     navigationController.topViewController?.dismiss(animated: animated)
   }
 }
@@ -55,8 +63,7 @@ extension AgencyCoordinator {
   
   private func createAgency(animated: Bool) {
     let vc = diContainer.createAgency(with: self)
-    let rootVC = UINavigationController(rootViewController: vc)
-    rootVC.modalPresentationStyle = .fullScreen
-    navigationController.topViewController?.present(rootVC, animated: animated)
+    vc.modalPresentationStyle = .fullScreen
+    navigationController.topViewController?.present(vc, animated: animated)
   }
 }

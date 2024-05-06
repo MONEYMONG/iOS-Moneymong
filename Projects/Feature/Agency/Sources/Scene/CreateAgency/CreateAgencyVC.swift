@@ -48,7 +48,6 @@ final class CreateAgencyVC: BaseVC, View {
   
   override func setupUI() {
     super.setupUI()
-    setRightItem(.closeBlack)
   }
   
   override func setupConstraints() {
@@ -65,10 +64,17 @@ final class CreateAgencyVC: BaseVC, View {
   }
   
   func bind(reactor: CreateAgencyReactor) {
+    setRightItem(.closeBlack)
     // Action
     navigationItem.rightBarButtonItem?.rx.tap
       .bind(with: self) { owner, _ in
-        owner.coordinator?.dismiss()
+        owner.coordinator?.present(.alert(
+          title: "정말 나가시겠습니까?",
+          subTitle: "입력하신 내용은 저장되지 않습니다.",
+          okAction: {
+            owner.coordinator?.dismiss()
+          })
+        )
       }
       .disposed(by: disposeBag)
     

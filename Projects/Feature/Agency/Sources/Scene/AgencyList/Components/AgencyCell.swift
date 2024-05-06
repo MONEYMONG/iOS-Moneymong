@@ -50,7 +50,7 @@ final class AgencyCell: UICollectionViewCell, ReusableView {
   
   override func sizeThatFits(_ size: CGSize) -> CGSize {
     contentView.bounds.size.width = size.width
-    contentView.flex.layout(mode: .fitContainer)
+    contentView.flex.layout(mode: .adjustHeight)
     return contentView.frame.size
   }
   

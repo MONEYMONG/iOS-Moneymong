@@ -1,4 +1,4 @@
-import Foundation
+import UIKit
 
 import LocalStorage
 import NetworkService
@@ -26,10 +26,11 @@ public final class AgencyDIContainer {
     return vc
   }
   
-  func createAgency(with coordinator: AgencyCoordinator) -> CreateAgencyVC {
+  func createAgency(with coordinator: AgencyCoordinator) -> UIViewController {
     let vc = CreateAgencyVC()
+    let rootVC = UINavigationController(rootViewController: vc)
     vc.reactor = CreateAgencyReactor(agencyRepo: agencyRepo)
     vc.coordinator = coordinator
-    return vc
+    return rootVC
   }
 }
