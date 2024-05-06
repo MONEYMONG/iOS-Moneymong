@@ -58,24 +58,23 @@ public extension UIViewController {
   func setRightItem(_ item: BarItem) {
     navigationItem.rightBarButtonItem = item.button
   }
-
+  
   func topViewController() -> UIViewController {
-      return searchTopViewController(of: self)
+    return searchTopViewController(of: self)
+  }
+  
+  private func searchTopViewController(of viewController: UIViewController) -> UIViewController {
+    if let presentedViewController = viewController.presentedViewController {
+      return searchTopViewController(of: presentedViewController)
     }
-
-    private func searchTopViewController(of viewController: UIViewController) -> UIViewController {
-      if let presentedViewController = viewController.presentedViewController {
-        return searchTopViewController(of: presentedViewController)
-      }
-      if let navigationViewController = viewController as? UINavigationController,
-         let topViewController = navigationViewController.topViewController {
-        return searchTopViewController(of: topViewController)
-      }
-      if let tabBarController = viewController as? UITabBarController,
-         let selectedViewController = tabBarController.selectedViewController {
-        return searchTopViewController(of: selectedViewController)
-      }
-      return viewController
+    if let navigationViewController = viewController as? UINavigationController,
+       let topViewController = navigationViewController.topViewController {
+      return searchTopViewController(of: topViewController)
     }
-
+    if let tabBarController = viewController as? UITabBarController,
+       let selectedViewController = tabBarController.selectedViewController {
+      return searchTopViewController(of: selectedViewController)
+    }
+    return viewController
+  }
 }
