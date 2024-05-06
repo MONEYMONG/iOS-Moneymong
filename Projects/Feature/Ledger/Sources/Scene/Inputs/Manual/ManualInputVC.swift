@@ -311,20 +311,18 @@ final class ManualInputVC: BaseVC, View {
       .observe(on: MainScheduler.instance)
       .bind(with: self) { owner, content in
         let (title, subTitle, type) = content
-        let okAction: () -> Void = {
-          switch type {
-          case .error(_):
-            break
-          case .deleteImage(let item):
-            reactor.action.onNext(.didTapImageDeleteAlertButton(item))
-          case .end:
-            owner.coordinator?.dismiss(animated: true)
-          }
-        }
-        var cancelAction: (() -> Void)? = nil
+        let okAction: () -> Void
+        let cancelAction: (() -> Void)?
         switch type {
-        case .error(_): break
-        case .deleteImage(_), .end: cancelAction = {}
+        case .error(_):
+          okAction = {}
+          cancelAction = nil
+        case .deleteImage(let item):
+          okAction = { reactor.action.onNext(.didTapImageDeleteAlertButton(item)) }
+          cancelAction = {}
+        case .end:
+          okAction = { owner.coordinator?.dismiss(animated: true) }
+          cancelAction = {}
         }
         owner.coordinator?.present(
           .alert(
