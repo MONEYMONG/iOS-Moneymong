@@ -48,12 +48,20 @@ public extension UIViewController {
     navigationItem.titleView = titleView
   }
   
-  func setLeftItem(_ item: BarItem) {
+  func setLeftItem(_ item: BarItem, color: UIColor? = nil) {
     navigationItem.leftBarButtonItem = item.button
+    
+    if let color {
+      navigationItem.rightBarButtonItem?.tintColor = color
+    }
   }
   
-  func setRightItem(_ item: BarItem) {
+  func setRightItem(_ item: BarItem, color: UIColor? = nil) {
     navigationItem.rightBarButtonItem = item.button
+    
+    if let color {
+      navigationItem.rightBarButtonItem?.tintColor = color
+    }
   }
   
   func topViewController() -> UIViewController {

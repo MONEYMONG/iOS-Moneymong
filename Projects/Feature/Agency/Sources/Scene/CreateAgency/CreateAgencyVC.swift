@@ -112,7 +112,7 @@ final class CreateAgencyVC: BaseVC, View {
       .bind(with: self) { owner, value in
         switch value {
         case .complete:
-          print("등록하기 성공")
+          owner.coordinator?.push(.createComplete)
         }
       }
       .disposed(by: disposeBag)

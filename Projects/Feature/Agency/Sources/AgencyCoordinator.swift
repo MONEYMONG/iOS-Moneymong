@@ -8,6 +8,8 @@ public final class AgencyCoordinator: Coordinator {
   private let diContainer: AgencyDIContainer
   public weak var parentCoordinator: Coordinator?
   public var childCoordinators: [Coordinator] = []
+  
+  public weak var secondFlowNavigationController: UINavigationController?
 
   public init(navigationController: UINavigationController, diContainer: AgencyDIContainer) {
     self.navigationController = navigationController
@@ -18,6 +20,7 @@ public final class AgencyCoordinator: Coordinator {
     case alert(title: String, subTitle: String, okAction: () -> Void)
     case joinAgency
     case createAgency
+    case createComplete
   }
 
   public func start(animated: Bool) {
@@ -29,6 +32,8 @@ public final class AgencyCoordinator: Coordinator {
     case .alert: break
     case .joinAgency: break
     case .createAgency: break
+    case .createComplete:
+      createCompleteAgency(animated: true)
     }
   }
   
@@ -44,14 +49,22 @@ public final class AgencyCoordinator: Coordinator {
     case .joinAgency: break
     case .createAgency:
       createAgency(animated: animated)
+    case .createComplete: break
     }
   }
   
   func dismiss(animated: Bool = true) {
-    print(navigationController.topViewController?.presentedViewController)
-    print(navigationController.topViewController?.presentingViewController)
-    
     navigationController.topViewController?.dismiss(animated: animated)
+  }
+  
+  func goLedger() {
+    // TODO: 상위코디네이터랑 연결!
+    print("GoLedger")
+  }
+  
+  func goCreateLedger() {
+    // TODO: 상위코디네이터랑 연결!
+    print("Go Create Ledger")
   }
 }
 
@@ -63,7 +76,13 @@ extension AgencyCoordinator {
   
   private func createAgency(animated: Bool) {
     let vc = diContainer.createAgency(with: self)
+    secondFlowNavigationController = vc as? UINavigationController
     vc.modalPresentationStyle = .fullScreen
     navigationController.topViewController?.present(vc, animated: animated)
+  }
+  
+  private func createCompleteAgency(animated: Bool) {
+    let vc = diContainer.createCompleteAgency(with: self)
+    secondFlowNavigationController?.pushViewController(vc, animated: animated)
   }
 }

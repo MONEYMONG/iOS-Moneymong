@@ -33,4 +33,11 @@ public final class AgencyDIContainer {
     vc.coordinator = coordinator
     return rootVC
   }
+  
+  func createCompleteAgency(with coordinator: AgencyCoordinator) -> CreateCompleteAgencyVC {
+    let vc = CreateCompleteAgencyVC()
+    vc.reactor = CreateCompleteAgencyReactor()
+    vc.coordinator = coordinator
+    return vc
+  }
 }
