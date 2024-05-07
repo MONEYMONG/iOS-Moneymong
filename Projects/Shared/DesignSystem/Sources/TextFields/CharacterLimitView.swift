@@ -24,7 +24,7 @@ final class CharacterLimitView: UIView {
   private let errorMessageLabel: UILabel = {
     let label = UILabel()
     label.font = .preferredFont(forTextStyle: .caption1)
-    label.textColor = .red
+    label.textColor = Colors.Red._3
     return label
   }()
 
@@ -43,6 +43,7 @@ final class CharacterLimitView: UIView {
   init(state: State = .default(characterCount: 0), limitCount: Int) {
     self.state = state
     self.limitCount = limitCount
+    currentCountLabel.isHidden = limitCount == 0
     super.init(frame: .zero)
     setupUI()
     setupConstraints()
@@ -60,20 +61,20 @@ final class CharacterLimitView: UIView {
     rootContainer.flex.layout()
   }
 
-
   private func setupUI() {
     addSubview(rootContainer)
   }
 
   private func setupConstraints() {
-    rootContainer.flex.height(18).define { flex in
-      flex.addItem().height(2)
-      flex.direction(.row).justifyContent(.spaceBetween).define { flex in
+    rootContainer.flex
+      .direction(.row)
+      .justifyContent(.spaceBetween)
+      .height(16)
+      .define { flex in
         flex.addItem(errorMessageLabel)
         flex.addItem().grow(1)
         flex.addItem(currentCountLabel)
       }
-    }
   }
 
   private func updateState() {
@@ -86,7 +87,7 @@ final class CharacterLimitView: UIView {
       currentCountLabel.text = String(format: "%d/%d", characterCount, limitCount)
       currentCountLabel.textColor = state.color
       errorMessageLabel.flex.display(.flex)
-      errorMessageLabel.text = message
+      errorMessageLabel.setTextWithLineHeight(text: message, lineHeight: 16)
     }
     currentCountLabel.flex.markDirty()
     errorMessageLabel.flex.markDirty()

@@ -80,7 +80,6 @@ public class MMTextField: UIView {
       state: .default(characterCount: 0),
       limitCount: charactorLimitCount
     )
-    self.charactorLimitView.isHidden = charactorLimitCount == 0
     super.init(frame: .zero)
     setupView(with: title)
     setupConstraints()
@@ -107,7 +106,7 @@ public class MMTextField: UIView {
 
   private func setupConstraints() {
     rootContainer.flex.direction(.column)
-      .height(charactorLimitView.isHidden ? 56 : 74)
+      .minHeight(74)
       .define { flex in
         flex.addItem().direction(.row).define { flex in
           flex.addItem(titleLabel)
@@ -123,7 +122,7 @@ public class MMTextField: UIView {
 
         flex.addItem().height(10)
         flex.addItem(colorLineView).height(1).backgroundColor(state.color)
-
+        flex.addItem().height(2)
         flex.addItem(charactorLimitView)
       }
   }
@@ -157,7 +156,17 @@ extension MMTextField: UITextFieldDelegate {
 
     clearButton.isHidden = updatedText.count == 0
 
-    if charactorLimitCount >= updatedText.count {
+    // charactorLimitCount 가 0일 경우 LimitCount 미표기 모드,
+    // 에러 상태였더라도 텍스트 입력시 active 상태로 전환
+    guard charactorLimitCount != 0 else {
+      state = .active
+      charactorLimitView.setState(.default(characterCount: 0))
+      return true
+    }
+
+    // charactorLimitCount 가 0이 아닌 경우 LimitCount 표기 모드,
+    // 조건에 따라 에러 상태 해제(리밋 카운트 미만일경우 에러 모드 해제)
+    if charactorLimitCount != 0 && charactorLimitCount >= currentText.count {
       state = .active
       charactorLimitView.setState(.default(characterCount: updatedText.count))
     } else if charactorLimitCount != 0 {
