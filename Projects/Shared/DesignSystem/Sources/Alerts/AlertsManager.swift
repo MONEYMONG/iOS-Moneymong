@@ -3,17 +3,14 @@ import UIKit
 public final class AlertsManager {
   /// cancelAction과 subTitle은 값이 nil인 경우 UI 표시 X
   public static func show(
-    _ vc: UIViewController,
     title: String,
-    subTitle: String?,
-    okAction: @escaping () -> Void,
-    cancelAction: (() -> Void)?
+    subTitle: String? = nil,
+    type: MMAlerts.`Type` = .default()
   ) {
     let alert = MMAlerts(
       title: title,
       subTitle: subTitle,
-      okAction: okAction,
-      cancelAction: cancelAction
+      type: type
     )
     
     alert.modalPresentationStyle = .overFullScreen
@@ -24,7 +21,7 @@ public final class AlertsManager {
       .compactMap({ $0 as? UIWindowScene })
       .first?.windows
       .filter({ $0.isKeyWindow }).first?
-      .rootViewController?.topViewController()
+      .rootViewController?.searchTopViewController()
     else {
       return
     }
