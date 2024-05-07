@@ -67,5 +67,7 @@ public enum Images {
 
   public static var kakaoButton = UIImage(named: "kakaoButton", in: Bundle.module, with: nil)
   public static var appleButton = UIImage(named: "appleButton", in: Bundle.module, with: nil)
+
+  public static var indicator = UIImage(named: "indicator", in: Bundle.module, with: nil)
 }
 
