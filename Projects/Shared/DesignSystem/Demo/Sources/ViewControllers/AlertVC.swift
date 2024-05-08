@@ -33,21 +33,21 @@ final class AlertVC: UIViewController {
     
     showOkAlertButton.addAction {
       AlertsManager.show(
-        self,
         title: "메인 타이틀1",
         subTitle: nil,
-        okAction: { print("ok") },
-        cancelAction: nil
+        type: .onlyOkButton({ print("ok") })
       )
     }
     
     showCanCancelButton.addAction {
       AlertsManager.show(
-        self,
         title: "메인 타이틀1",
         subTitle: "서브 타이틀2",
-        okAction: { print("ok") },
-        cancelAction: { print("cancel") }
+        type: .default(okAction: {
+          print("ok")
+        }, cancelAction: {
+          print("cancel")
+        })
       )
     }
   }

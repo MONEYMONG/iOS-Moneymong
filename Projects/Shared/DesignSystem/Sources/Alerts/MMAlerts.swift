@@ -2,7 +2,11 @@ import UIKit
 
 import PinLayout
 import FlexLayout
-final class MMAlerts: UIViewController {
+public final class MMAlerts: UIViewController {
+  public enum `Type` {
+    case onlyOkButton(() -> Void = {})
+    case `default`(okAction: () -> Void = {}, cancelAction: () -> Void = {})
+  }
   
   private let icon: UIImageView = {
     let v = UIImageView()
@@ -41,25 +45,30 @@ final class MMAlerts: UIViewController {
   init(
     title: String,
     subTitle: String?,
-    okAction: @escaping () -> Void,
-    cancelAction: (() -> Void)?
+    type: `Type`
   ) {
     super.init(nibName: nil, bundle: nil)
     setupView()
     setupConstraints(
       isSubTitleHidden: subTitle == nil || subTitle!.isEmpty,
-      isCancelButtonHidden: cancelAction == nil
+      type: type
     )
     titleLabel.text = title
     subTitleLabel.text = subTitle
-    okButton.addAction {
-      okAction()
-      self.dismiss(animated: true)
-    }
-    if let cancelAction {
-      cancelButton.addAction {
-        cancelAction()
+    switch type {
+    case .onlyOkButton(let action):
+      okButton.addAction {
         self.dismiss(animated: true)
+        action()
+      }
+    case .default(let okAction, let cancelAction):
+      okButton.addAction {
+        self.dismiss(animated: true)
+        okAction()
+      }
+      cancelButton.addAction {
+        self.dismiss(animated: true)
+        cancelAction()
       }
     }
   }
@@ -69,7 +78,7 @@ final class MMAlerts: UIViewController {
     fatalError("init(coder:) has not been implemented")
   }
   
-  override func viewDidLayoutSubviews() {
+  public override func viewDidLayoutSubviews() {
     super.viewDidLayoutSubviews()
     rootContainer.pin.all()
     rootContainer.flex.layout()
@@ -81,7 +90,7 @@ final class MMAlerts: UIViewController {
   
   private func setupConstraints(
     isSubTitleHidden: Bool,
-    isCancelButtonHidden: Bool
+    type: `Type`
   ) {
     view.addSubview(rootContainer)
     
@@ -106,11 +115,12 @@ final class MMAlerts: UIViewController {
               .direction(.row)
               .marginTop(14)
               .define { flex in
-                if !isCancelButtonHidden {
+                switch type {
+                case .onlyOkButton(_):
+                  flex.addItem(okButton).width(100%).height(56)
+                case .default(_, _):
                   flex.addItem(cancelButton).width(50%).height(56).marginRight(12)
                   flex.addItem(okButton).width(50%).height(56)
-                } else {
-                  flex.addItem(okButton).width(100%).height(56)
                 }
               }
           }
