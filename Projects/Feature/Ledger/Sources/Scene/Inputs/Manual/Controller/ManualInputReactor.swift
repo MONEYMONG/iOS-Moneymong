@@ -50,7 +50,6 @@ final class ManualInputReactor: Reactor {
       .init(model: .document, items: [.button(.document)])
     ]
     @Pulse var selectedSection: ImageSectionModel.Section? = nil
-    @Pulse var isCompleted = false
     @Pulse var alertMessage: (String, String?, AlertType)? = nil
     @Pulse var isValids: [ContentType: Bool?] = [
       .source: nil,
@@ -60,7 +59,12 @@ final class ManualInputReactor: Reactor {
       .time: nil,
       .memo: nil
     ]
+    @Pulse var destination: Destination?
     var content = Content()
+    
+    enum Destination {
+      case ledger
+    }
   }
   
   struct Content {
@@ -178,7 +182,7 @@ final class ManualInputReactor: Reactor {
       setContent(&newState.content, value: value, type: type)
       newState.isValids[type] = checkContent(newState.content, type: type)
     case .requestCreateAPI:
-      newState.isCompleted = true
+      newState.destination = .ledger
     case .addImageURL(let imageURL, let section):
       switch section {
       case .receipt:

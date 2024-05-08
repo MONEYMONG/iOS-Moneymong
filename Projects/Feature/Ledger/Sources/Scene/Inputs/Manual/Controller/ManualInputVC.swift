@@ -22,7 +22,7 @@ final class ManualInputVC: BaseVC, View {
   }
   
   var disposeBag = DisposeBag()
-  private var anyCancellable = Set<AnyCancellable>()
+  private var cancelBag = Set<AnyCancellable>()
   
   private let scrollView: UIScrollView = {
     let v = UIScrollView()
@@ -226,7 +226,7 @@ final class ManualInputVC: BaseVC, View {
     fundTypeSelection.$selectedIndex
       .sink {
         reactor.action.onNext(.inputContent("\($0)", type: .fundType))
-    }.store(in: &anyCancellable)
+    }.store(in: &cancelBag)
     
     dateTextField.textField.rx.text
       .compactMap { $0 }
@@ -293,6 +293,13 @@ final class ManualInputVC: BaseVC, View {
     
     reactor.pulse(\.content.$time)
       .bind(to: timeTextField.textField.rx.text)
+      .disposed(by: disposeBag)
+    
+    reactor.pulse(\.$destination)
+      .filter { $0 == .ledger }
+      .bind(with: self) { owner, _ in
+        owner.coordinator?.dismiss(animated: true)
+      }
       .disposed(by: disposeBag)
     
     reactor.pulse(\.$alertMessage)
