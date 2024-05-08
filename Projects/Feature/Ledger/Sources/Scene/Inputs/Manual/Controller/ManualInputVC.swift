@@ -33,7 +33,7 @@ final class ManualInputVC: BaseVC, View {
   private let smogView = SmogView()
   private let keyboardSpaceView = UIView()
   
-  private let completeButton = MMButton(title: "작성하기", type: .disable)
+  private let completeButton = MMButton(title: "작성하기", type: .primary)
 
   private let sourceTextField: MMTextField = {
     let v = MMTextField(charactorLimitCount: 20, title: "수입·지출 출처")
@@ -186,9 +186,8 @@ final class ManualInputVC: BaseVC, View {
     }.disposed(by: disposeBag)
     
     completeButton.rx.tap
-      .bind(with: self) { owner, _ in
-        print("작성 완료")
-      }
+      .map { Reactor.Action.didTapCompleteButton }
+      .bind(to: reactor.action)
       .disposed(by: disposeBag)
     
     sourceTextField.textField.rx.text
@@ -301,25 +300,24 @@ final class ManualInputVC: BaseVC, View {
       .observe(on: MainScheduler.instance)
       .bind(with: self) { owner, content in
         let (title, subTitle, type) = content
-        let okAction: () -> Void
-        let cancelAction: (() -> Void)?
+        let alert: MMAlerts.`Type`
         switch type {
         case .error(_):
-          okAction = {}
-          cancelAction = nil
+          alert = .onlyOkButton()
         case .deleteImage(let item):
-          okAction = { reactor.action.onNext(.didTapImageDeleteAlertButton(item)) }
-          cancelAction = {}
+          alert = .default(okAction: { [weak reactor] in
+            reactor?.action.onNext(.didTapImageDeleteAlertButton(item))
+          })
         case .end:
-          okAction = { owner.coordinator?.dismiss(animated: true) }
-          cancelAction = {}
+          alert = .default(okAction: { [weak owner] in
+            owner?.coordinator?.dismiss(animated: true)
+          })
         }
         owner.coordinator?.present(
           .alert(
             title: title,
             subTitle: subTitle,
-            okAction: okAction,
-            cancelAction: cancelAction
+            type: alert
           ),
           animated: false
         )

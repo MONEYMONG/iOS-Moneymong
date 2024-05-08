@@ -196,7 +196,7 @@ final class ManualInputReactor: Reactor {
     case .setAlertContent(let type):
       switch type {
       case .error(let moneyMongError):
-        newState.alertMessage = ("네트워크 연결을 확인해주세요", moneyMongError.errorDescription, type)
+        newState.alertMessage = (moneyMongError.errorDescription!, nil, type)
       case .deleteImage(_):
         newState.alertMessage = ("사진을 삭제하시겠습니까?", "삭제된 사진은 되돌릴 수 없습니다", type)
       case .end:
