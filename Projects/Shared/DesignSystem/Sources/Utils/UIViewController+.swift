@@ -59,22 +59,18 @@ public extension UIViewController {
     navigationItem.rightBarButtonItem = item.button
   }
   
-  func topViewController() -> UIViewController {
-    return searchTopViewController(of: self)
-  }
-  
-  private func searchTopViewController(of viewController: UIViewController) -> UIViewController {
-    if let presentedViewController = viewController.presentedViewController {
-      return searchTopViewController(of: presentedViewController)
+  func searchTopViewController() -> UIViewController {
+    if let presentedViewController = self.presentedViewController {
+      return presentedViewController.searchTopViewController()
     }
-    if let navigationViewController = viewController as? UINavigationController,
+    if let navigationViewController = self as? UINavigationController,
        let topViewController = navigationViewController.topViewController {
-      return searchTopViewController(of: topViewController)
+      return topViewController.searchTopViewController()
     }
-    if let tabBarController = viewController as? UITabBarController,
+    if let tabBarController = self as? UITabBarController,
        let selectedViewController = tabBarController.selectedViewController {
-      return searchTopViewController(of: selectedViewController)
+      return selectedViewController.searchTopViewController()
     }
-    return viewController
+    return self
   }
 }

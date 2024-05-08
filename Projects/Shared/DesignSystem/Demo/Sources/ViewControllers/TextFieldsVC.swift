@@ -11,10 +11,15 @@ final class TextFieldsVC: UIViewController {
   }()
 
   private let input: MMTextField = {
-    let input = MMTextField(charactorLimitCount: 20, title: "Input")
+    let input = MMTextField(charactorLimitCount: 0, title: "Input")
     input.setRequireMark()
     input.setPlaceholder(to: "플레이스 홀더")
     return input
+  }()
+
+  private let inputErrorButton: MMButton = {
+    let button = MMButton(title: "Input 강제로 에러상태로 전환", type: .secondary)
+    return button
   }()
 
   private let searchBar: MMSearchBar = {
@@ -27,6 +32,11 @@ final class TextFieldsVC: UIViewController {
     let textView = MMTextView(charactorLimitCount: 20, title: "TextArea")
     textView.setPlaceholder(to: "플레이스 홀더")
     return textView
+  }()
+
+  private let textAreaErrorButton: MMButton = {
+    let button = MMButton(title: "TextArea 강제로 에러상태로 전환", type: .secondary)
+    return button
   }()
 
   private let rootContainer = UIView()
@@ -44,6 +54,17 @@ final class TextFieldsVC: UIViewController {
   private func setupView() {
     view.backgroundColor = .white
     title = "TextFields"
+
+    inputErrorButton.addTarget(
+      self,
+      action: #selector(didTapInputError),
+      for: .touchUpInside
+    )
+    textAreaErrorButton.addTarget(
+      self,
+      action: #selector(didTapTextAreaError),
+      for: .touchUpInside
+    )
   }
 
   private func setupConstraints() {
@@ -54,6 +75,8 @@ final class TextFieldsVC: UIViewController {
       flex.addItem().height(20)
 
       flex.addItem(input)
+      flex.addItem().height(10)
+      flex.addItem(inputErrorButton)
 
       flex.addItem().height(40)
 
@@ -62,6 +85,8 @@ final class TextFieldsVC: UIViewController {
       flex.addItem().height(40)
 
       flex.addItem(textArea)
+      flex.addItem().height(10)
+      flex.addItem(textAreaErrorButton)
     }
   }
 
@@ -69,5 +94,13 @@ final class TextFieldsVC: UIViewController {
     super.viewDidLayoutSubviews()
     rootContainer.pin.all()
     rootContainer.flex.layout()
+  }
+
+  @objc private func didTapInputError() {
+    input.setError(message: "앗! 에러 발생!")
+  }
+
+  @objc private func didTapTextAreaError() {
+    textArea.setError(message: "앗! 에러 발생!")
   }
 }

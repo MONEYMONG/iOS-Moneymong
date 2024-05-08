@@ -15,6 +15,7 @@ final class DesignSystemVC: UITableViewController {
     case textFields
     case navigation
     case tooltip
+    case indicator
 
     var title: String {
       switch self {
@@ -30,6 +31,7 @@ final class DesignSystemVC: UITableViewController {
       case .textFields: return "TextFields"
       case .navigation: return "Navigation"
       case .tooltip: return "Tooltip"
+      case .indicator: return "Indicator"
       }
     }
     
@@ -48,6 +50,7 @@ final class DesignSystemVC: UITableViewController {
       case .textFields: vc = TextFieldsVC()
       case .navigation: vc = NavigationVC()
       case .tooltip: vc = ToolTipVC()
+      case .indicator: vc = IndicatorVC()
       }
       
       navigationController?.pushViewController(vc, animated: true)
