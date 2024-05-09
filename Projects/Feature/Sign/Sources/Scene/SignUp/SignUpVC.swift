@@ -92,16 +92,15 @@ final class SignUpVC: BaseVC, View {
       .compactMap { $0 }
       .observe(on: MainScheduler.instance)
       .bind(with: self) { owner, errorMessage in
-        owner.coordinator?.alert(title: errorMessage, okAction: {}, cancelAction: nil)
+        owner.coordinator?.alert(title: errorMessage)
       }
       .disposed(by: disposeBag)
 
     reactor.pulse(\.$isLoading)
       .compactMap { $0 }
       .observe(on: MainScheduler.instance)
-      .bind { isLoading in
-        // TODO: 로딩인디케이터 돌리기
-      }
+//      .delay(.milliseconds(800), scheduler: MainScheduler.instance)
+      .bind(to: rx.isLoading())
       .disposed(by: disposeBag)
 
     reactor.pulse(\.$schoolList)
