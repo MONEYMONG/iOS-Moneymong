@@ -1,9 +1,15 @@
 import Foundation
 
 final class ContentFormatter {
-  private let numberFormatter: NumberFormatter = {
+  private lazy var numberFormatter: NumberFormatter = {
     let formatter = NumberFormatter()
     formatter.numberStyle = .decimal
+    return formatter
+  }()
+  
+  private lazy var dateFormatter: DateFormatter = {
+    let formatter = DateFormatter()
+    formatter.dateFormat = "YYYY/MM"
     return formatter
   }()
   
@@ -57,5 +63,9 @@ final class ContentFormatter {
     outputFormatter.formatOptions = [.withInternetDateTime, .withFractionalSeconds]
     outputFormatter.timeZone = TimeZone(abbreviation: "UTC")
     return outputFormatter.string(from: date)
+  }
+  
+  func getCurrentDate() -> [Int] {
+    return dateFormatter.string(from: .now).split(separator: "/").map { Int($0)! }
   }
 }
