@@ -44,7 +44,7 @@ final class CreateCompleteVC: BaseVC, View {
     }
   }
   
-  func bind(reactor: CreateCompleteAgencyReactor) {
+  func bind(reactor: CreateCompleteReactor) {
     setRightItem(.closeBlack, color: Colors.White._1)
     
     navigationItem.rightBarButtonItem?.rx.tap
