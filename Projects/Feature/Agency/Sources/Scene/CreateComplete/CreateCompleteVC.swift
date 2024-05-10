@@ -6,7 +6,7 @@ import DesignSystem
 import ReactorKit
 import RxCocoa
 
-final class CreateCompleteAgencyVC: BaseVC, ReactorKit.View {
+final class CreateCompleteVC: BaseVC, View {
   var disposeBag = DisposeBag()
   weak var coordinator: AgencyCoordinator?
   
@@ -64,16 +64,5 @@ final class CreateCompleteAgencyVC: BaseVC, ReactorKit.View {
         }
       }
       .disposed(by: disposeBag)
-  }
-}
-
-
-import SwiftUI
-
-struct CreateComplteAgency_Preview: PreviewProvider {
-  static var previews: some SwiftUI.View {
-    UIViewControllerPreView {
-      CreateCompleteAgencyVC()
-    }
   }
 }

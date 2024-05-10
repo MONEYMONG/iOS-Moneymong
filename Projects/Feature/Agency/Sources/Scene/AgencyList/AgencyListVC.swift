@@ -109,7 +109,8 @@ public final class AgencyListVC: BaseVC, View {
       .observe(on: MainScheduler.instance)
       .bind(with: self) { owner, destination in
         switch destination {
-        case .joinAgency: break
+        case let .joinAgency(agency):
+          owner.coordinator?.present(.joinAgency(id: agency.id, name: agency.name))
         }
       }
       .disposed(by: disposeBag)

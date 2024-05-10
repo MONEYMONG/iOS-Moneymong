@@ -1,6 +1,6 @@
 import ReactorKit
 
-final class CreateCompleteAgencyReactor: Reactor {
+final class CreateCompleteReactor: Reactor {
   struct State {
     @Pulse var destination: Destination?
     

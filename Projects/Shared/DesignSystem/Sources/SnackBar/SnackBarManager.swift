@@ -1,5 +1,7 @@
 import UIKit
 
+import Utility
+
 @MainActor
 public final class SnackBarManager {
   
@@ -10,16 +12,13 @@ public final class SnackBarManager {
     let snackBar = MMSnackBar()
     snackBar.configure(title: title, action: action)
     
-    guard let keyWindow = UIApplication.shared.connectedScenes
-      .filter({ $0.activationState == .foregroundActive })
-      .compactMap({ $0 as? UIWindowScene })
-      .first?.windows
-      .filter({ $0.isKeyWindow }).first
-    else {
+    guard let view = UIWindow.firstWindow?.rootViewController?.topViewController().view else {
       return
     }
     
-    if let previousSnackBar = keyWindow.subviews.first(where: { $0 is MMSnackBar }) {
+    print("topview: \(view)")
+    
+    if let previousSnackBar = view.subviews.first(where: { $0 is MMSnackBar }) {
       UIView.animate(withDuration: 0.3) {
         previousSnackBar.alpha = 0.1
       } completion: { _ in
@@ -28,14 +27,14 @@ public final class SnackBarManager {
     }
     
     snackBar.translatesAutoresizingMaskIntoConstraints = false
-    keyWindow.addSubview(snackBar)
+    view.addSubview(snackBar)
 
-    bottomConstraints = snackBar.bottomAnchor.constraint(equalTo: keyWindow.safeAreaLayoutGuide.bottomAnchor, constant: 100)
+    bottomConstraints = snackBar.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor, constant: 100)
     bottomConstraints?.isActive = true
 
     NSLayoutConstraint.activate([
-      snackBar.leadingAnchor.constraint(equalTo: keyWindow.leadingAnchor, constant: 20),
-      snackBar.trailingAnchor.constraint(equalTo: keyWindow.trailingAnchor, constant: -20),
+      snackBar.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20),
+      snackBar.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -20),
       snackBar.heightAnchor.constraint(equalToConstant: 48)
     ])
     
@@ -45,7 +44,7 @@ public final class SnackBarManager {
       
       UIView.animate(withDuration: 0.3) {
         snackBar.alpha = 1.0
-        keyWindow.layoutIfNeeded()
+        view.layoutIfNeeded()
       } completion: { _ in
         if action == nil {
           DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
@@ -58,16 +57,11 @@ public final class SnackBarManager {
   
   /// snackbar를 애니메이션과 함께 지움  (MMSnackBar에서 호출)
   public static func remove() {
-    guard let keyWindow = UIApplication.shared.connectedScenes
-      .filter({ $0.activationState == .foregroundActive })
-      .compactMap({ $0 as? UIWindowScene })
-      .first?.windows
-      .filter({ $0.isKeyWindow }).first
-    else {
+    guard let view = UIWindow.firstWindow?.rootViewController?.topViewController().view else {
       return
     }
     
-    guard let snackBar = keyWindow.subviews.first(where: { $0 is MMSnackBar }) else {
+    guard let snackBar = view.subviews.first(where: { $0 is MMSnackBar }) else {
       return
     }
     
@@ -76,7 +70,7 @@ public final class SnackBarManager {
     
     UIView.animate(withDuration: 0.3) {
       snackBar.alpha = 0.1
-      keyWindow.layoutIfNeeded()
+      view.layoutIfNeeded()
     } completion: { _ in
       snackBar.removeFromSuperview()
     }
