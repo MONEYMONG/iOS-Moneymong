@@ -12,6 +12,7 @@ public enum Images {
   public static var mongEditorFill = UIImage(named: "mong.editor.fill", in: Bundle.module, with: nil)
   public static var mongEditor = UIImage(named: "mong.editor", in: Bundle.module, with: nil)
   public static var mongGroup = UIImage(named: "mong.group", in: Bundle.module, with: nil)
+  public static var mongLedger = UIImage(named: "mong.ledger", in: Bundle.module, with: nil)
   public static var mong = UIImage(named: "mong", in: Bundle.module, with: nil)
   public static var mongPass = UIImage(named: "mong.pass", in: Bundle.module, with: nil)
   public static var mongPassNot = UIImage(named: "mong.pass.not", in: Bundle.module, with: nil)
