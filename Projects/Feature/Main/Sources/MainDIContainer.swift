@@ -27,7 +27,10 @@ public final class MainDIContainer {
       localStorage: localStorage,
       networkManager: networkManager
     )
-    self.ledgerContainer = .init()
+    self.ledgerContainer = .init(
+      localStorage: localStorage,
+      networkManager: networkManager
+    )
   }
 
   func mainTab(with coordinator: Coordinator) -> MainTapViewController {

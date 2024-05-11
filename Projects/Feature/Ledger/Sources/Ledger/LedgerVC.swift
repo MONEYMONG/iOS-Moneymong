@@ -10,6 +10,19 @@ public final class LedgerVC: BaseVC, View {
   public var disposeBag = DisposeBag()
   weak var coordinator: LedgerCoordinator?
   
+  private let agencyButton: UIButton = {
+    var title = AttributedString("소속 없음")
+    title.font = Fonts.heading._1
+    title.foregroundColor = Colors.Gray._10
+    
+    var config = UIButton.Configuration.plain()
+    config.attributedTitle = title
+    config.image = Images.chevronDown?.withTintColor(Colors.Gray._10)
+    config.imagePadding = 4
+    config.imagePlacement = .trailing
+    return UIButton(configuration: config)
+  }()
+  
   private let lineTab: LineTabViewController!
   
   init(_ childVC: [UIViewController]) {
@@ -34,6 +47,21 @@ public final class LedgerVC: BaseVC, View {
   }
   
   public func bind(reactor: LedgerReactor) {
+    setTitle(agencyButton)
     
+    rx.viewWillAppear
+      .map { Reactor.Action.requestMyAgencies }
+      .bind(to: reactor.action)
+      .disposed(by: disposeBag)
+    
+    reactor.pulse(\.$agency)
+      .bind(with: self) { owner, agency in
+        var title = AttributedString(agency?.name ?? "소속없음")
+        title.font = Fonts.heading._1
+        title.foregroundColor = Colors.Gray._10
+        
+        owner.agencyButton.configuration?.attributedTitle = title
+      }
+      .disposed(by: disposeBag)
   }
 }

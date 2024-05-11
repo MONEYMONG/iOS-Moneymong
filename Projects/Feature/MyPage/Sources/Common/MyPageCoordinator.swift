@@ -71,7 +71,7 @@ extension MyPageCoordinator {
   }
   
   private func alert(title: String, subTitle: String, okAction: @escaping () -> Void) {
-    AlertsManager.show(navigationController, title: title, subTitle: subTitle, okAction: okAction, cancelAction: { })
+    AlertsManager.show(title: title, subTitle: subTitle, type: .default(okAction: okAction, cancelAction: { }))
   }
   
   private func web(urlString: String, animated: Bool = true) {

@@ -1,5 +1,7 @@
+import Foundation
+
 public protocol LocalStorageInterface: AnyObject {
-  @discardableResult 
+  @discardableResult
   func create(to key: LocalStorageKey, value: String) -> Bool
 
   func read(to key: LocalStorageKey) -> String?
@@ -10,9 +12,11 @@ public protocol LocalStorageInterface: AnyObject {
 
 public final class LocalStorageManager: LocalStorageInterface {
   private let keychainHelper: KeychainHelper
+  private let userDefaults: UserDefaults
 
   public init(keychainHelper: KeychainHelper = KeychainHelper()) {
     self.keychainHelper = keychainHelper
+    self.userDefaults = UserDefaults.standard
   }
 
   @discardableResult
@@ -22,15 +26,20 @@ public final class LocalStorageManager: LocalStorageInterface {
       return keychainHelper.create(to: .accessToken, value: value)
     case .refreshToken:
       return keychainHelper.create(to: .refreshToken, value: value)
+    case .selectedAgency:
+      userDefaults.setValue(value, forKey: key.rawValue)
+      return true
     }
   }
 
   public func read(to key: LocalStorageKey) -> String? {
     switch key {
     case .accessToken:
-      return keychainHelper.read(to: .accessToken)
+      keychainHelper.read(to: .accessToken)
     case .refreshToken:
-      return keychainHelper.read(to: .refreshToken)
+      keychainHelper.read(to: .refreshToken)
+    case .selectedAgency:
+      userDefaults.value(forKey: key.rawValue) as? String
     }
   }
 
@@ -41,6 +50,9 @@ public final class LocalStorageManager: LocalStorageInterface {
       return keychainHelper.delete(to: .accessToken)
     case .refreshToken:
       return keychainHelper.delete(to: .refreshToken)
+    case .selectedAgency:
+      userDefaults.removeObject(forKey: key.rawValue)
+      return true
     }
   }
 }

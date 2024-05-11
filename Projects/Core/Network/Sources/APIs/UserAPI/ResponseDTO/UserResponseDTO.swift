@@ -11,6 +11,7 @@ public struct UserResponseDTO: Responsable {
   
   public var toEntity: UserInfo {
     .init(
+      id: id ?? -1,
       nickname: nickname ?? "닉네임 정보 없음",
       email: email ?? "이메일 정보 없음",
       universityName: universityName ?? "대학정보없음",
