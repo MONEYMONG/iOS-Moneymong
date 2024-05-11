@@ -51,6 +51,7 @@ public enum Images {
   public static var schoolBlue = UIImage(named: "school.blue", in: Bundle.module, with: nil)
   public static var school = UIImage(named: "school", in: Bundle.module, with: nil)
   public static var search = UIImage(named: "search", in: Bundle.module, with: nil)
+  public static var shape = UIImage(named: "shape", in: Bundle.module, with: nil)
   public static var time = UIImage(named: "time", in: Bundle.module, with: nil)
   public static var trash = UIImage(named: "trash", in: Bundle.module, with: nil)
   public static var university = UIImage(named: "university", in: Bundle.module, with: nil)
