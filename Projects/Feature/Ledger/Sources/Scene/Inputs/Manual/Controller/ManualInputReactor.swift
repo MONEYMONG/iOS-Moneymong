@@ -39,7 +39,7 @@ final class ManualInputReactor: Reactor {
     case setContent(_ value: String, type: ContentType)
     case setSection(_ section: ImageSectionModel.Section)
     case addImageURL(_ image: ImageInfo, _ section: ImageSectionModel.Section)
-    case requestCreateAPI
+    case setDestination
     case setAlertContent(AlertType)
   }
   
@@ -150,7 +150,7 @@ final class ManualInputReactor: Reactor {
           documentImageUrls: currentState.content.documentImages.map(\.url)
         )
       }
-      .map { .requestCreateAPI }
+      .map { .setDestination }
       .catch {
           return .just(.setAlertContent(.error($0.toMMError)))
       }
@@ -181,7 +181,7 @@ final class ManualInputReactor: Reactor {
     case .setContent(let value, let type):
       setContent(&newState.content, value: value, type: type)
       newState.isValids[type] = checkContent(newState.content, type: type)
-    case .requestCreateAPI:
+    case .setDestination:
       newState.destination = .ledger
     case .addImageURL(let imageURL, let section):
       switch section {
