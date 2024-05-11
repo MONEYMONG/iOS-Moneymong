@@ -7,6 +7,11 @@ public final class LedgerCoordinator: Coordinator {
   private let diContainer: LedgerDIContainer
   public weak var parentCoordinator: (Coordinator)?
   public var childCoordinators: [Coordinator] = []
+  
+  enum Scene {
+    case inputManual
+    case datePicker
+  }
 
   public init(navigationController: UINavigationController, diContainer: LedgerDIContainer) {
     self.navigationController = navigationController
@@ -16,6 +21,13 @@ public final class LedgerCoordinator: Coordinator {
   public func start(animated: Bool) {
     ledger(animated: animated)
   }
+  
+  func present(_ scene: Scene, animated: Bool = true) {
+    switch scene {
+    case .inputManual: manualInput(animated: animated)
+    case .datePicker: datePicker(animated: animated)
+    }
+  }
 }
 
 extension LedgerCoordinator {
@@ -24,9 +36,16 @@ extension LedgerCoordinator {
     navigationController.viewControllers = [vc]
   }
   
-  func manualInput(animated: Bool) {
+  private func manualInput(animated: Bool) {
     let vc = diContainer.manualInput(with: self)
     vc.modalPresentationStyle = .fullScreen
     navigationController.present(vc, animated: animated)
+  }
+  
+  private func datePicker(animated: Bool) {
+    let vc = diContainer.datePicker()
+    vc.modalPresentationStyle = .overFullScreen
+    vc.modalTransitionStyle = .crossDissolve
+    navigationController.present(vc, animated: false)
   }
 }
