@@ -18,7 +18,7 @@ struct AgencyMemberListResponseDTO: Responsable {
         agencyID: $0.id,
         userID: $0.userId,
         nickname: $0.nickname,
-        role: .init(rawValue: $0.agencyUserRole) ?? .normal
+        role: .init(rawValue: $0.agencyUserRole) ?? .member
       )
     }
   }

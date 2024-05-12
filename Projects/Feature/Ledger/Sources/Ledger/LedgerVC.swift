@@ -23,7 +23,7 @@ public final class LedgerVC: BaseVC, View {
     return UIButton(configuration: config)
   }()
   
-  private let lineTab: LineTabViewController!
+  private let lineTab: LineTabViewController
   
   init(_ childVC: [UIViewController]) {
     self.lineTab = LineTabViewController(childVC)
@@ -55,12 +55,19 @@ public final class LedgerVC: BaseVC, View {
       .disposed(by: disposeBag)
     
     reactor.pulse(\.$agency)
+      .observe(on: MainScheduler.instance)
       .bind(with: self) { owner, agency in
         var title = AttributedString(agency?.name ?? "소속없음")
         title.font = Fonts.heading._1
         title.foregroundColor = Colors.Gray._10
         
         owner.agencyButton.configuration?.attributedTitle = title
+      }
+      .disposed(by: disposeBag)
+    
+    agencyButton.rx.tap
+      .bind { _ in
+        reactor.action.onNext(.requestMyAgencies)
       }
       .disposed(by: disposeBag)
   }

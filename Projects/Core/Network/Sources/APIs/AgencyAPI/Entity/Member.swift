@@ -5,11 +5,11 @@ public struct Member {
   public let agencyID: Int
   public let userID: Int
   public let nickname: String
-  let role: Role
+  public let role: Role
   
   public enum Role: String {
     case staff = "STAFF"
-    case normal = "NORMAL"
+    case member = "NORMAL"
   }
   
   public init(agencyID: Int, userID: Int, nickname: String, role: Role) {

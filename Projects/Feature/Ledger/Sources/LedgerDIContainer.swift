@@ -7,6 +7,7 @@ import BaseFeature
 public final class LedgerDIContainer {
   private let localStorage: LocalStorageInterface
   private let networkManager: NetworkManagerInterfacae
+  private let globalService: LedgerGlobalServiceInterface = LedgerGlobalService()
   
   public init(localStorage: LocalStorageInterface, networkManager: NetworkManagerInterfacae) {
     self.localStorage = localStorage
@@ -22,7 +23,8 @@ public final class LedgerDIContainer {
     )
     vc.reactor = LedgerReactor(
       userRepo: UserRepository(networkManager: networkManager, localStorage: localStorage),
-      agencyRepo: AgencyRepository(networkManager: networkManager)
+      agencyRepo: AgencyRepository(networkManager: networkManager),
+      globalService: globalService
     )
     vc.coordinator = coordinator
     return vc
@@ -41,7 +43,8 @@ public final class LedgerDIContainer {
     vc.title = "멤버"
     vc.reactor = MemberTabReactor(
       userRepo: UserRepository(networkManager: networkManager, localStorage: localStorage),
-      agencyRepo: AgencyRepository(networkManager: networkManager)
+      agencyRepo: AgencyRepository(networkManager: networkManager),
+      globalService: globalService
     )
     return vc
   }
