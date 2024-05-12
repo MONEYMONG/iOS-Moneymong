@@ -1,11 +1,9 @@
 import UIKit
 
-import DesignSystem
-
 import PinLayout
 import FlexLayout
 
-public class BottomSheetVC: UIViewController {
+open class BottomSheetVC: UIViewController {
   private let rootContainer = UIView()
   private let spaceView = UIView()
   private let sheetView = UIView()
@@ -27,7 +25,7 @@ public class BottomSheetVC: UIViewController {
   }
   
   @available(*, unavailable)
-  required init?(coder: NSCoder) {
+  required public init?(coder: NSCoder) {
     fatalError("init(coder:) has not been implemented")
   }
   
