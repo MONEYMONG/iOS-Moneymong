@@ -83,7 +83,7 @@ final class MemberTabReactor: Reactor {
       newState.invitationCode = code
     
     case let .setMembers(members):
-      newState.members = members
+      newState.members = members.filter { $0.userID != state.userID }
       
     case let .setRole(role):
       newState.role = role
