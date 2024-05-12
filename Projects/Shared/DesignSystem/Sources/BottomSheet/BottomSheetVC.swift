@@ -68,7 +68,7 @@ open class BottomSheetVC: UIViewController {
       spaceView.flex.height(h).grow(1).markDirty()
       view.layoutIfNeeded()
     case .ended:
-      if spaceView.frame.height > UIScreen.main.bounds.height * 0.7 ||
+      if spaceView.frame.height > UIScreen.main.bounds.height - (sheetView.frame.height * 0.5) ||
           velocity.y > 500 {
         dismiss()
       } else {
@@ -92,9 +92,21 @@ open class BottomSheetVC: UIViewController {
     view.setNeedsLayout()
     spaceView.flex.height(UIScreen.main.bounds.height).grow(1).markDirty()
     UIView.animate(withDuration: 0.2) {
+      self.view.backgroundColor = Colors.Gray._10.withAlphaComponent(0.0)
       self.view.layoutIfNeeded()
     } completion: { _ in
-      self.dismiss(animated: true)
+      
+      self.dismiss(animated: false)
+    }
+  }
+  
+  public func update(c: () -> Void) {
+    view.setNeedsLayout()
+    c()
+    UIView.animate(withDuration: 0.2) {
+      self.view.layoutIfNeeded()
+    } completion: { _ in
+      self.spaceViewHeight = self.spaceView.frame.height
     }
   }
 }

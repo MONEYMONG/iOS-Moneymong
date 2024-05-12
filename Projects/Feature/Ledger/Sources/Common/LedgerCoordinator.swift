@@ -45,7 +45,6 @@ extension LedgerCoordinator {
   private func datePicker(animated: Bool) {
     let vc = diContainer.datePicker()
     vc.modalPresentationStyle = .overFullScreen
-    vc.modalTransitionStyle = .crossDissolve
     navigationController.present(vc, animated: false)
   }
 }
