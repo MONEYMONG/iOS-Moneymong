@@ -19,6 +19,8 @@ public enum Images {
   public static var mongStudy = UIImage(named: "mong.study", in: Bundle.module, with: nil)
   public static var mongBackgroundCircle = UIImage(named: "mong.background.circle", in: Bundle.module, with: nil)
   public static var mongSplash = UIImage(named: "mong.splash", in: Bundle.module, with: nil)
+  public static var mongCode = UIImage(named: "mong.code", in: Bundle.module, with: nil)
+  
   public static var accountRecord = UIImage(named: "accountRecord", in: Bundle.module, with: nil)
   public static var agencyGray = UIImage(named: "agency.gray", in: Bundle.module, with: nil)
   public static var agencyFill = UIImage(named: "agency.fill", in: Bundle.module, with: nil)
@@ -58,6 +60,7 @@ public enum Images {
   public static var university = UIImage(named: "university", in: Bundle.module, with: nil)
   public static var kakaoTalk = UIImage(named: "kakaoTalk", in: Bundle.module, with: nil)
   public static var apple = UIImage(named: "apple", in: Bundle.module, with: nil)
+  public static var congrats = UIImage(named: "congrats", in: Bundle.module, with: nil)
   
   
   public static var closeCircleFill = UIImage(named: "close.circle.fill", in: Bundle.module, with: nil)

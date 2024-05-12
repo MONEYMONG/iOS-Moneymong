@@ -10,7 +10,7 @@ public enum MoneyMongError: LocalizedError {
   public var errorDescription: String? {
     switch self {
     case .networkError(let AFerror):
-      return AFerror.errorDescription
+      return "네트워크 연결을 확인해주세요"
     case .serverError(let errorMessage):
       return errorMessage
     case .appError(let errorMessage):

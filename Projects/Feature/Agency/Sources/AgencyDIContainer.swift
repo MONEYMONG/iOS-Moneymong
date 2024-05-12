@@ -34,9 +34,24 @@ public final class AgencyDIContainer {
     return rootVC
   }
   
-  func createCompleteAgency(with coordinator: AgencyCoordinator) -> CreateCompleteAgencyVC {
-    let vc = CreateCompleteAgencyVC()
-    vc.reactor = CreateCompleteAgencyReactor()
+  func createComplete(with coordinator: AgencyCoordinator) -> CreateCompleteVC {
+    let vc = CreateCompleteVC()
+    vc.reactor = CreateCompleteReactor()
+    vc.coordinator = coordinator
+    return vc
+  }
+  
+  func joinAgency(id: Int, name: String, with coordinator: AgencyCoordinator) -> UIViewController {
+    let vc = JoinAgencyVC()
+    let rootVC = UINavigationController(rootViewController: vc)
+    vc.reactor = JoinAgencyReactor(id: id, name: name, repo: agencyRepo)
+    vc.coordinator = coordinator
+    return rootVC
+  }
+  
+  func joinComplete(with coordinator: AgencyCoordinator) -> JoinCompleteVC {
+    let vc = JoinCompleteVC()
+    vc.reactor = JoinCompleteReactor()
     vc.coordinator = coordinator
     return vc
   }

@@ -17,8 +17,9 @@ public final class AgencyCoordinator: Coordinator {
   }
   
   enum Scene {
-    case alert(title: String, subTitle: String, okAction: () -> Void)
-    case joinAgency
+    case alert(title: String, subTitle: String?, okAction: () -> Void)
+    case joinAgency(id: Int, name: String)
+    case joinComplete
     case createAgency
     case createComplete
   }
@@ -29,11 +30,9 @@ public final class AgencyCoordinator: Coordinator {
   
   func push(_ scene: Scene, animated: Bool = true) {
     switch scene {
-    case .alert: break
-    case .joinAgency: break
-    case .createAgency: break
-    case .createComplete:
-      createCompleteAgency(animated: true)
+    case .createComplete: createComplete(animated: animated)
+    case .joinComplete: joinComplete(animated: animated)
+    default: break
     }
   }
   
@@ -46,10 +45,9 @@ public final class AgencyCoordinator: Coordinator {
         okAction: okAction,
         cancelAction: nil
       )
-    case .joinAgency: break
-    case .createAgency:
-      createAgency(animated: animated)
-    case .createComplete: break
+    case let .joinAgency(id, name): joinAgency(id: id, name: name, animated: animated)
+    case .createAgency: createAgency(animated: animated)
+    default: break
     }
   }
   
@@ -81,8 +79,20 @@ extension AgencyCoordinator {
     navigationController.topViewController?.present(vc, animated: animated)
   }
   
-  private func createCompleteAgency(animated: Bool) {
-    let vc = diContainer.createCompleteAgency(with: self)
+  private func createComplete(animated: Bool) {
+    let vc = diContainer.createComplete(with: self)
+    secondFlowNavigationController?.pushViewController(vc, animated: animated)
+  }
+  
+  private func joinAgency(id: Int, name: String, animated: Bool) {
+    let vc = diContainer.joinAgency(id: id, name: name, with: self)
+    secondFlowNavigationController = vc as? UINavigationController
+    vc.modalPresentationStyle = .fullScreen
+    navigationController.topViewController?.present(vc, animated: animated)
+  }
+  
+  private func joinComplete(animated: Bool) {
+    let vc = diContainer.joinComplete(with: self)
     secondFlowNavigationController?.pushViewController(vc, animated: animated)
   }
 }

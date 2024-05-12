@@ -25,7 +25,7 @@ public final class AgencyListReactor: Reactor {
     @Pulse var destination: Destination?
     
     public enum Destination {
-      case joinAgency
+      case joinAgency(Agency)
     }
   }
 
@@ -61,7 +61,7 @@ public final class AgencyListReactor: Reactor {
           subTitle: "장부 페이지에서 가입한 소속을 확인해보세요"
         ))
       } else {
-        return .just(.setDestination(.joinAgency))
+        return .just(.setDestination(.joinAgency(agency)))
       }
     }
   }
