@@ -3,18 +3,30 @@ import Foundation
 import LocalStorage
 
 public protocol LedgerRepositoryInterface {
+  
+  func imageUpload(_ data: Data) async throws -> ImageInfo
+  func imageDelete(_ image: ImageInfo) async throws
+  func fetchLedgerDetail(id: Int) async throws -> LedgerDetail
   func create(
     id: Int,
     storeInfo: String,
-    fundType: LedgerDetail.FundType,
+    fundType: FundType,
     amount: Int,
     description: String,
     paymentDate: String,
     receiptImageUrls: [String],
     documentImageUrls: [String]
   ) async throws
-  func imageUpload(_ data: Data) async throws -> ImageInfo
-  func imageDelete(_ image: ImageInfo) async throws
+  func fetchLedgerList(
+    id: Int,
+    startYear: Int,
+    endYear: Int,
+    startMonth: Int,
+    endMonth: Int,
+    page: Int,
+    limit: Int,
+    fundType: FundType?
+  ) async throws -> LedgerList
 }
 
 public final class LedgerRepository: LedgerRepositoryInterface {
@@ -32,7 +44,7 @@ public final class LedgerRepository: LedgerRepositoryInterface {
   public func create(
     id: Int,
     storeInfo: String,
-    fundType: LedgerDetail.FundType,
+    fundType: FundType,
     amount: Int,
     description: String,
     paymentDate: String,
@@ -64,6 +76,39 @@ public final class LedgerRepository: LedgerRepositoryInterface {
       param: .init(key: image.key, path: image.url)
     )
     try await networkManager.request(target: targetType)
+  }
+  
+  public func fetchLedgerList(
+    id: Int,
+    startYear: Int,
+    endYear: Int,
+    startMonth: Int,
+    endMonth: Int,
+    page: Int,
+    limit: Int,
+    fundType: FundType?
+  ) async throws -> LedgerList {
+    let request = LedgerListRequestDTO(
+      startYear: startYear,
+      endYear: endYear,
+      startMonth: startMonth,
+      endMonth: endMonth,
+      page: page,
+      limit: limit,
+      fundType: fundType?.rawValue
+    )
+    let targetType: TargetType
+    if fundType == nil {
+      targetType = LedgerAPI.ledgerList(id: id, param: request)
+    } else {
+      targetType = LedgerAPI.ledgerFilterList(id: id, param: request)
+    }
+    return try await networkManager.request(target: targetType, of: LedgerListResponseDTO.self).toEntity
+  }
+  
+  public func fetchLedgerDetail(id: Int) async throws -> LedgerDetail {
+    let targetType = LedgerAPI.ledgerDetail(id: id)
+    return try await networkManager.request(target: targetType, of: LedgerDetailResponseDTO.self).toEntity
   }
 }
 

@@ -26,7 +26,7 @@ struct LedgerDetailResponseDTO: Responsable {
       id: id,
       storeInfo: storeInfo,
       amount: amount,
-      fundType: LedgerDetail.FundType(rawValue: fundType)!,
+      fundType: FundType(rawValue: fundType)!,
       description: description,
       paymentDate: paymentDate,
       receiptImageUrls: receiptImageUrls.map {

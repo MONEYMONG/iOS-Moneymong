@@ -33,11 +33,6 @@ public struct LedgerDetail {
     self.authorName = authorName
   }
   
-  public enum FundType: String {
-    case income = "INCOME"
-    case expense = "EXPENSE"
-  }
-  
   public struct ImageURL {
     let id: Int
     let url: String
