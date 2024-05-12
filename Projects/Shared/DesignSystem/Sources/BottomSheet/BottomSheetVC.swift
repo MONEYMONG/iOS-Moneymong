@@ -3,6 +3,12 @@ import UIKit
 import PinLayout
 import FlexLayout
 
+/// BottomSheet 컴포넌트 객체
+///
+/// 위 타입을 상속하여 사용하세요.
+/// BottomSheetVC를 present시 
+/// modalPresentationStyle을 .overFullScreen로 설정 후
+/// animated를 false로 설정해서 사용합니다.
 open class BottomSheetVC: UIViewController {
   private let rootContainer = UIView()
   private let spaceView = UIView()
@@ -100,6 +106,9 @@ open class BottomSheetVC: UIViewController {
     }
   }
   
+  /// Sheet 내부 UI를 수정할 때 사용
+  ///
+  /// 클로저 내부에 UI 수정에 필요한 코드를 작성하세요.
   public func update(c: () -> Void) {
     view.setNeedsLayout()
     c()
