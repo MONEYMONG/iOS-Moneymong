@@ -39,7 +39,7 @@ final class ManualInputReactor: Reactor {
     case setContent(_ value: String, type: ContentType)
     case setSection(_ section: ImageSectionModel.Section)
     case addImageURL(_ image: ImageInfo, _ section: ImageSectionModel.Section)
-    case requestCreateAPI
+    case setDestination
     case setAlertContent(AlertType)
   }
   
@@ -50,7 +50,6 @@ final class ManualInputReactor: Reactor {
       .init(model: .document, items: [.button(.document)])
     ]
     @Pulse var selectedSection: ImageSectionModel.Section? = nil
-    @Pulse var isCompleted = false
     @Pulse var alertMessage: (String, String?, AlertType)? = nil
     @Pulse var isValids: [ContentType: Bool?] = [
       .source: nil,
@@ -60,7 +59,12 @@ final class ManualInputReactor: Reactor {
       .time: nil,
       .memo: nil
     ]
+    @Pulse var destination: Destination?
     var content = Content()
+    
+    enum Destination {
+      case ledger
+    }
   }
   
   struct Content {
@@ -146,7 +150,7 @@ final class ManualInputReactor: Reactor {
           documentImageUrls: currentState.content.documentImages.map(\.url)
         )
       }
-      .map { .requestCreateAPI }
+      .map { .setDestination }
       .catch {
           return .just(.setAlertContent(.error($0.toMMError)))
       }
@@ -177,8 +181,8 @@ final class ManualInputReactor: Reactor {
     case .setContent(let value, let type):
       setContent(&newState.content, value: value, type: type)
       newState.isValids[type] = checkContent(newState.content, type: type)
-    case .requestCreateAPI:
-      newState.isCompleted = true
+    case .setDestination:
+      newState.destination = .ledger
     case .addImageURL(let imageURL, let section):
       switch section {
       case .receipt:
@@ -196,7 +200,7 @@ final class ManualInputReactor: Reactor {
     case .setAlertContent(let type):
       switch type {
       case .error(let moneyMongError):
-        newState.alertMessage = ("네트워크 연결을 확인해주세요", moneyMongError.errorDescription, type)
+        newState.alertMessage = (moneyMongError.errorDescription!, nil, type)
       case .deleteImage(_):
         newState.alertMessage = ("사진을 삭제하시겠습니까?", "삭제된 사진은 되돌릴 수 없습니다", type)
       case .end:

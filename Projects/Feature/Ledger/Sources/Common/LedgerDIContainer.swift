@@ -50,4 +50,13 @@ public final class LedgerDIContainer {
     manualInputCoordinator.start(animated: false)
     return vc
   }
+  
+  func datePicker() -> UIViewController {
+    let vc = DatePickerSheetVC()
+    vc.reactor = DatePickerReactor(
+      startDate: .init(year: 2023, month: 1),
+      endDate: .init(year: 2023, month: 6)
+    )
+    return vc
+  }
 }
