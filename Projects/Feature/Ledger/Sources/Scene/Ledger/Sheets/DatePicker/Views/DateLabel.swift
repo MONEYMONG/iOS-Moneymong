@@ -67,7 +67,7 @@ final class DateLabel: UIView {
     }
   }
   
-  var configure: Binder<DateInfo> {
+  var date: Binder<DateInfo> {
     return Binder(self) { owner, model in
       if (1...9).contains(model.month) {
         owner.dateLabel.text = "\(model.year)년 0\(model.month)월"

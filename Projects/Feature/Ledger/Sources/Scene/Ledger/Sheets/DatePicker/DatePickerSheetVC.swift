@@ -94,11 +94,11 @@ final class DatePickerSheetVC: BottomSheetVC, View {
     .disposed(by: disposeBag)
     
     reactor.pulse(\.$startDate)
-      .bind(to: startDateLabel.configure)
+      .bind(to: startDateLabel.date)
       .disposed(by: disposeBag)
     
     reactor.pulse(\.$endDate)
-      .bind(to: endDateLabel.configure)
+      .bind(to: endDateLabel.date)
       .disposed(by: disposeBag)
     
     reactor.pulse(\.$isWarning)
