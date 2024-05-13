@@ -11,18 +11,20 @@ import FlexLayout
 /// animated를 false로 설정해서 사용합니다.
 open class BottomSheetVC: UIViewController {
   private let rootContainer = UIView()
-  private let spaceView = UIView()
+  private let dimView = UIView()
   private let sheetView = UIView()
   public let contentView = UIView()
 
   private lazy var panGesture: UIPanGestureRecognizer = {
-    let g = UIPanGestureRecognizer(target: self, action: #selector(gestureAction))
+    let g = UIPanGestureRecognizer(target: self, action: #selector(panAction))
     g.delaysTouchesBegan = false
     g.delaysTouchesEnded = false
     return g
   }()
   
-  private var spaceViewHeight: CGFloat = 0
+  private lazy var tapGesture = UITapGestureRecognizer(target: self, action: #selector(tapAction))
+  
+  private var dimViewHeight: CGFloat = 0
   
   public init() {
     super.init(nibName: nil, bundle: nil)
@@ -46,35 +48,36 @@ open class BottomSheetVC: UIViewController {
   open override func viewDidAppear(_ animated: Bool) {
     super.viewDidAppear(animated)
     show()
-    spaceViewHeight = spaceView.frame.height
+    dimViewHeight = dimView.frame.height
   }
   
   open func setupUI() {
     view.backgroundColor = .clear
     sheetView.addGestureRecognizer(panGesture)
+    dimView.addGestureRecognizer(tapGesture)
   }
   
   open func setupConstraints() {
     view.addSubview(rootContainer)
     rootContainer.flex.define { flex in
-      flex.addItem(spaceView).height(UIScreen.main.bounds.height)
+      flex.addItem(dimView).height(UIScreen.main.bounds.height)
       flex.addItem(sheetView).backgroundColor(.white).cornerRadius(20)
     }
     sheetView.addSubview(contentView)
   }
   
   @objc
-  private func gestureAction(recognizer: UIPanGestureRecognizer) {
+  private func panAction(recognizer: UIPanGestureRecognizer) {
     let translation = recognizer.translation(in: view)
     let velocity = recognizer.velocity(in: view)
     view.setNeedsLayout()
     switch recognizer.state {
     case .changed:
-      let h = spaceViewHeight + translation.y
-      spaceView.flex.height(h).grow(1).markDirty()
+      let h = dimViewHeight + translation.y
+      dimView.flex.height(h).grow(1).markDirty()
       view.layoutIfNeeded()
     case .ended:
-      if spaceView.frame.height > UIScreen.main.bounds.height - (sheetView.frame.height * 0.5) ||
+      if dimView.frame.height > UIScreen.main.bounds.height - (sheetView.frame.height * 0.5) ||
           velocity.y > 500 {
         dismiss()
       } else {
@@ -85,9 +88,14 @@ open class BottomSheetVC: UIViewController {
     }
   }
   
-  public func show() {
+  @objc
+  private func tapAction() {
+    dismiss()
+  }
+  
+  private func show() {
     view.setNeedsLayout()
-    spaceView.flex.height(nil).grow(1).markDirty()
+    dimView.flex.height(nil).grow(1).markDirty()
     UIView.animate(withDuration: 0.2) {
       self.view.backgroundColor = Colors.Gray._10.withAlphaComponent(0.7)
       self.view.layoutIfNeeded()
@@ -96,7 +104,7 @@ open class BottomSheetVC: UIViewController {
   
   public func dismiss() {
     view.setNeedsLayout()
-    spaceView.flex.height(UIScreen.main.bounds.height).grow(1).markDirty()
+    dimView.flex.height(UIScreen.main.bounds.height).grow(1).markDirty()
     UIView.animate(withDuration: 0.2) {
       self.view.backgroundColor = Colors.Gray._10.withAlphaComponent(0.0)
       self.view.layoutIfNeeded()
@@ -115,7 +123,7 @@ open class BottomSheetVC: UIViewController {
     UIView.animate(withDuration: 0.2) {
       self.view.layoutIfNeeded()
     } completion: { _ in
-      self.spaceViewHeight = self.spaceView.frame.height
+      self.dimViewHeight = self.dimView.frame.height
     }
   }
 }
