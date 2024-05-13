@@ -1,3 +1,5 @@
+import Foundation
+
 import NetworkService
 
 import ReactorKit
@@ -46,7 +48,11 @@ final class EditMemberReactor: Reactor {
   func mutate(action: Action) -> Observable<Mutation> {
     switch action {
     case .tapKickOut:
+      DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
+        _ = self.ledgerService.member.kickOff(self.currentState.member.userID)
+      }
       return .just(.setDestination(.dismiss))
+      
     case let .tapSaveButton(role):
       let (id, userID) = (currentState.agencyID, currentState.member.userID)
       return .task {

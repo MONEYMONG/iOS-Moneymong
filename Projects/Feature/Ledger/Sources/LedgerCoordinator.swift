@@ -12,6 +12,7 @@ public final class LedgerCoordinator: Coordinator {
   
   enum Scene {
     case editMember(Int, Member)
+    case alert(title: String, subTitle: String?, type: MMAlerts.`Type`)
   }
 
   public init(navigationController: UINavigationController, diContainer: LedgerDIContainer) {
@@ -27,6 +28,8 @@ public final class LedgerCoordinator: Coordinator {
     switch scene {
     case let .editMember(id, member):
       editMember(agencyID: id, member: member)
+    case let .alert(title, subTitle, type):
+      AlertsManager.show(title: title, subTitle: subTitle, type: type)
     }
   }
 }
