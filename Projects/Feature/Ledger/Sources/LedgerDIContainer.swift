@@ -1,9 +1,18 @@
 import UIKit
 
+import LocalStorage
+import NetworkService
 import BaseFeature
 
 public final class LedgerDIContainer {
-  public init() {}
+  private let localStorage: LocalStorageInterface
+  private let networkManager: NetworkManagerInterfacae
+  private let globalService: LedgerGlobalServiceInterface = LedgerGlobalService()
+  
+  public init(localStorage: LocalStorageInterface, networkManager: NetworkManagerInterfacae) {
+    self.localStorage = localStorage
+    self.networkManager = networkManager
+  }
   
   func ledger(with coordinator: LedgerCoordinator) -> LedgerVC {
     let vc = LedgerVC(
@@ -12,7 +21,11 @@ public final class LedgerDIContainer {
         memberTab()
       ]
     )
-    vc.reactor = LedgerReactor()
+    vc.reactor = LedgerReactor(
+      userRepo: UserRepository(networkManager: networkManager, localStorage: localStorage),
+      agencyRepo: AgencyRepository(networkManager: networkManager),
+      globalService: globalService
+    )
     vc.coordinator = coordinator
     return vc
   }
@@ -28,7 +41,11 @@ public final class LedgerDIContainer {
   private func memberTab() -> UIViewController {
     let vc = MemberTabVC()
     vc.title = "멤버"
-    vc.reactor = MemberTabReactor()
+    vc.reactor = MemberTabReactor(
+      userRepo: UserRepository(networkManager: networkManager, localStorage: localStorage),
+      agencyRepo: AgencyRepository(networkManager: networkManager),
+      globalService: globalService
+    )
     return vc
   }
   
