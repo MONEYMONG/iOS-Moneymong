@@ -8,6 +8,7 @@ import ReactorKit
 
 final class MemberTabVC: BaseVC, View {
   var disposeBag = DisposeBag()
+  weak var coordinator: LedgerCoordinator?
   
   private let profileHeaderLabel: UILabel = {
     let v = UILabel()
@@ -56,6 +57,12 @@ final class MemberTabVC: BaseVC, View {
       .bind(to: reactor.action)
       .disposed(by: disposeBag)
     
+    rx.viewDidAppear
+      .bind {
+        print(#function)
+      }
+      .disposed(by: disposeBag)
+    
     profileView.tapCopy
       .bind {
         guard let code = reactor.currentState.invitationCode else { return }
@@ -69,14 +76,20 @@ final class MemberTabVC: BaseVC, View {
       .bind(to: reactor.action)
       .disposed(by: disposeBag)
     
-    // State
     
+    // State
     reactor.pulse(\.$members)
-      .bind(to: tableView.rx.items) { tableview, index, item in
-        guard let role = reactor.currentState.role else { return UITableViewCell() }
+      .bind(to: tableView.rx.items) { [weak self] tableview, index, item in
+        guard let role = reactor.currentState.role,
+              let agencyID = reactor.currentState.agency?.id
+        else { return UITableViewCell() }
         
         let cell = tableview.dequeue(MemberCell.self, for: IndexPath(index: index))
-        cell.configure(member: item, role: role)
+          
+        cell.configure(member: item, role: role) { member in
+          self?.coordinator?.present(.editMember(agencyID, member))
+        }
+        
         return cell
       }
       .disposed(by: disposeBag)

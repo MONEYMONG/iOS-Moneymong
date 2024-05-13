@@ -7,7 +7,7 @@ import BaseFeature
 public final class LedgerDIContainer {
   private let localStorage: LocalStorageInterface
   private let networkManager: NetworkManagerInterfacae
-  private let globalService: LedgerGlobalServiceInterface = LedgerGlobalService()
+  private let ledgerService: LedgerServiceInterface = LedgerService()
   
   public init(localStorage: LocalStorageInterface, networkManager: NetworkManagerInterfacae) {
     self.localStorage = localStorage
@@ -18,13 +18,13 @@ public final class LedgerDIContainer {
     let vc = LedgerVC(
       [
         ledgerTab(with: coordinator),
-        memberTab()
+        memberTab(with: coordinator)
       ]
     )
     vc.reactor = LedgerReactor(
       userRepo: UserRepository(networkManager: networkManager, localStorage: localStorage),
       agencyRepo: AgencyRepository(networkManager: networkManager),
-      globalService: globalService
+      ledgerService: ledgerService
     )
     vc.coordinator = coordinator
     return vc
@@ -38,14 +38,15 @@ public final class LedgerDIContainer {
     return vc
   }
   
-  private func memberTab() -> UIViewController {
+  private func memberTab(with coordinator: LedgerCoordinator) -> UIViewController {
     let vc = MemberTabVC()
     vc.title = "멤버"
     vc.reactor = MemberTabReactor(
       userRepo: UserRepository(networkManager: networkManager, localStorage: localStorage),
       agencyRepo: AgencyRepository(networkManager: networkManager),
-      globalService: globalService
+      ledgerService: ledgerService
     )
+    vc.coordinator = coordinator
     return vc
   }
   
@@ -58,6 +59,18 @@ public final class LedgerDIContainer {
     coordinator.childCoordinators.append(manualInputCoordinator)
     manualInputCoordinator.parentCoordinator = coordinator
     manualInputCoordinator.start(animated: false)
+    return vc
+  }
+  
+  func editMember(agencyID: Int, member: Member, with coordinator: LedgerCoordinator) -> EditMemberSheetVC {
+    let vc = EditMemberSheetVC()
+    vc.coordinator = coordinator
+    vc.reactor = EditMemberReactor(
+      agencyID: agencyID,
+      member: member,
+      agencyRepo: AgencyRepository(networkManager: networkManager),
+      ledgerService: ledgerService
+    )
     return vc
   }
 }

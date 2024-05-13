@@ -63,7 +63,6 @@ final class MyProfileView: UIView {
   
   init() {
     super.init(frame: .zero)
-    setupUI()
     setupConstraints()
   }
   
@@ -77,10 +76,6 @@ final class MyProfileView: UIView {
     
     rootContainer.pin.all()
     rootContainer.flex.layout()
-  }
-  
-  private func setupUI() {
-    
   }
   
   private func setupConstraints() {

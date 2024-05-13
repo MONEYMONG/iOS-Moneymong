@@ -21,16 +21,16 @@ public final class LedgerReactor: Reactor {
   public let initialState = State()
   private let agencyRepo: AgencyRepositoryInterface
   private let userRepo: UserRepositoryInterface
-  private let globalService: LedgerGlobalServiceInterface
+  private let ledgerService: LedgerServiceInterface
   
   init(
     userRepo: UserRepositoryInterface,
     agencyRepo: AgencyRepositoryInterface,
-    globalService: LedgerGlobalServiceInterface
+    ledgerService: LedgerServiceInterface
   ) {
     self.userRepo = userRepo
     self.agencyRepo = agencyRepo
-    self.globalService = globalService
+    self.ledgerService = ledgerService
   }
   
   public func mutate(action: Action) -> Observable<Mutation> {
@@ -45,7 +45,7 @@ public final class LedgerReactor: Reactor {
         let agency = agencies.first(where: { $0.id == agencyID }) ?? agencies.first
         
         if let agency {
-          _ = self?.globalService.updateAgency(agency)
+          _ = self?.ledgerService.agency.updateAgency(agency)
         }
         
         return .setAgency(agency)

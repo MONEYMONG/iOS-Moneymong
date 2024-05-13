@@ -33,16 +33,16 @@ final class MemberTabReactor: Reactor {
   
   private let userRepo: UserRepositoryInterface
   private let agencyRepo: AgencyRepositoryInterface
-  private let globalService: LedgerGlobalServiceInterface
+  private let ledgerService: LedgerServiceInterface
   
   init(
     userRepo: UserRepositoryInterface,
     agencyRepo: AgencyRepositoryInterface,
-    globalService: LedgerGlobalServiceInterface
+    ledgerService: LedgerServiceInterface
   ) {
     self.userRepo = userRepo
     self.agencyRepo = agencyRepo
-    self.globalService = globalService
+    self.ledgerService = ledgerService
   }
   
   func mutate(action: Action) -> Observable<Mutation> {
@@ -98,10 +98,22 @@ final class MemberTabReactor: Reactor {
     return Observable.merge(mutation, serviceMutation)
   }
   
-  private var serviceMutation: Observable<Mutation> {
-    globalService.event.flatMap { event -> Observable<Mutation> in
+  func transform(action: Observable<Action>) -> Observable<Action> {
+    return Observable.merge(serviceAction, action)
+  }
+  
+  private var serviceAction: Observable<Action> {
+    ledgerService.member.event.flatMap { event -> Observable<Action> in
       switch event {
-      case let .updateAgency(agency):
+        case .update: return .just(.onappear)
+      }
+    }
+  }
+  
+  private var serviceMutation: Observable<Mutation> {
+    ledgerService.agency.event.flatMap { event -> Observable<Mutation> in
+      switch event {
+      case let .update(agency):
         return .just(.setAgency(agency))
       }
     }
