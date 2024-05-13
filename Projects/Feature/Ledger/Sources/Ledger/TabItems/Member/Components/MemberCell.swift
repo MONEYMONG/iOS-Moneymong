@@ -28,8 +28,6 @@ final class MemberCell: UITableViewCell, ReusableView {
     return v
   }()
   
-  var moreButtonAction: ((Member) -> Void)?
-  
   override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
     super.init(style: style, reuseIdentifier: reuseIdentifier)
     setupUI()
