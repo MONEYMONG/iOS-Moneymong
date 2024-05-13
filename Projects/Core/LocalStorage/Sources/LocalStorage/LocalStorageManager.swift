@@ -1,5 +1,7 @@
+import Foundation
+
 public protocol LocalStorageInterface: AnyObject {
-  @discardableResult 
+  @discardableResult
   func create(to key: LocalStorageKey, value: String) -> Bool
 
   func read(to key: LocalStorageKey) -> String?
@@ -11,12 +13,14 @@ public protocol LocalStorageInterface: AnyObject {
 public final class LocalStorageManager: LocalStorageInterface {
   private let keychainHelper: KeychainHelper
   private let userDefaultHelper: UserDefaultsHelper
+  private let userDefaults: UserDefaults
 
   public init(
     keychainHelper: KeychainHelper = KeychainHelper(),
     userDefaultHelper: UserDefaultsHelper = UserDefaultsHelper()
   ) {
     self.keychainHelper = keychainHelper
+    self.userDefaults = UserDefaults.standard
     self.userDefaultHelper = userDefaultHelper
   }
 
@@ -31,19 +35,25 @@ public final class LocalStorageManager: LocalStorageInterface {
       return keychainHelper.create(to: .socialAccessToken, value: value)
     case .recentLoginType:
       return userDefaultHelper.saveData(newValue: value, forKey: .recentLoginType)
+    case .selectedAgency:
+      userDefaults.setValue(value, forKey: key.rawValue)
+      return true
     }
   }
 
   public func read(to key: LocalStorageKey) -> String? {
     switch key {
     case .accessToken:
-      return keychainHelper.read(to: .accessToken)
+      keychainHelper.read(to: .accessToken)
     case .refreshToken:
       return keychainHelper.read(to: .refreshToken)
     case .socialAccessToken:
       return keychainHelper.read(to: .socialAccessToken)
     case .recentLoginType:
       return userDefaultHelper.retrieveData(forKey: .recentLoginType, type: String.self)
+    case .selectedAgency:
+      userDefaults.value(forKey: key.rawValue) as? String
+      keychainHelper.read(to: .refreshToken)
     }
   }
 
@@ -58,6 +68,9 @@ public final class LocalStorageManager: LocalStorageInterface {
       return keychainHelper.delete(to: .socialAccessToken)
     case .recentLoginType:
       return userDefaultHelper.delete(forKey: .recentLoginType, type: String.self)
+    case .selectedAgency:
+      userDefaults.removeObject(forKey: key.rawValue)
+      return true
     }
   }
 }

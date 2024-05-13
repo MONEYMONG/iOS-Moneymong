@@ -4,6 +4,8 @@ import LocalStorage
 
 public protocol UserRepositoryInterface {
   func user() async throws -> UserInfo
+  func fetchSelectedAgency() -> Int?
+  func updateSelectedAgency(id: Int)
   func logout() async throws
   func withdrawl() async throws
 }
@@ -25,6 +27,17 @@ public final class UserRepository: UserRepositoryInterface {
     let targetType = UserAPI.user
     let dto = try await networkManager.request(target: targetType, of: UserResponseDTO.self)
     return dto.toEntity
+  }
+  
+  /// Local: 선택된 소속 id가져오기
+  public func fetchSelectedAgency() -> Int? {
+    guard let agency = localStorage.read(to: .selectedAgency) else { return nil }
+    return Int(agency)
+  }
+  
+  /// Local: 선택된 소속 id 저장하기
+  public func updateSelectedAgency(id: Int) {
+    localStorage.create(to: .selectedAgency, value: String(id))
   }
   
   /// Delete: 로그아웃

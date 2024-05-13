@@ -1,9 +1,19 @@
 import UIKit
 
+import LocalStorage
+import NetworkService
 import BaseFeature
 import NetworkService
 
 public final class LedgerDIContainer {
+  private let localStorage: LocalStorageInterface
+  private let networkManager: NetworkManagerInterfacae
+  private let ledgerService: LedgerServiceInterface = LedgerService()
+  
+  public init(localStorage: LocalStorageInterface, networkManager: NetworkManagerInterfacae) {
+    self.localStorage = localStorage
+    self.networkManager = networkManager
+  }
   private let ledgerRepo: LedgerRepositoryInterface
   
   public init(
@@ -16,10 +26,14 @@ public final class LedgerDIContainer {
     let vc = LedgerVC(
       [
         ledgerTab(with: coordinator),
-        memberTab()
+        memberTab(with: coordinator)
       ]
     )
-    vc.reactor = LedgerReactor()
+    vc.reactor = LedgerReactor(
+      userRepo: UserRepository(networkManager: networkManager, localStorage: localStorage),
+      agencyRepo: AgencyRepository(networkManager: networkManager),
+      ledgerService: ledgerService
+    )
     vc.coordinator = coordinator
     return vc
   }
@@ -32,10 +46,15 @@ public final class LedgerDIContainer {
     return vc
   }
   
-  private func memberTab() -> UIViewController {
+  private func memberTab(with coordinator: LedgerCoordinator) -> UIViewController {
     let vc = MemberTabVC()
     vc.title = "멤버"
-    vc.reactor = MemberTabReactor()
+    vc.reactor = MemberTabReactor(
+      userRepo: UserRepository(networkManager: networkManager, localStorage: localStorage),
+      agencyRepo: AgencyRepository(networkManager: networkManager),
+      ledgerService: ledgerService
+    )
+    vc.coordinator = coordinator
     return vc
   }
   
@@ -51,6 +70,14 @@ public final class LedgerDIContainer {
     return vc
   }
   
+  func editMember(agencyID: Int, member: Member, with coordinator: LedgerCoordinator) -> EditMemberSheetVC {
+    let vc = EditMemberSheetVC()
+    vc.coordinator = coordinator
+    vc.reactor = EditMemberReactor(
+      agencyID: agencyID,
+      member: member,
+      agencyRepo: AgencyRepository(networkManager: networkManager),
+      ledgerService: ledgerService
   func datePicker() -> UIViewController {
     let vc = DatePickerSheetVC()
     vc.reactor = DatePickerReactor(
