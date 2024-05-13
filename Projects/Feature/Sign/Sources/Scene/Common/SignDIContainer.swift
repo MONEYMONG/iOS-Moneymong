@@ -34,8 +34,8 @@ public final class SignDIContainer {
       kakaoAuthManager: KakaoAuthManager(),
       appleAuthManager: AppleAuthManager()
     )
-    vc.reactor = LoginReactor(signRepository: signRepository)
     vc.coordinator = coordinator
+    vc.reactor = LoginReactor(signRepository: signRepository)
     return vc
   }
 

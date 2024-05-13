@@ -5,9 +5,14 @@ import LocalStorage
 
 public protocol SignRepositoryInterface {
   func autoSign() async throws -> SignInfo
-  func sign(provider: String, accessToken: String) async throws -> SignInfo
-  func kakaoSign() async throws -> String
-  func appleSign() async throws -> String
+  func kakaoSign() async throws -> KakaoAuthInfo
+  func appleSign() async throws -> AppleAuthInfo
+  func sign(
+    provider: String,
+    accessToken: String,
+    name: String?,
+    code: String?
+  ) async throws -> SignInfo
   func recentLoginType() -> LoginType?
 }
 
@@ -38,7 +43,7 @@ public final class SignRepository: SignRepositoryInterface {
     return recentLoginType
   }
 
-  public func kakaoSign() async throws -> String {
+  public func kakaoSign() async throws -> KakaoAuthInfo {
     do {
       return try await kakaoAuthManager.sign()
     } catch {
@@ -46,7 +51,7 @@ public final class SignRepository: SignRepositoryInterface {
     }
   }
 
-  public func appleSign() async throws -> String {
+  public func appleSign() async throws -> AppleAuthInfo {
     do {
       return try await appleAuthManager.sign()
     } catch {
@@ -63,8 +68,18 @@ public final class SignRepository: SignRepositoryInterface {
     return try await sign(provider: provider, accessToken: accessToken)
   }
 
-  public func sign(provider: String, accessToken: String) async throws -> SignInfo {
-    let request = SignRequestDTO(provider: provider, accessToken: accessToken)
+  public func sign(
+    provider: String,
+    accessToken: String,
+    name: String? = nil,
+    code: String? = nil
+  ) async throws -> SignInfo {
+    let request = SignRequestDTO(
+      provider: provider,
+      accessToken: accessToken,
+      name: name,
+      code: code
+    )
     let targetType = SignAPI.sign(request)
     let dto = try await networkManager.request(target: targetType, of: SignResponseDTO.self)
     let entity = dto.toEntity

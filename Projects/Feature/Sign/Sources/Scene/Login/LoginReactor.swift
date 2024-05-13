@@ -42,18 +42,25 @@ final class LoginReactor: Reactor {
 
     case .login(let loginType):
       return .task {
-        var accessToken = ""
         switch loginType {
         case .kakao:
-          accessToken = try await self.signRepository.kakaoSign()
-        case .apple:
-          accessToken = try await self.signRepository.appleSign()
-        }
+          let authInfo = try await self.signRepository.kakaoSign()
+          return try await self.signRepository.sign(
+            provider: loginType.value,
+            accessToken: authInfo.accessToken,
+            name: nil,
+            code: nil
+          )
 
-        return try await self.signRepository.sign(
-          provider: loginType.value,
-          accessToken: accessToken
-        )
+        case .apple:
+          let authInfo = try await self.signRepository.appleSign()
+          return try await self.signRepository.sign(
+            provider: loginType.value,
+            accessToken: authInfo.idToken,
+            name: authInfo.name,
+            code: authInfo.authorizationCode
+          )
+        }
       }
       .map { .setDestination($0.schoolInfoExist ? .main : .signUp) }
       .catch { .just(.setErrorMessage($0.localizedDescription)) }
