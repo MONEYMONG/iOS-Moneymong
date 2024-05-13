@@ -8,8 +8,8 @@ public class SocialLoginButton: UIButton {
 
     var image: UIImage? {
       switch self {
-      case .apple: Images.appleButton
-      case .kakao: Images.kakaoButton
+      case .apple: Images.appleLogo
+      case .kakao: Images.kakaoLogo
       }
     }
 

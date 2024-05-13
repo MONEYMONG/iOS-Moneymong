@@ -152,7 +152,7 @@ final class LoginVC: BaseVC, View {
     reactor.pulse(\.$isLoading)
       .compactMap { $0 }
       .observe(on: MainScheduler.instance)
-      .bind(to: rx.isLoading())
+      .bind(to: rx.isLoading)
       .disposed(by: disposeBag)
 
     // Action Binding

@@ -54,6 +54,8 @@ extension LedgerCoordinator {
     let vc = diContainer.datePicker()
     vc.modalPresentationStyle = .overFullScreen
     navigationController.present(vc, animated: false)
+  }
+  
   private func editMember(agencyID: Int, member: Member, animated: Bool = false) {
     let vc = diContainer.editMember(agencyID: agencyID, member: member, with: self)
     vc.modalPresentationStyle = .overFullScreen

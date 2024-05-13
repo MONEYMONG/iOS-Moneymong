@@ -22,14 +22,20 @@ public final class MainDIContainer {
     self.localStorage = localStorage
     self.networkManager = networkManager
 
-    self.agencyContainer = .init()
+    self.agencyContainer = .init(
+      localStorage: localStorage,
+      networkManager: networkManager
+    )
+    
     self.myPageContainer = .init(
       localStorage: localStorage,
       networkManager: networkManager
     )
+    
     self.ledgerContainer = .init(
-      localStorage: localStorage,
-      networkManager: networkManager
+      ledgerRepo: LedgerRepository(networkManager: networkManager, localStorage: localStorage),
+      agencyRepo: AgencyRepository(networkManager: networkManager),
+      userRepo: UserRepository(networkManager: networkManager, localStorage: localStorage)
     )
   }
 

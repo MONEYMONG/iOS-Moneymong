@@ -1,17 +1,17 @@
 {
   "images" : [
     {
-      "filename" : "ic_agency.png",
+      "filename" : "img_agency.png",
       "idiom" : "universal",
       "scale" : "1x"
     },
     {
-      "filename" : "ic_agency@2x.png",
+      "filename" : "img_agency@2x.png",
       "idiom" : "universal",
       "scale" : "2x"
     },
     {
-      "filename" : "ic_agency@3x.png",
+      "filename" : "img_agency@3x.png",
       "idiom" : "universal",
       "scale" : "3x"
     }

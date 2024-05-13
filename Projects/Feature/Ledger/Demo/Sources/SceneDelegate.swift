@@ -12,12 +12,16 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
     Fonts.registerFont()
     guard let windowScene = (scene as? UIWindowScene) else { return }
     window = UIWindow(windowScene: windowScene)
+    let networkManager = NetworkManager()
+    let localStorage = LocalStorageManager()
     coordinator = LedgerCoordinator(
       navigationController: .init(),
-      diContainer: .init(ledgerRepo: LedgerRepository(
-        networkManager: NetworkManager(),
-        localStorage: LocalStorageManager()
-      ))
+      diContainer: .init(
+        ledgerRepo: LedgerRepository(networkManager: networkManager, localStorage: localStorage),
+        agencyRepo: AgencyRepository(networkManager: networkManager),
+        userRepo: UserRepository(networkManager: networkManager, localStorage: localStorage)
+      )
+
     )
     coordinator?.start(animated: false)
     window?.rootViewController = coordinator?.navigationController

@@ -44,6 +44,9 @@ let project = Project(
       dependencies: [
         .project(target: "SignFeature", path: .relativeToRoot("Projects/Feature/Sign")),
         .project(target: "MainFeature", path: .relativeToRoot("Projects/Feature/Main"))
+      ],
+      launchArguments: [
+        LaunchArgument(name: "IDEPreferLogStreaming=YES", isEnabled: true)
       ]
     )
   ]

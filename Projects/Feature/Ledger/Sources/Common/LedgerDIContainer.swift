@@ -3,23 +3,23 @@ import UIKit
 import LocalStorage
 import NetworkService
 import BaseFeature
-import NetworkService
 
 public final class LedgerDIContainer {
-  private let localStorage: LocalStorageInterface
-  private let networkManager: NetworkManagerInterfacae
+
   private let ledgerService: LedgerServiceInterface = LedgerService()
   
-  public init(localStorage: LocalStorageInterface, networkManager: NetworkManagerInterfacae) {
-    self.localStorage = localStorage
-    self.networkManager = networkManager
-  }
   private let ledgerRepo: LedgerRepositoryInterface
+  private let agencyRepo: AgencyRepositoryInterface
+  private let userRepo: UserRepositoryInterface
   
   public init(
-    ledgerRepo: LedgerRepositoryInterface
+    ledgerRepo: LedgerRepositoryInterface,
+    agencyRepo: AgencyRepositoryInterface,
+    userRepo: UserRepositoryInterface
   ) {
     self.ledgerRepo = ledgerRepo
+    self.agencyRepo = agencyRepo
+    self.userRepo = userRepo
   }
 
   func ledger(with coordinator: LedgerCoordinator) -> LedgerVC {
@@ -30,8 +30,8 @@ public final class LedgerDIContainer {
       ]
     )
     vc.reactor = LedgerReactor(
-      userRepo: UserRepository(networkManager: networkManager, localStorage: localStorage),
-      agencyRepo: AgencyRepository(networkManager: networkManager),
+      userRepo: userRepo,
+      agencyRepo: agencyRepo,
       ledgerService: ledgerService
     )
     vc.coordinator = coordinator
@@ -50,8 +50,8 @@ public final class LedgerDIContainer {
     let vc = MemberTabVC()
     vc.title = "멤버"
     vc.reactor = MemberTabReactor(
-      userRepo: UserRepository(networkManager: networkManager, localStorage: localStorage),
-      agencyRepo: AgencyRepository(networkManager: networkManager),
+      userRepo: userRepo,
+      agencyRepo: agencyRepo,
       ledgerService: ledgerService
     )
     vc.coordinator = coordinator
@@ -76,8 +76,12 @@ public final class LedgerDIContainer {
     vc.reactor = EditMemberReactor(
       agencyID: agencyID,
       member: member,
-      agencyRepo: AgencyRepository(networkManager: networkManager),
+      agencyRepo: agencyRepo,
       ledgerService: ledgerService
+    )
+    return vc
+  }
+  
   func datePicker() -> UIViewController {
     let vc = DatePickerSheetVC()
     vc.reactor = DatePickerReactor(

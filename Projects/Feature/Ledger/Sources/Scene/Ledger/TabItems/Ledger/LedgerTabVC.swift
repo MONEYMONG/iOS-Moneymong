@@ -112,18 +112,3 @@ final class LedgerTabVC: BaseVC, View {
       .disposed(by: disposeBag)
   }
 }
-
-import RxCocoa
-
-extension Reactive where Base: UIView {
-  var tapGesture: ControlEvent<Base> {
-    let tapGesture = UITapGestureRecognizer()
-    base.addGestureRecognizer(tapGesture)
-    let event = tapGesture.rx.event
-      .withUnretained(base)
-      .flatMap { (base, _) in
-        Observable.just(base)
-      }
-    return ControlEvent(events: event)
-  }
-}

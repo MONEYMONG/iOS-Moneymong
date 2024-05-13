@@ -36,6 +36,7 @@ public final class MainTabBarCoordinator: Coordinator {
 public extension MainTabBarCoordinator {
   func mainTab(animated: Bool) {
     let vc = diContainer.mainTab(with: self)
+    navigationController.isNavigationBarHidden = true
     navigationController.viewControllers = [vc]
   }
 }

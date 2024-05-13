@@ -3,27 +3,25 @@ import Foundation
 public protocol LocalStorageInterface: AnyObject {
   @discardableResult
   func create(to key: LocalStorageKey, value: String) -> Bool
-
+  
   func read(to key: LocalStorageKey) -> String?
-
-  @discardableResult 
+  
+  @discardableResult
   func delete(to key: LocalStorageKey) -> Bool
 }
 
 public final class LocalStorageManager: LocalStorageInterface {
   private let keychainHelper: KeychainHelper
   private let userDefaultHelper: UserDefaultsHelper
-  private let userDefaults: UserDefaults
-
+  
   public init(
     keychainHelper: KeychainHelper = KeychainHelper(),
     userDefaultHelper: UserDefaultsHelper = UserDefaultsHelper()
   ) {
     self.keychainHelper = keychainHelper
-    self.userDefaults = UserDefaults.standard
     self.userDefaultHelper = userDefaultHelper
   }
-
+  
   @discardableResult
   public func create(to key: LocalStorageKey, value: String) -> Bool {
     switch key {
@@ -36,15 +34,14 @@ public final class LocalStorageManager: LocalStorageInterface {
     case .recentLoginType:
       return userDefaultHelper.saveData(newValue: value, forKey: .recentLoginType)
     case .selectedAgency:
-      userDefaults.setValue(value, forKey: key.rawValue)
-      return true
+      return userDefaultHelper.saveData(newValue: value, forKey: .selectedAgency)
     }
   }
-
+  
   public func read(to key: LocalStorageKey) -> String? {
     switch key {
     case .accessToken:
-      keychainHelper.read(to: .accessToken)
+      return keychainHelper.read(to: .accessToken)
     case .refreshToken:
       return keychainHelper.read(to: .refreshToken)
     case .socialAccessToken:
@@ -52,11 +49,10 @@ public final class LocalStorageManager: LocalStorageInterface {
     case .recentLoginType:
       return userDefaultHelper.retrieveData(forKey: .recentLoginType, type: String.self)
     case .selectedAgency:
-      userDefaults.value(forKey: key.rawValue) as? String
-      keychainHelper.read(to: .refreshToken)
+      return userDefaultHelper.retrieveData(forKey: .selectedAgency, type: String.self)
     }
   }
-
+  
   @discardableResult
   public func delete(to key: LocalStorageKey) -> Bool {
     switch key {
@@ -69,8 +65,7 @@ public final class LocalStorageManager: LocalStorageInterface {
     case .recentLoginType:
       return userDefaultHelper.delete(forKey: .recentLoginType, type: String.self)
     case .selectedAgency:
-      userDefaults.removeObject(forKey: key.rawValue)
-      return true
+      return userDefaultHelper.delete(forKey: .selectedAgency, type: String.self)
     }
   }
 }

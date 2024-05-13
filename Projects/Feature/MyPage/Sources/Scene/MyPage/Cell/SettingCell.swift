@@ -62,7 +62,7 @@ final class SettingCell: UITableViewCell, ReusableView {
     rootContainer.flex.direction(.row).alignItems(.center).padding(16).define { flex in
       flex.addItem(iconImageView).size(20).marginRight(8)
       flex.addItem(titleLabel)
-      flex.addItem(UIView()).grow(1)
+      flex.addItem().grow(1)
       flex.addItem(disclosureIndicator).size(24)
       flex.addItem(versionLabel)
     }
@@ -84,23 +84,14 @@ final class SettingCell: UITableViewCell, ReusableView {
     
     switch model.accessoryType {
     case .disclosureIndicator:
-      disclosureIndicator.flex.view?.isHidden = false
-      versionLabel.flex.view?.isHidden = true
-      
-      disclosureIndicator.flex.isIncludedInLayout(true).markDirty()
-      versionLabel.flex.isIncludedInLayout(false).markDirty()
+      disclosureIndicator.flex.display(.flex)
+      versionLabel.flex.display(.none)
     case .version:
-      disclosureIndicator.flex.view?.isHidden = true
-      versionLabel.flex.view?.isHidden = false
-      
-      disclosureIndicator.flex.isIncludedInLayout(false).markDirty()
-      versionLabel.flex.isIncludedInLayout(true).markDirty()
+      disclosureIndicator.flex.display(.none)
+      versionLabel.flex.display(.flex)
     case .no:
-      disclosureIndicator.flex.view?.isHidden = true
-      versionLabel.flex.view?.isHidden = true
-      
-      disclosureIndicator.flex.isIncludedInLayout(false).markDirty()
-      versionLabel.flex.isIncludedInLayout(false).markDirty()
+      disclosureIndicator.flex.display(.none)
+      versionLabel.flex.display(.none)
     }
     
     contentView.setNeedsLayout()

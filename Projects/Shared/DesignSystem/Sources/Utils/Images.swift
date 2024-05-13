@@ -20,9 +20,13 @@ public enum Images {
   public static var mongStudy = UIImage(named: "mong.study", in: Bundle.module, with: nil)
   public static var mongBackgroundCircle = UIImage(named: "mong.background.circle", in: Bundle.module, with: nil)
   public static var mongSplash = UIImage(named: "mong.splash", in: Bundle.module, with: nil)
+  public static var mongCode = UIImage(named: "mong.code", in: Bundle.module, with: nil)
+  public static var mongParty = UIImage(named: "mong.party", in: Bundle.module, with: nil)
+  
   public static var accountRecord = UIImage(named: "accountRecord", in: Bundle.module, with: nil)
-  public static var agencyGray = UIImage(named: "agency.gray", in: Bundle.module, with: nil)
   public static var agency = UIImage(named: "agency", in: Bundle.module, with: nil)
+  public static var agencyCongrats = UIImage(named: "agency.congrats", in: Bundle.module, with: nil)
+  
   public static var camera = UIImage(named: "camera", in: Bundle.module, with: nil)
   public static var check = UIImage(named: "check", in: Bundle.module, with: nil)
   public static var checkGray = UIImage(named: "check.gray", in: Bundle.module, with: nil)
@@ -59,18 +63,20 @@ public enum Images {
   public static var university = UIImage(named: "university", in: Bundle.module, with: nil)
   public static var kakaoTalk = UIImage(named: "kakaoTalk", in: Bundle.module, with: nil)
   public static var apple = UIImage(named: "apple", in: Bundle.module, with: nil)
+  public static var congrats = UIImage(named: "congrats", in: Bundle.module, with: nil)
   
   
   public static var closeCircleFill = UIImage(named: "close.circle.fill", in: Bundle.module, with: nil)
   public static var plusCircleFillGreen = UIImage(named: "plus.circle.fill.green", in: Bundle.module, with: nil)
+  public static var plusCircleFillRed = UIImage(named: "plus.circle.fill.red", in: Bundle.module, with: nil)
   public static var pencilCircleFill = UIImage(named: "pencil.circle.fill", in: Bundle.module, with: nil)
   public static var scanCircleFill = UIImage(named: "scan.circle.fill", in: Bundle.module, with: nil)
   public static var warningFill = UIImage(named: "warning.fill", in: Bundle.module, with: nil)
   public static var warning = UIImage(named: "warning", in: Bundle.module, with: nil)
-  public static var party = UIImage(named: "party", in: Bundle.module, with: nil)
+ 
 
-  public static var kakaoButton = UIImage(named: "kakaoButton", in: Bundle.module, with: nil)
-  public static var appleButton = UIImage(named: "appleButton", in: Bundle.module, with: nil)
+  public static var kakaoLogo = UIImage(named: "kakaoLogo", in: Bundle.module, with: nil)
+  public static var appleLogo = UIImage(named: "appleLogo", in: Bundle.module, with: nil)
 
   public static var indicator = UIImage(named: "indicator", in: Bundle.module, with: nil)
 }

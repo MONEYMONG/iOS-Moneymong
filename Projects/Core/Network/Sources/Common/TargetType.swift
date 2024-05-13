@@ -48,7 +48,7 @@ extension TargetType {
     case let .requestJSONEncodable(params):
       urlRequest.httpBody = try! JSONEncoder().encode(params)
 
-    case let .upload(multipartFormData):
+    case .upload:
       break
     }
 

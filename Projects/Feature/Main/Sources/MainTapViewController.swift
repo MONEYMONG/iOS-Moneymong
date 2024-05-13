@@ -24,7 +24,7 @@ public final class MainTapViewController: UITabBarController {
     appearance.setTitleTextAttributes(attributes as [NSAttributedString.Key : Any], for: .normal)
     
     let titles = ["소속", "장부", "마이페이지"]
-    let images: [UIImage?] = [Images.party, Images.record, Images.mongGray]
+    let images: [UIImage?] = [Images.mongParty, Images.record, Images.mongGray]
     
     tabBar.items?.enumerated().forEach { (index, item) in
       item.title = titles[index]
