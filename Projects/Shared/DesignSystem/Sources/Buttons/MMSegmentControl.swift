@@ -20,7 +20,7 @@ public final class MMSegmentControl: UIView {
   private let button4 = UIButton()
   private let button5 = UIButton()
   
-  @Published public var selectedIndex: Int = 0 {
+  @Published public var selectedIndex: Int = -1 {
     didSet {
       if allButtons.indices.contains(selectedIndex) {
         selection(with: allButtons[selectedIndex])
