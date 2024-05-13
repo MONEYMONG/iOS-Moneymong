@@ -9,7 +9,7 @@ public struct Member {
   
   public enum Role: String {
     case staff = "STAFF"
-    case member = "NORMAL"
+    case member = "MEMBER"
   }
   
   public init(agencyID: Int, userID: Int, nickname: String, role: Role) {

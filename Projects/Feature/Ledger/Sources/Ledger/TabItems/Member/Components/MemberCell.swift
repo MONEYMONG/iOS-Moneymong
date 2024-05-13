@@ -30,6 +30,7 @@ final class MemberCell: UITableViewCell, ReusableView {
   
   override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
     super.init(style: style, reuseIdentifier: reuseIdentifier)
+    setupUI()
     setupConstraints()
   }
   
@@ -51,6 +52,9 @@ final class MemberCell: UITableViewCell, ReusableView {
     return contentView.frame.size
   }
 
+  private func setupUI() {
+    selectionStyle = .none
+  }
   
   private func setupConstraints() {
     contentView.addSubview(rootContainer)
@@ -63,7 +67,7 @@ final class MemberCell: UITableViewCell, ReusableView {
     }
   }
   
-  func configure(member: Member, role: Member.Role) {
+  func configure(member: Member, role: Member.Role, tapAction: @escaping (Member) -> Void) {
     nameLabel.setTextWithLineHeight(text: member.nickname, lineHeight: 24)
     moreButton.flex.display(role == .staff ? .flex : .none)
     
@@ -73,7 +77,9 @@ final class MemberCell: UITableViewCell, ReusableView {
     case .staff:
       roleView.configure(title: "운영진", titleColor: Colors.White._1, backgroundColor: Colors.Blue._4)
     }
-
+    
+    moreButton.addAction { tapAction(member) }
+      
     nameLabel.flex.markDirty()
     roleView.flex.markDirty()
     setNeedsLayout()

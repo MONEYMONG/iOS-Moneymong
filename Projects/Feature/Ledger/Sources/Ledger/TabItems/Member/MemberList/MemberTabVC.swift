@@ -8,6 +8,7 @@ import ReactorKit
 
 final class MemberTabVC: BaseVC, View {
   var disposeBag = DisposeBag()
+  weak var coordinator: LedgerCoordinator?
   
   private let profileHeaderLabel: UILabel = {
     let v = UILabel()
@@ -56,12 +57,18 @@ final class MemberTabVC: BaseVC, View {
       .bind(to: reactor.action)
       .disposed(by: disposeBag)
     
-    profileView.tapCopy
+    rx.viewDidAppear
       .bind {
-        guard let code = reactor.currentState.invitationCode else { return }
-        UIPasteboard.general.string = code
-        SnackBarManager.show(title: "초대코드 \(code)이 복사되었습니다")
+        print(#function)
       }
+      .disposed(by: disposeBag)
+    
+    profileView.tapCopy
+      .do(onNext: {
+        UIPasteboard.general.string = reactor.currentState.invitationCode
+      })
+      .map { Reactor.Action.tapCodeCopyButton }
+      .bind(to: reactor.action)
       .disposed(by: disposeBag)
     
     profileView.tapReissue
@@ -69,14 +76,20 @@ final class MemberTabVC: BaseVC, View {
       .bind(to: reactor.action)
       .disposed(by: disposeBag)
     
-    // State
     
+    // State
     reactor.pulse(\.$members)
-      .bind(to: tableView.rx.items) { tableview, index, item in
-        guard let role = reactor.currentState.role else { return UITableViewCell() }
+      .bind(to: tableView.rx.items) { [weak self] tableview, index, item in
+        guard let role = reactor.currentState.role,
+              let agencyID = reactor.currentState.agency?.id
+        else { return UITableViewCell() }
         
         let cell = tableview.dequeue(MemberCell.self, for: IndexPath(index: index))
-        cell.configure(member: item, role: role)
+          
+        cell.configure(member: item, role: role) { member in
+          self?.coordinator?.present(.editMember(agencyID, member))
+        }
+        
         return cell
       }
       .disposed(by: disposeBag)
@@ -105,5 +118,32 @@ final class MemberTabVC: BaseVC, View {
       owner.profileView.configure(title: element.name, role: element.role, code: element.code)
     }
     .disposed(by: disposeBag)
+    
+    reactor.pulse(\.$snackBarMessage)
+      .compactMap { $0 }
+      .observe(on: MainScheduler.instance)
+      .bind {
+        SnackBarManager.show(title: $0)
+      }
+      .disposed(by: disposeBag)
+    
+    reactor.pulse(\.$destination)
+      .compactMap { $0 }
+      .observe(on: MainScheduler.instance)
+      .bind(with: self) { owner, destination in
+        switch destination {
+        case let .kickOffAlert(memberID):
+          owner.coordinator?.present(.alert(
+            title: "정말 내보내시겠습니까?",
+            subTitle: nil,
+            type: .default(okAction: {
+              reactor.action.onNext(.requestKickOffMember(memberID))
+            }, cancelAction: {
+              
+            })
+          ))
+        }
+      }
+      .disposed(by: disposeBag)
   }
 }

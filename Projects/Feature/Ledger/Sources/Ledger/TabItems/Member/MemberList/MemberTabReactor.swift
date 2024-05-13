@@ -1,5 +1,6 @@
 import ReactorKit
 
+import DesignSystem
 import NetworkService
 
 final class MemberTabReactor: Reactor {
@@ -10,14 +11,22 @@ final class MemberTabReactor: Reactor {
     @Pulse var name: String?
     @Pulse var role: Member.Role?
     @Pulse var invitationCode: String?
-    
     @Pulse var members: [Member] = []
+    
     @Pulse var error: MoneyMongError?
+    @Pulse var snackBarMessage: String?
+    @Pulse var destination: Destination?
+    
+    enum Destination {
+      case kickOffAlert(memberID: Int)
+    }
   }
   
   enum Action {
     case onappear
+    case requestKickOffMember(Int)
     case reissueInvitationCode // 초대코드 재발급
+    case tapCodeCopyButton // 초대코드 복사
   }
   
   enum Mutation {
@@ -26,23 +35,25 @@ final class MemberTabReactor: Reactor {
     case setMembers([Member])
     case setRole(Member.Role)
     case setInvitationCode(String)
+    case setDestination(State.Destination)
     case setError(MoneyMongError)
+    case setSnackBarMessage(String)
   }
   
   let initialState: State = State()
   
   private let userRepo: UserRepositoryInterface
   private let agencyRepo: AgencyRepositoryInterface
-  private let globalService: LedgerGlobalServiceInterface
+  private let ledgerService: LedgerServiceInterface
   
   init(
     userRepo: UserRepositoryInterface,
     agencyRepo: AgencyRepositoryInterface,
-    globalService: LedgerGlobalServiceInterface
+    ledgerService: LedgerServiceInterface
   ) {
     self.userRepo = userRepo
     self.agencyRepo = agencyRepo
-    self.globalService = globalService
+    self.ledgerService = ledgerService
   }
   
   func mutate(action: Action) -> Observable<Mutation> {
@@ -66,6 +77,22 @@ final class MemberTabReactor: Reactor {
       }
       .map { .setInvitationCode($0) }
       .catch { return .just(.setError($0.toMMError)) }
+      
+    case .tapCodeCopyButton:
+      let code = currentState.invitationCode ?? "000000"
+      return .just(.setSnackBarMessage("초대코드 \(code)이 복사되었습니다"))
+      
+    case let .requestKickOffMember(memberID):
+      guard let agency = currentState.agency else {
+        fatalError("소속이 없을 수 없음")
+      }
+
+      return .task {
+        try await agencyRepo.kickoutMember(id: agency.id, userId: memberID)
+        return try await agencyRepo.fetchMemberList(id: agency.id)
+      }
+      .map { .setMembers($0) }
+      .catch { return .just(.setError($0.toMMError)) }
     }
   }
   
@@ -88,8 +115,14 @@ final class MemberTabReactor: Reactor {
     case let .setRole(role):
       newState.role = role
       
+    case let .setDestination(value):
+      newState.destination = value
+      
     case let .setError(error):
       newState.error = error
+      
+    case let .setSnackBarMessage(message):
+      newState.snackBarMessage = message
     }
     return newState
   }
@@ -98,13 +131,42 @@ final class MemberTabReactor: Reactor {
     return Observable.merge(mutation, serviceMutation)
   }
   
+  func transform(action: Observable<Action>) -> Observable<Action> {
+    return Observable.merge(serviceAction, action)
+  }
+  
+  // 맴버 역할 바뀌었을때, 화면업데이트
+  private var serviceAction: Observable<Action> {
+    ledgerService.member.event
+      .flatMap { event -> Observable<Action> in
+        switch event {
+        case .updateRole:
+          return .just(.onappear)
+        case .kickOff:
+          return .empty()
+        }
+      }
+  }
+  
+  // 소속정보 바뀌었을때, 화면업데이트(TODO) + 맴버 내보내기 눌렀을때, Alert띄워주기
   private var serviceMutation: Observable<Mutation> {
-    globalService.event.flatMap { event -> Observable<Mutation> in
+    let memberStream = ledgerService.member.event.flatMap { event -> Observable<Mutation> in
       switch event {
-      case let .updateAgency(agency):
+      case .updateRole:
+        return .just(.setSnackBarMessage("역할이 성공적으로 변경됐습니다"))
+      case let .kickOff(id):
+        return .just(.setDestination(.kickOffAlert(memberID: id)))
+      }
+    }
+    
+    let ledgerStream = ledgerService.agency.event.flatMap { event -> Observable<Mutation> in
+      switch event {
+      case let .update(agency):
         return .just(.setAgency(agency))
       }
     }
+    
+    return .merge(memberStream, ledgerStream)
   }
   
   private func requestMyProfile() -> Observable<Mutation> {
