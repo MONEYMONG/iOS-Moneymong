@@ -102,7 +102,7 @@ open class BottomSheetVC: UIViewController {
     }
   }
   
-  public func dismiss() {
+  public func dismiss(completion: (() -> Void)? = nil) {
     view.setNeedsLayout()
     dimView.flex.height(UIScreen.main.bounds.height).grow(1).markDirty()
     UIView.animate(withDuration: 0.2) {
@@ -110,7 +110,9 @@ open class BottomSheetVC: UIViewController {
       self.view.layoutIfNeeded()
     } completion: { _ in
       
-      self.dismiss(animated: false)
+      self.dismiss(animated: false) {
+        completion?()
+      }
     }
   }
   
