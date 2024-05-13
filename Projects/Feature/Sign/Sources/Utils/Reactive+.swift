@@ -10,7 +10,7 @@ extension Reactive where Base: UIViewController {
     return Binder(base) { target, value in
       target.view.isUserInteractionEnabled = !value
       target.navigationController?.navigationBar.isUserInteractionEnabled = !value
-      if value == true {
+      if value {
         loadingIndicator.view.frame = target.view.frame
         target.view.addSubview(loadingIndicator.view)
       } else {

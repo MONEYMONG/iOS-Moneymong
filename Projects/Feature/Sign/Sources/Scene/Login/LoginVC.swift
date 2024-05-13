@@ -152,7 +152,6 @@ final class LoginVC: BaseVC, View {
     reactor.pulse(\.$isLoading)
       .compactMap { $0 }
       .observe(on: MainScheduler.instance)
-      .delay(.milliseconds(200), scheduler: MainScheduler.instance)
       .bind(to: rx.isLoading())
       .disposed(by: disposeBag)
 

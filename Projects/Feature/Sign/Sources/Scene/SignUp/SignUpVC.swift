@@ -99,7 +99,6 @@ final class SignUpVC: BaseVC, View {
     reactor.pulse(\.$isLoading)
       .compactMap { $0 }
       .observe(on: MainScheduler.instance)
-//      .delay(.milliseconds(800), scheduler: MainScheduler.instance)
       .bind(to: rx.isLoading())
       .disposed(by: disposeBag)
 

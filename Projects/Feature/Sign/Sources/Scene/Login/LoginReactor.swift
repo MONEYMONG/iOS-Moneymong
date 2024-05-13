@@ -59,7 +59,6 @@ final class LoginReactor: Reactor {
             accessToken: authInfo.idToken,
             name: authInfo.name,
             code: authInfo.authorizationCode
-//            code: nil
           )
         }
       }
@@ -68,7 +67,6 @@ final class LoginReactor: Reactor {
     }
   }
 
-  @discardableResult
   func reduce(state: State, mutation: Mutation) -> State {
     var newState = state
     switch mutation {
