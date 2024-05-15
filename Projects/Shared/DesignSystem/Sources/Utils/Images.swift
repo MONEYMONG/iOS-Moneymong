@@ -48,9 +48,7 @@ public enum Images {
   public static var pencilGray = UIImage(named: "pencil.gray", in: Bundle.module, with: nil)
   public static var photo = UIImage(named: "photo", in: Bundle.module, with: nil)
   public static var plan = UIImage(named: "plan", in: Bundle.module, with: nil)
-  public static var plusCircleFill = UIImage(named: "plus.circle.fill", in: Bundle.module, with: nil)
-  public static var plusCircle = UIImage(named: "plus.circle", in: Bundle.module, with: nil)
-  public static var plus = UIImage(named: "plus", in: Bundle.module, with: nil)
+
   public static var record = UIImage(named: "record", in: Bundle.module, with: nil)
   public static var reissue = UIImage(named: "reissue", in: Bundle.module, with: nil)
   public static var scan = UIImage(named: "scan", in: Bundle.module, with: nil)
@@ -69,6 +67,8 @@ public enum Images {
   public static var closeCircleFill = UIImage(named: "close.circle.fill", in: Bundle.module, with: nil)
   public static var plusCircleFillGreen = UIImage(named: "plus.circle.fill.green", in: Bundle.module, with: nil)
   public static var plusCircleFillRed = UIImage(named: "plus.circle.fill.red", in: Bundle.module, with: nil)
+  public static var plusCircleFillBlue = UIImage(named: "plus.circle.fill.blue", in: Bundle.module, with: nil)
+
   public static var pencilCircleFill = UIImage(named: "pencil.circle.fill", in: Bundle.module, with: nil)
   public static var scanCircleFill = UIImage(named: "scan.circle.fill", in: Bundle.module, with: nil)
   public static var warningFill = UIImage(named: "warning.fill", in: Bundle.module, with: nil)
