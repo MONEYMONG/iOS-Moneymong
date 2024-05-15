@@ -56,7 +56,7 @@ final class ContentFormatter {
   
   func dateBodyParameter(_ dateString: String) -> String? {
     let inputFormatter = DateFormatter()
-    inputFormatter.dateFormat = "YYYY/MM/DD HH:mm:ss"
+    inputFormatter.dateFormat = "YYYY/MM/dd HH:mm:ss"
     inputFormatter.timeZone = TimeZone(abbreviation: "UTC")
     guard let date = inputFormatter.date(from: dateString) else { return nil }
     let outputFormatter = ISO8601DateFormatter()
