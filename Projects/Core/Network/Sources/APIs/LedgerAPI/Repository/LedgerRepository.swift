@@ -19,10 +19,8 @@ public protocol LedgerRepositoryInterface {
   ) async throws
   func fetchLedgerList(
     id: Int,
-    startYear: Int,
-    endYear: Int,
-    startMonth: Int,
-    endMonth: Int,
+    start: DateInfo,
+    end: DateInfo,
     page: Int,
     limit: Int,
     fundType: FundType?
@@ -80,19 +78,17 @@ public final class LedgerRepository: LedgerRepositoryInterface {
   
   public func fetchLedgerList(
     id: Int,
-    startYear: Int,
-    endYear: Int,
-    startMonth: Int,
-    endMonth: Int,
+    start: DateInfo,
+    end: DateInfo,
     page: Int,
     limit: Int,
     fundType: FundType?
   ) async throws -> LedgerList {
     let request = LedgerListRequestDTO(
-      startYear: startYear,
-      endYear: endYear,
-      startMonth: startMonth,
-      endMonth: endMonth,
+      startYear: start.year,
+      endYear: end.year,
+      startMonth: start.month,
+      endMonth: end.month,
       page: page,
       limit: limit,
       fundType: fundType?.rawValue

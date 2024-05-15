@@ -5,9 +5,6 @@ import NetworkService
 import ReactorKit
 
 final class ManualInputReactor: Reactor {
-  private let repo: LedgerRepositoryInterface
-  private let formatter = ContentFormatter()
-  
   enum ContentType {
     case source
     case amount
@@ -77,14 +74,17 @@ final class ManualInputReactor: Reactor {
     @Pulse var receiptImages = [ImageInfo]()
     @Pulse var documentImages = [ImageInfo]()
   }
- 
-  
-  init(repo: LedgerRepositoryInterface) {
-    self.repo = repo
-    self.initialState = State(agencyId: 19)
-  }
   
   let initialState: State
+  private let service: LedgerServiceInterface
+  private let repo: LedgerRepositoryInterface
+  private let formatter = ContentFormatter()
+  
+  init(repo: LedgerRepositoryInterface, ledgerService: LedgerServiceInterface) {
+    self.repo = repo
+    self.service = ledgerService
+    self.initialState = State(agencyId: 19)
+  }
   
   func mutate(action: Action) -> Observable<Mutation> {
     switch action {
@@ -132,28 +132,12 @@ final class ManualInputReactor: Reactor {
     case .inputContent(let value, let type):
       return .just(.setContent(value, type: type))
     case .didTapCompleteButton:
-      return .task {
-        guard let amount = Int(currentState.content.amount.filter { $0.isNumber }) else {
-          throw MoneyMongError.appError(errorMessage: "금액을 확인해 주세요")
+      return .concat([
+        requestCreateLedgerRecord(),
+        service.ledgerList.createLedgerRecord().flatMap { _ in
+          Observable<Mutation>.empty()
         }
-        guard let date = formatter.dateBodyParameter(currentState.content.date + " " + currentState.content.time) else {
-          throw MoneyMongError.appError(errorMessage: "날짜 및 시간을 확인해 주세요")
-        }
-        return try await repo.create(
-          id: currentState.agencyId,
-          storeInfo: currentState.content.source,
-          fundType: currentState.content.amountSign == 1 ? .income : .expense,
-          amount: amount,
-          description: currentState.content.memo,
-          paymentDate: date,
-          receiptImageUrls: currentState.content.receiptImages.map(\.url),
-          documentImageUrls: currentState.content.documentImages.map(\.url)
-        )
-      }
-      .map { .setDestination }
-      .catch {
-          return .just(.setAlertContent(.error($0.toMMError)))
-      }
+      ])
     }
   }
   
@@ -256,5 +240,29 @@ private extension ManualInputReactor {
     let result = regex.firstMatch(in: value, range: NSRange(location: 0, length: value.count))
 
     return result != nil
+  }
+  
+  func requestCreateLedgerRecord() -> Observable<Mutation> {
+    return .task {
+      guard let amount = Int(currentState.content.amount.filter { $0.isNumber }) else {
+        throw MoneyMongError.appError(errorMessage: "금액을 확인해 주세요")
+      }
+      guard let date = formatter.dateBodyParameter(currentState.content.date + " " + currentState.content.time) else {
+        throw MoneyMongError.appError(errorMessage: "날짜 및 시간을 확인해 주세요")
+      }
+      return try await repo.create(
+        id: currentState.agencyId,
+        storeInfo: currentState.content.source,
+        fundType: currentState.content.amountSign == 1 ? .income : .expense,
+        amount: amount,
+        description: currentState.content.memo,
+        paymentDate: date,
+        receiptImageUrls: currentState.content.receiptImages.map(\.url),
+        documentImageUrls: currentState.content.documentImages.map(\.url)
+      )}
+      .map { .setDestination }
+      .catch {
+        return .just(.setAlertContent(.error($0.toMMError)))
+      }
   }
 }

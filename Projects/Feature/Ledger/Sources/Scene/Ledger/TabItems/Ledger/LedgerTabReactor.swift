@@ -85,14 +85,12 @@ final class LedgerTabReactor: Reactor {
       .flatMap { owner, event -> Observable<Mutation> in
         switch event {
         case let .selectedDateRange(start, end):
-          return .merge([
+          return .concat([
             .just(.setDateRange(start: start, end: end)),
-            owner.requestLedgerList(
-              id: owner.currentState.agencyID,
-              start: start,
-              end: end
-            )
+            owner.requestLedgerList()
           ])
+        case .createLedgerRecord:
+          return owner.requestLedgerList()
         }
     }
     
@@ -101,30 +99,24 @@ final class LedgerTabReactor: Reactor {
       .flatMap { owner, event -> Observable<Mutation> in
       switch event {
       case let .update(agency):
-        return .merge([
+        return .concat([
           .just(.setAgencyID(agency.id)),
-          owner.requestLedgerList(
-            id: agency.id,
-            start: owner.currentState.dateRange.start,
-            end: owner.currentState.dateRange.end
-          )
+          owner.requestLedgerList()
         ])
       }
     }
     return .merge(ledgerListUpdate, agencyUpdate)
   }
   
-  private func requestLedgerList(id: Int, start: DateInfo, end: DateInfo) -> Observable<Mutation> {
+  private func requestLedgerList() -> Observable<Mutation> {
     return .concat([
       .just(.setLoading(true)),
       .task { [weak self] in
         guard let self = self else { throw MoneyMongError.unknown("알 수 없는 에러가 발생했습니다") }
         return try await self.ledgerRepo.fetchLedgerList(
           id: self.currentState.agencyID, // 소속 ID
-          startYear: start.year,
-          endYear: end.year,
-          startMonth: start.month,
-          endMonth: end.month,
+          start: self.currentState.dateRange.start,
+          end: self.currentState.dateRange.end,
           page: 0, // 0부터
           limit: 20, // 아이템 수
           fundType: self.currentState.filterType
