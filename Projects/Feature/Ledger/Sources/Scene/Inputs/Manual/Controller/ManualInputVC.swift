@@ -297,6 +297,7 @@ final class ManualInputVC: BaseVC, View {
     
     reactor.pulse(\.$destination)
       .filter { $0 == .ledger }
+      .observe(on: MainScheduler.instance)
       .bind(with: self) { owner, _ in
         owner.coordinator?.dismiss(animated: true)
       }

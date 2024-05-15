@@ -40,7 +40,8 @@ extension LedgerAPI: TargetType {
   
   var task: HTTPTask {
     switch self {
-    case .create(_, let param): return .requestJSONEncodable(param)
+    case .create(_, let param): 
+      return .requestJSONEncodable(param)
     case .uploadImage(let data):
       let multipartFormData = MultipartFormData()
       multipartFormData.append(data, withName: "file", fileName: "\(data).jpeg", mimeType: "image/jpeg")

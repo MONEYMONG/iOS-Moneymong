@@ -99,7 +99,12 @@ final class LedgerTabVC: BaseVC, View {
     reactor.pulse(\.$totalBalance)
       .distinctUntilChanged()
       .map { "\($0)원" }
-      .bind(to: totalBalanceLabel.rx.text)
+      .observe(on: MainScheduler.instance)
+      .bind(with: self, onNext: { owner, value in
+        owner.totalBalanceLabel.text = value
+        owner.totalBalanceLabel.flex.markDirty()
+        owner.view.setNeedsLayout()
+      })
       .disposed(by: disposeBag)
     
     reactor.pulse(\.$ledgers)
