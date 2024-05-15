@@ -117,8 +117,8 @@ final class DatePickerSheetVC: BottomSheetVC, View {
       .compactMap { $0 }
       .bind(with: self) { owner, destination in
         switch destination {
-        case let .ledger(completion):
-          owner.dismiss(completion: completion)
+        case .ledger:
+          owner.dismiss()
         case .showSnackBar:
           SnackBarManager.show(title: "올바른 범위로 기간을 설정해주세요!")
         }

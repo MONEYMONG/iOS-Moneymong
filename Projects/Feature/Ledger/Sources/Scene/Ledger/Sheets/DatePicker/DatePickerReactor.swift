@@ -1,3 +1,5 @@
+import NetworkService
+
 import ReactorKit
 
 final class DatePickerReactor: Reactor {
@@ -25,7 +27,7 @@ final class DatePickerReactor: Reactor {
     @Pulse var destination: Destination?
     
     enum Destination {
-      case ledger(() -> Void)
+      case ledger
       case showSnackBar
     }
   }
@@ -69,22 +71,20 @@ final class DatePickerReactor: Reactor {
       default: return .empty()
       }
     case .didTapCompleteButton:
-      let destination: State.Destination
       if isDateRangeValid(
         startDate: currentState.startDate,
         endDate: currentState.endDate
       ) {
-        destination = .ledger { [weak self] in
-          guard let self = self else { return }
-          self.service.ledgerList.selectedDate(
-            start: self.currentState.startDate,
-            end: self.currentState.endDate
-          )
-        }
+        return .merge([
+          .just(.setDestination(.ledger)),
+          service.ledgerList.selectedDate(
+            start: currentState.startDate,
+            end: currentState.endDate
+          ).flatMap { Observable<Mutation>.empty() }
+        ])
       } else {
-        destination = .showSnackBar
+        return .just(.setDestination(.showSnackBar))
       }
-      return .just(.setDestination(destination))
     }
   }
   
