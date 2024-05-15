@@ -4,12 +4,15 @@ import Utility
 import DesignSystem
 import NetworkService
 
+import FlexLayout
+import PinLayout
+
 final class LedgerCell: UICollectionViewCell, ReusableView {
+  private let formatter = ContentFormatter()
   private let numberLabel: UILabel = {
     let v = UILabel()
     v.font = Fonts.body._3
     v.textColor = Colors.Blue._4
-    v.text = "00"
     return v
   }()
 
@@ -17,7 +20,6 @@ final class LedgerCell: UICollectionViewCell, ReusableView {
     let v = UILabel()
     v.font = Fonts.body._4
     v.textColor = Colors.Gray._10
-    v.text = "테스트"
     return v
   }()
   
@@ -25,15 +27,12 @@ final class LedgerCell: UICollectionViewCell, ReusableView {
     let v = UILabel()
     v.font = Fonts.body._1
     v.textColor = Colors.Gray._4
-    v.text = "2023.11.16 15:36:11"
     return v
   }()
   
   private let amountLabel: UILabel = {
     let v = UILabel()
     v.font = Fonts.body._4
-    v.textColor = Colors.Gray._10
-    v.text = "+1,500,000"
     return v
   }()
   
@@ -41,7 +40,6 @@ final class LedgerCell: UICollectionViewCell, ReusableView {
     let v = UILabel()
     v.font = Fonts.body._2
     v.textColor = Colors.Gray._6
-    v.text = "잔액 1,500,000원"
     return v
   }()
 
@@ -86,12 +84,34 @@ final class LedgerCell: UICollectionViewCell, ReusableView {
       flex.addItem().grow(1)
       flex.addItem().define { flex in
         flex.addItem(amountLabel).marginBottom(2).alignSelf(.end)
-        flex.addItem(balanceLabel)
+        flex.addItem(balanceLabel).alignSelf(.end)
       }
     }
   }
 
-  func configure(with item: Any) -> Self {
+  func configure(with item: Ledger) -> Self {
+    numberLabel.text = "\(item.order)"
+    titleLabel.text = item.storeInfo
+    let balance = formatter.amount(String(item.balance)) ?? "0"
+    balanceLabel.text = "잔액 \(balance)원"
+    let value = item.paymentDate.prefix(19).split(separator: "T")
+    let date = String(value[0]).replacingOccurrences(of: "-", with: ".")
+    let time = String(value[1])
+    dateLabel.text = date + " " + time
+    let amount = formatter.amount(String(item.amount)) ?? "0"
+    switch item.fundType {
+    case .income:
+      amountLabel.textColor = Colors.Gray._10
+      amountLabel.text = "+\(amount)원"
+    case .expense:
+      amountLabel.textColor = Colors.Red._3
+      amountLabel.text = "-\(amount)원"
+    }
+    
+    numberLabel.flex.markDirty()
+    titleLabel.flex.markDirty()
+    balanceLabel.flex.markDirty()
+    amountLabel.flex.markDirty()
     contentView.setNeedsLayout()
     return self
   }

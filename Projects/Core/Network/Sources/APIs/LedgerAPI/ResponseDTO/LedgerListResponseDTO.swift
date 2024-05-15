@@ -7,7 +7,6 @@ struct LedgerListResponseDTO: Responsable {
   
   var toEntity: LedgerList {
     return LedgerList(
-      id: id,
       totalBalance: totalBalance,
       ledgers: ledgerInfoViewDetails.map { $0.toEntity }
     )

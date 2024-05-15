@@ -48,9 +48,9 @@ extension LedgerAPI: TargetType {
     case .deleteImage(let param):
       return .requestJSONEncodable(param)
     case .ledgerList(_, let param):
-      return .requestJSONEncodable(param)
+      return .requestQuery(param)
     case .ledgerFilterList(_, let param):
-      return .requestJSONEncodable(param)
+      return .requestQuery(param)
     case .ledgerDetail(_):
       return .plain
     }

@@ -20,15 +20,14 @@ final class LedgerTabVC: BaseVC, View {
     v.textColor = Colors.Gray._7
     return v
   }()
-  private let totalAmountLabel: UILabel = {
+  private let totalBalanceLabel: UILabel = {
     let v = UILabel()
-    v.text = "0원"
     v.numberOfLines = 0
     v.font = Fonts.heading._5
     v.textColor = Colors.Gray._10
     return v
   }()
-  private let dateBackgroundView: UIView = {
+  private let dateRangeView: UIView = {
     let v = UIView()
     v.backgroundColor = Colors.Gray._1
     v.layer.cornerRadius = 8
@@ -36,7 +35,6 @@ final class LedgerTabVC: BaseVC, View {
   }()
   private let dateRangeLabel: UILabel = {
     let v = UILabel()
-    v.text = "2023년 12월 ~ 2024년 5월"
     v.font = Fonts.body._2
     v.textColor = Colors.Gray._6
     return v
@@ -57,10 +55,6 @@ final class LedgerTabVC: BaseVC, View {
     return v
   }()
   
-  override func viewDidLayoutSubviews() {
-    super.viewDidLayoutSubviews()
-  }
-  
   override func setupUI() {
     super.setupUI()
     floatingButton.addWriteAction { [weak self] in
@@ -74,13 +68,13 @@ final class LedgerTabVC: BaseVC, View {
       flex.addItem().direction(.row).define { flex in
         flex.addItem().justifyContent(.center).define { flex in
           flex.addItem(amountGuideLabel)
-          flex.addItem(totalAmountLabel)
+          flex.addItem(totalBalanceLabel)
             .maxWidth(UIScreen.main.bounds.width - 194)
         }
         flex.addItem().grow(1)
         flex.addItem(UIImageView(image: Images.mongLedger))
       }
-      flex.addItem(dateBackgroundView).direction(.row).define { flex in
+      flex.addItem(dateRangeView).direction(.row).define { flex in
         flex.addItem(dateRangeLabel).marginRight(8).paddingVertical(10)
         flex.addItem(UIImageView(image: Images.chevronDown)).size(16)
       }.justifyContent(.center).alignItems(.center)
@@ -97,17 +91,40 @@ final class LedgerTabVC: BaseVC, View {
   }
   
   func bind(reactor: LedgerTabReactor) {
-    Observable.just(0...11)
-      .bind(to: ledgerList.rx.items) { (view, row, element) in
+    dateRangeView.rx.tapGesture
+      .map { _ in Reactor.Action.didTapDateRangeView }
+      .bind(to: reactor.action)
+      .disposed(by: disposeBag)
+    
+    reactor.pulse(\.$totalBalance)
+      .distinctUntilChanged()
+      .map { "\($0)원" }
+      .bind(to: totalBalanceLabel.rx.text)
+      .disposed(by: disposeBag)
+    
+    reactor.pulse(\.$ledgers)
+      .bind(to: ledgerList.rx.items) { view, row, element in
         let indexPath = IndexPath(row: row, section: 0)
         let cell = view.dequeueCell(LedgerCell.self, for: indexPath)
-        return cell
+        return cell.configure(with: element)
       }
       .disposed(by: disposeBag)
     
-    dateBackgroundView.rx.tapGesture
-      .bind(with: self) { owner, _ in
-        owner.coordinator?.present(.datePicker)
+    reactor.pulse(\.$dateRange)
+      .bind(with: self) { owner, dateRange in
+        owner.dateRangeLabel.text = "\(dateRange.start.year)년 \(dateRange.start.month)월 ~ \(dateRange.end.year)년 \(dateRange.end.month)월"
+        owner.dateRangeLabel.flex.markDirty()
+        owner.view.setNeedsLayout()
+      }
+      .disposed(by: disposeBag)
+    
+    reactor.pulse(\.$destination)
+      .compactMap { $0 }
+      .bind(with: self) { owner, destination in
+        switch destination {
+        case let .datePicker(start, end):
+          owner.coordinator?.present(.datePicker(start: start, end: end))
+        }
       }
       .disposed(by: disposeBag)
   }

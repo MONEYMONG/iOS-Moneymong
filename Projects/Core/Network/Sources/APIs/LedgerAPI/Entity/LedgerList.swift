@@ -1,7 +1,6 @@
 import Foundation
 
 public struct LedgerList {
-  let id: Int
-  let totalBalance: Int
-  let ledgers: [Ledger]
+  public let totalBalance: Int
+  public let ledgers: [Ledger]
 }
