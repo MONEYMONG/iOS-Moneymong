@@ -117,8 +117,8 @@ final class DatePickerSheetVC: BottomSheetVC, View {
       .compactMap { $0 }
       .bind(with: self) { owner, destination in
         switch destination {
-        case .ledger:
-          owner.dismiss()
+        case let .ledger(completion):
+          owner.dismiss(completion: completion)
         case .showSnackBar:
           SnackBarManager.show(title: "올바른 범위로 기간을 설정해주세요!")
         }
@@ -155,6 +155,6 @@ extension DatePickerSheetVC: UIPickerViewDataSource, UIPickerViewDelegate{
     }
   
   func pickerView(_ pickerView: UIPickerView, didSelectRow row: Int, inComponent component: Int) {
-    reactor?.action.onNext(.selectDate(row, component))
+    reactor?.action.onNext(.selectDate(row: row, component: component))
   }
 }
