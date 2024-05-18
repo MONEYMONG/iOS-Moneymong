@@ -129,15 +129,14 @@ final class LedgerTabReactor: Reactor {
   private func requestLedgerList() -> Observable<Mutation> {
     return .concat([
       .just(.setLoading(true)),
-      .task { [weak self] in
-        guard let self else { throw MoneyMongError.unknown("알 수 없는 에러가 발생했습니다") }
-        return try await self.ledgerRepo.fetchLedgerList(
-          id: self.currentState.agencyID, // 소속 ID
-          start: self.currentState.dateRange.start,
-          end: self.currentState.dateRange.end,
+      .task {
+        return try await ledgerRepo.fetchLedgerList(
+          id: currentState.agencyID, // 소속 ID
+          start: currentState.dateRange.start,
+          end: currentState.dateRange.end,
           page: 0, // 0부터
           limit: 20, // 아이템 수
-          fundType: self.currentState.filterType
+          fundType: currentState.filterType
         )
       }
         .map { .requestLedgerList($0) }
