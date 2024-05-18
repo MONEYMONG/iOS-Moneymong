@@ -1,10 +1,12 @@
+import NetworkService
+
 import ReactorKit
 
 final class DatePickerReactor: Reactor {
   enum Action {
     case viewWillAppear
     case selectDateLabel(PickerState)
-    case selectDate(Int, Int)
+    case selectDate(row: Int, component: Int)
     case didTapCompleteButton
   }
 
@@ -13,12 +15,12 @@ final class DatePickerReactor: Reactor {
     case setYear(Int)
     case setMonth(Int)
     case setPickerRow
-    case setDestination
+    case setDestination(State.Destination)
   }
 
   struct State {
     @Pulse var selectedDateType: PickerState = .start
-    @Pulse var pickerRow: (Int, Int)?
+    @Pulse var pickerRow: (year: Int, month: Int)?
     @Pulse var startDate: DateInfo
     @Pulse var endDate: DateInfo
     @Pulse var isWarning = false
@@ -30,7 +32,7 @@ final class DatePickerReactor: Reactor {
     }
   }
   
-  var yearList: [Int] = Array(2015...2024).reversed()
+  var yearList: [Int] = Array(2010...2024).reversed()
   var monthList: [Int] = Array(1...12).reversed()
   
   enum PickerState {
@@ -39,12 +41,18 @@ final class DatePickerReactor: Reactor {
   }
 
   let initialState: State
+  private let service: LedgerServiceInterface
 
-  init(startDate: DateInfo, endDate: DateInfo) {
+  init(
+    startDate: DateInfo,
+    endDate: DateInfo,
+    ledgerService: LedgerServiceInterface
+  ) {
     self.initialState = State(
       startDate: startDate,
       endDate: endDate
     )
+    self.service = ledgerService
   }
   
   func mutate(action: Action) -> Observable<Mutation> {
@@ -63,7 +71,20 @@ final class DatePickerReactor: Reactor {
       default: return .empty()
       }
     case .didTapCompleteButton:
-      return .just(.setDestination)
+      if isDateRangeValid(
+        startDate: currentState.startDate,
+        endDate: currentState.endDate
+      ) {
+        return .merge([
+          .just(.setDestination(.ledger)),
+          service.ledgerList.selectedDate(
+            start: currentState.startDate,
+            end: currentState.endDate
+          ).flatMap { Observable<Mutation>.empty() }
+        ])
+      } else {
+        return .just(.setDestination(.showSnackBar))
+      }
     }
   }
   
@@ -99,15 +120,11 @@ final class DatePickerReactor: Reactor {
       case .end:
         newState.endDate.month = month
       }
-    case .setDestination:
-      if checkDate(startDate: state.startDate, endDate: state.endDate) {
-        newState.destination = .showSnackBar
-      } else {
-        newState.destination = .ledger
-      }
+    case let .setDestination(destination):
+      newState.destination = destination
     }
     if newState.selectedDateType == .end {
-      newState.isWarning = checkDate(
+      newState.isWarning = !isDateRangeValid(
         startDate: newState.startDate,
         endDate: newState.endDate
       )
@@ -115,12 +132,12 @@ final class DatePickerReactor: Reactor {
     return newState
   }
   
-  func checkDate(startDate: DateInfo, endDate: DateInfo) -> Bool {
+  func isDateRangeValid(startDate: DateInfo, endDate: DateInfo) -> Bool {
     if startDate.year > endDate.year {
-      return true
+      return false
     } else if startDate.year == endDate.year && startDate.month > endDate.month {
-      return true
+      return false
     }
-    return false
+    return true
   }
 }

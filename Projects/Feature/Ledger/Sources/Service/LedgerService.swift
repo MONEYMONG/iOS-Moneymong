@@ -4,9 +4,11 @@ import NetworkService
 protocol LedgerServiceInterface {
   var agency: AgencyServiceInterface { get }
   var member: MemberServiceInterface { get }
+  var ledgerList: LedgerListServiceInterface { get }
 }
 
 final class LedgerService: LedgerServiceInterface {
   let agency: AgencyServiceInterface = AgencyService()
   let member: MemberServiceInterface = MemberService()
+  let ledgerList: LedgerListServiceInterface = LedgerListService()
 }

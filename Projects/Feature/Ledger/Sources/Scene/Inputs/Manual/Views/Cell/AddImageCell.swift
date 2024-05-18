@@ -36,7 +36,7 @@ final class AddImageCell: UICollectionViewCell, ReusableView {
       .justifyContent(.center)
       .alignItems(.center)
       .define { flex in
-      flex.addItem(UIImageView(image: Images.plusCircleFill))
+      flex.addItem(UIImageView(image: Images.plusCircleFillBlue))
     }
   }
 }

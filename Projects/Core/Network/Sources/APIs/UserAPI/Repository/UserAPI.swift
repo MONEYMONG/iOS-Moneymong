@@ -30,7 +30,7 @@ extension UserAPI: TargetType {
   var task: HTTPTask {
     switch self {
     case .user: return .plain
-    case let .logout(param): return .requestJSONEncodable(param)
+    case let .logout(param): return .requestJSONEncodable(params: param)
     case .withdrawl: return .plain
     }
   }

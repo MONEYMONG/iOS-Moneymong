@@ -22,7 +22,7 @@ extension SignAPI: TargetType {
   var task: HTTPTask {
     switch self {
     case .sign(let requst):
-      return .requestJSONEncodable(requst)
+      return .requestJSONEncodable(params: requst)
     }
   }
 
