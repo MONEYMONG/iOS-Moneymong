@@ -22,6 +22,7 @@ public enum Images {
   public static var mongSplash = UIImage(named: "mong.splash", in: Bundle.module, with: nil)
   public static var mongCode = UIImage(named: "mong.code", in: Bundle.module, with: nil)
   public static var mongParty = UIImage(named: "mong.party", in: Bundle.module, with: nil)
+  public static var mongLedgerEmpty = UIImage(named: "mong.ledger.empty", in: Bundle.module, with: nil)
   
   public static var accountRecord = UIImage(named: "accountRecord", in: Bundle.module, with: nil)
   public static var agency = UIImage(named: "agency", in: Bundle.module, with: nil)

@@ -54,12 +54,14 @@ final class LedgerTabVC: BaseVC, View {
     v.register(LedgerCell.self)
     return v
   }()
+  private let emptyView = LedgerListEmptyView()
   
   override func setupUI() {
     super.setupUI()
     floatingButton.addWriteAction { [weak self] in
       self?.coordinator?.present(.inputManual)
     }
+    ledgerList.backgroundView = emptyView
   }
   
   override func setupConstraints() {
@@ -113,6 +115,12 @@ final class LedgerTabVC: BaseVC, View {
         let cell = view.dequeueCell(LedgerCell.self, for: indexPath)
         return cell.configure(with: element)
       }
+      .disposed(by: disposeBag)
+    
+    reactor.pulse(\.$ledgers)
+      .observe(on: MainScheduler.instance)
+      .map { !$0.isEmpty }
+      .bind(to: emptyView.rx.isHidden)
       .disposed(by: disposeBag)
     
     reactor.pulse(\.$dateRange)
