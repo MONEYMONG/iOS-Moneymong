@@ -41,17 +41,17 @@ extension LedgerAPI: TargetType {
   var task: HTTPTask {
     switch self {
     case .create(_, let param): 
-      return .requestJSONEncodable(param)
+      return .requestJSONEncodable(params: param)
     case .uploadImage(let data):
       let multipartFormData = MultipartFormData()
       multipartFormData.append(data, withName: "file", fileName: "\(data).jpeg", mimeType: "image/jpeg")
       return .upload(multipartFormData)
     case .deleteImage(let param):
-      return .requestJSONEncodable(param)
-    case .ledgerList(_, let param):
-      return .requestQuery(param)
-    case .ledgerFilterList(_, let param):
-      return .requestQuery(param)
+      return .requestJSONEncodable(params: param)
+    case .ledgerList(_, let query):
+      return .requestJSONEncodable(query: query)
+    case .ledgerFilterList(_, let query):
+      return .requestJSONEncodable(query: query)
     case .ledgerDetail(_):
       return .plain
     }

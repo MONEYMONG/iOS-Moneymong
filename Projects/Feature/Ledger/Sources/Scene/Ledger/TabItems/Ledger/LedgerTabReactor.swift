@@ -112,7 +112,7 @@ final class LedgerTabReactor: Reactor {
     return .concat([
       .just(.setLoading(true)),
       .task { [weak self] in
-        guard let self = self else { throw MoneyMongError.unknown("알 수 없는 에러가 발생했습니다") }
+        guard let self else { throw MoneyMongError.unknown("알 수 없는 에러가 발생했습니다") }
         return try await self.ledgerRepo.fetchLedgerList(
           id: self.currentState.agencyID, // 소속 ID
           start: self.currentState.dateRange.start,

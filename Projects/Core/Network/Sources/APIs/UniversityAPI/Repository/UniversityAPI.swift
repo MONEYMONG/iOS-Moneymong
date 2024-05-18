@@ -30,7 +30,7 @@ extension UniversityAPI: TargetType {
     case .universities:
       return .plain
     case .university(let requestDTO):
-      return .requestJSONEncodable(requestDTO)
+      return .requestJSONEncodable(params: requestDTO)
     }
   }
   

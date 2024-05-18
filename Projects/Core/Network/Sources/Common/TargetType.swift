@@ -4,8 +4,7 @@ import Alamofire
 
 public enum HTTPTask {
   case plain
-  case requestJSONEncodable(Encodable)
-  case requestQuery(Encodable)
+  case requestJSONEncodable(params: Encodable? = nil, query: Encodable? = nil)
   case upload(MultipartFormData)
 }
 
@@ -45,29 +44,33 @@ extension TargetType {
     switch task {
     case .plain:
       break
-
-    case let .requestJSONEncodable(params):
-      urlRequest.httpBody = try! JSONEncoder().encode(params)
-    case .upload:
-      break
-    case let .requestQuery(params):
-      var urlComponents = URLComponents(string: fullURL)!
-      urlComponents.queryItems = []
       
-      guard let object = try? JSONEncoder().encode(params) else { break }
-      guard let dictionary = try? JSONSerialization.jsonObject(with: object)
-              as? [String: Any] else {
-        break
+    case let .requestJSONEncodable(params, query):
+      if let params {
+        urlRequest.httpBody = try! JSONEncoder().encode(params)
+
       }
       
-      dictionary
-        .forEach({ key, value in
-          let item = URLQueryItem(name: key, value: "\(value)")
-          urlComponents.queryItems?.append(item)
-        })
-      urlRequest.url = urlComponents.url
+      if let query {
+        var urlComponents = URLComponents(string: fullURL)!
+        urlComponents.queryItems = []
+        
+        guard let object = try? JSONEncoder().encode(query) else { break }
+        guard let dictionary = try? JSONSerialization.jsonObject(with: object)
+                as? [String: Any] else {
+          break
+        }
+        
+        dictionary
+          .forEach({ key, value in
+            let item = URLQueryItem(name: key, value: "\(value)")
+            urlComponents.queryItems?.append(item)
+          })
+        urlRequest.url = urlComponents.url
+      }
+    case .upload:
+      break
     }
-
     return urlRequest
   }
 }
