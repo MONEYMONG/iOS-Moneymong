@@ -6,6 +6,7 @@ final class LedgerTabReactor: Reactor {
 
   enum Action {
     case didTapDateRangeView
+    case selectedFilter(Int)
   }
 
   enum Mutation {
@@ -13,6 +14,7 @@ final class LedgerTabReactor: Reactor {
     case setDestination(State.Destination)
     case setAgencyID(Int)
     case setLoading(Bool)
+    case setFilterType(FundType?)
     case requestLedgerList(LedgerList)
   }
 
@@ -46,12 +48,26 @@ final class LedgerTabReactor: Reactor {
   func mutate(action: Action) -> Observable<Mutation> {
     switch action {
     case .didTapDateRangeView:
-        .just(.setDestination(
+        return .just(.setDestination(
           .datePicker(
             start: currentState.dateRange.start,
             end: currentState.dateRange.end
           )
         ))
+    case let .selectedFilter(index):
+      var fundType: FundType? = nil
+      switch index {
+      case 1:
+        fundType = .expense
+      case 2:
+        fundType = .income
+      default:
+        break
+      }
+      return .concat([
+        .just(.setFilterType(fundType)),
+        requestLedgerList()
+      ])
     }
   }
   
@@ -71,6 +87,8 @@ final class LedgerTabReactor: Reactor {
       newState.agencyID = id
     case let .setLoading(value):
       newState.isLoading = value
+    case let .setFilterType(fundType):
+      newState.filterType = fundType
     }
     return newState
   }

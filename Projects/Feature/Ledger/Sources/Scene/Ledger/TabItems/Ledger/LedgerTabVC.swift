@@ -1,4 +1,5 @@
 import UIKit
+import Combine
 
 import BaseFeature
 import DesignSystem
@@ -10,6 +11,7 @@ import FlexLayout
 
 final class LedgerTabVC: BaseVC, View {
   var disposeBag = DisposeBag()
+  private var cancellableBag = Set<AnyCancellable>()
   weak var coordinator: LedgerCoordinator?
 
   private let floatingButton = FloatingButton()
@@ -98,6 +100,12 @@ final class LedgerTabVC: BaseVC, View {
       .bind(to: reactor.action)
       .disposed(by: disposeBag)
     
+    filterControl.$selectedIndex
+      .sink {
+        reactor.action.onNext(.selectedFilter($0))
+      }
+      .store(in: &cancellableBag)
+    
     reactor.pulse(\.$totalBalance)
       .distinctUntilChanged()
       .map { "\($0)원" }
@@ -118,7 +126,6 @@ final class LedgerTabVC: BaseVC, View {
       .disposed(by: disposeBag)
     
     reactor.pulse(\.$ledgers)
-      .observe(on: MainScheduler.instance)
       .map { !$0.isEmpty }
       .bind(to: emptyView.rx.isHidden)
       .disposed(by: disposeBag)
