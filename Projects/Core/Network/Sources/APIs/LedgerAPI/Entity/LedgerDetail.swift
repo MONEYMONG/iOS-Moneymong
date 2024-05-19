@@ -1,16 +1,16 @@
 import Foundation
 
 public struct LedgerDetail {
-  let id: Int
-  let storeInfo: String
-  let amount: Int
-  let fundType: FundType
-  let description: String
-  let paymentDate: String
-  let receiptImageUrls: [ImageURL]
-  let documentImageUrls: [ImageURL]
-  let authorName: String
-  
+  public let id: Int
+  public let storeInfo: String
+  public let amount: Int
+  public let fundType: FundType
+  public let description: String
+  public let paymentDate: String
+  public let receiptImageUrls: [ImageURL]
+  public let documentImageUrls: [ImageURL]
+  public let authorName: String
+
   public init(
     id: Int,
     storeInfo: String,
@@ -34,7 +34,7 @@ public struct LedgerDetail {
   }
   
   public struct ImageURL {
-    let id: Int
-    let url: String
+    public let id: Int
+    public let url: String
   }
 }

@@ -17,22 +17,26 @@ final class ContentFormatter {
     guard let num = Int(value.filter { $0.isNumber }) else { return nil }
     return numberFormatter.string(from: NSNumber(value: num))
   }
-  
+
+  func convertToAmount(with value: Int) -> String? {
+    return numberFormatter.string(from: NSNumber(value: value))
+  }
+
   func convertToDate(with value: String) -> String {
     var dateString = value
     if value.last == "/" {
       dateString.removeLast()
       return dateString
     }
-    
+
     var dateArray = Array(dateString)
-    
+
     if dateArray.count == 5 {
       dateArray.insert("/", at: 4)
     } else if dateArray.count == 8 {
       dateArray.insert("/", at: 7)
     }
-    
+
     return String(dateArray)
   }
   

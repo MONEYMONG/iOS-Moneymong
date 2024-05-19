@@ -179,7 +179,8 @@ final class MemberTabReactor: Reactor {
   
   private func requestInvitationCode() -> Observable<Mutation> {
     guard let agency = currentState.agency else {
-      fatalError("소속이 없을 수 없음")
+//      fatalError("소속이 없을 수 없음")
+      return .just(.setError(.appError(errorMessage: "소속이 없을 수 없음")))
     }
     
     return .task {
@@ -191,7 +192,8 @@ final class MemberTabReactor: Reactor {
   
   private func requestMembers() -> Observable<Mutation> {
     guard let agency = currentState.agency else {
-      fatalError("소속이 없을 수 없음")
+//      fatalError("소속이 없을 수 없음")
+      return .just(.setError(.appError(errorMessage: "소속이 없을 수 없음")))
     }
     
     return .task {

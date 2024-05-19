@@ -4,6 +4,7 @@ import Alamofire
 
 enum LedgerAPI {
   case create(id: Int, param: CreateLedgerRequestDTO) // 장부 등록
+  case delete(id: Int) // 장부 삭제
   case uploadImage(Data)
   case deleteImage(param: ImageDeleteRequestDTO)
   case ledgerList(id: Int, param: LedgerListRequestDTO)
@@ -19,6 +20,7 @@ extension LedgerAPI: TargetType {
   var path: String {
     switch self {
     case .create(let id, _): return "v1/ledger/\(id)"
+    case .delete(let id): return "v1/ledger-detail/\(id)"
     case .uploadImage(_): return "v1/images"
     case .deleteImage(_): return "v1/images"
     case .ledgerList(let id, _): return "v2/ledger/\(id)"
@@ -30,6 +32,7 @@ extension LedgerAPI: TargetType {
   var method: HTTPMethod {
     switch self {
     case .create(_, _): return .post
+    case .delete(_): return .delete
     case .uploadImage(_): return .post
     case .deleteImage(_): return .delete
     case .ledgerList(_, _): return .get
@@ -42,6 +45,7 @@ extension LedgerAPI: TargetType {
     switch self {
     case .create(_, let param): 
       return .requestJSONEncodable(params: param)
+    case .delete(_): return .plain
     case .uploadImage(let data):
       let multipartFormData = MultipartFormData()
       multipartFormData.append(data, withName: "file", fileName: "\(data).jpeg", mimeType: "image/jpeg")

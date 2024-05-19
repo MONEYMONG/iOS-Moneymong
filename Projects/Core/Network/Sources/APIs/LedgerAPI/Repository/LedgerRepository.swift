@@ -17,6 +17,7 @@ public protocol LedgerRepositoryInterface {
     receiptImageUrls: [String],
     documentImageUrls: [String]
   ) async throws
+  func delete(id: Int) async throws
   func fetchLedgerList(
     id: Int,
     start: DateInfo,
@@ -63,7 +64,12 @@ public final class LedgerRepository: LedgerRepositoryInterface {
     )
     _ = try await networkManager.request(target: targetType, of: LedgerDetailResponseDTO.self)
   }
-  
+
+  public func delete(id: Int) async throws {
+    let targetType = LedgerAPI.delete(id: id)
+    try await networkManager.request(target: targetType)
+  }
+
   public func imageUpload(_ data: Data) async throws -> ImageInfo {
     let targetType = LedgerAPI.uploadImage(data)
     return try await networkManager.request(target: targetType, of: ImageResponseDTO.self).toEntity

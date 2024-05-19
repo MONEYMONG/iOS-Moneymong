@@ -8,6 +8,7 @@ import Utility
 import ReactorKit
 import PinLayout
 import FlexLayout
+import NetworkService
 
 final class LedgerTabVC: BaseVC, View {
   var disposeBag = DisposeBag()
@@ -105,7 +106,13 @@ final class LedgerTabVC: BaseVC, View {
         reactor.action.onNext(.selectedFilter($0))
       }
       .store(in: &cancellableBag)
-    
+
+    ledgerList.rx.modelSelected(Ledger.self)
+      .bind(with: self) { owner, ledger in
+        owner.coordinator?.present(.detail(ledger))
+      }
+      .disposed(by: disposeBag)
+
     reactor.pulse(\.$totalBalance)
       .distinctUntilChanged()
       .map { "\($0)원" }

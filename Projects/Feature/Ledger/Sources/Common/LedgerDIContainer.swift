@@ -37,7 +37,7 @@ public final class LedgerDIContainer {
     vc.coordinator = coordinator
     return vc
   }
-  
+
   private func ledgerTab(with coordinator: LedgerCoordinator) -> UIViewController {
     let vc = LedgerTabVC()
     vc.title = "장부"
@@ -92,6 +92,13 @@ public final class LedgerDIContainer {
       endDate: end,
       ledgerService: ledgerService
     )
+    return vc
+  }
+
+  func detail(with coordinator: LedgerCoordinator, ledgerID: Int) -> DetailVC {
+    let vc = DetailVC()
+    vc.coordinator = coordinator
+    vc.reactor = DetailReactor(ledgerID: ledgerID, ledgerRepository: ledgerRepo)
     return vc
   }
 }
