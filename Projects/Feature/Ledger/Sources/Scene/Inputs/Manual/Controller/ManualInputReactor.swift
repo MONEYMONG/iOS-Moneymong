@@ -41,7 +41,7 @@ final class ManualInputReactor: Reactor {
   }
   
   struct State {
-    @Pulse var agencyId: Int
+    let agencyId: Int
     @Pulse var images: [ImageSectionModel.Model] = [
       .init(model: .receipt, items: [.button(.receipt)]),
       .init(model: .document, items: [.button(.document)])
@@ -80,10 +80,14 @@ final class ManualInputReactor: Reactor {
   private let repo: LedgerRepositoryInterface
   private let formatter = ContentFormatter()
   
-  init(repo: LedgerRepositoryInterface, ledgerService: LedgerServiceInterface) {
+  init(
+    agencyId: Int,
+    repo: LedgerRepositoryInterface,
+    ledgerService: LedgerServiceInterface
+  ) {
     self.repo = repo
     self.service = ledgerService
-    self.initialState = State(agencyId: 19)
+    self.initialState = State(agencyId: agencyId)
   }
   
   func mutate(action: Action) -> Observable<Mutation> {

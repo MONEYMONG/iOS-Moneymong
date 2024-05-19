@@ -11,9 +11,10 @@ final class ManualInputDIContainer {
     self.ledgerService = ledgerService
   }
   
-  func manualInput(with coordinator: ManualInputCoordinator) -> ManualInputVC {
+  func manualInput(with coordinator: ManualInputCoordinator, agencyId: Int) -> ManualInputVC {
     let vc = ManualInputVC()
     vc.reactor = ManualInputReactor(
+      agencyId: agencyId,
       repo: ledgerRepo,
       ledgerService: ledgerService
     )

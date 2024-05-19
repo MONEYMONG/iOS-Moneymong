@@ -26,5 +26,3 @@ final class LedgerListService: LedgerListServiceInterface {
     return .empty()
   }
 }
-
-

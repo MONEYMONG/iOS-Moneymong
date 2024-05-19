@@ -16,10 +16,13 @@ final class LedgerTabReactor: Reactor {
     case setLoading(Bool)
     case setFilterType(FundType?)
     case requestLedgerList(LedgerList)
+    case setRole(Member.Role?)
   }
 
   struct State {
+    let userID: Int
     @Pulse var agencyID: Int = 0
+    @Pulse var role: Member.Role?
     @Pulse var totalBalance: String = "0"
     @Pulse var filterType: FundType? = nil
     @Pulse var ledgers: [Ledger] = []
@@ -35,14 +38,24 @@ final class LedgerTabReactor: Reactor {
     }
   }
   
-  let initialState: State = State()
+  let initialState: State
   private let service: LedgerServiceInterface
   private let ledgerRepo: LedgerRepositoryInterface
+  private let userRepo: UserRepositoryInterface
+  private let agencyRepo: AgencyRepositoryInterface
   private let formatter = ContentFormatter()
 
-  init(ledgerService: LedgerServiceInterface, ledgerRepo: LedgerRepositoryInterface) {
+  init(
+    ledgerService: LedgerServiceInterface,
+    ledgerRepo: LedgerRepositoryInterface,
+    userRepo: UserRepositoryInterface,
+    agencyRepo: AgencyRepositoryInterface
+  ) {
     self.service = ledgerService
     self.ledgerRepo = ledgerRepo
+    self.userRepo = userRepo
+    self.agencyRepo = agencyRepo
+    self.initialState = State(userID: userRepo.fetchUserID())
   }
   
   func mutate(action: Action) -> Observable<Mutation> {
@@ -89,6 +102,8 @@ final class LedgerTabReactor: Reactor {
       newState.isLoading = value
     case let .setFilterType(fundType):
       newState.filterType = fundType
+    case let .setRole(role):
+      newState.role = role
     }
     return newState
   }
@@ -141,6 +156,11 @@ final class LedgerTabReactor: Reactor {
       }
         .map { .requestLedgerList($0) }
         .catch { _ in .empty() },
+      .task {
+        let members = try await agencyRepo.fetchMemberList(id: currentState.agencyID)
+        return members.first(where: { $0.userID == currentState.userID })?.role
+      }
+        .map { .setRole($0) },
       .just(.setLoading(false))
     ])
   }

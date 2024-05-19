@@ -62,7 +62,10 @@ final class LedgerTabVC: BaseVC, View {
   override func setupUI() {
     super.setupUI()
     floatingButton.addWriteAction { [weak self] in
-      self?.coordinator?.present(.inputManual)
+      guard let self else { return }
+      if let id = reactor?.currentState.agencyID {
+        self.coordinator?.present(.inputManual(id))
+      }
     }
     ledgerList.backgroundView = emptyView
   }
@@ -110,6 +113,14 @@ final class LedgerTabVC: BaseVC, View {
     ledgerList.rx.modelSelected(Ledger.self)
       .bind(with: self) { owner, ledger in
         owner.coordinator?.present(.detail(ledger))
+      }
+      .disposed(by: disposeBag)
+
+    reactor.pulse(\.$role)
+      .compactMap { $0 }
+      .observe(on: MainScheduler.instance)
+      .bind(with: self) { owner, role in
+        owner.floatingButton.isHidden = role == .member
       }
       .disposed(by: disposeBag)
 

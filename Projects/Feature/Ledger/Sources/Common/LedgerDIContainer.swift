@@ -43,7 +43,9 @@ public final class LedgerDIContainer {
     vc.title = "장부"
     vc.reactor = LedgerTabReactor(
       ledgerService: ledgerService,
-      ledgerRepo: ledgerRepo
+      ledgerRepo: ledgerRepo,
+      userRepo: userRepo,
+      agencyRepo: agencyRepo
     )
     vc.coordinator = coordinator
     return vc
@@ -61,7 +63,7 @@ public final class LedgerDIContainer {
     return vc
   }
   
-  func manualInput(with coordinator: Coordinator) -> UIViewController {
+  func manualInput(with coordinator: Coordinator, agencyId: Int) -> UIViewController {
     let vc = UINavigationController()
     let manualInputCoordinator = ManualInputCoordinator(
       navigationController: vc,
@@ -69,7 +71,7 @@ public final class LedgerDIContainer {
     )
     coordinator.childCoordinators.append(manualInputCoordinator)
     manualInputCoordinator.parentCoordinator = coordinator
-    manualInputCoordinator.start(animated: false)
+    manualInputCoordinator.start(agencyId: agencyId, animated: false)
     return vc
   }
   

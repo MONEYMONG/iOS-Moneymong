@@ -6,7 +6,7 @@ import DesignSystem
 final class ManualInputCoordinator: Coordinator {
   var navigationController: UINavigationController
   private let diContainer: ManualInputDIContainer
-  weak var parentCoordinator: (Coordinator)?
+  weak var parentCoordinator: Coordinator?
   var childCoordinators: [Coordinator] = []
   
   enum Scene {
@@ -19,8 +19,8 @@ final class ManualInputCoordinator: Coordinator {
     self.diContainer = diContainer
   }
 
-  func start(animated: Bool) {
-    manualInput(animated: animated)
+  func start(agencyId: Int, animated: Bool) {
+    manualInput(agencyId: agencyId, animated: animated)
   }
   
   func dismiss(animated: Bool) {
@@ -38,8 +38,8 @@ final class ManualInputCoordinator: Coordinator {
 }
 
 extension ManualInputCoordinator {
-  private func manualInput(animated: Bool) {
-    let vc = diContainer.manualInput(with: self)
+  private func manualInput(agencyId: Int, animated: Bool) {
+    let vc = diContainer.manualInput(with: self, agencyId: agencyId)
     navigationController.viewControllers = [vc]
   }
   
