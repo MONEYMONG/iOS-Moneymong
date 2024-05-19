@@ -159,6 +159,11 @@ extension MMTextView {
     ))
   }
 
+  public func setText(to text: String) {
+    placeholderLabel.isHidden = !text.isEmpty
+    textView.text = text
+  }
+
   public func setPlaceholder(to text: String) {
     placeholderLabel.text = text
   }

@@ -37,11 +37,14 @@ public final class LedgerDIContainer {
     vc.coordinator = coordinator
     return vc
   }
-  
+
   private func ledgerTab(with coordinator: LedgerCoordinator) -> UIViewController {
     let vc = LedgerTabVC()
     vc.title = "장부"
-    vc.reactor = LedgerTabReactor()
+    vc.reactor = LedgerTabReactor(
+      ledgerService: ledgerService,
+      ledgerRepo: ledgerRepo
+    )
     vc.coordinator = coordinator
     return vc
   }
@@ -62,7 +65,7 @@ public final class LedgerDIContainer {
     let vc = UINavigationController()
     let manualInputCoordinator = ManualInputCoordinator(
       navigationController: vc,
-      diContainer: ManualInputDIContainer(repo: ledgerRepo)
+      diContainer: ManualInputDIContainer(repo: ledgerRepo, ledgerService: ledgerService)
     )
     coordinator.childCoordinators.append(manualInputCoordinator)
     manualInputCoordinator.parentCoordinator = coordinator
@@ -82,11 +85,12 @@ public final class LedgerDIContainer {
     return vc
   }
   
-  func datePicker() -> DatePickerSheetVC {
+  func datePicker(start: DateInfo, end: DateInfo) -> UIViewController {
     let vc = DatePickerSheetVC()
     vc.reactor = DatePickerReactor(
-      startDate: .init(year: 2023, month: 1),
-      endDate: .init(year: 2023, month: 6)
+      startDate: start,
+      endDate: end,
+      ledgerService: ledgerService
     )
     return vc
   }
@@ -99,6 +103,13 @@ public final class LedgerDIContainer {
       userRepo: userRepo,
       service: ledgerService
     )
+    return vc
+  }
+
+  func detail(with coordinator: LedgerCoordinator, ledgerID: Int) -> DetailVC {
+    let vc = DetailVC()
+    vc.coordinator = coordinator
+    vc.reactor = DetailReactor(ledgerID: ledgerID, ledgerRepository: ledgerRepo)
     return vc
   }
 }

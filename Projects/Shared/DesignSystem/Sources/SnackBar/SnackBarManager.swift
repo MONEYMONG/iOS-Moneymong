@@ -8,10 +8,15 @@ public final class SnackBarManager {
   static var bottomConstraints: NSLayoutConstraint?
   
   /// snackBar를 애니메이션과 함께 보여줌
-  public static func show(title: String, action: (() -> Void)? = nil) {
+  public static func show(
+    title: String,
+    action: (() -> Void)? = nil,
+    impact: UINotificationFeedbackGenerator.FeedbackType = .success
+  ) {
     let snackBar = MMSnackBar()
     snackBar.configure(title: title, action: action)
-    
+    HapticManager.shared.hapticNotification(type: impact)
+
     guard let view = UIWindow.firstWindow?.rootViewController?.topViewController().view else {
       return
     }

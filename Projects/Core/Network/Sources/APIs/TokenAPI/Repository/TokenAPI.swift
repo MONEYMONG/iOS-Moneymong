@@ -25,7 +25,7 @@ extension TokenAPI: TargetType {
   var task: HTTPTask {
     switch self {
     case .token(let refreshToken):
-      return .requestJSONEncodable(refreshToken)
+      return .requestJSONEncodable(params: refreshToken)
     }
   }
 

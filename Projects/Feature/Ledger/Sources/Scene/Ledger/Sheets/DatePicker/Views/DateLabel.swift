@@ -1,6 +1,7 @@
 import UIKit
 
 import DesignSystem
+import NetworkService
 
 import PinLayout
 import FlexLayout

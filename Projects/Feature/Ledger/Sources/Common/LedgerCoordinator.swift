@@ -14,7 +14,8 @@ public final class LedgerCoordinator: Coordinator {
     case editMember(Int, Member)
     case alert(title: String, subTitle: String?, type: MMAlerts.`Type`)
     case inputManual
-    case datePicker
+    case datePicker(start: DateInfo, end: DateInfo)
+    case detail(Ledger)
     case selectAgency
   }
 
@@ -30,13 +31,20 @@ public final class LedgerCoordinator: Coordinator {
   func present(_ scene: Scene, animated: Bool = true) {
     switch scene {
     case .inputManual: manualInput(animated: animated)
-    case .datePicker: datePicker()
+    case let .datePicker(start, end):
+      datePicker(start: start, end: end)
     case .selectAgency: selectAgencySheet()
     case let .editMember(id, member):
       editMember(agencyID: id, member: member)
     case let .alert(title, subTitle, type):
       AlertsManager.show(title: title, subTitle: subTitle, type: type)
+    case let .detail(ledger):
+      detail(ledgerID: ledger.id)
     }
+  }
+
+  func pop(animated: Bool = true) {
+    navigationController.popViewController(animated: animated)
   }
 }
 
@@ -52,8 +60,8 @@ extension LedgerCoordinator {
     navigationController.present(vc, animated: animated)
   }
   
-  private func datePicker() {
-    let vc = diContainer.datePicker()
+  private func datePicker(start: DateInfo, end: DateInfo) {
+    let vc = diContainer.datePicker(start: start, end: end)
     vc.modalPresentationStyle = .overFullScreen
     navigationController.present(vc, animated: false)
   }
@@ -70,5 +78,10 @@ extension LedgerCoordinator {
     vc.modalPresentationStyle = .overFullScreen
     vc.modalTransitionStyle = .crossDissolve
     navigationController.present(vc, animated: animated)
+  }
+
+  private func detail(ledgerID: Int, animated: Bool = true) {
+    let vc = diContainer.detail(with: self, ledgerID: ledgerID)
+    navigationController.pushViewController(vc, animated: animated)
   }
 }
