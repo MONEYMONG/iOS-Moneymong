@@ -49,13 +49,16 @@ final class JoinCompleteVC: BaseVC, View {
     
     // Action
     navigationItem.rightBarButtonItem?.rx.tap
+      .throttle(.seconds(1), latest: false, scheduler: MainScheduler.instance)
       .bind(with: self) { owner, _ in
         owner.coordinator?.dismiss()
       }
       .disposed(by: disposeBag)
     
     confirmButton.rx.tap
+      .throttle(.seconds(1), latest: false, scheduler: MainScheduler.instance)
       .bind(with: self) { owner, _ in
+        owner.coordinator?.dismiss(animated: false)
         owner.coordinator?.goLedger()
       }
       .disposed(by: disposeBag)

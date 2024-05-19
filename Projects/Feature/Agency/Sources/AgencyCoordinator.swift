@@ -51,13 +51,12 @@ public final class AgencyCoordinator: Coordinator {
   }
   
   func goLedger() {
-    // TODO: 상위코디네이터랑 연결!
-    print("GoLedger")
+    parentCoordinator?.move(to: .agency)
   }
   
   func goCreateLedger() {
-    // TODO: 상위코디네이터랑 연결!
-    print("Go Create Ledger")
+    // TODO: 동아리 운영비 등록하러 가기 화면이 떠야함..!
+    parentCoordinator?.move(to: .agency)
   }
 }
 

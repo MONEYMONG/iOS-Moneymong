@@ -3,6 +3,7 @@ import UIKit
 public enum Scene {
   case main
   case login
+  case agency
 }
 
 public protocol Coordinator: AnyObject {

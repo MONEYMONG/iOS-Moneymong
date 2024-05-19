@@ -82,11 +82,22 @@ public final class LedgerDIContainer {
     return vc
   }
   
-  func datePicker() -> UIViewController {
+  func datePicker() -> DatePickerSheetVC {
     let vc = DatePickerSheetVC()
     vc.reactor = DatePickerReactor(
       startDate: .init(year: 2023, month: 1),
       endDate: .init(year: 2023, month: 6)
+    )
+    return vc
+  }
+  
+  func selectAgencySheet(with coordinator: LedgerCoordinator) -> SelectAgencySheetVC {
+    let vc = SelectAgencySheetVC()
+    vc.coordinator = coordinator
+    vc.reactor = SelectAgencySheetReactor(
+      agencyRepo: agencyRepo,
+      userRepo: userRepo,
+      service: ledgerService
     )
     return vc
   }

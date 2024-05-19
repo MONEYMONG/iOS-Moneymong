@@ -48,7 +48,7 @@ final class EditMemberReactor: Reactor {
   func mutate(action: Action) -> Observable<Mutation> {
     switch action {
     case .tapKickOut:
-      DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
+      DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
         _ = self.ledgerService.member.kickOff(self.currentState.member.userID)
       }
       return .just(.setDestination(.dismiss))

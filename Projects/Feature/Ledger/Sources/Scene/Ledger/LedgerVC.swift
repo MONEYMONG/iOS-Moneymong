@@ -66,8 +66,8 @@ public final class LedgerVC: BaseVC, View {
       .disposed(by: disposeBag)
     
     agencyButton.rx.tap
-      .bind { _ in
-        reactor.action.onNext(.requestMyAgencies)
+      .bind(with: self) { owner, _ in
+        owner.coordinator?.present(.selectAgency)
       }
       .disposed(by: disposeBag)
   }

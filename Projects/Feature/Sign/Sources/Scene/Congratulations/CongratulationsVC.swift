@@ -72,7 +72,7 @@ final class CongratulationsVC: BaseVC, View {
 
   func bind(reactor: CongratulationsReactor) {
     confirmButton.rx.tap
-      .throttle(.seconds(1), scheduler: MainScheduler.instance)
+      .throttle(.seconds(1), latest: false, scheduler: MainScheduler.instance)
       .map { Reactor.Action.confirm }
       .bind(to: reactor.action)
       .disposed(by: disposeBag)

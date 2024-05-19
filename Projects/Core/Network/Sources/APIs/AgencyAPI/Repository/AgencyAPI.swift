@@ -19,7 +19,7 @@ extension AgencyAPI: TargetType {
 
   var path: String {
     switch self {
-    case .list: return "agencies"
+    case .list: return "agencies?size=20"
     case .create: return "agencies"
     case let .memberList(id): return "agencies/\(id)/agency-users"
     case let .changeRole(id, _): return "agencies/\(id)/agency-users/roles"
@@ -51,7 +51,7 @@ extension AgencyAPI: TargetType {
     case let .create(param): return .requestJSONEncodable(param)
     case .memberList: return .plain
     case let .changeRole(_, param): return .requestJSONEncodable(param)
-    case .kickout: return .plain
+    case let .kickout(_, param): return .requestJSONEncodable(param)
     case .myAgency: return .plain
     case .code: return .plain
     case let .certificateCode(_, param): return .requestJSONEncodable(param)

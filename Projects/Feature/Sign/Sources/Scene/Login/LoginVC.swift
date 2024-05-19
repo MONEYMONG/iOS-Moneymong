@@ -163,13 +163,13 @@ final class LoginVC: BaseVC, View {
       .disposed(by: disposeBag)
 
     appleLoginButton.rx.tap
-      .throttle(.seconds(1), scheduler: MainScheduler.instance)
+      .throttle(.seconds(1), latest: false, scheduler: MainScheduler.instance)
       .map { Reactor.Action.login(.apple) }
       .bind(to: reactor.action)
       .disposed(by: disposeBag)
 
     kakaoLoginButton.rx.tap
-      .throttle(.seconds(1), scheduler: MainScheduler.instance)
+      .throttle(.seconds(1), latest: false, scheduler: MainScheduler.instance)
       .map { Reactor.Action.login(.kakao) }
       .bind(to: reactor.action)
       .disposed(by: disposeBag)

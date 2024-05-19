@@ -23,12 +23,9 @@ public final class AgencyListVC: BaseVC, View {
     let v = UICollectionView(frame: .zero, collectionViewLayout: flowLayout)
     v.register(AgencyCell.self)
     v.backgroundColor = Colors.Gray._1
+    v.backgroundView = EmptyAgencyView()
     return v
   }()
-  
-  private let emptyView = EmptyAgencyView()
-  
-  private let button = UIButton()
   
   private let createAgencyButton: UIButton = {
     let v = UIButton()
@@ -53,7 +50,6 @@ public final class AgencyListVC: BaseVC, View {
 
     rootContainer.flex.justifyContent(.center).alignItems(.center).define { flex in
       flex.addItem(collectionView).width(100%).height(100%)
-      flex.addItem(emptyView).position(.absolute).width(100%).height(100%).backgroundColor(Colors.White._1)
       flex.addItem(createAgencyButton).position(.absolute).size(70).right(14).bottom(tabHeight)
     }
   }
@@ -75,11 +71,13 @@ public final class AgencyListVC: BaseVC, View {
       .disposed(by: disposeBag)
     
     collectionView.rx.modelSelected(Agency.self)
+      .throttle(.seconds(1), latest: false, scheduler: MainScheduler.instance)
       .map { Reactor.Action.tap($0) }
       .bind(to: reactor.action)
       .disposed(by: disposeBag)
     
     createAgencyButton.rx.tap
+      .throttle(.seconds(1), latest: false, scheduler: MainScheduler.instance)
       .bind(with: self) { owner, _ in
         owner.coordinator?.present(.createAgency)
       }
@@ -93,13 +91,21 @@ public final class AgencyListVC: BaseVC, View {
     reactor.pulse(\.$items)
       .map(\.isEmpty)
       .observe(on: MainScheduler.instance)
-      .bind(to: emptyView.isVisable)
+      .bind(with: self) { owner, isEmpty in
+        owner.collectionView.backgroundView?.isHidden = !isEmpty
+      }
+      .disposed(by: disposeBag)
+    
+    reactor.pulse(\.$isLoading)
+      .observe(on: MainScheduler.instance)
+      .bind(to: rx.isLoading)
       .disposed(by: disposeBag)
     
     reactor.pulse(\.$error)
       .compactMap { $0 }
       .observe(on: MainScheduler.instance)
       .bind(with: self) { owner, error in
+        owner.coordinator?.present(.alert(title: "네트워크에러", subTitle: nil, okAction: { }))
         print(error)
       }
       .disposed(by: disposeBag)

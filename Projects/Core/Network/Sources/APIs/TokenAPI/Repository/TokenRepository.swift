@@ -11,8 +11,8 @@ public final class TokenRepository: TokenRepositoryInterface {
   private let localStorage: LocalStorageInterface
 
   public init(
-    networkManager: NetworkManagerInterfacae = NetworkManager(),
-    localStorage: LocalStorageInterface = LocalStorageManager()
+    networkManager: NetworkManagerInterfacae,
+    localStorage: LocalStorageInterface
   ) {
     self.networkManager = networkManager
     self.localStorage = localStorage
@@ -20,7 +20,7 @@ public final class TokenRepository: TokenRepositoryInterface {
 
   // 저장된 refreshToken 없을 경우 처리해줘야함
   public func token() async throws -> Token {
-    let refreshToken = localStorage.read(to: .refreshToken) ?? ""
+    let refreshToken = localStorage.refreshToken ?? ""
     let targetType = TokenAPI.token(refreshToken: refreshToken)
     let dto = try await networkManager.request(target: targetType, of: TokenResponseDTO.self)
     return dto.toEntity

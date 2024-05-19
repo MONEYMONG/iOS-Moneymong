@@ -29,8 +29,6 @@ public enum Images {
   
   public static var camera = UIImage(named: "camera", in: Bundle.module, with: nil)
   public static var check = UIImage(named: "check", in: Bundle.module, with: nil)
-  public static var checkGray = UIImage(named: "check.gray", in: Bundle.module, with: nil)
-  public static var selectedCheck = UIImage(named: "selectedCheck", in: Bundle.module, with: nil)
   public static var checkboxCheck = UIImage(named: "checkbox.check", in: Bundle.module, with: nil)
   public static var checkboxFill = UIImage(named: "checkbox.fill", in: Bundle.module, with: nil)
   public static var checkbox = UIImage(named: "checkbox", in: Bundle.module, with: nil)

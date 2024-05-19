@@ -55,7 +55,7 @@ final class CreateAgencyVC: BaseVC, View {
       flex.addItem(agencySegmentControl).marginBottom(40)
       flex.addItem(agencyTextField)
       flex.addItem().grow(1)
-      flex.addItem(createButton).height(56)
+      flex.addItem(createButton).height(56).marginBottom(12)
     }
   }
   
@@ -63,6 +63,7 @@ final class CreateAgencyVC: BaseVC, View {
     setRightItem(.closeBlack)
     // Action
     navigationItem.rightBarButtonItem?.rx.tap
+      .throttle(.seconds(1), latest: false, scheduler: MainScheduler.instance)
       .bind(with: self) { owner, _ in
         owner.coordinator?.present(.alert(
           title: "정말 나가시겠습니까?",
@@ -92,6 +93,7 @@ final class CreateAgencyVC: BaseVC, View {
       .store(in: &cancelBag)
     
     createButton.rx.tap
+      .throttle(.seconds(1), latest: false, scheduler: MainScheduler.instance)
       .map { Reactor.Action.tapCreateButton }
       .bind(to: reactor.action)
       .disposed(by: disposeBag)
@@ -118,8 +120,16 @@ final class CreateAgencyVC: BaseVC, View {
       .compactMap { $0 }
       .observe(on: MainScheduler.instance)
       .bind(with: self) { owner, value in
-        // TODO: 에러처리
+        owner.coordinator?.present(.alert(
+          title: "등록에 실패했습니다",
+          subTitle: nil,
+          okAction: { }
+        ))
       }
+      .disposed(by: disposeBag)
+    
+    reactor.pulse(\.$isLoading)
+      .bind(to: rx.isLoading)
       .disposed(by: disposeBag)
   }
 }

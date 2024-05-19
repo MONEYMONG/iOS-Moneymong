@@ -21,8 +21,8 @@ final class UniversityCell: UITableViewCell, ReusableView {
 
   private let checkButton: UIButton = {
     let button = UIButton()
-    button.setImage(Images.checkGray, for: .normal)
-    button.setImage(Images.selectedCheck, for: .selected)
+    button.setImage(Images.check?.withTintColor(Colors.Gray._3), for: .normal)
+    button.setImage(Images.check?.withTintColor(Colors.Blue._4), for: .selected)
     return button
   }()
 

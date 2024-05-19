@@ -8,8 +8,8 @@ public final class TokenRequestIntercepter: RequestInterceptor {
   private let tokenRepository: TokenRepositoryInterface
 
   public init(
-    localStorage: LocalStorageInterface = LocalStorageManager(),
-    tokenRepository: TokenRepositoryInterface = TokenRepository()
+    localStorage: LocalStorageInterface,
+    tokenRepository: TokenRepositoryInterface
   ) {
     self.localStorage = localStorage
     self.tokenRepository = tokenRepository
@@ -21,7 +21,7 @@ public final class TokenRequestIntercepter: RequestInterceptor {
     completion: @escaping (Result<URLRequest, Error>) -> Void
   ) {
     guard urlRequest.url?.absoluteString.hasPrefix("https://dev.moneymong.site/") == true,
-          let accessToken = localStorage.read(to: .accessToken) else {
+          let accessToken = localStorage.accessToken else {
       completion(.success(urlRequest))
       return
     }
@@ -63,12 +63,12 @@ public final class TokenRequestIntercepter: RequestInterceptor {
 
     do {
       let token = try await tokenRepository.token()
-      localStorage.create(to: .accessToken, value: token.accessToken)
-      localStorage.create(to: .refreshToken, value: token.refreshToken)
+      localStorage.accessToken = token.accessToken
+      localStorage.refreshToken = token.refreshToken
       completion(.retry)
     } catch {
-      localStorage.delete(to: .accessToken)
-      localStorage.delete(to: .refreshToken)
+      localStorage.accessToken = nil
+      localStorage.refreshToken = nil
       completion(.doNotRetryWithError(error))
     }
   }

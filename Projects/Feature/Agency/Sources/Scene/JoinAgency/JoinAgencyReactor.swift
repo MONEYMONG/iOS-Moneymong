@@ -8,6 +8,7 @@ final class JoinAgencyReactor: Reactor {
     let agencyName: String
     
     @Pulse var codes: [String] = ["","","","","",""]
+    
     @Pulse var destination: Destination?
     @Pulse var errorMessage: String?
     @Pulse var snackBarMessage: String?
@@ -49,12 +50,10 @@ final class JoinAgencyReactor: Reactor {
     case .requestJoinAgency:
       let code = currentState.codes.compactMap { $0 }.map { String($0) }.joined()
       return .task {
-        return try await repo.certificateCode(id: currentState.agencyID, code: code)
-      }.map {
-        .joinAgencyResponse(.success($0))
-      }.catch {
-        return .just(.joinAgencyResponse(.failure($0.toMMError)))
+        try await repo.certificateCode(id: currentState.agencyID, code: code)
       }
+      .map { .joinAgencyResponse(.success($0)) }
+      .catch { return .just(.joinAgencyResponse(.failure($0.toMMError))) }
       
     case .tapRetryButton:
       return .concat(

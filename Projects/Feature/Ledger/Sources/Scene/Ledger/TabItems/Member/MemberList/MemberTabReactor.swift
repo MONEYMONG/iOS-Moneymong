@@ -6,13 +6,15 @@ import NetworkService
 final class MemberTabReactor: Reactor {
   
   struct State {
-    @Pulse var agency: Agency?
-    @Pulse var userID: Int?
+    let userID: Int
+    @Pulse var agencyID: Int?
+    
     @Pulse var name: String?
     @Pulse var role: Member.Role?
     @Pulse var invitationCode: String?
     @Pulse var members: [Member] = []
     
+    @Pulse var isLoading = false
     @Pulse var error: MoneyMongError?
     @Pulse var snackBarMessage: String?
     @Pulse var destination: Destination?
@@ -30,17 +32,18 @@ final class MemberTabReactor: Reactor {
   }
   
   enum Mutation {
-    case setUser(id: Int, name: String)
-    case setAgency(Agency)
+    case setName(String)
+    case setAgencyID(Int)
     case setMembers([Member])
     case setRole(Member.Role)
     case setInvitationCode(String)
+    case setLoading(Bool)
     case setDestination(State.Destination)
     case setError(MoneyMongError)
     case setSnackBarMessage(String)
   }
   
-  let initialState: State = State()
+  let initialState: State
   
   private let userRepo: UserRepositoryInterface
   private let agencyRepo: AgencyRepositoryInterface
@@ -54,66 +57,89 @@ final class MemberTabReactor: Reactor {
     self.userRepo = userRepo
     self.agencyRepo = agencyRepo
     self.ledgerService = ledgerService
+    self.initialState = .init(
+      userID: userRepo.fetchUserID(),
+      agencyID: userRepo.fetchSelectedAgency()
+    )
   }
   
   func mutate(action: Action) -> Observable<Mutation> {
     switch action {
     case .onappear:
       return .concat(
-        .merge(
-          requestMyProfile(),
-          requestInvitationCode()
-        ),
-        requestMembers()
+        .just(.setLoading(true)),
+        
+          .merge(
+            requestMyProfile(),
+            requestInvitationCode(),
+            requestMembers()
+          ),
+        
+          .just(.setLoading(false))
       )
       
     case .reissueInvitationCode:
-      guard let agency = currentState.agency else {
-        fatalError("소속이 없을 수 없음")
+      guard let agencyID = currentState.agencyID else {
+        fatalError("agencyID가 없을 수 없음")
       }
       
-      return .task {
-        return try await agencyRepo.reissueCode(id: agency.id)
-      }
-      .map { .setInvitationCode($0) }
-      .catch { return .just(.setError($0.toMMError)) }
+      return .concat(
+        .just(.setLoading(true)),
+        
+        .concat(
+          .task { try await agencyRepo.reissueCode(id: agencyID) }
+            .map { .setInvitationCode($0) }
+            .catch { return .just(.setError($0.toMMError)) },
+          .just(.setSnackBarMessage("초대코드가 재발급 되었습니다."))
+        ),
+        
+        .just(.setLoading(false))
+      )
       
     case .tapCodeCopyButton:
       let code = currentState.invitationCode ?? "000000"
       return .just(.setSnackBarMessage("초대코드 \(code)이 복사되었습니다"))
       
     case let .requestKickOffMember(memberID):
-      guard let agency = currentState.agency else {
-        fatalError("소속이 없을 수 없음")
+      guard let agencyID = currentState.agencyID else {
+        fatalError("agencyID가 없을 수 없음")
       }
-
-      return .task {
-        try await agencyRepo.kickoutMember(id: agency.id, userId: memberID)
-        return try await agencyRepo.fetchMemberList(id: agency.id)
-      }
-      .map { .setMembers($0) }
-      .catch { return .just(.setError($0.toMMError)) }
+      
+      return .concat(
+        .just(.setLoading(true)),
+        
+        .task {
+          try await agencyRepo.kickoutMember(id: agencyID, userId: memberID)
+          return try await agencyRepo.fetchMemberList(id: agencyID)
+        }
+        .map { .setMembers($0) }
+        .catch { return .just(.setError($0.toMMError)) },
+        
+        .just(.setLoading(false))
+      )
     }
   }
   
   func reduce(state: State, mutation: Mutation) -> State {
     var newState = state
     switch mutation {
-    case let .setUser(id, name):
-      newState.userID = id
+    case let .setName(name):
       newState.name = name
       
-    case let .setAgency(agency):
-      newState.agency = agency
+    case let .setAgencyID(id):
+      newState.agencyID = id
       
     case let .setInvitationCode(code):
       newState.invitationCode = code
-    
+      
     case let .setMembers(members):
       newState.members = members.filter { $0.userID != state.userID }
       
     case let .setRole(role):
       newState.role = role
+      
+    case let .setLoading(value):
+      newState.isLoading = value
       
     case let .setDestination(value):
       newState.destination = value
@@ -124,6 +150,7 @@ final class MemberTabReactor: Reactor {
     case let .setSnackBarMessage(message):
       newState.snackBarMessage = message
     }
+    
     return newState
   }
   
@@ -137,7 +164,7 @@ final class MemberTabReactor: Reactor {
   
   // 맴버 역할 바뀌었을때, 화면업데이트
   private var serviceAction: Observable<Action> {
-    ledgerService.member.event
+    return ledgerService.member.event
       .flatMap { event -> Observable<Action> in
         switch event {
         case .updateRole:
@@ -148,7 +175,7 @@ final class MemberTabReactor: Reactor {
       }
   }
   
-  // 소속정보 바뀌었을때, 화면업데이트(TODO) + 맴버 내보내기 눌렀을때, Alert띄워주기
+  // 맴버 내보내기 눌렀을때, Alert띄워주기 + 소속정보 바뀌었을때 업데이트
   private var serviceMutation: Observable<Mutation> {
     let memberStream = ledgerService.member.event.flatMap { event -> Observable<Mutation> in
       switch event {
@@ -159,53 +186,48 @@ final class MemberTabReactor: Reactor {
       }
     }
     
-    let ledgerStream = ledgerService.agency.event.flatMap { event -> Observable<Mutation> in
+    let agencyStream = ledgerService.agency.event.flatMap { event -> Observable<Mutation> in
       switch event {
       case let .update(agency):
-        return .just(.setAgency(agency))
+        return .just(.setAgencyID(agency.id))
       }
     }
     
-    return .merge(memberStream, ledgerStream)
+    return .merge(memberStream, agencyStream)
   }
   
   private func requestMyProfile() -> Observable<Mutation> {
-    return .task {
-      return try await userRepo.user()
-    }
-    .map { .setUser(id: $0.id, name: $0.nickname) }
-    .catch { .just(.setError($0.toMMError)) }
+    return .task { try await userRepo.user() }
+      .map { .setName($0.nickname) }
+      .catch { .just(.setError($0.toMMError)) }
   }
   
   private func requestInvitationCode() -> Observable<Mutation> {
-    guard let agency = currentState.agency else {
-      fatalError("소속이 없을 수 없음")
+    guard let agencyID = currentState.agencyID else {
+      fatalError("agencyID가 없을 수 없음")
     }
     
-    return .task {
-      return try await agencyRepo.fetchCode(id: agency.id)
-    }
-    .map { .setInvitationCode($0) }
-    .catch { return .just(.setError($0.toMMError)) }
+    return .task { try await agencyRepo.fetchCode(id: agencyID) }
+      .map { .setInvitationCode($0) }
+      .catch { return .just(.setError($0.toMMError)) }
   }
   
   private func requestMembers() -> Observable<Mutation> {
-    guard let agency = currentState.agency else {
-      fatalError("소속이 없을 수 없음")
+    guard let agencyID = currentState.agencyID else {
+      fatalError("agencyID가 없을 수 없음")
     }
     
-    return .task {
-      return try await agencyRepo.fetchMemberList(id: agency.id)
-    }
-    .flatMap { [weak self] members -> Observable<Mutation> in
-      guard let role = members.first(where: { $0.userID == self?.currentState.userID })?.role else {
-        fatalError("역할이 없을 수 없음")
+    return .task { try await agencyRepo.fetchMemberList(id: agencyID) }
+      .flatMap { [weak self] members -> Observable<Mutation> in
+        guard let role = members.first(where: { $0.userID == self?.currentState.userID })?.role
+        else {
+          fatalError("역할이 없을 수 없음")
+        }
+        
+        return .concat(
+          .just(.setMembers(members)),
+          .just(.setRole(role))
+        )
       }
-      
-      return .concat(
-        .just(.setMembers(members)),
-        .just(.setRole(role))
-      )
-    }
   }
 }

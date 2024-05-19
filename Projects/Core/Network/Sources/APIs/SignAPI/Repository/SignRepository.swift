@@ -25,7 +25,7 @@ public final class SignRepository: SignRepositoryInterface {
 
   public init(
     networkManager: NetworkManagerInterfacae = NetworkManager(),
-    localStorage: LocalStorageInterface = LocalStorageManager(),
+    localStorage: LocalStorageInterface = LocalStorage(),
     kakaoAuthManager: KakaoAuthManager = .shared,
     appleAuthManager: AppleAuthManager = AppleAuthManager()
   ) {
@@ -36,11 +36,8 @@ public final class SignRepository: SignRepositoryInterface {
   }
 
   public func recentLoginType() -> LoginType? {
-    guard let loginType = localStorage.read(to: .recentLoginType)?.lowercased(),
-          let recentLoginType = LoginType(rawValue: loginType) else {
-      return nil
-    }
-    return recentLoginType
+    guard let loginType = localStorage.recentLoginType else { return nil }
+    return LoginType(rawValue: loginType)
   }
 
   public func kakaoSign() async throws -> KakaoAuthInfo {
@@ -60,8 +57,9 @@ public final class SignRepository: SignRepositoryInterface {
   }
 
   public func autoSign() async throws -> SignInfo {
-    guard let provider = localStorage.read(to: .recentLoginType),
-          let accessToken = localStorage.read(to: .socialAccessToken) else {
+    guard let provider = localStorage.recentLoginType,
+          let accessToken = localStorage.socialAccessToken
+    else {
       throw MoneyMongError.unknown("저장된 유저 정보가 없습니다.")
     }
 
@@ -80,27 +78,29 @@ public final class SignRepository: SignRepositoryInterface {
       name: name,
       code: code
     )
+    
     let targetType = SignAPI.sign(request)
     let dto = try await networkManager.request(target: targetType, of: SignResponseDTO.self)
     let entity = dto.toEntity
 
-    localStorage.create(to: .accessToken, value: entity.accessToken)
-    localStorage.create(to: .refreshToken, value: entity.refreshToken)
-    localStorage.create(to: .socialAccessToken, value: accessToken)
-    localStorage.create(to: .recentLoginType, value: provider)
+    localStorage.accessToken = entity.accessToken
+    localStorage.refreshToken = entity.refreshToken
+    localStorage.socialAccessToken = accessToken
+    localStorage.recentLoginType = provider
 
     return entity
   }
 
   public func logout() async throws {
-    guard let refreshToken = localStorage.read(to: .refreshToken) else {
+    guard let refreshToken = localStorage.refreshToken else {
       return debugPrint("Refresh Token이 없음")
     }
+    
     let targetType = UserAPI.logout(.init(refreshToken: refreshToken))
     try await networkManager.request(target: targetType)
 
-    localStorage.delete(to: .refreshToken)
-    localStorage.delete(to: .accessToken)
-    localStorage.delete(to: .socialAccessToken)
+    localStorage.refreshToken = nil
+    localStorage.accessToken = nil
+    localStorage.socialAccessToken = nil
   }
 }
