@@ -9,14 +9,13 @@ enum AgencyEvent {
 
 protocol AgencyServiceInterface {
   var event: PublishSubject<AgencyEvent> { get }
-  func updateAgency(_ agency: Agency) -> Observable<Agency>
+  func updateAgency(_ agency: Agency)
 }
 
 final class AgencyService: AgencyServiceInterface {
   let event = PublishSubject<AgencyEvent>()
   
-  func updateAgency(_ agency: Agency) -> Observable<Agency> {
+  func updateAgency(_ agency: Agency) {
     event.onNext(.update(agency))
-    return .just(agency)
   }
 }

@@ -15,6 +15,7 @@ public final class NetworkManager: NetworkManagerInterfacae {
   public init() {}
   
   public func request(target: TargetType) async throws {
+
     let dataResponse = await AF.request(target, interceptor: tokenIntercepter)
       .serializingData()
       .response
@@ -28,7 +29,13 @@ public final class NetworkManager: NetworkManagerInterfacae {
        (400..<500) ~= statusCode,
        let errorResponse = try? JSONDecoder().decode(ErrorResponse.self, from: data)
     {
-      throw MoneyMongError.appError(errorMessage: errorResponse.message)
+      if let message = errorResponse.message {
+        throw MoneyMongError.appError(errorMessage: message)
+      }
+      
+      if let messages = errorResponse.messages {
+        throw MoneyMongError.appError(errorMessage: messages.joined(separator: "\n"))
+      }
     }
     
     // 200일때
@@ -40,7 +47,8 @@ public final class NetworkManager: NetworkManagerInterfacae {
   }
 
   public func request<DTO: Responsable>(target: TargetType, of type: DTO.Type) async throws -> DTO {
-    var dataRequest: DataRequest!
+
+    let dataRequest: DataRequest
     switch target.task {
     case .upload(let multipartFormData):
       dataRequest = AF.upload(multipartFormData: multipartFormData, with: target, interceptor: tokenIntercepter)
@@ -66,7 +74,13 @@ public final class NetworkManager: NetworkManagerInterfacae {
       if let errorResponse = try? JSONDecoder().decode(ErrorResponse.self, from: data),
          (400..<500) ~= statusCode
       {
-        throw MoneyMongError.appError(errorMessage: errorResponse.message)
+        if let message = errorResponse.message {
+          throw MoneyMongError.appError(errorMessage: message)
+        }
+        
+        if let messages = errorResponse.messages {
+          throw MoneyMongError.appError(errorMessage: messages.joined(separator: "\n"))
+        }
       }
       
       assertionFailure("dto디코딩, error디코딩 모두 실패 이러면 안되요 디버깅 해주세요")

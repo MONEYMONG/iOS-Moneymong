@@ -9,7 +9,7 @@ public final class LedgerReactor: Reactor {
   }
   
   public enum Mutation {
-    case setAgency(Agency?)
+    case setAgency(Agency)
     case setError(MoneyMongError)
   }
   
@@ -21,7 +21,7 @@ public final class LedgerReactor: Reactor {
   public let initialState = State()
   private let agencyRepo: AgencyRepositoryInterface
   private let userRepo: UserRepositoryInterface
-  private let ledgerService: LedgerServiceInterface
+  private let service: LedgerServiceInterface
   
   init(
     userRepo: UserRepositoryInterface,
@@ -30,7 +30,7 @@ public final class LedgerReactor: Reactor {
   ) {
     self.userRepo = userRepo
     self.agencyRepo = agencyRepo
-    self.ledgerService = ledgerService
+    self.service = ledgerService
   }
   
   public func mutate(action: Action) -> Observable<Mutation> {
@@ -42,12 +42,10 @@ public final class LedgerReactor: Reactor {
         try await agencyRepo.fetchMyAgency()
       }
       .map { [weak self] agencies in
-        let agency = agencies.first(where: { $0.id == agencyID }) ?? agencies.first
-        
-        if let agency {
-          _ = self?.ledgerService.agency.updateAgency(agency)
-        }
-        
+        let agency = agencies.first(where: { $0.id == agencyID }) ?? agencies[0]
+
+        self?.userRepo.updateSelectedAgency(id: agency.id)
+        self?.service.agency.updateAgency(agency)
         return .setAgency(agency)
       }
       .catch {
@@ -66,5 +64,17 @@ public final class LedgerReactor: Reactor {
     }
     
     return newState
+  }
+  
+  public func transform(mutation: Observable<Mutation>) -> Observable<Mutation> {
+    let stream = service.agency.event
+      .flatMap { event -> Observable<Mutation> in
+        switch event {
+        case let .update(agency):
+          return .just(.setAgency(agency))
+        }
+      }
+    
+    return .merge(stream, mutation)
   }
 }

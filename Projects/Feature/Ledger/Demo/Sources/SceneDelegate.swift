@@ -13,7 +13,7 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
     guard let windowScene = (scene as? UIWindowScene) else { return }
     window = UIWindow(windowScene: windowScene)
     let networkManager = NetworkManager()
-    let localStorage = LocalStorageManager()
+    let localStorage = LocalStorage()
     coordinator = LedgerCoordinator(
       navigationController: .init(),
       diContainer: .init(

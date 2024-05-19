@@ -39,7 +39,7 @@ final class TitleImageView: UIView {
       flex.addItem(titleLabel)
       flex.addItem().height(8)
       flex.addItem(descriptionLabel)
-      flex.addItem().direction(.row).define { flex in
+      flex.addItem().wrap(.wrap).direction(.row).define { flex in
         images.forEach { image in
           flex.addItem(image)
             .height(126)

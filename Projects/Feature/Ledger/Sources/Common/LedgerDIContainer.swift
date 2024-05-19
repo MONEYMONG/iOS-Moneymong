@@ -94,6 +94,17 @@ public final class LedgerDIContainer {
     )
     return vc
   }
+  
+  func selectAgencySheet(with coordinator: LedgerCoordinator) -> SelectAgencySheetVC {
+    let vc = SelectAgencySheetVC()
+    vc.coordinator = coordinator
+    vc.reactor = SelectAgencySheetReactor(
+      agencyRepo: agencyRepo,
+      userRepo: userRepo,
+      service: ledgerService
+    )
+    return vc
+  }
 
   func detail(with coordinator: LedgerCoordinator, ledgerID: Int) -> DetailVC {
     let vc = DetailVC()

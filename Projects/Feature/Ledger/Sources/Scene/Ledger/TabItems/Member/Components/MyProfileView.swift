@@ -26,6 +26,12 @@ final class MyProfileView: UIView {
     return v
   }()
   
+  private let separatorView: UIView = {
+    let v = UIView()
+    v.backgroundColor = Colors.Gray._2
+    return v
+  }()
+  
   private let invitationCodeLabel: UILabel = {
     let v = UILabel()
     v.textColor = Colors.Gray._10
@@ -90,7 +96,7 @@ final class MyProfileView: UIView {
       }
       .marginBottom(12)
       
-      flex.addItem().height(1).backgroundColor(Colors.Gray._2)
+      flex.addItem(separatorView).height(1)
         .marginBottom(12)
       
       flex.addItem().direction(.row).define { flex in
@@ -104,6 +110,8 @@ final class MyProfileView: UIView {
   
   func configure(title: String, role: Member.Role, code: String) {
     nameLabel.setTextWithLineHeight(text: title, lineHeight: 24)
+    invitationCodeLabel.setTextWithLineHeight(text: "초대코드 \(code)", lineHeight: 20)
+    
     switch role {
     case .staff:
       tagView.configure(
@@ -118,11 +126,22 @@ final class MyProfileView: UIView {
         backgroundColor: Colors.Mint._3
       )
     }
-    invitationCodeLabel.setTextWithLineHeight(text: "초대코드 \(code)", lineHeight: 20)
+    
+    separatorView.isHidden = role == .member
+    separatorView.flex.isIncludedInLayout(role == .staff).markDirty()
+
+    invitationCodeLabel.isHidden = role == .member
+    invitationCodeLabel.flex.isIncludedInLayout(role == .staff).markDirty()
+    
+    copyButton.isHidden = role == .member
+    copyButton.flex.isIncludedInLayout(role == .staff).markDirty()
+    
+    reissueCodeButton.isHidden = role == .member
+    reissueCodeButton.flex.isIncludedInLayout(role == .staff).markDirty()
     
     nameLabel.flex.markDirty()
     tagView.flex.markDirty()
-    invitationCodeLabel.flex.markDirty()
+    
     setNeedsLayout()
   }
 }

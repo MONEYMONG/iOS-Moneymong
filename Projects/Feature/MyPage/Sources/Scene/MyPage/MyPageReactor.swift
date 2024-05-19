@@ -14,6 +14,7 @@ public final class MyPageReactor: Reactor {
   public enum Mutation {
     case setItem(UserInfo)
     case setLoading(Bool)
+    case setError(MoneyMongError)
     case setDestination(State.Destination)
   }
   
@@ -21,6 +22,7 @@ public final class MyPageReactor: Reactor {
     @Pulse var isLoading = false
     @Pulse var item = [MyPageSectionItemModel.Model]()
     @Pulse var showToast = false
+    @Pulse var error: MoneyMongError?
     @Pulse var destination: Destination?
     
     public enum Destination {
@@ -39,46 +41,25 @@ public final class MyPageReactor: Reactor {
   public func mutate(action: Action) -> Observable<Mutation> {
     switch action {
     case .onappear:
-      return Observable.concat([
-        .just(.setLoading(false)),
+      return .concat(
+        .just(.setLoading(true)),
         
-        Single.create { observer in
-          let task = Task {
-            do {
-              let result = try await self.userRepo.user()
-              observer(.success(result))
-            } catch {
-              observer(.failure(error))
-            }
-          }
-          
-          return Disposables.create { task.cancel() }
-        }
-          .asObservable()
-          .map { return .setItem($0)},
+        .task { try await userRepo.user() }
+        .map { .setItem($0) }
+        .catch { return .just(.setError($0.toMMError))},
         
-          .just(.setLoading(true)),
-      ])
+        .just(.setLoading(false))
+      )
     case .logout:
-      return Observable.concat([
-        .just(.setLoading(false)),
-        Single.create { observer in
-          let task = Task {
-            do {
-              try await self.userRepo.logout()
-              observer(.success(()))
-            } catch {
-              observer(.failure(error))
-            }
-          }
-          
-          return Disposables.create { task.cancel() }
-        }
-          .asObservable()
-          .map { _ in return .setDestination(.login)}
-        ,
-        .just(.setLoading(true))
-      ])
+      return .concat(
+        .just(.setLoading(true)),
+        
+        .task { try await userRepo.logout() }
+        .map { .setDestination(.login) }
+        .catch { return .just(.setError($0.toMMError))},
+        
+        .just(.setLoading(false))
+      )
     }
   }
   
@@ -97,6 +78,9 @@ public final class MyPageReactor: Reactor {
           .setting(.versionInfo)
         ])
       ]
+      
+    case let .setError(error):
+      newState.error = error
       
     case let .setLoading(value):
       newState.isLoading = value

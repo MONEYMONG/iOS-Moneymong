@@ -29,9 +29,11 @@ final class LoginReactor: Reactor {
 
   let initialState: State = State()
   private let signRepository: SignRepositoryInterface
+  private let userRepo: UserRepositoryInterface
 
-  init(signRepository: SignRepositoryInterface) {
+  init(signRepository: SignRepositoryInterface, userRepo: UserRepositoryInterface) {
     self.signRepository = signRepository
+    self.userRepo = userRepo
   }
 
   func mutate(action: Action) -> Observable<Mutation> {
@@ -42,10 +44,12 @@ final class LoginReactor: Reactor {
 
     case .login(let loginType):
       return .task {
+        let result: SignInfo
+        
         switch loginType {
         case .kakao:
-          let authInfo = try await self.signRepository.kakaoSign()
-          return try await self.signRepository.sign(
+          let authInfo = try await signRepository.kakaoSign()
+          result = try await signRepository.sign(
             provider: loginType.value,
             accessToken: authInfo.accessToken,
             name: nil,
@@ -53,14 +57,18 @@ final class LoginReactor: Reactor {
           )
 
         case .apple:
-          let authInfo = try await self.signRepository.appleSign()
-          return try await self.signRepository.sign(
+          let authInfo = try await signRepository.appleSign()
+          result = try await signRepository.sign(
             provider: loginType.value,
             accessToken: authInfo.idToken,
             name: authInfo.name,
             code: authInfo.authorizationCode
           )
         }
+        
+        _ = try await userRepo.user()
+        
+        return result
       }
       .map { .setDestination($0.schoolInfoExist ? .main : .signUp) }
       .catch { .just(.setErrorMessage($0.localizedDescription)) }

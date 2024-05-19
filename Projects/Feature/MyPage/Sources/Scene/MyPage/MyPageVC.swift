@@ -59,7 +59,7 @@ public final class MyPageVC: BaseVC, ReactorKit.View {
   
   public func bind(reactor: MyPageReactor) {
     // Action Binding
-    rx.viewDidLoad
+    rx.viewWillAppear
       .map { Reactor.Action.onappear }
       .bind(to: reactor.action)
       .disposed(by: disposeBag)
@@ -71,6 +71,7 @@ public final class MyPageVC: BaseVC, ReactorKit.View {
       tableView.rx.modelSelected(MyPageSectionItemModel.Item.self),
       tableView.rx.itemSelected
     )
+    .throttle(.seconds(1), latest: false, scheduler: MainScheduler.instance)
     .bind(with: self) { owner, event in
       let (item, indexPath) = (event.0, event.1)
       owner.tableView.deselectRow(at: indexPath, animated: true)
@@ -106,6 +107,22 @@ public final class MyPageVC: BaseVC, ReactorKit.View {
       }
       .disposed(by: disposeBag)
     
+    reactor.pulse(\.$isLoading)
+      .bind(to: rx.isLoading)
+      .disposed(by: disposeBag)
+    
+    reactor.pulse(\.$error)
+      .compactMap { $0 }
+      .bind(with: self) { owner, error in
+        
+        owner.coordinator?.present(.alert(
+          title: "네트워크 에러",
+          subTitle: error.localizedDescription,
+          okAction: { })
+        )
+      }
+      .disposed(by: disposeBag)
+    
     reactor.pulse(\.$destination)
       .compactMap { $0 }
       .observe(on: MainScheduler.instance)
@@ -119,13 +136,6 @@ public final class MyPageVC: BaseVC, ReactorKit.View {
     
     reactor.pulse(\.$item)
       .bind(to: tableView.rx.items(dataSource: dataSource))
-      .disposed(by: disposeBag)
-    
-    reactor.pulse(\.$isLoading)
-      .observe(on: MainScheduler.instance)
-      .bind { isLoading in
-        // TODO: 로딩인디케이터 돌리기
-      }
       .disposed(by: disposeBag)
   }
 }

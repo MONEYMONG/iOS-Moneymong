@@ -6,7 +6,7 @@ public final class SignDIContainer {
   private let networkManager: NetworkManagerInterfacae
 
   public init(
-    localStorage: LocalStorageInterface = LocalStorageManager(),
+    localStorage: LocalStorageInterface = LocalStorage(),
     networkManager: NetworkManagerInterfacae = NetworkManager()
   ) {
     self.localStorage = localStorage
@@ -21,7 +21,10 @@ public final class SignDIContainer {
       kakaoAuthManager: KakaoAuthManager(),
       appleAuthManager: AppleAuthManager()
     )
-    vc.reactor = SplashReactor(signRepository: signRepository)
+    vc.reactor = SplashReactor(
+      signRepository: signRepository,
+      userRepo: UserRepository(networkManager: networkManager, localStorage: localStorage)
+    )
     vc.coordinator = coordinator
     return vc
   }
@@ -35,7 +38,10 @@ public final class SignDIContainer {
       appleAuthManager: AppleAuthManager()
     )
     vc.coordinator = coordinator
-    vc.reactor = LoginReactor(signRepository: signRepository)
+    vc.reactor = LoginReactor(
+      signRepository: signRepository,
+      userRepo: UserRepository(networkManager: networkManager, localStorage: localStorage)
+    )
     return vc
   }
 

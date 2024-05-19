@@ -31,13 +31,10 @@ final class MemberTabVC: BaseVC, View {
   private let tableView: UITableView = {
     let v = UITableView(frame: .zero, style: .plain)
     v.separatorStyle = .none
+    v.backgroundView = MemberEmptyView()
     v.register(MemberCell.self)
     return v
   }()
-  
-  override func setupUI() {
-    super.setupUI()
-  }
   
   override func setupConstraints() {
     super.setupConstraints()
@@ -57,13 +54,8 @@ final class MemberTabVC: BaseVC, View {
       .bind(to: reactor.action)
       .disposed(by: disposeBag)
     
-    rx.viewDidAppear
-      .bind {
-        print(#function)
-      }
-      .disposed(by: disposeBag)
-    
     profileView.tapCopy
+      .throttle(.seconds(1), latest: false, scheduler: MainScheduler.instance)
       .do(onNext: {
         UIPasteboard.general.string = reactor.currentState.invitationCode
       })
@@ -72,16 +64,22 @@ final class MemberTabVC: BaseVC, View {
       .disposed(by: disposeBag)
     
     profileView.tapReissue
+      .throttle(.seconds(1), latest: false, scheduler: MainScheduler.instance)
       .map { Reactor.Action.reissueInvitationCode }
       .bind(to: reactor.action)
       .disposed(by: disposeBag)
     
+    reactor.pulse(\.$agencyID)
+      .observe(on: MainScheduler.instance)
+      .compactMap { $0 }
+      .map { _ in Reactor.Action.onappear }
+      .bind(to: reactor.action)
+      .disposed(by: disposeBag)
     
-    // State
     reactor.pulse(\.$members)
       .bind(to: tableView.rx.items) { [weak self] tableview, index, item in
         guard let role = reactor.currentState.role,
-              let agencyID = reactor.currentState.agency?.id
+              let agencyID = reactor.currentState.agencyID
         else { return UITableViewCell() }
         
         let cell = tableview.dequeue(MemberCell.self, for: IndexPath(index: index))
@@ -94,13 +92,11 @@ final class MemberTabVC: BaseVC, View {
       }
       .disposed(by: disposeBag)
     
-    reactor.pulse(\.$invitationCode)
-      .distinctUntilChanged()
-      .compactMap { $0 }
-      .skip(1)
+    reactor.pulse(\.$members)
+      .map(\.isEmpty)
       .observe(on: MainScheduler.instance)
-      .bind { _ in
-        SnackBarManager.show(title: "초대코드가 재발급 되었습니다.")
+      .bind(with: self) { owner, isEmpty in
+        owner.tableView.backgroundView?.isHidden = !isEmpty
       }
       .disposed(by: disposeBag)
     
@@ -118,6 +114,10 @@ final class MemberTabVC: BaseVC, View {
       owner.profileView.configure(title: element.name, role: element.role, code: element.code)
     }
     .disposed(by: disposeBag)
+    
+    reactor.pulse(\.$isLoading)
+      .bind(to: rx.isLoading)
+      .disposed(by: disposeBag)
     
     reactor.pulse(\.$snackBarMessage)
       .compactMap { $0 }

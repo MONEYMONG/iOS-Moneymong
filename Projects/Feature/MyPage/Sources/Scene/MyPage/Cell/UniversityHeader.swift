@@ -24,7 +24,6 @@ final class UniversityHeader: UITableViewHeaderFooterView, ReusableView {
   
   private let providerImageView: UIImageView = {
     let v = UIImageView()
-    v.image = Images.apple
     return v
   }()
   
@@ -87,8 +86,7 @@ final class UniversityHeader: UITableViewHeaderFooterView, ReusableView {
     
     nameLabel.setTextWithLineHeight(text: model.nickname, lineHeight: 28)
     emailLabel.setTextWithLineHeight(text: model.email, lineHeight: 18)
-    // TODO: 카카오/애플 이미지 설정하기
-    
+    providerImageView.image = model.provider == "KAKAO" ? Images.kakaoTalk : Images.apple
     return self
   }
 }

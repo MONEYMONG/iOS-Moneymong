@@ -4,24 +4,18 @@ import DesignSystem
 
 import FlexLayout
 import PinLayout
-import RxSwift
-import RxCocoa
 
-final class EmptyAgencyView: UIView {
-  
-  private let iconImageView = UIImageView(image: Images.agency)
-  
-  private let descriptionLabel: UILabel = {
-    let v = UILabel()
-    v.setTextWithLineHeight(text: "아직 등록된 소속이 없어요\n하단 버튼을 통해 등록해보세요", lineHeight: 24)
-    v.textAlignment = .center
-    v.numberOfLines = 2
-    v.font = Fonts.body._4
-    v.textColor = Colors.Gray._8
-    return v
-  }()
+final class MemberEmptyView: UIView {
   
   private let rootContainer = UIView()
+  private let iconImageView = UIImageView(image: Images.mongCongrats)
+  private let contentLabel: UILabel = {
+    let v = UILabel()
+    v.setTextWithLineHeight(text: "아직 맴버가 없습니다", lineHeight: 20)
+    v.font = Fonts.body._3
+    v.textColor = Colors.Gray._6
+    return v
+  }()
   
   init() {
     super.init(frame: .zero)
@@ -41,10 +35,9 @@ final class EmptyAgencyView: UIView {
   
   private func setupConstraints() {
     addSubview(rootContainer)
-    
     rootContainer.flex.justifyContent(.center).alignItems(.center).define { flex in
-      flex.addItem(iconImageView).size(80).marginBottom(8)
-      flex.addItem(descriptionLabel)
+      flex.addItem(iconImageView).size(100).marginBottom(4)
+      flex.addItem(contentLabel)
     }
   }
 }

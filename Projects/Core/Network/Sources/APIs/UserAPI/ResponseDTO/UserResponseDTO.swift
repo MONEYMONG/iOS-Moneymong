@@ -8,6 +8,7 @@ public struct UserResponseDTO: Responsable {
   let email: String?
   let universityName: String?
   let grade: Int?
+  let provider: String?
   
   public var toEntity: UserInfo {
     .init(
@@ -15,7 +16,8 @@ public struct UserResponseDTO: Responsable {
       nickname: nickname ?? "닉네임 정보 없음",
       email: email ?? "이메일 정보 없음",
       universityName: universityName ?? "대학정보없음",
-      grade: grade ?? 0
+      grade: grade ?? 0,
+      provider: self.provider ?? "KAKAO"
     )
   }
   
@@ -26,7 +28,8 @@ public struct UserResponseDTO: Responsable {
       nickname: "dudu",
       email: "dudu@naver.com",
       universityName: "머니몽대학교",
-      grade: 1
+      grade: 1,
+      provider: "KAKAO"
     )
   }
 }

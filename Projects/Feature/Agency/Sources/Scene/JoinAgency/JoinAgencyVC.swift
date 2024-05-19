@@ -72,6 +72,7 @@ final class JoinAgencyVC: BaseVC, ReactorKit.View {
     setRightItem(.closeBlack)
     
     navigationItem.rightBarButtonItem?.rx.tap
+      .throttle(.seconds(1), latest: false, scheduler: MainScheduler.instance)
       .bind(with: self) { owner, _ in
         owner.coordinator?.dismiss()
       }

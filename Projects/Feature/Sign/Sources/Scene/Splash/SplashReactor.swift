@@ -23,16 +23,20 @@ final class SplashReactor: Reactor {
 
   let initialState: State = State()
   private let signRepository: SignRepositoryInterface
+  private let userRepo: UserRepositoryInterface
 
-  init(signRepository: SignRepositoryInterface) {
+  init(signRepository: SignRepositoryInterface, userRepo: UserRepositoryInterface) {
     self.signRepository = signRepository
+    self.userRepo = userRepo
   }
 
   func mutate(action: Action) -> Observable<Mutation> {
     switch action {
     case .onAppear:
       return .task {
-        return try await signRepository.autoSign()
+        let result = try await signRepository.autoSign()
+        _ = try await userRepo.user()
+        return result
       }
       .map { .setDestination($0.loginSuccess ? .main : .login) }
       .catch { _ in .just(.setDestination(.login)) }

@@ -36,7 +36,6 @@ public final class AgencyDIContainer {
   
   func createComplete(with coordinator: AgencyCoordinator) -> CreateCompleteVC {
     let vc = CreateCompleteVC()
-    vc.reactor = CreateCompleteReactor()
     vc.coordinator = coordinator
     return vc
   }

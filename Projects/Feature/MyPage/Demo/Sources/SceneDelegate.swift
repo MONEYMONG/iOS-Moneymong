@@ -10,7 +10,7 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
   var coordinator: MyPageCoordinator!
   var diContainer: MyPageDIContainer!
   
-  private let localStorage: LocalStorageInterface = LocalStorageManager()
+  private let localStorage: LocalStorageInterface = LocalStorage()
   
   private lazy var networkManager: NetworkManagerInterfacae = {
     let manager = NetworkManager()
@@ -27,7 +27,7 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
     Fonts.registerFont()
     let rootNavigation = UINavigationController()
     
-    self.diContainer = MyPageDIContainer(localStorage: LocalStorageManager(), networkManager: NetworkManager())
+    self.diContainer = MyPageDIContainer(localStorage: LocalStorage(), networkManager: NetworkManager())
     self.coordinator = MyPageCoordinator(navigationController: rootNavigation, diContainer: diContainer)
     
     window = UIWindow(windowScene: windowScene)

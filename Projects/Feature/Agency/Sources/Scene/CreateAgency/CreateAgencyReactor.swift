@@ -8,6 +8,8 @@ final class CreateAgencyReactor: Reactor {
     @Pulse var index = 0 // 소속 종류: 동아리 or 학생회
     @Pulse var text = "" // 소속 이름
     @Pulse var isButtonEnabled = false
+    
+    @Pulse var isLoading = false
     @Pulse var error: MoneyMongError?
     
     @Pulse var destination: Destination?
@@ -26,6 +28,7 @@ final class CreateAgencyReactor: Reactor {
   enum Mutation {
     case setText(String)
     case setError(MoneyMongError)
+    case setLoading(Bool)
     case setSelectedIndex(Int)
     case setButtonEnabled(Bool)
     case setDestination(State.Destination)
@@ -50,16 +53,20 @@ final class CreateAgencyReactor: Reactor {
       return .just(.setSelectedIndex(index))
       
     case .tapCreateButton:
-      return .task {
-        return try await agencyRepo.create(
-          name: currentState.text,
-          type: currentState.index == 0 ? "STUDENT_COUNCIL" : "IN_SCHOOL_CLUB"
-        )
-      }
-      .map { _ in .setDestination(.complete) }
-      .catch {
-        return .just(.setError($0.toMMError))
-      }
+      return .concat(
+        .just(.setLoading(true)),
+        
+        .task {
+          try await agencyRepo.create(
+            name: currentState.text,
+            type: currentState.index == 0 ? "STUDENT_COUNCIL" : "IN_SCHOOL_CLUB"
+          )
+        }
+        .map { _ in .setDestination(.complete) }
+        .catch { return .just(.setError($0.toMMError)) },
+        
+        .just(.setLoading(false))
+      )
     }
   }
   
@@ -77,6 +84,8 @@ final class CreateAgencyReactor: Reactor {
       newState.destination = value
     case let .setError(value):
       newState.error = value
+    case let .setLoading(value):
+      newState.isLoading = value
     }
     
     return newState

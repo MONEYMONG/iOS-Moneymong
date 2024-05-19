@@ -50,7 +50,6 @@ public final class WithdrawalVC: BaseVC, View {
     super.setupUI()
     
     setTitle("회원탈퇴")
-    setLeftItem(.back)
   }
   
   public override func setupConstraints() {
@@ -79,6 +78,8 @@ public final class WithdrawalVC: BaseVC, View {
   }
   
   public func bind(reactor: WithdrawalReactor) {
+    setLeftItem(.back)
+    
     // Action Binding
     navigationItem.leftBarButtonItem?.rx.tap
       .bind(with: self) { owner, _ in

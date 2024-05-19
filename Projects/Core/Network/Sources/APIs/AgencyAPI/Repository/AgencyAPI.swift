@@ -19,7 +19,7 @@ extension AgencyAPI: TargetType {
 
   var path: String {
     switch self {
-    case .list: return "agencies"
+    case .list: return "agencies?size=20"
     case .create: return "agencies"
     case let .memberList(id): return "agencies/\(id)/agency-users"
     case let .changeRole(id, _): return "agencies/\(id)/agency-users/roles"

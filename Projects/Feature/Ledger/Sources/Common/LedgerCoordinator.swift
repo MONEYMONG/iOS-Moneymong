@@ -16,6 +16,7 @@ public final class LedgerCoordinator: Coordinator {
     case inputManual
     case datePicker(start: DateInfo, end: DateInfo)
     case detail(Ledger)
+    case selectAgency
   }
 
   public init(navigationController: UINavigationController, diContainer: LedgerDIContainer) {
@@ -32,6 +33,7 @@ public final class LedgerCoordinator: Coordinator {
     case .inputManual: manualInput(animated: animated)
     case let .datePicker(start, end):
       datePicker(start: start, end: end)
+    case .selectAgency: selectAgencySheet()
     case let .editMember(id, member):
       editMember(agencyID: id, member: member)
     case let .alert(title, subTitle, type):
@@ -61,6 +63,13 @@ extension LedgerCoordinator {
   private func datePicker(start: DateInfo, end: DateInfo) {
     let vc = diContainer.datePicker(start: start, end: end)
     vc.modalPresentationStyle = .overFullScreen
+    navigationController.present(vc, animated: false)
+  }
+  
+  private func selectAgencySheet() {
+    let vc = diContainer.selectAgencySheet(with: self)
+    vc.modalPresentationStyle = .overFullScreen
+    vc.modalTransitionStyle = .crossDissolve
     navigationController.present(vc, animated: false)
   }
   
