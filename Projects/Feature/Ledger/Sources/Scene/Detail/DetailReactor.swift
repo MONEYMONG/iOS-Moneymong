@@ -19,6 +19,7 @@ final class DetailReactor: Reactor {
 
   struct State {
     let ledgerId: Int
+    let role: Member.Role
     @Pulse var ledger: LedgerDetailItem?
     @Pulse var isLoading: Bool = false
     @Pulse var isEdit: Bool = false
@@ -32,9 +33,10 @@ final class DetailReactor: Reactor {
 
   init(
     ledgerID: Int,
+    role: Member.Role,
     ledgerRepository: LedgerRepositoryInterface
   ) {
-    self.initialState = State(ledgerId: ledgerID)
+    self.initialState = State(ledgerId: ledgerID, role: role)
     self.ledgerRepository = ledgerRepository
   }
 

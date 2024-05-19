@@ -45,7 +45,7 @@ final class DetailVC: BaseVC, View {
   override func viewDidLayoutSubviews() {
     super.viewDidLayoutSubviews()
 
-    scrollView.contentSize = reactor?.currentState.isEdit == true 
+    scrollView.contentSize = reactor?.currentState.isEdit == true
     ? CGSize(
       width: editContentsView.frame.size.width,
       height: editContentsView.frame.size.height + 28
@@ -77,15 +77,17 @@ final class DetailVC: BaseVC, View {
           flex.addItem(editContentsView)
         }
 
-      flex.position(.absolute).bottom(0).define { flex in
-        flex.addItem(editButtonContainer)
-          .paddingHorizontal(20)
-          .backgroundColor(Colors.White._1)
-          .define { flex in
-            flex.addItem().height(20)
-            flex.addItem(editButton).height(56)
-            flex.addItem().height(46)
-          }
+      if reactor?.currentState.role == .staff {
+        flex.position(.absolute).bottom(0).define { flex in
+          flex.addItem(editButtonContainer)
+            .paddingHorizontal(20)
+            .backgroundColor(Colors.White._1)
+            .define { flex in
+              flex.addItem().height(20)
+              flex.addItem(editButton).height(56)
+              flex.addItem().height(46)
+            }
+        }
       }
     }
   }
@@ -114,7 +116,7 @@ final class DetailVC: BaseVC, View {
       .observe(on: MainScheduler.instance)
       .bind(with: self) { owner, ledger in
         owner.setTitle(
-          ledger.fundType == .expense 
+          ledger.fundType == .expense
           ? Const.expenseTitle
           : Const.incomeTitle
         )
@@ -128,6 +130,9 @@ final class DetailVC: BaseVC, View {
       .observe(on: MainScheduler.instance)
       .bind(with: self) { owner, isEdit in
         isEdit ? owner.onEditContents() : owner.onDetailContents()
+        if reactor.currentState.role == .staff {
+          owner.setNavigationBarRightButton(isEdit: isEdit)
+        }
         owner.viewDidLayoutSubviews()
       }
       .disposed(by: disposeBag)
@@ -150,26 +155,7 @@ final class DetailVC: BaseVC, View {
     viewDidLayoutSubviews()
     rootContainer.setNeedsLayout()
 
-    setRightItem(.trash)
-    navigationItem.rightBarButtonItem?.rx.tap
-      .observe(on: MainScheduler.instance)
-      .bind(with: self, onNext: { owner, _ in
-        if owner.reactor?.currentState.isEdit == true {
-          owner.reactor?.action.onNext(.didTapEdit)
-        } else {
-          owner.coordinator?.present(
-            .alert(
-              title: Const.deleteAlertTitle,
-              subTitle: Const.deleteAlertDescription,
-              type: .default(
-                okAction: { owner.reactor?.action.onNext(.didTapDelete) },
-                cancelAction: {}
-              )
-            )
-          )
-        }
-      })
-      .disposed(by: disposeBag)
+
   }
 
   private func onEditContents() {
@@ -182,6 +168,52 @@ final class DetailVC: BaseVC, View {
     viewDidLayoutSubviews()
 
     setRightItem(.수정완료)
+  }
+
+  private func setNavigationBarRightButton(isEdit: Bool) {
+    if isEdit {
+      setRightItem(.수정완료)
+      navigationItem.rightBarButtonItem?.rx.tap
+        .observe(on: MainScheduler.instance)
+        .bind(with: self, onNext: { owner, _ in
+          if owner.reactor?.currentState.isEdit == true {
+            owner.reactor?.action.onNext(.didTapEdit)
+          } else {
+            owner.coordinator?.present(
+              .alert(
+                title: Const.deleteAlertTitle,
+                subTitle: Const.deleteAlertDescription,
+                type: .default(
+                  okAction: { owner.reactor?.action.onNext(.didTapDelete) },
+                  cancelAction: {}
+                )
+              )
+            )
+          }
+        })
+        .disposed(by: disposeBag)
+    } else {
+      setRightItem(.trash)
+      navigationItem.rightBarButtonItem?.rx.tap
+        .observe(on: MainScheduler.instance)
+        .bind(with: self, onNext: { owner, _ in
+          if owner.reactor?.currentState.isEdit == true {
+            owner.reactor?.action.onNext(.didTapEdit)
+          } else {
+            owner.coordinator?.present(
+              .alert(
+                title: Const.deleteAlertTitle,
+                subTitle: Const.deleteAlertDescription,
+                type: .default(
+                  okAction: { owner.reactor?.action.onNext(.didTapDelete) },
+                  cancelAction: {}
+                )
+              )
+            )
+          }
+        })
+        .disposed(by: disposeBag)
+    }
   }
 }
 

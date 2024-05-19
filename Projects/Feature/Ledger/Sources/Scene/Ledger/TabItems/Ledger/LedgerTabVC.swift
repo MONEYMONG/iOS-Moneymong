@@ -111,8 +111,10 @@ final class LedgerTabVC: BaseVC, View {
       .store(in: &cancellableBag)
 
     ledgerList.rx.modelSelected(Ledger.self)
-      .bind(with: self) { owner, ledger in
-        owner.coordinator?.present(.detail(ledger))
+      .map { ($0, reactor.currentState.role ?? .member) }
+      .bind(with: self) { owner, info in
+        let (ledger, role) = info
+        owner.coordinator?.present(.detail(ledger, role))
       }
       .disposed(by: disposeBag)
 
