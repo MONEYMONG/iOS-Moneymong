@@ -73,7 +73,7 @@ public class MMTextField: UIView {
 
   private let charactorLimitView: CharacterLimitView
 
-  public init(charactorLimitCount: Int = 0, title: String) {
+  public init(charactorLimitCount: Int = 0, title: String = "") {
     self.state = .unActive
     self.charactorLimitCount = charactorLimitCount
     self.charactorLimitView = CharacterLimitView(
@@ -105,9 +105,8 @@ public class MMTextField: UIView {
   }
 
   private func setupConstraints() {
-    rootContainer.flex.direction(.column)
-      .minHeight(74)
-      .define { flex in
+    rootContainer.flex.direction(.column).define { flex in
+
         flex.addItem().direction(.row).define { flex in
           flex.addItem(titleLabel)
           flex.addItem().width(2)
@@ -206,6 +205,14 @@ extension MMTextField {
       characterCount: textCount,
       errorMessage: message
     ))
+  }
+
+  public func setText(to text: String) {
+    textField.text = text
+  }
+
+  public func setTitle(to text: String) {
+    titleLabel.text = text
   }
 
   public func setPlaceholder(to text: String) {

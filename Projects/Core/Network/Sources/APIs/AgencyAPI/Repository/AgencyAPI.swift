@@ -48,13 +48,13 @@ extension AgencyAPI: TargetType {
   var task: HTTPTask {
     switch self {
     case .list: return .plain
-    case let .create(param): return .requestJSONEncodable(param)
+    case let .create(param): return .requestJSONEncodable(params: param)
     case .memberList: return .plain
-    case let .changeRole(_, param): return .requestJSONEncodable(param)
-    case let .kickout(_, param): return .requestJSONEncodable(param)
+    case let .changeRole(_, param): return .requestJSONEncodable(params: param)
+    case .kickout: return .plain
     case .myAgency: return .plain
     case .code: return .plain
-    case let .certificateCode(_, param): return .requestJSONEncodable(param)
+    case let .certificateCode(_, param): return .requestJSONEncodable(params: param)
     case .reissueCode: return .plain
     }
   }

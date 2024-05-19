@@ -21,6 +21,7 @@ let project = Project(
             "CFBundleURLName": "com.salmal.app"
           ]
         ],
+        "UIUserInterfaceStyle": "Light",
         "CFBundleShortVersionString": "1.0",
         "CFBundleVersion": "1",
         "UILaunchStoryboardName": "LaunchScreen",

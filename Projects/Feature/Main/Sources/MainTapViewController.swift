@@ -1,8 +1,13 @@
 import UIKit
 
+import BaseFeature
 import DesignSystem
 
+import RxSwift
+
 public final class MainTapViewController: UITabBarController {
+  private let disposeBag = DisposeBag()
+
   public init() {
     super.init(nibName: nil, bundle: nil)
   }
@@ -16,6 +21,7 @@ public final class MainTapViewController: UITabBarController {
     super.viewWillAppear(animated)
     
     setupTabBar()
+    bind()
   }
 
   private func setupTabBar() {
@@ -33,5 +39,14 @@ public final class MainTapViewController: UITabBarController {
     }
     
     tabBar.tintColor = Colors.Blue._4
+  }
+
+  private func bind() {
+    NotificationCenter.default.rx.notification(.tabBarHidden)
+      .compactMap { $0.object as? Bool }
+      .bind(with: self, onNext: { owner, value in
+        owner.tabBar.isHidden = value
+      })
+      .disposed(by: disposeBag)
   }
 }

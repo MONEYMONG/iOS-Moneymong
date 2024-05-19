@@ -14,6 +14,7 @@ public extension Reactive where Base: UIViewController {
       if value {
         loadingIndicator.view.frame = target.view.frame
         target.view.addSubview(loadingIndicator.view)
+        loadingIndicator.view.setNeedsLayout()
       } else {
         loadingIndicator.removeFromParent()
         loadingIndicator.view.removeFromSuperview()

@@ -155,6 +155,6 @@ extension DatePickerSheetVC: UIPickerViewDataSource, UIPickerViewDelegate{
     }
   
   func pickerView(_ pickerView: UIPickerView, didSelectRow row: Int, inComponent component: Int) {
-    reactor?.action.onNext(.selectDate(row, component))
+    reactor?.action.onNext(.selectDate(row: row, component: component))
   }
 }
