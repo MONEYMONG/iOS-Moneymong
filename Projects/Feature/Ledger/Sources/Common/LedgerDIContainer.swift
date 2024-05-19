@@ -75,6 +75,11 @@ public final class LedgerDIContainer {
     return vc
   }
   
+  func scanInput() -> UIViewController {
+    let vc = ScanInputVC()
+    return vc
+  }
+  
   func editMember(agencyID: Int, member: Member, with coordinator: LedgerCoordinator) -> EditMemberSheetVC {
     let vc = EditMemberSheetVC()
     vc.coordinator = coordinator
