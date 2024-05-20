@@ -21,7 +21,7 @@ final class LedgerTabReactor: Reactor {
 
   struct State {
     let userID: Int
-    @Pulse var agencyID: Int = 0
+    @Pulse var agencyID: Int? = nil
     @Pulse var role: Member.Role?
     @Pulse var totalBalance: String = "0"
     @Pulse var filterType: FundType? = nil
@@ -132,21 +132,23 @@ final class LedgerTabReactor: Reactor {
       .flatMap { owner, event -> Observable<Mutation> in
       switch event {
       case let .update(agency):
-        return .concat([
+        return .merge([
           .just(.setAgencyID(agency.id)),
-          owner.requestLedgerList()
+          owner.requestLedgerList(agencyID: agency.id)
         ])
       }
     }
     return .merge(ledgerListUpdate, agencyUpdate)
   }
   
-  private func requestLedgerList() -> Observable<Mutation> {
+  private func requestLedgerList(agencyID: Int? = nil) -> Observable<Mutation> {
+    let id = agencyID ?? currentState.agencyID
+    guard let id else { return .empty() }
     return .concat([
       .just(.setLoading(true)),
       .task {
         return try await ledgerRepo.fetchLedgerList(
-          id: currentState.agencyID, // 소속 ID
+          id: id, // 소속 ID
           start: currentState.dateRange.start,
           end: currentState.dateRange.end,
           page: 0, // 0부터
