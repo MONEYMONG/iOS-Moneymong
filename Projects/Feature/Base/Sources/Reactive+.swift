@@ -12,10 +12,12 @@ public extension Reactive where Base: UIViewController {
       target.view.isUserInteractionEnabled = !value
       target.navigationController?.navigationBar.isUserInteractionEnabled = !value
       if value {
+        target.addChild(loadingIndicator)
         loadingIndicator.view.frame = target.view.frame
         target.view.addSubview(loadingIndicator.view)
-        loadingIndicator.view.setNeedsLayout()
+        loadingIndicator.didMove(toParent: target)
       } else {
+        loadingIndicator.willMove(toParent: nil)
         loadingIndicator.removeFromParent()
         loadingIndicator.view.removeFromSuperview()
       }

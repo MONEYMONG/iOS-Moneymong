@@ -126,6 +126,10 @@ final class DetailVC: BaseVC, View {
       }
       .disposed(by: disposeBag)
 
+    reactor.pulse(\.$isLoading)
+      .bind(to: rx.isLoading)
+      .disposed(by: disposeBag)
+
     reactor.pulse(\.$isEdit)
       .observe(on: MainScheduler.instance)
       .bind(with: self) { owner, isEdit in
