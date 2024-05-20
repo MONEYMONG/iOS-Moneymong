@@ -263,7 +263,7 @@ private extension ManualInputReactor {
         storeInfo: currentState.content.source,
         fundType: currentState.content.amountSign == 1 ? .income : .expense,
         amount: amount,
-        description: currentState.content.memo,
+        description: currentState.content.memo.isEmpty ? "내용없음" : currentState.content.memo,
         paymentDate: date,
         receiptImageUrls: currentState.content.receiptImages.map(\.url),
         documentImageUrls: currentState.content.documentImages.map(\.url)
