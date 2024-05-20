@@ -8,7 +8,7 @@ import NetworkService
 import PinLayout
 import FlexLayout
 
-final class DetailVC: BaseVC, View {
+final class LedgerDetailVC: BaseVC, View {
   public var disposeBag = DisposeBag()
   weak var coordinator: LedgerCoordinator?
 
@@ -32,20 +32,10 @@ final class DetailVC: BaseVC, View {
 
   private let editButton = MMButton(title: Const.edit, type: .primary)
 
-  override func viewWillAppear(_ animated: Bool) {
-    super.viewWillAppear(animated)
-    NotificationCenter.default.post(name: .tabBarHidden, object: true)
-  }
-
-  override func viewWillDisappear(_ animated: Bool) {
-    super.viewWillDisappear(animated)
-    NotificationCenter.default.post(name: .tabBarHidden, object: false)
-  }
-
   override func viewDidLayoutSubviews() {
     super.viewDidLayoutSubviews()
 
-    scrollView.contentSize = reactor?.currentState.isEdit == true 
+    scrollView.contentSize = reactor?.currentState.isEdit == true
     ? CGSize(
       width: editContentsView.frame.size.width,
       height: editContentsView.frame.size.height + 28
@@ -77,23 +67,34 @@ final class DetailVC: BaseVC, View {
           flex.addItem(editContentsView)
         }
 
-      flex.position(.absolute).bottom(0).define { flex in
-        flex.addItem(editButtonContainer)
-          .paddingHorizontal(20)
-          .backgroundColor(Colors.White._1)
-          .define { flex in
-            flex.addItem().height(20)
-            flex.addItem(editButton).height(56)
-            flex.addItem().height(46)
-          }
+      if reactor?.currentState.role == .staff {
+        flex.position(.absolute).bottom(0).define { flex in
+          flex.addItem(editButtonContainer)
+            .paddingHorizontal(20)
+            .backgroundColor(Colors.White._1)
+            .define { flex in
+              flex.addItem().height(20)
+              flex.addItem(editButton).height(56)
+              flex.addItem().height(46)
+            }
+        }
       }
     }
   }
 
-  public func bind(reactor: DetailReactor) {
+  public func bind(reactor: LedgerDetailReactor) {
     rx.viewWillAppear
+      .do(onNext: { _ in
+        NotificationCenter.default.post(name: .tabBarHidden, object: true)
+      })
       .map { Reactor.Action.onAppear }
       .bind(to: reactor.action)
+      .disposed(by: disposeBag)
+
+    rx.viewDidDisappear
+      .bind(with: self) { owner, _ in
+        NotificationCenter.default.post(name: .tabBarHidden, object: false)
+      }
       .disposed(by: disposeBag)
 
     setLeftItem(.back)
@@ -114,21 +115,26 @@ final class DetailVC: BaseVC, View {
       .observe(on: MainScheduler.instance)
       .bind(with: self) { owner, ledger in
         owner.setTitle(
-          ledger.fundType == .expense 
+          ledger.fundType == .expense
           ? Const.expenseTitle
           : Const.incomeTitle
         )
         owner.contentsView.configure(ledger: ledger)
         owner.editContentsView.configure(ledger: ledger)
-        owner.viewDidLayoutSubviews()
       }
+      .disposed(by: disposeBag)
+
+    reactor.pulse(\.$isLoading)
+      .bind(to: rx.isLoading)
       .disposed(by: disposeBag)
 
     reactor.pulse(\.$isEdit)
       .observe(on: MainScheduler.instance)
       .bind(with: self) { owner, isEdit in
         isEdit ? owner.onEditContents() : owner.onDetailContents()
-        owner.viewDidLayoutSubviews()
+        if reactor.currentState.role == .staff {
+          owner.setNavigationBarRightButton(isEdit: isEdit)
+        }
       }
       .disposed(by: disposeBag)
 
@@ -149,12 +155,25 @@ final class DetailVC: BaseVC, View {
     editButton.setTitle(Const.edit, for: .normal)
     viewDidLayoutSubviews()
     rootContainer.setNeedsLayout()
+  }
 
-    setRightItem(.trash)
+  private func onEditContents() {
+    editContentsView.isHidden = false
+    editContentsView.flex.display(.flex)
+    contentsView.isHidden = true
+    contentsView.flex.display(.none)
+    editButton.setTitle(Const.editCompleted, for: .normal)
+    rootContainer.setNeedsLayout()
+    viewDidLayoutSubviews()
+
+    setRightItem(.수정완료)
+  }
+
+  private func setNavigationBarRightButton(isEdit: Bool) {
+    isEdit ? setRightItem(.수정완료) : setRightItem(.trash)
     navigationItem.rightBarButtonItem?.rx.tap
-      .observe(on: MainScheduler.instance)
       .bind(with: self, onNext: { owner, _ in
-        if owner.reactor?.currentState.isEdit == true {
+        if isEdit {
           owner.reactor?.action.onNext(.didTapEdit)
         } else {
           owner.coordinator?.present(
@@ -170,18 +189,6 @@ final class DetailVC: BaseVC, View {
         }
       })
       .disposed(by: disposeBag)
-  }
-
-  private func onEditContents() {
-    editContentsView.isHidden = false
-    editContentsView.flex.display(.flex)
-    contentsView.isHidden = true
-    contentsView.flex.display(.none)
-    editButton.setTitle(Const.editCompleted, for: .normal)
-    rootContainer.setNeedsLayout()
-    viewDidLayoutSubviews()
-
-    setRightItem(.수정완료)
   }
 }
 

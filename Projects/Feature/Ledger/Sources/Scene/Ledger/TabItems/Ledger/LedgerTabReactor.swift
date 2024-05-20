@@ -132,7 +132,12 @@ final class LedgerTabReactor: Reactor {
             owner.requestLedgerList(agencyID: owner.currentState.agencyID),
             .just(.setLoading(false))
           ])
-          
+        case .update:
+          return .concat([
+            .just(.setLoading(true)),
+            owner.requestLedgerList(agencyID: owner.currentState.agencyID),
+            .just(.setLoading(false))
+          ])
         }
     }
     

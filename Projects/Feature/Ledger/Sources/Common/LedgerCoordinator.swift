@@ -15,7 +15,7 @@ public final class LedgerCoordinator: Coordinator {
     case alert(title: String, subTitle: String?, type: MMAlerts.`Type`)
     case inputManual(Int)
     case datePicker(start: DateInfo, end: DateInfo)
-    case detail(Ledger)
+    case detail(Ledger, Member.Role)
     case selectAgency
   }
 
@@ -40,8 +40,8 @@ public final class LedgerCoordinator: Coordinator {
       editMember(agencyID: id, member: member)
     case let .alert(title, subTitle, type):
       AlertsManager.show(title: title, subTitle: subTitle, type: type)
-    case let .detail(ledger):
-      detail(ledgerID: ledger.id)
+    case let .detail(ledger, role):
+      detail(ledgerID: ledger.id, role: role)
     }
   }
   
@@ -86,8 +86,8 @@ extension LedgerCoordinator {
     navigationController.present(vc, animated: animated)
   }
 
-  private func detail(ledgerID: Int, animated: Bool = true) {
-    let vc = diContainer.detail(with: self, ledgerID: ledgerID)
+  private func detail(ledgerID: Int, role: Member.Role, animated: Bool = true) {
+    let vc = diContainer.detail(with: self, ledgerID: ledgerID, role: role)
     navigationController.pushViewController(vc, animated: animated)
   }
 }

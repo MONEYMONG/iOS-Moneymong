@@ -2,7 +2,7 @@ import NetworkService
 
 import ReactorKit
 
-final class DetailReactor: Reactor {
+final class LedgerDetailReactor: Reactor {
 
   enum Action {
     case onAppear
@@ -19,6 +19,7 @@ final class DetailReactor: Reactor {
 
   struct State {
     let ledgerId: Int
+    let role: Member.Role
     @Pulse var ledger: LedgerDetailItem?
     @Pulse var isLoading: Bool = false
     @Pulse var isEdit: Bool = false
@@ -29,13 +30,17 @@ final class DetailReactor: Reactor {
   var initialState: State
   private let formatter = ContentFormatter()
   private let ledgerRepository: LedgerRepositoryInterface
+  private let ledgerService: LedgerServiceInterface
 
   init(
     ledgerID: Int,
-    ledgerRepository: LedgerRepositoryInterface
+    role: Member.Role,
+    ledgerRepository: LedgerRepositoryInterface,
+    ledgerService: LedgerServiceInterface
   ) {
-    self.initialState = State(ledgerId: ledgerID)
+    self.initialState = State(ledgerId: ledgerID, role: role)
     self.ledgerRepository = ledgerRepository
+    self.ledgerService = ledgerService
   }
 
   func mutate(action: Action) -> Observable<Mutation> {
@@ -67,6 +72,9 @@ final class DetailReactor: Reactor {
       return .concat([
         .just(.setIsLoading(true)),
         .task { return try await ledgerRepository.delete(id: currentState.ledgerId) }
+          .map { [weak self] in
+            self?.ledgerService.ledgerList.updateList()
+          }
           .map { .setDeleteCompleted(()) },
         .just(.setIsLoading(false))
       ])
