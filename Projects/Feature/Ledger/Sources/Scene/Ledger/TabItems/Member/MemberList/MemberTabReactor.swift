@@ -71,8 +71,8 @@ final class MemberTabReactor: Reactor {
         
           .merge(
             requestMyProfile(),
-            requestInvitationCode(),
-            requestMembers()
+            requestInvitationCode(agencyID: currentState.agencyID),
+            requestMembers(agencyID: currentState.agencyID)
           ),
         
           .just(.setLoading(false))
@@ -160,52 +160,51 @@ final class MemberTabReactor: Reactor {
     return Observable.merge(mutation, serviceMutation)
   }
   
-  func transform(action: Observable<Action>) -> Observable<Action> {
-    return Observable.merge(serviceAction, action)
-  }
-  
-  // 맴버 역할 바뀌었을때, 화면업데이트
-  private var serviceAction: Observable<Action> {
-    return ledgerService.member.event
-      .flatMap { event -> Observable<Action> in
-        switch event {
-        case .updateRole:
-          return .just(.onappear)
-        case .kickOff:
-          return .empty()
-        }
-      }
-  }
-  
-  // 맴버 내보내기 눌렀을때, Alert띄워주기 + 소속정보 바뀌었을때 업데이트
   private var serviceMutation: Observable<Mutation> {
-    let memberStream = ledgerService.member.event.flatMap { event -> Observable<Mutation> in
+    // 맴버 정보 변경됬을때 업데이트
+    let memberStream = ledgerService.member.event.flatMap { [weak self] event -> Observable<Mutation> in
+      guard let self else { return .empty() }
+      
       switch event {
       case .updateRole:
-        return .just(.setSnackBarMessage("역할이 성공적으로 변경됐습니다"))
+        return .concat(
+          requestMembers(agencyID: currentState.agencyID),
+          .just(.setSnackBarMessage("역할이 성공적으로 변경됐습니다"))
+        )
       case let .kickOff(id):
         return .just(.setDestination(.kickOffAlert(memberID: id)))
       }
     }
     
-    let agencyStream = ledgerService.agency.event.flatMap { event -> Observable<Mutation> in
+    // 소속정보 변경됬을때 업데이트
+    let agencyStream = ledgerService.agency.event.flatMap { [weak self] event -> Observable<Mutation> in
+      guard let self else { return .empty() }
+      
       switch event {
       case let .update(agency):
-        return .just(.setAgencyID(agency.id))
+        return .concat(
+          .just(.setAgencyID(agency.id)),
+          .just(.setLoading(true)),
+          requestInvitationCode(agencyID: agency.id),
+          requestMembers(agencyID: agency.id),
+          .just(.setLoading(false))
+        )
       }
     }
     
     return .merge(memberStream, agencyStream)
   }
   
+  /// 내정보 조회
   private func requestMyProfile() -> Observable<Mutation> {
     return .task { try await userRepo.user() }
       .map { .setName($0.nickname) }
       .catch { .just(.setError($0.toMMError)) }
   }
   
-  private func requestInvitationCode() -> Observable<Mutation> {
-    guard let agencyID = currentState.agencyID else {
+  /// 초대코드 조회
+  private func requestInvitationCode(agencyID: Int?) -> Observable<Mutation> {
+    guard let agencyID else {
       debugPrint("agencyID가 없을 수 없음")
       return .empty()
     }
@@ -215,8 +214,9 @@ final class MemberTabReactor: Reactor {
       .catch { return .just(.setError($0.toMMError)) }
   }
   
-  private func requestMembers() -> Observable<Mutation> {
-    guard let agencyID = currentState.agencyID else {
+  /// 소속에 속한 맴버리스트 조회
+  private func requestMembers(agencyID: Int?) -> Observable<Mutation> {
+    guard let agencyID else {
       debugPrint("agencyID가 없을 수 없음")
       return .empty()
     }

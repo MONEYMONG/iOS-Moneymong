@@ -49,7 +49,7 @@ final class MemberTabVC: BaseVC, View {
   
   func bind(reactor: MemberTabReactor) {
     // Action
-    rx.viewDidAppear
+    rx.viewDidLoad
       .map { Reactor.Action.onappear }
       .bind(to: reactor.action)
       .disposed(by: disposeBag)
@@ -66,13 +66,6 @@ final class MemberTabVC: BaseVC, View {
     profileView.tapReissue
       .throttle(.seconds(1), latest: false, scheduler: MainScheduler.instance)
       .map { Reactor.Action.reissueInvitationCode }
-      .bind(to: reactor.action)
-      .disposed(by: disposeBag)
-    
-    reactor.pulse(\.$agencyID)
-      .observe(on: MainScheduler.instance)
-      .compactMap { $0 }
-      .map { _ in Reactor.Action.onappear }
       .bind(to: reactor.action)
       .disposed(by: disposeBag)
     

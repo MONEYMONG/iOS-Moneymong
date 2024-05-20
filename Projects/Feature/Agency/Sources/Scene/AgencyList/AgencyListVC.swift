@@ -45,20 +45,17 @@ public final class AgencyListVC: BaseVC, View {
   
   public override func setupConstraints() {
     super.setupConstraints()
-    
-    let tabHeight = tabBarController?.tabBar.frame.height ?? 80
 
-    rootContainer.flex.justifyContent(.center).alignItems(.center).define { flex in
-      flex.addItem(collectionView).width(100%).height(100%)
-      flex.addItem(createAgencyButton).position(.absolute).size(70).right(14).bottom(tabHeight)
-    }
+    view.addSubview(collectionView)
+    view.addSubview(createAgencyButton)
   }
   
   public override func viewDidLayoutSubviews() {
     super.viewDidLayoutSubviews()
-
-    rootContainer.pin.all()
-    rootContainer.flex.layout()
+    let tabHeight = tabBarController?.tabBar.frame.height ?? 80
+    
+    collectionView.pin.all()
+    createAgencyButton.pin.size(70).right(14).bottom(tabHeight)
   }
 
   public func bind(reactor: AgencyListReactor) {
