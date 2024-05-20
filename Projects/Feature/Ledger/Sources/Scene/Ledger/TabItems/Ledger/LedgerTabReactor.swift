@@ -25,7 +25,7 @@ final class LedgerTabReactor: Reactor {
     @Pulse var role: Member.Role?
     @Pulse var totalBalance: String = "0"
     @Pulse var filterType: FundType? = nil
-    @Pulse var ledgers: [Ledger] = []
+    @Pulse var ledgers: [LedgerSectionModel] = [.init(items: [])]
     @Pulse var dateRange: (start: DateInfo, end: DateInfo) = (
       DateInfo(year: 2023, month: 12),
       DateInfo(year: 2024, month: 5)
@@ -95,7 +95,7 @@ final class LedgerTabReactor: Reactor {
     case let .requestLedgerList(ledgerList):
       let balance = formatter.convertToAmount(with: String(ledgerList.totalBalance)) ?? "0"
       newState.totalBalance = balance
-      newState.ledgers = ledgerList.ledgers
+      newState.ledgers[0].items = ledgerList.ledgers
     case let .setAgencyID(id):
       newState.agencyID = id
     case let .setLoading(value):
@@ -156,11 +156,11 @@ final class LedgerTabReactor: Reactor {
       }
         .map { .requestLedgerList($0) }
         .catch { _ in .empty() },
-      .task {
-        let members = try await agencyRepo.fetchMemberList(id: currentState.agencyID)
-        return members.first(where: { $0.userID == currentState.userID })?.role
-      }
-        .map { .setRole($0) },
+//      .task {
+//        let members = try await agencyRepo.fetchMemberList(id: currentState.agencyID)
+//        return members.first(where: { $0.userID == currentState.userID })?.role
+//      }
+//        .map { .setRole($0) },
       .just(.setLoading(false))
     ])
   }
