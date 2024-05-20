@@ -38,6 +38,7 @@ final class SelectAgencySheetVC: BottomSheetVC, View {
       .bind(to: reactor.action)
       .disposed(by: disposeBag)
     
+    
     tableView.rx.modelSelected(Agency.self)
       .throttle(.seconds(1), latest: false, scheduler: MainScheduler.instance)
       .do(afterNext: { [weak self] _ in
@@ -61,21 +62,26 @@ final class SelectAgencySheetVC: BottomSheetVC, View {
     reactor.pulse(\.$agency)
       .bind(to: tableView.rx.items) { tableview, index, item in
         return tableview
-          .dequeue(AgencyCell.self, for: IndexPath(index: index))
+          .dequeue(AgencyCell.self, for: IndexPath(item: index, section: 0))
           .configure(with: item, selectedID: reactor.currentState.selectedAgencyID)
       }
       .disposed(by: disposeBag)
     
     reactor.pulse(\.$agency)
-      .map { $0.count }
       .skip(1)
       .observe(on: MainScheduler.instance)
-      .bind(with: self) { owner, num in
-        let height = min(CGFloat(num * (80 + 12)), 3 * (80 + 12)) + 12
-
-        owner.tableView.isScrollEnabled = num > 3
+      .bind(with: self) { owner, agencies in
+        
+        let count = agencies.count
+        
+        let height = min(CGFloat(count * (80 + 12)), 3 * (80 + 12)) + 12
+        owner.tableView.isScrollEnabled = count > 3
         owner.tableView.flex.height(height)
         owner.view.setNeedsLayout()
+        
+        if let index = agencies.firstIndex(where: { $0.id == reactor.currentState.selectedAgencyID }) {
+          owner.tableView.scrollToRow(at: IndexPath(row: index, section: 0), at: .middle, animated: true)
+        }
       }
       .disposed(by: disposeBag)
     

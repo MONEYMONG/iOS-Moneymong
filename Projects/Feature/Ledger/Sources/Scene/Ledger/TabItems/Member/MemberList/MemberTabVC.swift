@@ -75,7 +75,7 @@ final class MemberTabVC: BaseVC, View {
               let agencyID = reactor.currentState.agencyID
         else { return UITableViewCell() }
         
-        let cell = tableview.dequeue(MemberCell.self, for: IndexPath(index: index))
+        let cell = tableview.dequeue(MemberCell.self, for: IndexPath(item: index, section: 0))
           
         cell.configure(member: item, role: role) { member in
           self?.coordinator?.present(.editMember(agencyID, member))
@@ -98,9 +98,9 @@ final class MemberTabVC: BaseVC, View {
       reactor.pulse(\.$invitationCode),
       reactor.pulse(\.$role)
     )
-    .compactMap { element -> (name: String, code: String, role: Member.Role)? in
-      guard let name = element.0, let code = element.1, let role = element.2 else { return nil }
-      return (name: name, code: code, role: role)
+    .compactMap { element -> (name: String, code: String?, role: Member.Role)? in
+      guard let name = element.0, let role = element.2 else { return nil }
+      return (name: name, code: element.1, role: role)
     }
     .observe(on: MainScheduler.instance)
     .bind(with: self) { owner, element in

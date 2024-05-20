@@ -94,10 +94,9 @@ final class MyProfileView: UIView {
         flex.addItem(nameLabel).marginRight(6)
         flex.addItem(tagView)
       }
-      .marginBottom(12)
       
       flex.addItem(separatorView).height(1)
-        .marginBottom(12)
+          .marginVertical(12)
       
       flex.addItem().direction(.row).define { flex in
         flex.addItem(invitationCodeLabel)
@@ -108,9 +107,12 @@ final class MyProfileView: UIView {
     }
   }
   
-  func configure(title: String, role: Member.Role, code: String) {
+  func configure(title: String, role: Member.Role, code: String?) {
     nameLabel.setTextWithLineHeight(text: title, lineHeight: 24)
-    invitationCodeLabel.setTextWithLineHeight(text: "초대코드 \(code)", lineHeight: 20)
+    
+    if let code {
+      invitationCodeLabel.setTextWithLineHeight(text: "초대코드 \(code)", lineHeight: 20)
+    }
     
     switch role {
     case .staff:
