@@ -26,6 +26,8 @@ public final class MainTabBarCoordinator: Coordinator {
     case .login:
       parentCoordinator?.move(to: .login)
       remove()
+    case .ledger:
+      tabBarController?.selectedIndex = 0
     case .agency:
       tabBarController?.selectedIndex = 1
     }

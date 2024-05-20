@@ -28,21 +28,18 @@ public final class AgencyCoordinator: Coordinator {
     agency(animated: animated)
   }
   
-  func push(_ scene: Scene, animated: Bool = true) {
-    switch scene {
-    case .createComplete: createComplete(animated: animated)
-    case .joinComplete: joinComplete(animated: animated)
-    default: break
-    }
-  }
-  
   func present(_ scene: Scene, animated: Bool = true) {
     switch scene {
     case let .alert(title, subTitle, okAction):
       AlertsManager.show(title: title, subTitle: subTitle, type: .onlyOkButton(okAction))
-    case let .joinAgency(id, name): joinAgency(id: id, name: name, animated: animated)
-    case .createAgency: createAgency(animated: animated)
-    default: break
+    case let .joinAgency(id, name): 
+      joinAgency(id: id, name: name, animated: animated)
+    case .joinComplete:
+      joinComplete(animated: animated)
+    case .createAgency: 
+      createAgency(animated: animated)
+    case .createComplete:
+      createComplete(animated: animated)
     }
   }
   
@@ -51,12 +48,12 @@ public final class AgencyCoordinator: Coordinator {
   }
   
   func goLedger() {
-    parentCoordinator?.move(to: .agency)
+    parentCoordinator?.move(to: .ledger)
   }
   
   func goCreateLedger() {
     // TODO: 동아리 운영비 등록하러 가기 화면이 떠야함..!
-    parentCoordinator?.move(to: .agency)
+    parentCoordinator?.move(to: .ledger)
   }
 }
 

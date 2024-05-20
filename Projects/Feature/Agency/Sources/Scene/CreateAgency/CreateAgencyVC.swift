@@ -111,7 +111,7 @@ final class CreateAgencyVC: BaseVC, View {
       .bind(with: self) { owner, value in
         switch value {
         case .complete:
-          owner.coordinator?.push(.createComplete)
+          owner.coordinator?.present(.createComplete)
         }
       }
       .disposed(by: disposeBag)

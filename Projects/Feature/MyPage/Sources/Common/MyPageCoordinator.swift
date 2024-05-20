@@ -27,21 +27,16 @@ public final class MyPageCoordinator: Coordinator {
     myPage(animated: animated)
   }
   
-  func push(_ scene: Scene, animated: Bool = true) {
-    switch scene {
-    case .alert: break
-    case .web: break
-    case .withrawal: withdrawl()
-    case .debug: debug()
-    }
-  }
-  
   func present(_ scene: Scene, animated: Bool = true) {
     switch scene {
-    case let .alert(title, subTitle, action): alert(title: title, subTitle: subTitle, okAction: action)
-    case let .web(urlString): web(urlString: urlString)
-    case .withrawal: break
-    case .debug: break
+    case let .alert(title, subTitle, action): 
+      alert(title: title, subTitle: subTitle, okAction: action)
+    case let .web(urlString):
+      web(urlString: urlString)
+    case .withrawal:
+      withdrawl()
+    case .debug:
+      debug()
     }
   }
   

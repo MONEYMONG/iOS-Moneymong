@@ -10,6 +10,12 @@ public final class LedgerVC: BaseVC, View {
   public var disposeBag = DisposeBag()
   weak var coordinator: LedgerCoordinator?
   
+  private let emptyView: LedgerEmptyView = {
+    let v = LedgerEmptyView()
+    v.isHidden = true
+    return v
+  }()
+  
   private let agencyButton: UIButton = {
     var title = AttributedString("소속 없음")
     title.font = Fonts.heading._1
@@ -20,7 +26,11 @@ public final class LedgerVC: BaseVC, View {
     config.image = Images.chevronDown?.withTintColor(Colors.Gray._10)
     config.imagePadding = 4
     config.imagePlacement = .trailing
-    return UIButton(configuration: config)
+    
+    let v = UIButton(configuration: config)
+    v.frame = .init(x: 0, y: 0, width: 200, height: 0)
+    
+    return v
   }()
   
   private let lineTab: LineTabViewController
@@ -32,6 +42,8 @@ public final class LedgerVC: BaseVC, View {
   
   public override func viewDidLayoutSubviews() {
     super.viewDidLayoutSubviews()
+    
+    emptyView.pin.all()
   }
   
   public override func setupUI() {
@@ -40,6 +52,8 @@ public final class LedgerVC: BaseVC, View {
   
   public override func setupConstraints() {
     super.setupConstraints()
+    view.addSubview(emptyView)
+    
     rootContainer.flex
       .define { flex in
         flex.addItem(lineTab.view)
@@ -54,14 +68,29 @@ public final class LedgerVC: BaseVC, View {
       .bind(to: reactor.action)
       .disposed(by: disposeBag)
     
+    emptyView.tapAgency
+      .bind(with: self) { owner, _ in
+        owner.coordinator?.goAgency()
+      }
+      .disposed(by: disposeBag)
+    
     reactor.pulse(\.$agency)
+      .skip(1)
       .observe(on: MainScheduler.instance)
       .bind(with: self) { owner, agency in
-        var title = AttributedString(agency?.name ?? "소속없음")
+        var title = AttributedString(agency?.name ?? "장부")
         title.font = Fonts.heading._1
         title.foregroundColor = Colors.Gray._10
         
         owner.agencyButton.configuration?.attributedTitle = title
+        
+        if agency == nil {
+          owner.agencyButton.configuration?.image = nil
+          owner.emptyView.isHidden = false
+        } else {
+          owner.agencyButton.configuration?.image = Images.chevronDown?.withTintColor(Colors.Gray._10)
+          owner.emptyView.isHidden = true
+        }
       }
       .disposed(by: disposeBag)
     

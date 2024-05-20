@@ -7,7 +7,7 @@ import BaseFeature
 public final class LedgerCoordinator: Coordinator {
   public var navigationController: UINavigationController
   private let diContainer: LedgerDIContainer
-  public weak var parentCoordinator: (Coordinator)?
+  public weak var parentCoordinator: Coordinator?
   public var childCoordinators: [Coordinator] = []
   
   enum Scene {
@@ -30,10 +30,12 @@ public final class LedgerCoordinator: Coordinator {
   
   func present(_ scene: Scene, animated: Bool = true) {
     switch scene {
-    case .inputManual(let agencyId): manualInput(agencyId: agencyId, animated: animated)
+    case let .inputManual(agencyId):
+      manualInput(agencyId: agencyId, animated: animated)
     case let .datePicker(start, end):
       datePicker(start: start, end: end)
-    case .selectAgency: selectAgencySheet()
+    case .selectAgency:
+      selectAgencySheet()
     case let .editMember(id, member):
       editMember(agencyID: id, member: member)
     case let .alert(title, subTitle, type):
@@ -41,6 +43,10 @@ public final class LedgerCoordinator: Coordinator {
     case let .detail(ledger):
       detail(ledgerID: ledger.id)
     }
+  }
+  
+  func goAgency() {
+    parentCoordinator?.move(to: .ledger)
   }
 
   func pop(animated: Bool = true) {
