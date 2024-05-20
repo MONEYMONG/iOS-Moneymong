@@ -54,10 +54,9 @@ public final class AgencyListVC: BaseVC, View {
   
   public override func viewDidLayoutSubviews() {
     super.viewDidLayoutSubviews()
-    let tabHeight = tabBarController?.tabBar.frame.height ?? 80
     
-    collectionView.pin.all()
-    createAgencyButton.pin.size(70).right(14).bottom(tabHeight)
+    collectionView.pin.all(view.pin.safeArea)
+    createAgencyButton.pin.size(70).bottom(view.pin.safeArea + 10).right(view.pin.safeArea + 10)
   }
 
   public func bind(reactor: AgencyListReactor) {
