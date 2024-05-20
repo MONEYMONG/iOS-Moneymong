@@ -79,7 +79,9 @@ final class LedgerTabReactor: Reactor {
       }
       return .concat([
         .just(.setFilterType(fundType)),
-        requestLedgerList(agencyID: currentState.agencyID)
+        .just(.setLoading(true)),
+        requestLedgerList(agencyID: currentState.agencyID),
+        .just(.setLoading(false))
       ])
     }
   }
@@ -120,10 +122,17 @@ final class LedgerTabReactor: Reactor {
         case let .selectedDateRange(start, end):
           return .concat([
             .just(.setDateRange(start: start, end: end)),
-            owner.requestLedgerList(agencyID: owner.currentState.agencyID)
+            .just(.setLoading(true)),
+            owner.requestLedgerList(agencyID: owner.currentState.agencyID),
+            .just(.setLoading(false))
           ])
         case .createLedgerRecord:
-          return owner.requestLedgerList(agencyID: owner.currentState.agencyID)
+          return .concat([
+            .just(.setLoading(true)),
+            owner.requestLedgerList(agencyID: owner.currentState.agencyID),
+            .just(.setLoading(false))
+          ])
+          
         }
     }
     
@@ -132,10 +141,14 @@ final class LedgerTabReactor: Reactor {
       .flatMap { owner, event -> Observable<Mutation> in
       switch event {
       case let .update(agency):
-        return .merge([
+        return .concat([
           .just(.setAgencyID(agency.id)),
-          owner.requestLedgerList(agencyID: agency.id),
-          owner.requestMembers(agencyID: agency.id)
+          .just(.setLoading(true)),
+          .merge([
+            owner.requestLedgerList(agencyID: agency.id),
+            owner.requestMembers(agencyID: agency.id)
+          ]),
+          .just(.setLoading(false))
         ])
       }
     }
@@ -144,22 +157,18 @@ final class LedgerTabReactor: Reactor {
   
   private func requestLedgerList(agencyID: Int?) -> Observable<Mutation> {
     guard let agencyID else { return .empty() }
-    return .concat([
-      .just(.setLoading(true)),
-      .task {
-        return try await ledgerRepo.fetchLedgerList(
-          id: agencyID, // 소속 ID
-          start: currentState.dateRange.start,
-          end: currentState.dateRange.end,
-          page: 0, // 0부터
-          limit: 20, // 아이템 수
-          fundType: currentState.filterType
-        )
-      }
-        .map { .setLedgerInfo($0) }
-        .catch { _ in .empty() },
-      .just(.setLoading(false))
-    ])
+    return .task {
+      return try await ledgerRepo.fetchLedgerList(
+        id: agencyID, // 소속 ID
+        start: currentState.dateRange.start,
+        end: currentState.dateRange.end,
+        page: 0, // 0부터
+        limit: 20, // 아이템 수
+        fundType: currentState.filterType
+      )
+    }
+      .map { .setLedgerInfo($0) }
+      .catch { _ in .empty() }
   }
   
   private func requestMembers(agencyID: Int?) -> Observable<Mutation> {
