@@ -27,7 +27,7 @@ final class SelectAgencySheetVC: BottomSheetVC, View {
     super.setupConstraints()
     
     contentView.flex.define { flex in
-      flex.addItem(tableView).height(80 * (80 + 12))
+      flex.addItem(tableView).height(3 * (80 + 12) + 12)
         .margin(20, 20, 0, 20)
     }
   }
@@ -40,6 +40,9 @@ final class SelectAgencySheetVC: BottomSheetVC, View {
     
     tableView.rx.modelSelected(Agency.self)
       .throttle(.seconds(1), latest: false, scheduler: MainScheduler.instance)
+      .do(afterNext: { [weak self] _ in
+        self?.dismiss()
+      })
       .map { Reactor.Action.tapCell($0) }
       .bind(to: reactor.action)
       .disposed(by: disposeBag)
@@ -64,10 +67,13 @@ final class SelectAgencySheetVC: BottomSheetVC, View {
       .disposed(by: disposeBag)
     
     reactor.pulse(\.$agency)
+      .map { $0.count }
       .skip(1)
-      .map { min(CGFloat($0.count * (80 + 12)), 3 * (80 + 12)) }
       .observe(on: MainScheduler.instance)
-      .bind(with: self) { owner, height in
+      .bind(with: self) { owner, num in
+        let height = min(CGFloat(num * (80 + 12)), 3 * (80 + 12)) + 12
+
+        owner.tableView.isScrollEnabled = num > 3
         owner.tableView.flex.height(height)
         owner.view.setNeedsLayout()
       }
