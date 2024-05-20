@@ -79,7 +79,7 @@ final class LedgerTabReactor: Reactor {
       }
       return .concat([
         .just(.setFilterType(fundType)),
-        requestLedgerList()
+        requestLedgerList(agencyID: currentState.agencyID)
       ])
     }
   }
@@ -120,10 +120,10 @@ final class LedgerTabReactor: Reactor {
         case let .selectedDateRange(start, end):
           return .concat([
             .just(.setDateRange(start: start, end: end)),
-            owner.requestLedgerList()
+            owner.requestLedgerList(agencyID: owner.currentState.agencyID)
           ])
         case .createLedgerRecord:
-          return owner.requestLedgerList()
+          return owner.requestLedgerList(agencyID: owner.currentState.agencyID)
         }
     }
     
@@ -135,21 +135,20 @@ final class LedgerTabReactor: Reactor {
         return .merge([
           .just(.setAgencyID(agency.id)),
           owner.requestLedgerList(agencyID: agency.id),
-          owner.requestMemberList(agencyID: agency.id)
+          owner.requestMembers(agencyID: agency.id)
         ])
       }
     }
     return .merge(ledgerListUpdate, agencyUpdate)
   }
   
-  private func requestLedgerList(agencyID: Int? = nil) -> Observable<Mutation> {
-    let id = agencyID ?? currentState.agencyID
-    guard let id else { return .empty() }
+  private func requestLedgerList(agencyID: Int?) -> Observable<Mutation> {
+    guard let agencyID else { return .empty() }
     return .concat([
       .just(.setLoading(true)),
       .task {
         return try await ledgerRepo.fetchLedgerList(
-          id: id, // 소속 ID
+          id: agencyID, // 소속 ID
           start: currentState.dateRange.start,
           end: currentState.dateRange.end,
           page: 0, // 0부터
@@ -163,11 +162,10 @@ final class LedgerTabReactor: Reactor {
     ])
   }
   
-  private func requestMemberList(agencyID: Int? = nil) -> Observable<Mutation> {
-    let id = agencyID ?? currentState.agencyID
-    guard let id else { return .empty() }
+  private func requestMembers(agencyID: Int?) -> Observable<Mutation> {
+    guard let agencyID else { return .empty() }
     return .task {
-      let members = try await agencyRepo.fetchMemberList(id: id)
+      let members = try await agencyRepo.fetchMemberList(id: agencyID)
       return members.first(where: { $0.userID == currentState.userID })?.role
     }
     .map { .setRole($0) }
