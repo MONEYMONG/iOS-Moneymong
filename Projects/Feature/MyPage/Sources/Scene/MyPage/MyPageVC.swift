@@ -82,7 +82,7 @@ public final class MyPageVC: BaseVC, ReactorKit.View {
       case .setting(.privacy):
         owner.coordinator?.present(.web(urlString: "https://www.notion.so/moneymong/7f4338eda8564c1ca4177caecf5aedc8?pvs=4"))
       case .setting(.withdrawal):
-        owner.coordinator?.push(.withrawal)
+        owner.coordinator?.present(.withrawal)
       case .setting(.logout):
         owner.coordinator?.present(.alert(
           title: "정말 로그아웃 하시겠습니까?",
@@ -91,7 +91,7 @@ public final class MyPageVC: BaseVC, ReactorKit.View {
         )
       case .setting(.versionInfo):
         #if DEBUG
-        owner.coordinator?.push(.debug)
+        owner.coordinator?.present(.debug)
         #endif
       default: break
       }
