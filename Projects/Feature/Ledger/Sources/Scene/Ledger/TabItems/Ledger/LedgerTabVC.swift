@@ -4,11 +4,12 @@ import Combine
 import BaseFeature
 import DesignSystem
 import Utility
+import NetworkService
 
 import ReactorKit
 import PinLayout
 import FlexLayout
-import NetworkService
+import RxDataSources
 
 final class LedgerTabVC: BaseVC, View {
   var disposeBag = DisposeBag()
@@ -58,6 +59,11 @@ final class LedgerTabVC: BaseVC, View {
     return v
   }()
   private let emptyView = LedgerListEmptyView()
+  
+  private lazy var dataSource = RxCollectionViewSectionedAnimatedDataSource<LedgerSectionModel> { dataSource, collectionView, indexPath, item in
+    return collectionView.dequeueCell(LedgerCell.self, for: indexPath)
+      .configure(with: item)
+  }
   
   override func setupUI() {
     super.setupUI()
@@ -138,15 +144,11 @@ final class LedgerTabVC: BaseVC, View {
       .disposed(by: disposeBag)
     
     reactor.pulse(\.$ledgers)
-      .bind(to: ledgerList.rx.items) { view, row, element in
-        let indexPath = IndexPath(row: row, section: 0)
-        let cell = view.dequeueCell(LedgerCell.self, for: indexPath)
-        return cell.configure(with: element)
-      }
+      .bind(to: ledgerList.rx.items(dataSource: dataSource))
       .disposed(by: disposeBag)
     
     reactor.pulse(\.$ledgers)
-      .map { !$0.isEmpty }
+      .map { !$0[0].items.isEmpty }
       .bind(to: emptyView.rx.isHidden)
       .disposed(by: disposeBag)
     

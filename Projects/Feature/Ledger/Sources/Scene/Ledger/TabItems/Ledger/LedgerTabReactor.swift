@@ -15,17 +15,17 @@ final class LedgerTabReactor: Reactor {
     case setAgencyID(Int)
     case setLoading(Bool)
     case setFilterType(FundType?)
-    case requestLedgerList(LedgerList)
+    case setLedgerInfo(LedgerList)
     case setRole(Member.Role?)
   }
 
   struct State {
     let userID: Int
-    @Pulse var agencyID: Int = 0
+    @Pulse var agencyID: Int? = nil
     @Pulse var role: Member.Role?
     @Pulse var totalBalance: String = "0"
     @Pulse var filterType: FundType? = nil
-    @Pulse var ledgers: [Ledger] = []
+    @Pulse var ledgers: [LedgerSectionModel] = [.init(items: [])]
     @Pulse var dateRange: (start: DateInfo, end: DateInfo) = (
       DateInfo(year: 2023, month: 12),
       DateInfo(year: 2024, month: 5)
@@ -79,7 +79,9 @@ final class LedgerTabReactor: Reactor {
       }
       return .concat([
         .just(.setFilterType(fundType)),
-        requestLedgerList()
+        .just(.setLoading(true)),
+        requestLedgerList(agencyID: currentState.agencyID),
+        .just(.setLoading(false))
       ])
     }
   }
@@ -92,10 +94,10 @@ final class LedgerTabReactor: Reactor {
       newState.dateRange = (start, end)
     case let .setDestination(destination):
       newState.destination = destination
-    case let .requestLedgerList(ledgerList):
-      let balance = formatter.convertToAmount(with: String(ledgerList.totalBalance)) ?? "0"
+    case let .setLedgerInfo(ledgerList):
+      let balance = formatter.convertToAmount(with: ledgerList.totalBalance) ?? "0"
       newState.totalBalance = balance
-      newState.ledgers = ledgerList.ledgers
+      newState.ledgers[0].items = ledgerList.ledgers
     case let .setAgencyID(id):
       newState.agencyID = id
     case let .setLoading(value):
@@ -120,10 +122,17 @@ final class LedgerTabReactor: Reactor {
         case let .selectedDateRange(start, end):
           return .concat([
             .just(.setDateRange(start: start, end: end)),
-            owner.requestLedgerList()
+            .just(.setLoading(true)),
+            owner.requestLedgerList(agencyID: owner.currentState.agencyID),
+            .just(.setLoading(false))
           ])
         case .createLedgerRecord:
-          return owner.requestLedgerList()
+          return .concat([
+            .just(.setLoading(true)),
+            owner.requestLedgerList(agencyID: owner.currentState.agencyID),
+            .just(.setLoading(false))
+          ])
+          
         }
     }
     
@@ -134,34 +143,41 @@ final class LedgerTabReactor: Reactor {
       case let .update(agency):
         return .concat([
           .just(.setAgencyID(agency.id)),
-          owner.requestLedgerList()
+          .just(.setLoading(true)),
+          .merge([
+            owner.requestLedgerList(agencyID: agency.id),
+            owner.requestMembers(agencyID: agency.id)
+          ]),
+          .just(.setLoading(false))
         ])
       }
     }
     return .merge(ledgerListUpdate, agencyUpdate)
   }
   
-  private func requestLedgerList() -> Observable<Mutation> {
-    return .concat([
-      .just(.setLoading(true)),
-      .task {
-        return try await ledgerRepo.fetchLedgerList(
-          id: currentState.agencyID, // 소속 ID
-          start: currentState.dateRange.start,
-          end: currentState.dateRange.end,
-          page: 0, // 0부터
-          limit: 20, // 아이템 수
-          fundType: currentState.filterType
-        )
-      }
-        .map { .requestLedgerList($0) }
-        .catch { _ in .empty() },
-      .task {
-        let members = try await agencyRepo.fetchMemberList(id: currentState.agencyID)
-        return members.first(where: { $0.userID == currentState.userID })?.role
-      }
-        .map { .setRole($0) },
-      .just(.setLoading(false))
-    ])
+  private func requestLedgerList(agencyID: Int?) -> Observable<Mutation> {
+    guard let agencyID else { return .empty() }
+    return .task {
+      return try await ledgerRepo.fetchLedgerList(
+        id: agencyID, // 소속 ID
+        start: currentState.dateRange.start,
+        end: currentState.dateRange.end,
+        page: 0, // 0부터
+        limit: 20, // 아이템 수
+        fundType: currentState.filterType
+      )
+    }
+      .map { .setLedgerInfo($0) }
+      .catch { _ in .empty() }
+  }
+  
+  private func requestMembers(agencyID: Int?) -> Observable<Mutation> {
+    guard let agencyID else { return .empty() }
+    return .task {
+      let members = try await agencyRepo.fetchMemberList(id: agencyID)
+      return members.first(where: { $0.userID == currentState.userID })?.role
+    }
+    .map { .setRole($0) }
+    .catch { _ in .empty() }
   }
 }
