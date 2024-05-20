@@ -32,16 +32,6 @@ final class DetailVC: BaseVC, View {
 
   private let editButton = MMButton(title: Const.edit, type: .primary)
 
-  override func viewWillAppear(_ animated: Bool) {
-    super.viewWillAppear(animated)
-    NotificationCenter.default.post(name: .tabBarHidden, object: true)
-  }
-
-  override func viewWillDisappear(_ animated: Bool) {
-    super.viewWillDisappear(animated)
-    NotificationCenter.default.post(name: .tabBarHidden, object: false)
-  }
-
   override func viewDidLayoutSubviews() {
     super.viewDidLayoutSubviews()
 
@@ -94,8 +84,17 @@ final class DetailVC: BaseVC, View {
 
   public func bind(reactor: DetailReactor) {
     rx.viewWillAppear
+      .do(onNext: { _ in
+        NotificationCenter.default.post(name: .tabBarHidden, object: true)
+      })
       .map { Reactor.Action.onAppear }
       .bind(to: reactor.action)
+      .disposed(by: disposeBag)
+
+    rx.viewDidDisappear
+      .bind(with: self) { owner, _ in
+        NotificationCenter.default.post(name: .tabBarHidden, object: false)
+      }
       .disposed(by: disposeBag)
 
     setLeftItem(.back)
@@ -122,7 +121,6 @@ final class DetailVC: BaseVC, View {
         )
         owner.contentsView.configure(ledger: ledger)
         owner.editContentsView.configure(ledger: ledger)
-        owner.viewDidLayoutSubviews()
       }
       .disposed(by: disposeBag)
 
@@ -137,7 +135,6 @@ final class DetailVC: BaseVC, View {
         if reactor.currentState.role == .staff {
           owner.setNavigationBarRightButton(isEdit: isEdit)
         }
-        owner.viewDidLayoutSubviews()
       }
       .disposed(by: disposeBag)
 
@@ -158,8 +155,6 @@ final class DetailVC: BaseVC, View {
     editButton.setTitle(Const.edit, for: .normal)
     viewDidLayoutSubviews()
     rootContainer.setNeedsLayout()
-
-
   }
 
   private func onEditContents() {
@@ -175,49 +170,25 @@ final class DetailVC: BaseVC, View {
   }
 
   private func setNavigationBarRightButton(isEdit: Bool) {
-    if isEdit {
-      setRightItem(.수정완료)
-      navigationItem.rightBarButtonItem?.rx.tap
-        .observe(on: MainScheduler.instance)
-        .bind(with: self, onNext: { owner, _ in
-          if owner.reactor?.currentState.isEdit == true {
-            owner.reactor?.action.onNext(.didTapEdit)
-          } else {
-            owner.coordinator?.present(
-              .alert(
-                title: Const.deleteAlertTitle,
-                subTitle: Const.deleteAlertDescription,
-                type: .default(
-                  okAction: { owner.reactor?.action.onNext(.didTapDelete) },
-                  cancelAction: {}
-                )
+    isEdit ? setRightItem(.수정완료) : setRightItem(.trash)
+    navigationItem.rightBarButtonItem?.rx.tap
+      .bind(with: self, onNext: { owner, _ in
+        if isEdit {
+          owner.reactor?.action.onNext(.didTapEdit)
+        } else {
+          owner.coordinator?.present(
+            .alert(
+              title: Const.deleteAlertTitle,
+              subTitle: Const.deleteAlertDescription,
+              type: .default(
+                okAction: { owner.reactor?.action.onNext(.didTapDelete) },
+                cancelAction: {}
               )
             )
-          }
-        })
-        .disposed(by: disposeBag)
-    } else {
-      setRightItem(.trash)
-      navigationItem.rightBarButtonItem?.rx.tap
-        .observe(on: MainScheduler.instance)
-        .bind(with: self, onNext: { owner, _ in
-          if owner.reactor?.currentState.isEdit == true {
-            owner.reactor?.action.onNext(.didTapEdit)
-          } else {
-            owner.coordinator?.present(
-              .alert(
-                title: Const.deleteAlertTitle,
-                subTitle: Const.deleteAlertDescription,
-                type: .default(
-                  okAction: { owner.reactor?.action.onNext(.didTapDelete) },
-                  cancelAction: {}
-                )
-              )
-            )
-          }
-        })
-        .disposed(by: disposeBag)
-    }
+          )
+        }
+      })
+      .disposed(by: disposeBag)
   }
 }
 

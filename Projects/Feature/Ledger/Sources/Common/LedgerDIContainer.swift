@@ -114,7 +114,8 @@ public final class LedgerDIContainer {
     vc.reactor = DetailReactor(
       ledgerID: ledgerID,
       role: role,
-      ledgerRepository: ledgerRepo
+      ledgerRepository: ledgerRepo,
+      ledgerService: ledgerService
     )
     return vc
   }

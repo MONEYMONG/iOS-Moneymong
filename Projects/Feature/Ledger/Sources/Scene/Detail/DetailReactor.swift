@@ -30,14 +30,17 @@ final class DetailReactor: Reactor {
   var initialState: State
   private let formatter = ContentFormatter()
   private let ledgerRepository: LedgerRepositoryInterface
+  private let ledgerService: LedgerServiceInterface
 
   init(
     ledgerID: Int,
     role: Member.Role,
-    ledgerRepository: LedgerRepositoryInterface
+    ledgerRepository: LedgerRepositoryInterface,
+    ledgerService: LedgerServiceInterface
   ) {
     self.initialState = State(ledgerId: ledgerID, role: role)
     self.ledgerRepository = ledgerRepository
+    self.ledgerService = ledgerService
   }
 
   func mutate(action: Action) -> Observable<Mutation> {
@@ -69,6 +72,9 @@ final class DetailReactor: Reactor {
       return .concat([
         .just(.setIsLoading(true)),
         .task { return try await ledgerRepository.delete(id: currentState.ledgerId) }
+          .map { [weak self] in
+            self?.ledgerService.ledgerList.updateList()
+          }
           .map { .setDeleteCompleted(()) },
         .just(.setIsLoading(false))
       ])
