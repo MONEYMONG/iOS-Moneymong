@@ -9,7 +9,7 @@ public final class LedgerReactor: Reactor {
   }
   
   public enum Mutation {
-    case setAgency(Agency)
+    case setAgency(Agency?)
     case setError(MoneyMongError)
   }
   
@@ -42,10 +42,13 @@ public final class LedgerReactor: Reactor {
         try await agencyRepo.fetchMyAgency()
       }
       .map { [weak self] agencies in
-        let agency = agencies.first(where: { $0.id == agencyID }) ?? agencies[0]
+        let agency = agencies.first(where: { $0.id == agencyID }) ?? agencies.first
+        
+        if let agency {
+          self?.userRepo.updateSelectedAgency(id: agency.id)
+          self?.service.agency.updateAgency(agency)
+        }
 
-        self?.userRepo.updateSelectedAgency(id: agency.id)
-        self?.service.agency.updateAgency(agency)
         return .setAgency(agency)
       }
       .catch {

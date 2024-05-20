@@ -39,21 +39,10 @@ public final class WithdrawalReactor: Reactor {
     case .tapWithdrawlButton:
       return .concat(
         .just(.setLoading(true)),
-        Single.create { observer in
-          let task = Task {
-            do {
-              try await self.userRepo.withdrawl()
-              observer(.success(()))
-            } catch {
-              observer(.failure(error))
-            }
-          }
-          
-          return Disposables.create { task.cancel() }
-        }
-          .asObservable()
-          .map { _ in return .setDestination(.login)}
-        ,
+        
+        .task { try await self.userRepo.withdrawl()}
+        .map { _ in return .setDestination(.login)},
+        
         .just(.setLoading(false)),
         .just(.setDestination(.login))
       )

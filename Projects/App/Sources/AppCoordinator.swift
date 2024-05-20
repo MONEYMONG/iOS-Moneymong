@@ -24,8 +24,7 @@ final class AppCoordinator: Coordinator {
       main(animated: true)
     case .login:
       sign(animated: true)
-    case .agency:
-      break
+    default: break
     }
   }
   

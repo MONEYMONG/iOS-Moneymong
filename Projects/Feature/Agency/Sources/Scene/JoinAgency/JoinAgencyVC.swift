@@ -146,7 +146,7 @@ final class JoinAgencyVC: BaseVC, ReactorKit.View {
       .bind(with: self) { owner, destination in
         switch destination {
         case .joinComplete:
-          owner.coordinator?.push(.joinComplete)
+          owner.coordinator?.present(.joinComplete)
         }
       }
       .disposed(by: disposeBag)

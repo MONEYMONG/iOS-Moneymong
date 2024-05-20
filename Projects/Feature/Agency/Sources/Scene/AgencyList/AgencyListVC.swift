@@ -14,6 +14,8 @@ public final class AgencyListVC: BaseVC, View {
   public var disposeBag = DisposeBag()
   weak var coordinator: AgencyCoordinator?
   
+  private let emptyView = EmptyAgencyView()
+  
   private let collectionView: UICollectionView = {
     let flowLayout = UICollectionViewFlowLayout()
     flowLayout.scrollDirection = .vertical
@@ -23,7 +25,6 @@ public final class AgencyListVC: BaseVC, View {
     let v = UICollectionView(frame: .zero, collectionViewLayout: flowLayout)
     v.register(AgencyCell.self)
     v.backgroundColor = Colors.Gray._1
-    v.backgroundView = EmptyAgencyView()
     return v
   }()
   
@@ -41,24 +42,21 @@ public final class AgencyListVC: BaseVC, View {
   public override func setupUI() {
     super.setupUI()
     setTitle("소속찾기")
+    collectionView.backgroundView = emptyView
   }
   
   public override func setupConstraints() {
     super.setupConstraints()
-    
-    let tabHeight = tabBarController?.tabBar.frame.height ?? 80
 
-    rootContainer.flex.justifyContent(.center).alignItems(.center).define { flex in
-      flex.addItem(collectionView).width(100%).height(100%)
-      flex.addItem(createAgencyButton).position(.absolute).size(70).right(14).bottom(tabHeight)
-    }
+    view.addSubview(collectionView)
+    view.addSubview(createAgencyButton)
   }
   
   public override func viewDidLayoutSubviews() {
     super.viewDidLayoutSubviews()
-
-    rootContainer.pin.all()
-    rootContainer.flex.layout()
+    
+    collectionView.pin.all(view.pin.safeArea)
+    createAgencyButton.pin.size(70).bottom(view.pin.safeArea + 10).right(view.pin.safeArea + 10)
   }
 
   public func bind(reactor: AgencyListReactor) {
@@ -89,11 +87,8 @@ public final class AgencyListVC: BaseVC, View {
       .disposed(by: disposeBag)
     
     reactor.pulse(\.$items)
-      .map(\.isEmpty)
-      .observe(on: MainScheduler.instance)
-      .bind(with: self) { owner, isEmpty in
-        owner.collectionView.backgroundView?.isHidden = !isEmpty
-      }
+      .map { $0.isEmpty == false }
+      .bind(to: emptyView.rx.isHidden)
       .disposed(by: disposeBag)
     
     reactor.pulse(\.$isLoading)

@@ -19,6 +19,7 @@ final class MemberTabVC: BaseVC, View {
   }()
   
   private let profileView = MyProfileView()
+  private let emptyView = MemberEmptyView()
   
   private let memberHeaderLabel: UILabel = {
     let v = UILabel()
@@ -31,10 +32,15 @@ final class MemberTabVC: BaseVC, View {
   private let tableView: UITableView = {
     let v = UITableView(frame: .zero, style: .plain)
     v.separatorStyle = .none
-    v.backgroundView = MemberEmptyView()
     v.register(MemberCell.self)
     return v
   }()
+  
+  override func setupUI() {
+    super.setupUI()
+    
+    tableView.backgroundView = emptyView
+  }
   
   override func setupConstraints() {
     super.setupConstraints()
@@ -49,7 +55,7 @@ final class MemberTabVC: BaseVC, View {
   
   func bind(reactor: MemberTabReactor) {
     // Action
-    rx.viewDidAppear
+    rx.viewDidLoad
       .map { Reactor.Action.onappear }
       .bind(to: reactor.action)
       .disposed(by: disposeBag)
@@ -69,20 +75,13 @@ final class MemberTabVC: BaseVC, View {
       .bind(to: reactor.action)
       .disposed(by: disposeBag)
     
-    reactor.pulse(\.$agencyID)
-      .observe(on: MainScheduler.instance)
-      .compactMap { $0 }
-      .map { _ in Reactor.Action.onappear }
-      .bind(to: reactor.action)
-      .disposed(by: disposeBag)
-    
     reactor.pulse(\.$members)
       .bind(to: tableView.rx.items) { [weak self] tableview, index, item in
         guard let role = reactor.currentState.role,
               let agencyID = reactor.currentState.agencyID
         else { return UITableViewCell() }
         
-        let cell = tableview.dequeue(MemberCell.self, for: IndexPath(index: index))
+        let cell = tableview.dequeue(MemberCell.self, for: IndexPath(item: index, section: 0))
           
         cell.configure(member: item, role: role) { member in
           self?.coordinator?.present(.editMember(agencyID, member))
@@ -93,11 +92,8 @@ final class MemberTabVC: BaseVC, View {
       .disposed(by: disposeBag)
     
     reactor.pulse(\.$members)
-      .map(\.isEmpty)
-      .observe(on: MainScheduler.instance)
-      .bind(with: self) { owner, isEmpty in
-        owner.tableView.backgroundView?.isHidden = !isEmpty
-      }
+      .map { $0.isEmpty == false }
+      .bind(to: emptyView.rx.isHidden)
       .disposed(by: disposeBag)
     
     Observable.combineLatest(
@@ -105,9 +101,9 @@ final class MemberTabVC: BaseVC, View {
       reactor.pulse(\.$invitationCode),
       reactor.pulse(\.$role)
     )
-    .compactMap { element -> (name: String, code: String, role: Member.Role)? in
-      guard let name = element.0, let code = element.1, let role = element.2 else { return nil }
-      return (name: name, code: code, role: role)
+    .compactMap { element -> (name: String, code: String?, role: Member.Role)? in
+      guard let name = element.0, let role = element.2 else { return nil }
+      return (name: name, code: element.1, role: role)
     }
     .observe(on: MainScheduler.instance)
     .bind(with: self) { owner, element in
