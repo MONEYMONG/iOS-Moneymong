@@ -15,7 +15,7 @@ final class LedgerTabReactor: Reactor {
     case setAgencyID(Int)
     case setLoading(Bool)
     case setFilterType(FundType?)
-    case requestLedgerList(LedgerList)
+    case setLedgerInfo(LedgerList)
     case setRole(Member.Role?)
   }
 
@@ -92,8 +92,8 @@ final class LedgerTabReactor: Reactor {
       newState.dateRange = (start, end)
     case let .setDestination(destination):
       newState.destination = destination
-    case let .requestLedgerList(ledgerList):
-      let balance = formatter.convertToAmount(with: String(ledgerList.totalBalance)) ?? "0"
+    case let .setLedgerInfo(ledgerList):
+      let balance = formatter.convertToAmount(with: ledgerList.totalBalance) ?? "0"
       newState.totalBalance = balance
       newState.ledgers[0].items = ledgerList.ledgers
     case let .setAgencyID(id):
@@ -134,7 +134,8 @@ final class LedgerTabReactor: Reactor {
       case let .update(agency):
         return .merge([
           .just(.setAgencyID(agency.id)),
-          owner.requestLedgerList(agencyID: agency.id)
+          owner.requestLedgerList(agencyID: agency.id),
+          owner.requestMemberList(agencyID: agency.id)
         ])
       }
     }
@@ -156,14 +157,20 @@ final class LedgerTabReactor: Reactor {
           fundType: currentState.filterType
         )
       }
-        .map { .requestLedgerList($0) }
+        .map { .setLedgerInfo($0) }
         .catch { _ in .empty() },
-//      .task {
-//        let members = try await agencyRepo.fetchMemberList(id: currentState.agencyID)
-//        return members.first(where: { $0.userID == currentState.userID })?.role
-//      }
-//        .map { .setRole($0) },
       .just(.setLoading(false))
     ])
+  }
+  
+  private func requestMemberList(agencyID: Int? = nil) -> Observable<Mutation> {
+    let id = agencyID ?? currentState.agencyID
+    guard let id else { return .empty() }
+    return .task {
+      let members = try await agencyRepo.fetchMemberList(id: id)
+      return members.first(where: { $0.userID == currentState.userID })?.role
+    }
+    .map { .setRole($0) }
+    .catch { _ in .empty() }
   }
 }
