@@ -20,7 +20,11 @@ public final class LedgerVC: BaseVC, View {
     config.image = Images.chevronDown?.withTintColor(Colors.Gray._10)
     config.imagePadding = 4
     config.imagePlacement = .trailing
-    return UIButton(configuration: config)
+    
+    let v = UIButton(configuration: config)
+    v.frame = .init(x: 0, y: 0, width: 200, height: 0)
+    
+    return v
   }()
   
   private let lineTab: LineTabViewController
