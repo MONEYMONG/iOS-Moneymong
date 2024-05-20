@@ -51,12 +51,12 @@ public final class AgencyCoordinator: Coordinator {
   }
   
   func goLedger() {
-    parentCoordinator?.move(to: .agency)
+    parentCoordinator?.move(to: .ledger)
   }
   
   func goCreateLedger() {
     // TODO: 동아리 운영비 등록하러 가기 화면이 떠야함..!
-    parentCoordinator?.move(to: .agency)
+    parentCoordinator?.move(to: .ledger)
   }
 }
 

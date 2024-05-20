@@ -80,7 +80,8 @@ final class MemberTabReactor: Reactor {
       
     case .reissueInvitationCode:
       guard let agencyID = currentState.agencyID else {
-        fatalError("agencyID가 없을 수 없음")
+        debugPrint("agencyID가 없을 수 없음")
+        return .empty()
       }
       
       return .concat(
@@ -102,7 +103,8 @@ final class MemberTabReactor: Reactor {
       
     case let .requestKickOffMember(memberID):
       guard let agencyID = currentState.agencyID else {
-        fatalError("agencyID가 없을 수 없음")
+        debugPrint("agencyID가 없을 수 없음")
+        return .empty()
       }
       
       return .concat(
@@ -204,7 +206,8 @@ final class MemberTabReactor: Reactor {
   
   private func requestInvitationCode() -> Observable<Mutation> {
     guard let agencyID = currentState.agencyID else {
-      fatalError("agencyID가 없을 수 없음")
+      debugPrint("agencyID가 없을 수 없음")
+      return .empty()
     }
     
     return .task { try await agencyRepo.fetchCode(id: agencyID) }
@@ -214,14 +217,16 @@ final class MemberTabReactor: Reactor {
   
   private func requestMembers() -> Observable<Mutation> {
     guard let agencyID = currentState.agencyID else {
-      fatalError("agencyID가 없을 수 없음")
+      debugPrint("agencyID가 없을 수 없음")
+      return .empty()
     }
     
     return .task { try await agencyRepo.fetchMemberList(id: agencyID) }
       .flatMap { [weak self] members -> Observable<Mutation> in
         guard let role = members.first(where: { $0.userID == self?.currentState.userID })?.role
         else {
-          fatalError("역할이 없을 수 없음")
+          debugPrint("역할이 없을 수 없음")
+          return .empty()
         }
         
         return .concat(
