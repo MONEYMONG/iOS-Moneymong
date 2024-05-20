@@ -2,7 +2,7 @@ import NetworkService
 
 import ReactorKit
 
-final class DetailReactor: Reactor {
+final class LedgerDetailReactor: Reactor {
 
   enum Action {
     case onAppear

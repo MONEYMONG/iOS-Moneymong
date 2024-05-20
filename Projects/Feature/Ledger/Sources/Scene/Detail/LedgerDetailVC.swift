@@ -8,7 +8,7 @@ import NetworkService
 import PinLayout
 import FlexLayout
 
-final class DetailVC: BaseVC, View {
+final class LedgerDetailVC: BaseVC, View {
   public var disposeBag = DisposeBag()
   weak var coordinator: LedgerCoordinator?
 
@@ -82,7 +82,7 @@ final class DetailVC: BaseVC, View {
     }
   }
 
-  public func bind(reactor: DetailReactor) {
+  public func bind(reactor: LedgerDetailReactor) {
     rx.viewWillAppear
       .do(onNext: { _ in
         NotificationCenter.default.post(name: .tabBarHidden, object: true)

@@ -108,10 +108,10 @@ public final class LedgerDIContainer {
     return vc
   }
 
-  func detail(with coordinator: LedgerCoordinator, ledgerID: Int, role: Member.Role) -> DetailVC {
-    let vc = DetailVC()
+  func detail(with coordinator: LedgerCoordinator, ledgerID: Int, role: Member.Role) -> LedgerDetailVC {
+    let vc = LedgerDetailVC()
     vc.coordinator = coordinator
-    vc.reactor = DetailReactor(
+    vc.reactor = LedgerDetailReactor(
       ledgerID: ledgerID,
       role: role,
       ledgerRepository: ledgerRepo,
