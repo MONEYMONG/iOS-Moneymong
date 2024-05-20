@@ -14,6 +14,8 @@ public final class AgencyListVC: BaseVC, View {
   public var disposeBag = DisposeBag()
   weak var coordinator: AgencyCoordinator?
   
+  private let emptyView = EmptyAgencyView()
+  
   private let collectionView: UICollectionView = {
     let flowLayout = UICollectionViewFlowLayout()
     flowLayout.scrollDirection = .vertical
@@ -23,7 +25,6 @@ public final class AgencyListVC: BaseVC, View {
     let v = UICollectionView(frame: .zero, collectionViewLayout: flowLayout)
     v.register(AgencyCell.self)
     v.backgroundColor = Colors.Gray._1
-    v.backgroundView = EmptyAgencyView()
     return v
   }()
   
@@ -41,6 +42,7 @@ public final class AgencyListVC: BaseVC, View {
   public override func setupUI() {
     super.setupUI()
     setTitle("소속찾기")
+    collectionView.backgroundView = emptyView
   }
   
   public override func setupConstraints() {
@@ -86,11 +88,8 @@ public final class AgencyListVC: BaseVC, View {
       .disposed(by: disposeBag)
     
     reactor.pulse(\.$items)
-      .map(\.isEmpty)
-      .observe(on: MainScheduler.instance)
-      .bind(with: self) { owner, isEmpty in
-        owner.collectionView.backgroundView?.isHidden = !isEmpty
-      }
+      .map { $0.isEmpty == false }
+      .bind(to: emptyView.rx.isHidden)
       .disposed(by: disposeBag)
     
     reactor.pulse(\.$isLoading)

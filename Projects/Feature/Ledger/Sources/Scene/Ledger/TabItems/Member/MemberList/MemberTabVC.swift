@@ -19,6 +19,7 @@ final class MemberTabVC: BaseVC, View {
   }()
   
   private let profileView = MyProfileView()
+  private let emptyView = MemberEmptyView()
   
   private let memberHeaderLabel: UILabel = {
     let v = UILabel()
@@ -31,10 +32,15 @@ final class MemberTabVC: BaseVC, View {
   private let tableView: UITableView = {
     let v = UITableView(frame: .zero, style: .plain)
     v.separatorStyle = .none
-    v.backgroundView = MemberEmptyView()
     v.register(MemberCell.self)
     return v
   }()
+  
+  override func setupUI() {
+    super.setupUI()
+    
+    tableView.backgroundView = emptyView
+  }
   
   override func setupConstraints() {
     super.setupConstraints()
@@ -86,11 +92,8 @@ final class MemberTabVC: BaseVC, View {
       .disposed(by: disposeBag)
     
     reactor.pulse(\.$members)
-      .map(\.isEmpty)
-      .observe(on: MainScheduler.instance)
-      .bind(with: self) { owner, isEmpty in
-        owner.tableView.backgroundView?.isHidden = !isEmpty
-      }
+      .map { $0.isEmpty == false }
+      .bind(to: emptyView.rx.isHidden)
       .disposed(by: disposeBag)
     
     Observable.combineLatest(
