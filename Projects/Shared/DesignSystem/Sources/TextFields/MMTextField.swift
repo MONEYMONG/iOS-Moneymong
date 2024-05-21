@@ -224,6 +224,8 @@ extension MMTextField {
 
   public func setTitle(to text: String) {
     titleLabel.text = text
+    titleLabel.flex.markDirty()
+    setNeedsLayout()
   }
 
   public func setPlaceholder(to text: String) {

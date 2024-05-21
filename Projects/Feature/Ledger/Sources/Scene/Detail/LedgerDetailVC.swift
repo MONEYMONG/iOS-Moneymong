@@ -39,8 +39,8 @@ final class LedgerDetailVC: BaseVC, View {
     rootContainer.flex.define { flex in
       flex.addItem().height(12)
 
-      flex.addItem(contentsView)
-        .shrink(1)
+      flex.addItem(contentsView).grow(1)
+        .marginBottom(28)
 
       if reactor?.currentState.role == .staff {
         flex.position(.absolute).bottom(0).define { flex in
@@ -105,7 +105,7 @@ final class LedgerDetailVC: BaseVC, View {
     reactor.pulse(\.$isEdit)
       .observe(on: MainScheduler.instance)
       .bind(with: self) { owner, isEdit in
-        isEdit ? owner.onEditContents() : owner.onDetailContents()
+        owner.contentsView.setType(isEdit ? .update : .read)
         if reactor.currentState.role == .staff {
           owner.setNavigationBarRightButton(isEdit: isEdit)
         }
