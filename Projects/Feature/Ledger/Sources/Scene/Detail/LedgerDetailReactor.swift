@@ -11,7 +11,7 @@ final class LedgerDetailReactor: Reactor {
   }
 
   enum Mutation {
-    case setLedger(LedgerDetailItem)
+    case setLedger(LedgerDetail)
     case setIsLoading(Bool)
     case setIsEdit(Bool)
     case setDeleteCompleted(Void)
@@ -20,7 +20,7 @@ final class LedgerDetailReactor: Reactor {
   struct State {
     let ledgerId: Int
     let role: Member.Role
-    @Pulse var ledger: LedgerDetailItem?
+    @Pulse var ledger: LedgerDetail?
     @Pulse var isLoading: Bool = false
     @Pulse var isEdit: Bool = false
     @Pulse var isChanged: Bool = false
@@ -49,21 +49,6 @@ final class LedgerDetailReactor: Reactor {
       return .concat([
         .just(.setIsLoading(true)),
         .task { return try await ledgerRepository.fetchLedgerDetail(id: currentState.ledgerId) }
-          .map {
-            let (date, time) = self.formatter.convertToDateTime(with: $0.paymentDate)
-            return LedgerDetailItem.init(
-              id: $0.id,
-              storeInfo: $0.storeInfo,
-              amountText: self.formatter.convertToAmount(with: $0.amount) ?? "0",
-              fundType: $0.fundType,
-              memo: $0.description,
-              paymentDate: date,
-              paymentTime: time,
-              receiptImageUrls: $0.receiptImageUrls,
-              documentImageUrls: $0.documentImageUrls,
-              authorName: $0.authorName
-            )
-          }
           .map { .setLedger($0) },
         .just(.setIsLoading(false))
       ])

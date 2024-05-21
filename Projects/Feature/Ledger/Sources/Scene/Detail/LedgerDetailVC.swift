@@ -12,17 +12,7 @@ final class LedgerDetailVC: BaseVC, View {
   public var disposeBag = DisposeBag()
   weak var coordinator: LedgerCoordinator?
 
-  private let scrollView: UIScrollView = {
-    let scrollView = UIScrollView()
-    scrollView.showsVerticalScrollIndicator = false
-    scrollView.bounces = false
-    scrollView.keyboardDismissMode = .interactive
-    return scrollView
-  }()
-
-  private let contentsView = DetailContentsView()
-
-  private let editContentsView = EditContentsView()
+  private let contentsView = LedgerContentsView(type: .read)
 
   private let editButtonContainer: UIView = {
     let view = UIView()
@@ -34,16 +24,6 @@ final class LedgerDetailVC: BaseVC, View {
 
   override func viewDidLayoutSubviews() {
     super.viewDidLayoutSubviews()
-
-    scrollView.contentSize = reactor?.currentState.isEdit == true
-    ? CGSize(
-      width: editContentsView.frame.size.width,
-      height: editContentsView.frame.size.height + 28
-    )
-    : CGSize(
-      width: contentsView.frame.size.width,
-      height: contentsView.frame.size.height + 28
-    )
 
     rootContainer.pin.top(view.pin.safeArea).left().right().bottom()
     rootContainer.flex.layout()
@@ -59,13 +39,8 @@ final class LedgerDetailVC: BaseVC, View {
     rootContainer.flex.define { flex in
       flex.addItem().height(12)
 
-      flex.addItem(scrollView)
-        .paddingHorizontal(20)
+      flex.addItem(contentsView)
         .shrink(1)
-        .define { flex in
-          flex.addItem(contentsView)
-          flex.addItem(editContentsView)
-        }
 
       if reactor?.currentState.role == .staff {
         flex.position(.absolute).bottom(0).define { flex in
@@ -119,8 +94,7 @@ final class LedgerDetailVC: BaseVC, View {
           ? Const.expenseTitle
           : Const.incomeTitle
         )
-        owner.contentsView.configure(ledger: ledger)
-        owner.editContentsView.configure(ledger: ledger)
+        owner.contentsView.reactor = LedgerContentsReactor(ledger: ledger)
       }
       .disposed(by: disposeBag)
 
@@ -148,23 +122,23 @@ final class LedgerDetailVC: BaseVC, View {
   }
 
   private func onDetailContents() {
-    editContentsView.isHidden = true
-    editContentsView.flex.display(.none)
-    contentsView.isHidden = false
-    contentsView.flex.display(.flex)
-    editButton.setTitle(Const.edit, for: .normal)
-    viewDidLayoutSubviews()
-    rootContainer.setNeedsLayout()
+//    editContentsView.isHidden = true
+//    editContentsView.flex.display(.none)
+//    contentsView.isHidden = false
+//    contentsView.flex.display(.flex)
+//    editButton.setTitle(Const.edit, for: .normal)
+//    viewDidLayoutSubviews()
+//    rootContainer.setNeedsLayout()
   }
 
   private func onEditContents() {
-    editContentsView.isHidden = false
-    editContentsView.flex.display(.flex)
-    contentsView.isHidden = true
-    contentsView.flex.display(.none)
-    editButton.setTitle(Const.editCompleted, for: .normal)
-    rootContainer.setNeedsLayout()
-    viewDidLayoutSubviews()
+//    editContentsView.isHidden = false
+//    editContentsView.flex.display(.flex)
+//    contentsView.isHidden = true
+//    contentsView.flex.display(.none)
+//    editButton.setTitle(Const.editCompleted, for: .normal)
+//    rootContainer.setNeedsLayout()
+//    viewDidLayoutSubviews()
 
     setRightItem(.수정완료)
   }

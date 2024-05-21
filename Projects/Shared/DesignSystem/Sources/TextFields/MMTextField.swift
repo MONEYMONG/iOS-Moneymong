@@ -207,6 +207,17 @@ extension MMTextField {
     ))
   }
 
+  public func setIsEnabled(to value: Bool) {
+    textField.isEnabled = value
+
+    colorLineView.isHidden = !value
+    colorLineView.flex.isIncludedInLayout(value).markDirty()
+
+    charactorLimitView.isHidden = !value
+    charactorLimitView.flex.isIncludedInLayout(value).markDirty()
+    setNeedsLayout()
+  }
+
   public func setText(to text: String) {
     textField.text = text
   }
