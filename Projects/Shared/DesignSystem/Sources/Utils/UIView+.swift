@@ -6,6 +6,7 @@ public extension UIView {
     case top
     case left
     case right
+    case center
   }
 
   func setShadow(
@@ -39,6 +40,13 @@ public extension UIView {
     case .right:
       addShadow(
         offset: CGSize(width: 2, height: 0),
+        color: color,
+        opacity: opacity,
+        radius: radius
+      )
+    case .center:
+      addShadow(
+        offset: CGSize(width: 0, height: 0),
         color: color,
         opacity: opacity,
         radius: radius

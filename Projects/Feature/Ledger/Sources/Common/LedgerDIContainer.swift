@@ -76,7 +76,7 @@ public final class LedgerDIContainer {
   }
   
   func scanInput() -> UIViewController {
-    let vc = ScanInputVC()
+    let vc = UINavigationController(rootViewController: ScanInputVC())
     return vc
   }
   
