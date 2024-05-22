@@ -68,7 +68,7 @@ final class LedgerTabVC: BaseVC, View {
       }
     }
     floatingButton.addScanAction { [weak self] in
-      self?.coordinator?.present(.inputScan)
+      self?.coordinator?.present(.scanCreater)
     }
     ledgerList.backgroundView = emptyView
   }

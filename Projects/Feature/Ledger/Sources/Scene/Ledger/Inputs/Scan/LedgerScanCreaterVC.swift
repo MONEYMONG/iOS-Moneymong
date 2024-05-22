@@ -5,8 +5,13 @@ import DesignSystem
 
 import FlexLayout
 import PinLayout
+import ReactorKit
 
-final class ScanInputVC: UIViewController {
+final class LedgerScanCreaterVC: UIViewController, View {
+  var disposeBag = DisposeBag()
+  
+  weak var coordinator: LedgerScanCreaterCoordinator?
+  
   private let rootContainer = UIView()
   
   private let cameraView = CameraView()
@@ -48,10 +53,17 @@ final class ScanInputVC: UIViewController {
     return v
   }()
   
+  
   override func viewDidLoad() {
     super.viewDidLoad()
     setupUI()
     setupConstraints()
+    coordinator?.present(.guide, animated: false)
+  }
+  
+  override func viewWillAppear(_ animated: Bool) {
+    super.viewWillAppear(animated)
+    
   }
 
   override func viewDidLayoutSubviews() {
@@ -85,9 +97,6 @@ final class ScanInputVC: UIViewController {
     appearance.backgroundEffect = nil
     navigationController?.navigationBar.scrollEdgeAppearance = appearance
     navigationController?.navigationBar.standardAppearance = appearance
-    
-    setLeftItem(.warning)
-    setRightItem(.closeWhite)
   }
   
   private func setupConstraints() {
@@ -106,9 +115,26 @@ final class ScanInputVC: UIViewController {
     navigationController?.navigationBar.addSubview(tapGuideLine)
     bottomContainer.addSubview(bottomGuideLine)
   }
+  
+  func bind(reactor: LedgerScanCreaterReactor) {
+    setLeftItem(.warning)
+    setRightItem(.closeWhite)
+    
+    navigationItem.leftBarButtonItem?.rx.tap
+      .bind(with: self) { owner, _ in
+        owner.coordinator?.present(.guide, animated: false)
+      }
+      .disposed(by: disposeBag)
+    
+    navigationItem.rightBarButtonItem?.rx.tap
+      .bind(with: self) { owner, _ in
+        owner.coordinator?.dismiss(animated: true)
+      }
+      .disposed(by: disposeBag)
+  }
 }
 
-extension ScanInputVC: AVCapturePhotoCaptureDelegate {
+extension LedgerScanCreaterVC: AVCapturePhotoCaptureDelegate {
   func photoOutput(_ output: AVCapturePhotoOutput, didFinishProcessingPhoto photo: AVCapturePhoto, error: Error?) {
     // 사진 캡처 후 처리
     guard let imageData = photo.fileDataRepresentation() else { return }

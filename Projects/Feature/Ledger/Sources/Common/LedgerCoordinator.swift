@@ -14,7 +14,7 @@ public final class LedgerCoordinator: Coordinator {
     case editMember(Int, Member)
     case alert(title: String, subTitle: String?, type: MMAlerts.`Type`)
     case inputManual(Int)
-    case inputScan
+    case scanCreater
     case datePicker(start: DateInfo, end: DateInfo)
     case detail(Ledger)
     case selectAgency
@@ -39,8 +39,8 @@ public final class LedgerCoordinator: Coordinator {
       editMember(agencyID: id, member: member)
     case let .alert(title, subTitle, type):
       AlertsManager.show(title: title, subTitle: subTitle, type: type)
-    case .inputScan:
-      scanInput(animated: animated)
+    case .scanCreater:
+      scanCreater(animated: animated)
     case let .detail(ledger):
       detail(ledgerID: ledger.id)
     }
@@ -58,13 +58,13 @@ extension LedgerCoordinator {
   }
   
   private func manualInput(agencyId: Int, animated: Bool) {
-    let vc = diContainer.manualInput(with: self, agencyId: agencyId)
+    let vc = diContainer.manualCreater(with: self, agencyId: agencyId)
     vc.modalPresentationStyle = .fullScreen
     navigationController.present(vc, animated: animated)
   }
   
-  private func scanInput(animated: Bool) {
-    let vc = diContainer.scanInput()
+  private func scanCreater(animated: Bool) {
+    let vc = diContainer.scanCreater(with: self)
     vc.modalPresentationStyle = .fullScreen
     navigationController.present(vc, animated: animated)
   }
