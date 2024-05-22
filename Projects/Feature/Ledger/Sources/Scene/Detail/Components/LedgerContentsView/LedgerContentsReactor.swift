@@ -8,9 +8,7 @@ import ReactorKit
 
 final class LedgerContentsReactor: Reactor {
 
-  enum Action {
-//    case onAppear
-  }
+  enum Action {}
 
   enum Mutation {
     case setStoreInfo(String)
@@ -19,8 +17,8 @@ final class LedgerContentsReactor: Reactor {
     case setMemo(String)
     case setDate(String)
     case setTime(String)
-    case setReceiptImageUrls([LedgerDetail.ImageURL])
-    case setDocumentImageUrls([LedgerDetail.ImageURL])
+    case setReceiptImageUrls([LedgerImageSectionModel.Model])
+    case setDocumentImageUrls([LedgerImageSectionModel.Model])
     case setAuthorName(String)
   }
 
@@ -32,8 +30,8 @@ final class LedgerContentsReactor: Reactor {
     @Pulse var memo: String?
     @Pulse var date: String?
     @Pulse var time: String?
-    @Pulse var receiptImageUrls: [LedgerDetail.ImageURL]?
-    @Pulse var documentImageUrls: [LedgerDetail.ImageURL]?
+    @Pulse var receiptImages: [LedgerImageSectionModel.Model]?
+    @Pulse var documentImages: [LedgerImageSectionModel.Model]?
     @Pulse var authorName: String?
   }
 
@@ -67,18 +65,23 @@ final class LedgerContentsReactor: Reactor {
       memo: item.memo,
       date: item.date,
       time: item.time,
-      receiptImageUrls: item.receiptImageUrls,
-      documentImageUrls: item.documentImageUrls,
+      receiptImages: [
+        LedgerImageSectionModel.Model.init(
+          model: .default("영수증(최대12장)"),
+          items: item.receiptImageUrls.map { return .readImage($0.url) }
+        )
+      ],
+      documentImages: [
+        LedgerImageSectionModel.Model.init(
+          model: .default("증빙자료(최대12장)"),
+          items: item.documentImageUrls.map { return .readImage($0.url) }
+        )
+      ],
       authorName: item.authorName
     )
   }
 
-  func mutate(action: Action) -> Observable<Mutation> {
-//    switch action {
-//    case .onAppear:
-//
-//    }
-  }
+  func mutate(action: Action) -> Observable<Mutation> {}
 
   func reduce(state: State, mutation: Mutation) -> State {
     var newState = state
@@ -96,9 +99,9 @@ final class LedgerContentsReactor: Reactor {
     case .setTime(let time):
       newState.time = time
     case .setReceiptImageUrls(let urls):
-      newState.receiptImageUrls = urls
+      newState.receiptImages = urls
     case .setDocumentImageUrls(let urls):
-      newState.documentImageUrls = urls
+      newState.documentImages = urls
     case .setAuthorName(let authorName):
       newState.authorName = authorName
     }

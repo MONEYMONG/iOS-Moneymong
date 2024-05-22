@@ -4,20 +4,12 @@ import DesignSystem
 import Utility
 
 import RxSwift
+import Kingfisher
 
-final class ImageCell: UICollectionViewCell, ReusableView {
-  private let disposeBag = DisposeBag()
-  //  private var itme: ImageSectionModel.Item?
+final class DefaultImageCell: UICollectionViewCell, ReusableView {
   private let rootContainer = UIView()
 
-  private let deleteButton: UIButton = {
-    let v = UIButton()
-    v.setImage(Images.closeFill, for: .normal)
-    return v
-  }()
-
-  private let imageView
-  : UIImageView = {
+  private let imageView: UIImageView = {
     let v = UIImageView()
     v.layer.cornerRadius = 8
     v.clipsToBounds = true
@@ -29,7 +21,6 @@ final class ImageCell: UICollectionViewCell, ReusableView {
     super.init(frame: frame)
     setupView()
     setupConstraints()
-    //    bind()
   }
 
   @available(*, unavailable)
@@ -49,7 +40,9 @@ final class ImageCell: UICollectionViewCell, ReusableView {
     rootContainer.flex.layout()
   }
 
-  private func setupView() {}
+  private func setupView() {
+    contentView.addSubview(rootContainer)
+  }
 
   private func setupConstraints() {
     contentView.addSubview(rootContainer)
@@ -58,24 +51,27 @@ final class ImageCell: UICollectionViewCell, ReusableView {
       .alignItems(.center)
       .define { flex in
         flex.addItem(imageView)
-        flex.addItem(deleteButton)
-          .position(.absolute)
-          .top(-6)
-          .right(-6)
+          .border(1, Colors.Blue._1)
+        //    flex.addItem(deleteButton)
+        //     .position(.absolute)
+        //     .top(-6)
+        //     .right(-6)
       }
   }
-  //
-  //  private func bind() {
-  //    deleteButton.rx.tap
-  //      .bind(with: self) { owner, _ in
-  //        NotificationCenter.default.post(name: .didTapImageDeleteButton, object: owner.itme)
-  //      }.disposed(by: disposeBag)
-  //  }
-  //
-  //  func configure(with item: ImageSectionModel.Item) -> Self {
-  //    guard case let .image(image, _) = item else { return self }
-  //    self.itme = item
-  //    imageView.image = UIImage(data: image.data)
-  //    return self
-  //  }
+
+  func configure(with urlString: String) -> Self {
+    guard let url = URL(string: urlString) else {
+      return self
+    }
+    imageView.kf.indicatorType = .activity
+    imageView.kf.setImage(
+      with: KF.ImageResource(
+        downloadURL: url,
+        cacheKey: urlString
+      )
+    )
+    imageView.flex.markDirty()
+    setNeedsLayout()
+    return self
+  }
 }

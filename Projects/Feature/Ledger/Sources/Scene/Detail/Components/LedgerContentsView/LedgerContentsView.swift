@@ -71,8 +71,6 @@ final class LedgerContentsView: BaseV, View {
 
   private lazy var receiptCollectionView: LedgerContensImageCollentionView = {
     let v = LedgerContensImageCollentionView()
-    v.registerHeader(DefaultSectionHeader.self)
-    // cell, header 등록
     return v
   }()
 
@@ -80,27 +78,6 @@ final class LedgerContentsView: BaseV, View {
     let v = LedgerContensImageCollentionView()
     return v
   }()
-
-  private let dataSource = RxCollectionViewSectionedReloadDataSource<ImageSectionModel.Model>(
-    configureCell: { dataSource, collectionView, indexPath, item in
-      switch item {
-      case .button:
-        return collectionView.dequeueCell(AddImageCell.self, for: indexPath)
-      case .image(_, _):
-        return collectionView.dequeueCell(ImageCell.self, for: indexPath).configure(with: item)
-      }
-    },
-    configureSupplementaryView: { dataSource, collectionView, kind, indexPath in
-      let section = dataSource[indexPath.section]
-      if section.model == .receipt {
-        let section = collectionView.dequeueHeader(ReceiptHeader.self, for: indexPath)
-        return section
-      } else {
-        let section = collectionView.dequeueHeader(DocumentHeader.self, for: indexPath)
-        return section
-      }
-    }
-  )
 
   private let authorNameTextField = MMTextField(title: Const.authorNameTitle)
 
@@ -116,12 +93,6 @@ final class LedgerContentsView: BaseV, View {
 
   override func layoutSubviews() {
     super.layoutSubviews()
-
-//    scrollView.contentSize = CGSize(
-//      width: contentsView.frame.width,
-//      height: contentsView.frame.height + 28
-//    )
-
     scrollView.contentSize = contentsView.frame.size
   }
 
@@ -170,15 +141,28 @@ final class LedgerContentsView: BaseV, View {
       })
       .disposed(by: disposeBag)
 
-//    reactor.pulse(\.$receiptImageUrls)
-//      .compactMap { $0 }
-//      .bind(to: receiptCollectionView.rx.items) { _, _, _ in
-//
-//      }
-//      .disposed(by: disposeBag)
+    reactor.pulse(\.$receiptImages)
+      .compactMap { $0 }
+      .bind(to: receiptCollectionView.rx.items(dataSource: receiptCollectionView.dataSources))
+      .disposed(by: disposeBag)
 
-    reactor.pulse(\.$receiptImageUrls)
-      .bind(to: receiptCollectionView.rx.items(dataSource: dataSource))
+    reactor.pulse(\.$receiptImages)
+      .compactMap { $0 }
+      .bind(with: self) { owner, items in
+        owner.receiptCollectionView.updateCollectionHeigh(images: items)
+      }
+      .disposed(by: disposeBag)
+
+    reactor.pulse(\.$documentImages)
+      .compactMap { $0 }
+      .bind(to: documentCollentionView.rx.items(dataSource: documentCollentionView.dataSources))
+      .disposed(by: disposeBag)
+
+    reactor.pulse(\.$documentImages)
+      .compactMap { $0 }
+      .bind(with: self) { owner, items in
+        owner.documentCollentionView.updateCollectionHeigh(images: items)
+      }
       .disposed(by: disposeBag)
 
     reactor.pulse(\.$authorName)
@@ -196,8 +180,11 @@ final class LedgerContentsView: BaseV, View {
       flex.addItem(scrollView)
         .shrink(1)
         .paddingHorizontal(20)
+        .paddingBottom(28)
         .define { flex in
           flex.addItem(contentsView)
+            .marginTop(12)
+            .marginBottom(28)
             .backgroundColor(Colors.White._1)
             .cornerRadius(16)
             .border(1, Colors.Blue._3)
@@ -301,7 +288,8 @@ final class LedgerContentsView: BaseV, View {
   private func updateState() {
     switch type {
     case .create:
-      setupCreate()
+//      setupCreate()
+      return
     case .read:
       setupRead()
     case .update:
@@ -315,6 +303,8 @@ extension LedgerContentsView {
     self.type = type
   }
 }
+
+extension LedgerContentsView: UICollectionViewDelegate {}
 
 fileprivate enum Const {
   static var storeInfoTitle: String { "수입·지출 출처" }

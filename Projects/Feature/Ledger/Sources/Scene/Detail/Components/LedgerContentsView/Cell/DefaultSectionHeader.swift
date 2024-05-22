@@ -10,7 +10,6 @@ final class DefaultSectionHeader: UICollectionReusableView, ReusableView {
   private let titleLabel: UILabel = {
     let v = UILabel()
     v.textColor = Colors.Gray._6
-    v.text = "증빙 자료 (최대 12장)"
     v.font = Fonts.body._2
     return v
   }()
@@ -42,5 +41,10 @@ final class DefaultSectionHeader: UICollectionReusableView, ReusableView {
     super.layoutSubviews()
     rootContainer.pin.all()
     rootContainer.flex.layout()
+  }
+
+  func configure(title: String) -> Self {
+    titleLabel.text = title
+    return self
   }
 }

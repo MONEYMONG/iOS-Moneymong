@@ -1,15 +1,17 @@
 import UIKit
 
 import BaseFeature
-import ReactorKit
 import DesignSystem
 import NetworkService
 
+import ReactorKit
 import PinLayout
 import FlexLayout
 
 final class LedgerDetailVC: BaseVC, View {
+
   public var disposeBag = DisposeBag()
+
   weak var coordinator: LedgerCoordinator?
 
   private let contentsView = LedgerContentsView(type: .read)
@@ -28,7 +30,6 @@ final class LedgerDetailVC: BaseVC, View {
     rootContainer.pin.top(view.pin.safeArea).left().right().bottom()
     rootContainer.flex.layout()
   }
-
   override func setupUI() {
     super.setupUI()
     view.backgroundColor = Colors.Gray._1
@@ -36,23 +37,21 @@ final class LedgerDetailVC: BaseVC, View {
 
   override func setupConstraints() {
     super.setupConstraints()
-    rootContainer.flex.define { flex in
-      flex.addItem().height(12)
 
-      flex.addItem(contentsView).grow(1)
-        .marginBottom(28)
+    rootContainer.flex.define { flex in
+      flex.addItem(contentsView)
+        .grow(1)
+        .shrink(1)
 
       if reactor?.currentState.role == .staff {
-        flex.position(.absolute).bottom(0).define { flex in
-          flex.addItem(editButtonContainer)
-            .paddingHorizontal(20)
-            .backgroundColor(Colors.White._1)
-            .define { flex in
-              flex.addItem().height(20)
-              flex.addItem(editButton).height(56)
-              flex.addItem().height(46)
-            }
-        }
+        flex.addItem(editButtonContainer)
+          .paddingHorizontal(20)
+          .backgroundColor(Colors.White._1)
+          .define { flex in
+            flex.addItem().height(20)
+            flex.addItem(editButton).height(56)
+            flex.addItem().height(46)
+          }
       }
     }
   }
@@ -99,10 +98,12 @@ final class LedgerDetailVC: BaseVC, View {
       .disposed(by: disposeBag)
 
     reactor.pulse(\.$isLoading)
+      .compactMap { $0 }
       .bind(to: rx.isLoading)
       .disposed(by: disposeBag)
 
     reactor.pulse(\.$isEdit)
+      .compactMap { $0 }
       .observe(on: MainScheduler.instance)
       .bind(with: self) { owner, isEdit in
         owner.contentsView.setType(isEdit ? .update : .read)
@@ -119,28 +120,6 @@ final class LedgerDetailVC: BaseVC, View {
         owner.coordinator?.pop()
       }
       .disposed(by: disposeBag)
-  }
-
-  private func onDetailContents() {
-//    editContentsView.isHidden = true
-//    editContentsView.flex.display(.none)
-//    contentsView.isHidden = false
-//    contentsView.flex.display(.flex)
-//    editButton.setTitle(Const.edit, for: .normal)
-//    viewDidLayoutSubviews()
-//    rootContainer.setNeedsLayout()
-  }
-
-  private func onEditContents() {
-//    editContentsView.isHidden = false
-//    editContentsView.flex.display(.flex)
-//    contentsView.isHidden = true
-//    contentsView.flex.display(.none)
-//    editButton.setTitle(Const.editCompleted, for: .normal)
-//    rootContainer.setNeedsLayout()
-//    viewDidLayoutSubviews()
-
-    setRightItem(.수정완료)
   }
 
   private func setNavigationBarRightButton(isEdit: Bool) {

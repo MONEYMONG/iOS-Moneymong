@@ -3,35 +3,35 @@ import NetworkService
 import ReactorKit
 
 final class LedgerDetailReactor: Reactor {
-
+  
   enum Action {
     case onAppear
     case didTapDelete
     case didTapEdit
   }
-
+  
   enum Mutation {
     case setLedger(LedgerDetail)
     case setIsLoading(Bool)
     case setIsEdit(Bool)
     case setDeleteCompleted(Void)
   }
-
+  
   struct State {
     let ledgerId: Int
     let role: Member.Role
     @Pulse var ledger: LedgerDetail?
-    @Pulse var isLoading: Bool = false
-    @Pulse var isEdit: Bool = false
-    @Pulse var isChanged: Bool = false
+    @Pulse var isLoading: Bool?
+    @Pulse var isEdit: Bool?
+    @Pulse var isChanged: Bool?
     @Pulse var deleteCompleted: Void?
   }
-
+  
   var initialState: State
   private let formatter = ContentFormatter()
   private let ledgerRepository: LedgerRepositoryInterface
   private let ledgerService: LedgerServiceInterface
-
+  
   init(
     ledgerID: Int,
     role: Member.Role,
@@ -42,9 +42,10 @@ final class LedgerDetailReactor: Reactor {
     self.ledgerRepository = ledgerRepository
     self.ledgerService = ledgerService
   }
-
+  
   func mutate(action: Action) -> Observable<Mutation> {
     switch action {
+      
     case .onAppear:
       return .concat([
         .just(.setIsLoading(true)),
@@ -52,7 +53,7 @@ final class LedgerDetailReactor: Reactor {
           .map { .setLedger($0) },
         .just(.setIsLoading(false))
       ])
-
+      
     case .didTapDelete:
       return .concat([
         .just(.setIsLoading(true)),
@@ -63,12 +64,11 @@ final class LedgerDetailReactor: Reactor {
           .map { .setDeleteCompleted(()) },
         .just(.setIsLoading(false))
       ])
-
+      
     case .didTapEdit:
-      return .just(.setIsEdit(!currentState.isEdit))
+      return .just(.setIsEdit(!(currentState.isEdit ?? false)))
     }
   }
-
   func reduce(state: State, mutation: Mutation) -> State {
     var newState = state
     switch mutation {
