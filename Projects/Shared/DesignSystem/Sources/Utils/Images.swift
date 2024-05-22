@@ -28,7 +28,6 @@ public enum Images {
   public static var agency = UIImage(named: "agency", in: Bundle.module, with: nil)
   public static var agencyCongrats = UIImage(named: "agency.congrats", in: Bundle.module, with: nil)
   
-  public static var camera = UIImage(named: "camera", in: Bundle.module, with: nil)
   public static var check = UIImage(named: "check", in: Bundle.module, with: nil)
   public static var checkboxCheck = UIImage(named: "checkbox.check", in: Bundle.module, with: nil)
   public static var checkboxFill = UIImage(named: "checkbox.fill", in: Bundle.module, with: nil)
@@ -78,5 +77,6 @@ public enum Images {
   public static var appleLogo = UIImage(named: "appleLogo", in: Bundle.module, with: nil)
 
   public static var indicator = UIImage(named: "indicator", in: Bundle.module, with: nil)
+  public static var cameraShutter = UIImage(named: "camera.shutter", in: Bundle.module, with: nil)
 }
 
