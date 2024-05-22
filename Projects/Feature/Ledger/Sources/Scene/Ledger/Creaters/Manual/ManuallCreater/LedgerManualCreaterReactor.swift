@@ -4,7 +4,7 @@ import NetworkService
 
 import ReactorKit
 
-final class ManualInputReactor: Reactor {
+final class LedgerManualCreaterReactor: Reactor {
   enum ContentType {
     case source
     case amount
@@ -199,7 +199,7 @@ final class ManualInputReactor: Reactor {
   }
 }
 
-private extension ManualInputReactor {
+private extension LedgerManualCreaterReactor {
   func setContent(_ content: inout Content, value: String, type: ContentType) {
     switch type {
     case .source:

@@ -43,8 +43,7 @@ extension LedgerScanCreaterCoordinator {
   }
   
   private func scanGuide(animated: Bool) {
-    let vc = UINavigationController(rootViewController: ScanGuideVC())
-    vc.modalPresentationStyle = .overFullScreen
+    let vc = diContainer.scanGuide()
     navigationController.present(vc, animated: animated)
   }
 }

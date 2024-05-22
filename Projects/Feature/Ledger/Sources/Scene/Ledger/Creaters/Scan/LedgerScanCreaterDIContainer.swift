@@ -18,10 +18,10 @@ final class LedgerScanCreaterDIContainer {
     return vc
   }
   
-  func imagePicker() -> UIImagePickerController {
-    let picker = UIImagePickerController()
-    picker.sourceType = .photoLibrary
-    return picker
+  func scanGuide() -> UIViewController {
+    let vc = UINavigationController(rootViewController: ScanGuideVC())
+    vc.modalPresentationStyle = .overFullScreen
+    return vc
   }
 }
 

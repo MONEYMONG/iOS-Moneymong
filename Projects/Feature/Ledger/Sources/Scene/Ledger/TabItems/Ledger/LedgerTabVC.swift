@@ -64,7 +64,7 @@ final class LedgerTabVC: BaseVC, View {
     floatingButton.addWriteAction { [weak self] in
       guard let self else { return }
       if let id = reactor?.currentState.agencyID {
-        self.coordinator?.present(.inputManual(id))
+        self.coordinator?.present(.manualCreater(id))
       }
     }
     floatingButton.addScanAction { [weak self] in
