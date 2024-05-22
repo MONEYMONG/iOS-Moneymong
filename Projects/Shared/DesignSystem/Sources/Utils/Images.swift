@@ -78,5 +78,6 @@ public enum Images {
 
   public static var indicator = UIImage(named: "indicator", in: Bundle.module, with: nil)
   public static var cameraShutter = UIImage(named: "camera.shutter", in: Bundle.module, with: nil)
+  public static var scanGuide = UIImage(named: "scan.guide", in: Bundle.module, with: nil)
 }
 
