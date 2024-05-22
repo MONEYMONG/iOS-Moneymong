@@ -19,7 +19,7 @@ final class LedgerDetailReactor: Reactor {
   
   struct State {
     let ledgerId: Int
-    let role: Member.Role
+    @Pulse var role: Member.Role
     @Pulse var ledger: LedgerDetail?
     @Pulse var isLoading: Bool?
     @Pulse var isEdit: Bool?

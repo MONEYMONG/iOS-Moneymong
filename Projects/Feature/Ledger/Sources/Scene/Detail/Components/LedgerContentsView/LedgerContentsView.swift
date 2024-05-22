@@ -93,7 +93,11 @@ final class LedgerContentsView: BaseV, View {
 
   override func layoutSubviews() {
     super.layoutSubviews()
-    scrollView.contentSize = contentsView.frame.size
+    
+    scrollView.contentSize = CGSize(
+      width: contentsView.frame.width,
+      height: contentsView.frame.height + 40
+    )
   }
 
   override func setupUI() {

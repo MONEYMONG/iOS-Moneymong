@@ -104,12 +104,12 @@ final class LedgerDetailVC: BaseVC, View {
 
     reactor.pulse(\.$isEdit)
       .compactMap { $0 }
+      .withLatestFrom(reactor.pulse(\.$role)) { ($0, $1) }
       .observe(on: MainScheduler.instance)
-      .bind(with: self) { owner, isEdit in
+      .bind(with: self) { owner, info in
+        let (isEdit, role) = info
         owner.contentsView.setType(isEdit ? .update : .read)
-        if reactor.currentState.role == .staff {
-          owner.setNavigationBarRightButton(isEdit: isEdit)
-        }
+        owner.setNavigationBarRightButton(isEdit: role == .staff && isEdit)
       }
       .disposed(by: disposeBag)
 
