@@ -62,9 +62,8 @@ final class LedgerTabVC: BaseVC, View {
   override func setupUI() {
     super.setupUI()
     floatingButton.addWriteAction { [weak self] in
-      guard let self else { return }
-      if let id = reactor?.currentState.agencyID {
-        self.coordinator?.present(.manualCreater(id))
+      if let id = self?.reactor?.currentState.agencyID {
+        self?.coordinator?.present(.manualCreater(id))
       }
     }
     floatingButton.addScanAction { [weak self] in
