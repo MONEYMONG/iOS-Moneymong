@@ -1,13 +1,13 @@
 import UIKit
 
 import DesignSystem
+import BaseFeature
 
 import PinLayout
 import FlexLayout
 import RxSwift
 
-final class ScanGuideVC: UIViewController {
-  private let rootContainer = UIView()
+final class ScanGuideVC: BaseVC {
   private let disposeBag = DisposeBag()
   
   private let closeButton: UIButton = {
@@ -50,8 +50,6 @@ final class ScanGuideVC: UIViewController {
   
   override func viewDidLoad() {
     super.viewDidLoad()
-    setupUI()
-    setupConstraints()
     bind()
   }
   
@@ -62,7 +60,8 @@ final class ScanGuideVC: UIViewController {
     blurEffect.pin.all()
   }
   
-  private func setupUI() {
+  override func setupUI() {
+    super.setupUI()
     view.backgroundColor = .black.withAlphaComponent(0.8)
     let appearance = UINavigationBarAppearance()
     appearance.configureWithTransparentBackground()
@@ -70,9 +69,9 @@ final class ScanGuideVC: UIViewController {
     navigationController?.navigationBar.standardAppearance = appearance
   }
   
-  private func setupConstraints() {
+  override func setupConstraints() {
     view.addSubview(blurEffect)
-    view.addSubview(rootContainer)
+    super.setupConstraints()
     
     rootContainer.flex.alignItems(.center).define { flex in
       flex.addItem().define { flex in
