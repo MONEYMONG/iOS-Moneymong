@@ -7,104 +7,93 @@ import BaseFeature
 import ReactorKit
 
 final class LedgerContentsReactor: Reactor {
+  enum ValueType {
+    case storeInfo(String)
+    case amount(String)
+    case fundType(FundType)
+    case memo(String)
+    case date(String)
+    case time(String)
+    //    case rece
+    case authorName(String)
+  }
 
-  enum Action {}
+  enum Action {
+    case didValueChanged(ValueType)
+  }
 
   enum Mutation {
-    case setStoreInfo(String)
-    case setAmount(String)
-    case setFundType(FundType)
-    case setMemo(String)
-    case setDate(String)
-    case setTime(String)
-    case setReceiptImageUrls([LedgerImageSectionModel.Model])
-    case setDocumentImageUrls([LedgerImageSectionModel.Model])
-    case setAuthorName(String)
+    case setValueChanged(ValueType)
+    //    case setStoreInfo(String)
+    //    case setAmount(String)
+    //    case setFundType(FundType)
+    //    case setMemo(String)
+    //    case setDate(String)
+    //    case setTime(String)
+    //    case setReceiptImageUrls([LedgerImageSectionModel.Model])
+    //    case setDocumentImageUrls([LedgerImageSectionModel.Model])
+    //    case setAuthorName(String)
   }
 
   struct State {
     let prevLedgerItem: LedgerDetailItem?
-    @Pulse var storeInfo: String?
-    @Pulse var amount: String?
-    @Pulse var fundType: FundType?
-    @Pulse var memo: String?
-    @Pulse var date: String?
-    @Pulse var time: String?
-    @Pulse var receiptImages: [LedgerImageSectionModel.Model]?
-    @Pulse var documentImages: [LedgerImageSectionModel.Model]?
-    @Pulse var authorName: String?
+    @Pulse var currentLedgerItem: LedgerDetailItem
+    //    @Pulse var storeInfo: String?
+    //    @Pulse var amount: String?
+    //    @Pulse var fundType: FundType?
+    //    @Pulse var memo: String?
+    //    @Pulse var date: String?
+    //    @Pulse var time: String?
+    //    @Pulse var receiptImages: [LedgerImageSectionModel.Model]?
+    //    @Pulse var documentImages: [LedgerImageSectionModel.Model]?
+    //    @Pulse var authorName: String?
   }
 
   var initialState: State
-  private let formatter = ContentFormatter()
+  private let ledgerService: LedgerServiceInterface
 
-  init(ledger: LedgerDetail?) {
-    guard let ledger else {
-      self.initialState = State(prevLedgerItem: nil)
-      return
-    }
-
-    let (date, time) = self.formatter.convertToDateTime(with: ledger.paymentDate)
-    let item = LedgerDetailItem.init(
-      storeInfo: ledger.storeInfo,
-      amount: self.formatter.convertToAmount(with: ledger.amount) ?? "0",
-      fundType: ledger.fundType,
-      memo: ledger.description,
-      date: date,
-      time: time,
-      receiptImageUrls: ledger.receiptImageUrls,
-      documentImageUrls: ledger.documentImageUrls,
-      authorName: ledger.authorName
-    )
+  init(ledgerService: LedgerServiceInterface, ledger: LedgerDetail?) {
+    self.ledgerService = ledgerService
 
     self.initialState = State(
-      prevLedgerItem: item,
-      storeInfo: item.storeInfo,
-      amount: item.amount,
-      fundType: item.fundType,
-      memo: item.memo,
-      date: item.date,
-      time: item.time,
-      receiptImages: [
-        LedgerImageSectionModel.Model.init(
-          model: .default("영수증(최대12장)"),
-          items: item.receiptImageUrls.map { return .readImage($0.url) }
-        )
-      ],
-      documentImages: [
-        LedgerImageSectionModel.Model.init(
-          model: .default("증빙자료(최대12장)"),
-          items: item.documentImageUrls.map { return .readImage($0.url) }
-        )
-      ],
-      authorName: item.authorName
+      prevLedgerItem: LedgerDetailItem(ledger: ledger, formatter: ContentFormatter()),
+      currentLedgerItem: LedgerDetailItem(ledger: ledger, formatter: ContentFormatter())
     )
   }
 
-  func mutate(action: Action) -> Observable<Mutation> {}
-
-  func reduce(state: State, mutation: Mutation) -> State {
-    var newState = state
-    switch mutation {
-    case .setStoreInfo(let storeInfo):
-      newState.storeInfo = storeInfo
-    case .setAmount(let amount):
-      newState.amount = amount
-    case .setFundType(let fundType):
-      newState.fundType = fundType
-    case .setMemo(let memo):
-      newState.memo = memo
-    case .setDate(let date):
-      newState.date = date
-    case .setTime(let time):
-      newState.time = time
-    case .setReceiptImageUrls(let urls):
-      newState.receiptImages = urls
-    case .setDocumentImageUrls(let urls):
-      newState.documentImages = urls
-    case .setAuthorName(let authorName):
-      newState.authorName = authorName
+  func mutate(action: Action) -> Observable<Mutation> {
+    switch action {
+    case .didValueChanged(let valueType):
+      return .just(.setValueChanged(valueType))
     }
-    return newState
+
+    func reduce(state: State, mutation: Mutation) -> State {
+      var newState = state
+
+      switch mutation {
+
+      case .setValueChanged(let valueType):
+        switch valueType {
+        case .storeInfo(let storeInfo):
+          newState.currentLedgerItem.storeInfo = storeInfo
+        case .amount(let amount):
+          newState.currentLedgerItem.amount = amount
+        case .fundType(let fundType):
+          newState.currentLedgerItem.fundType = fundType
+        case .memo(let memo):
+          newState.currentLedgerItem.memo = memo
+        case .date(let date):
+          newState.currentLedgerItem.date = date
+        case .time(let time):
+          newState.currentLedgerItem.time = time
+        case .authorName(let authorName):
+          newState.currentLedgerItem.authorName = authorName
+        }
+        let isChanged = currentState.currentLedgerItem == currentState.prevLedgerItem
+        ledgerService.ledgerContents.didValueChanged(isChanged)
+
+        return newState
+      }
+    }
   }
 }

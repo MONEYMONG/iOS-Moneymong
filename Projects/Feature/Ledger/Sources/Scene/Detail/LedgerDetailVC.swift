@@ -93,7 +93,10 @@ final class LedgerDetailVC: BaseVC, View {
           ? Const.expenseTitle
           : Const.incomeTitle
         )
-        owner.contentsView.reactor = LedgerContentsReactor(ledger: ledger)
+        owner.contentsView.reactor = LedgerContentsReactor(
+          ledgerService: reactor.ledgerService,
+          ledger: ledger
+        )
       }
       .disposed(by: disposeBag)
 
@@ -103,13 +106,22 @@ final class LedgerDetailVC: BaseVC, View {
       .disposed(by: disposeBag)
 
     reactor.pulse(\.$isEdit)
-      .compactMap { $0 }
       .withLatestFrom(reactor.pulse(\.$role)) { ($0, $1) }
       .observe(on: MainScheduler.instance)
       .bind(with: self) { owner, info in
         let (isEdit, role) = info
+        owner.editButton.setTitle(to: isEdit ? Const.editCompleted : Const.edit)
         owner.contentsView.setType(isEdit ? .update : .read)
         owner.setNavigationBarRightButton(isEdit: role == .staff && isEdit)
+      }
+      .disposed(by: disposeBag)
+
+    reactor.pulse(\.$isChanged)
+      .compactMap { $0 }
+      .observe(on: MainScheduler.instance)
+      .bind(with: self) { owner, isChanged in
+        owner.navigationItem.rightBarButtonItem?.isEnabled = isChanged
+        owner.editButton.setState(isChanged ? .primary : .disable)
       }
       .disposed(by: disposeBag)
 

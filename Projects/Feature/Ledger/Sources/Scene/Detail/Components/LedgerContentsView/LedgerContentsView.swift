@@ -2,6 +2,7 @@ import UIKit
 
 import BaseFeature
 import DesignSystem
+import Utility
 
 import ReactorKit
 import RxDataSources
@@ -93,7 +94,6 @@ final class LedgerContentsView: BaseV, View {
 
   override func layoutSubviews() {
     super.layoutSubviews()
-    
     scrollView.contentSize = CGSize(
       width: contentsView.frame.width,
       height: contentsView.frame.height + 40
@@ -106,8 +106,13 @@ final class LedgerContentsView: BaseV, View {
   }
 
   func bind(reactor: LedgerContentsReactor) {
-    reactor.pulse(\.$fundType)
-      .compactMap { $0 }
+    bindState(reactor: reactor)
+    bindAction(reactor: reactor)
+  }
+
+  func bindState(reactor: LedgerContentsReactor) {
+    reactor.pulse(\.$currentLedgerItem)
+      .map { $0.fundType }
       .bind(with: self) { owner, fundType in
         owner.amountTextField.setTitle(
           to: fundType == .expense
@@ -117,69 +122,75 @@ final class LedgerContentsView: BaseV, View {
       }
       .disposed(by: disposeBag)
 
-    reactor.pulse(\.$storeInfo)
-      .compactMap { $0 }
+    reactor.pulse(\.$currentLedgerItem)
+      .map { $0.storeInfo }
       .bind(to: storeInfoTextField.textField.rx.text)
       .disposed(by: disposeBag)
 
-    reactor.pulse(\.$amount)
-      .compactMap { $0 }
+    reactor.pulse(\.$currentLedgerItem)
+      .map { $0.amount }
       .bind(to: amountTextField.textField.rx.text)
       .disposed(by: disposeBag)
 
-    reactor.pulse(\.$date)
-      .compactMap { $0 }
+    reactor.pulse(\.$currentLedgerItem)
+      .map { $0.date }
       .bind(to: dateTextField.textField.rx.text)
       .disposed(by: disposeBag)
 
-    reactor.pulse(\.$time)
-      .compactMap { $0 }
+    reactor.pulse(\.$currentLedgerItem)
+      .map { $0.time }
       .bind(to: timeTextField.textField.rx.text)
       .disposed(by: disposeBag)
 
-    reactor.pulse(\.$memo)
-      .compactMap { $0 }
-      .bind(with: self, onNext: { owner, memo in
-        owner.memoTextField.setText(to: memo)
-        owner.memoTextView.setText(to: memo)
-      })
+    reactor.pulse(\.$currentLedgerItem)
+      .map { $0.memo }
+      .bind(to: memoTextField.textField.rx.text)
       .disposed(by: disposeBag)
 
-    reactor.pulse(\.$receiptImages)
-      .compactMap { $0 }
+    reactor.pulse(\.$currentLedgerItem)
+      .map { $0.receiptImages }
       .bind(to: receiptCollectionView.rx.items(dataSource: receiptCollectionView.dataSources))
       .disposed(by: disposeBag)
 
-    reactor.pulse(\.$receiptImages)
-      .compactMap { $0 }
+    reactor.pulse(\.$currentLedgerItem)
+      .map { $0.receiptImages }
       .bind(with: self) { owner, items in
         owner.receiptCollectionView.updateCollectionHeigh(images: items)
       }
       .disposed(by: disposeBag)
 
-    reactor.pulse(\.$documentImages)
-      .compactMap { $0 }
+    reactor.pulse(\.$currentLedgerItem)
+      .map { $0.documentImages }
       .bind(to: documentCollentionView.rx.items(dataSource: documentCollentionView.dataSources))
       .disposed(by: disposeBag)
 
-    reactor.pulse(\.$documentImages)
-      .compactMap { $0 }
+    reactor.pulse(\.$currentLedgerItem)
+      .map { $0.documentImages }
       .bind(with: self) { owner, items in
         owner.documentCollentionView.updateCollectionHeigh(images: items)
       }
       .disposed(by: disposeBag)
 
-    reactor.pulse(\.$authorName)
-      .compactMap { $0 }
+    reactor.pulse(\.$currentLedgerItem)
+      .map { $0.authorName }
       .bind(to: authorNameTextField.textField.rx.text)
       .disposed(by: disposeBag)
   }
 
-  private func setupCreate() {
-
+  private func bindAction(reactor: LedgerContentsReactor) {
+    storeInfoTextField.textField.rx.text
+      .compactMap { $0 }
+      .distinctUntilChanged()
+      .map { Reactor.Action.didValueChanged(.storeInfo($0)) }
+      .bind(to: reactor.action)
+      .disposed(by: disposeBag)
   }
 
+  private func setupCreate() {}
+
   private func setupRead() {
+    contentsView.removeAllSubViews()
+
     rootContainer.flex.define { flex in
       flex.addItem(scrollView)
         .shrink(1)
@@ -227,14 +238,16 @@ final class LedgerContentsView: BaseV, View {
     authorNameTextField.setRequireMark(to: false)
 
     memoTextView.isHidden = true
-    memoTextView.flex.isIncludedInLayout(true).markDirty()
+    memoTextView.flex.display(.none).markDirty()
     memoTextField.isHidden = false
-    memoTextField.flex.isIncludedInLayout(false).markDirty()
+    memoTextField.flex.display(.flex).markDirty()
 
     setNeedsLayout()
   }
 
   private func setupUpdate() {
+    contentsView.removeAllSubViews()
+
     rootContainer.flex.define { flex in
       flex.addItem(scrollView)
         .shrink(1)
@@ -279,11 +292,11 @@ final class LedgerContentsView: BaseV, View {
     authorNameTextField.setRequireMark(to: false)
 
     memoTextField.isHidden = true
-    memoTextField.flex.isIncludedInLayout(true).markDirty()
+    memoTextField.flex.display(.none).markDirty()
     memoTextView.isHidden = false
-    memoTextView.flex.isIncludedInLayout(false).markDirty()
+    memoTextView.flex.display(.flex).markDirty()
 
-    scrollView.scrollsToTop = true
+    scrollView.setContentOffset(CGPoint(x: 0, y: 0), animated: true)
     storeInfoTextField.textField.becomeFirstResponder()
 
     setNeedsLayout()
@@ -292,7 +305,7 @@ final class LedgerContentsView: BaseV, View {
   private func updateState() {
     switch type {
     case .create:
-//      setupCreate()
+      //   setupCreate()
       return
     case .read:
       setupRead()
@@ -309,7 +322,6 @@ extension LedgerContentsView {
 }
 
 extension LedgerContentsView: UICollectionViewDelegate {}
-
 fileprivate enum Const {
   static var storeInfoTitle: String { "수입·지출 출처" }
   static var storeInfoPlaceholder: String { "점포명을 입력해주세요" }

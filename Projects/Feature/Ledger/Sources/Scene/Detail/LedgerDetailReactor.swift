@@ -8,6 +8,7 @@ final class LedgerDetailReactor: Reactor {
     case onAppear
     case didTapDelete
     case didTapEdit
+    case didValueChanged(Bool)
   }
   
   enum Mutation {
@@ -15,6 +16,7 @@ final class LedgerDetailReactor: Reactor {
     case setIsLoading(Bool)
     case setIsEdit(Bool)
     case setDeleteCompleted(Void)
+    case isChanged(Bool)
   }
   
   struct State {
@@ -22,7 +24,7 @@ final class LedgerDetailReactor: Reactor {
     @Pulse var role: Member.Role
     @Pulse var ledger: LedgerDetail?
     @Pulse var isLoading: Bool?
-    @Pulse var isEdit: Bool?
+    @Pulse var isEdit: Bool = false
     @Pulse var isChanged: Bool?
     @Pulse var deleteCompleted: Void?
   }
@@ -30,8 +32,8 @@ final class LedgerDetailReactor: Reactor {
   var initialState: State
   private let formatter = ContentFormatter()
   private let ledgerRepository: LedgerRepositoryInterface
-  private let ledgerService: LedgerServiceInterface
-  
+  private(set) var ledgerService: LedgerServiceInterface
+
   init(
     ledgerID: Int,
     role: Member.Role,
@@ -42,7 +44,22 @@ final class LedgerDetailReactor: Reactor {
     self.ledgerRepository = ledgerRepository
     self.ledgerService = ledgerService
   }
-  
+
+  func transform(action: Observable<Action>) -> Observable<Action> {
+    return Observable.merge(action, serviceAction)
+  }
+
+  private var serviceAction: Observable<Action> {
+    return ledgerService.ledgerContents.event
+      .withUnretained(self)
+      .flatMap { owner, action -> Observable<Action> in
+        if case .isValueChanged(let value) = action {
+          return .just(.didValueChanged(value))
+        }
+        return .just(.didValueChanged(false))
+      }
+  }
+
   func mutate(action: Action) -> Observable<Mutation> {
     switch action {
       
@@ -66,7 +83,10 @@ final class LedgerDetailReactor: Reactor {
       ])
       
     case .didTapEdit:
-      return .just(.setIsEdit(!(currentState.isEdit ?? false)))
+      return .just(.setIsEdit(!(currentState.isEdit)))
+
+    case .didValueChanged(let value):
+      return .just(.isChanged(value))
     }
   }
   func reduce(state: State, mutation: Mutation) -> State {
@@ -80,6 +100,8 @@ final class LedgerDetailReactor: Reactor {
       newState.isEdit = isEdit
     case .setDeleteCompleted(let event):
       newState.deleteCompleted = event
+    case .isChanged(let value):
+      newState.isChanged = value
     }
     return newState
   }

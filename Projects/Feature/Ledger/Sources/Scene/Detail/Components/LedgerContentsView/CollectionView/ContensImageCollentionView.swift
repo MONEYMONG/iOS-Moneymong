@@ -11,10 +11,10 @@ final class LedgerContensImageCollentionView: UICollectionView {
     configureCell: { [weak self] dataSource, collectionView, indexPath, item in
       switch item {
       case .creatAdd:
-        return collectionView.dequeueCell(AddImageCell.self, for: indexPath)
+        return collectionView.dequeueCell(CreateAddImageCell.self, for: indexPath)
 
       case .updateAdd:
-        return collectionView.dequeueCell(AddImageCell.self, for: indexPath)
+        return collectionView.dequeueCell(UpdateAddImageCell.self, for: indexPath)
 
       case .readImage(let url):
         return collectionView.dequeueCell(DefaultImageCell.self, for: indexPath)
@@ -49,23 +49,13 @@ final class LedgerContensImageCollentionView: UICollectionView {
     delegate = self
     isScrollEnabled = false
     register(AddImageCell.self)
+    register(CreateAddImageCell.self)
     register(DefaultImageCell.self)
     registerHeader(DefaultSectionHeader.self)
   }
 
-  private struct ViewSize {
-    static var cell: CGSize {
-      let width = UIScreen.main.bounds.width * 0.28
-      let height = width * 1.33
-      return CGSize(width: width, height: height)
-    }
-    static var cellSpacing: Double = cell.width * 0.095
-    static var receiptHeaderHeight: CGFloat = 31
-    static var documentHeaderHeight: CGFloat = 16
-    static var collectionBaseHeight: CGFloat = receiptHeaderHeight + documentHeaderHeight + 24 + (ViewSize.cell.height + 8) * 2
-  }
-
   func updateCollectionHeigh(images: [LedgerImageSectionModel.Model]) {
+
     let cellSize: CGSize = {
       let width = frame.width * 0.313
       let height = width * 1.33

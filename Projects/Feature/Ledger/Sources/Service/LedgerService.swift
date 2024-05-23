@@ -5,10 +5,12 @@ protocol LedgerServiceInterface {
   var agency: AgencyServiceInterface { get }
   var member: MemberServiceInterface { get }
   var ledgerList: LedgerListServiceInterface { get }
+  var ledgerContents: LedgerContentsServiceInterface { get }
 }
 
 final class LedgerService: LedgerServiceInterface {
   let agency: AgencyServiceInterface = AgencyService()
   let member: MemberServiceInterface = MemberService()
   let ledgerList: LedgerListServiceInterface = LedgerListService()
+  let ledgerContents: LedgerContentsServiceInterface = LedgerContentsService()
 }

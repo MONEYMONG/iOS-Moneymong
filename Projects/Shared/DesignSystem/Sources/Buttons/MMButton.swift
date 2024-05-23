@@ -73,4 +73,11 @@ extension MMButton {
   public func setState(_ type: `Type`) {
     self.type = type
   }
+
+  public func setTitle(to text: String) {
+    var attributedTitle = AttributedString(text)
+    attributedTitle.font = Fonts.body._3
+
+    self.configuration?.attributedTitle = attributedTitle
+  }
 }
