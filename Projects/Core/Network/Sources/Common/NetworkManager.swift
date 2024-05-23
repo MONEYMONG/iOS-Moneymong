@@ -87,7 +87,7 @@ public final class NetworkManager: NetworkManagerInterfacae {
       
       throw MoneyMongError.appError(errorMessage: "디코딩 실패")
     case let .failure(error):
-      //assertionFailure("서버동작 에러! 적절한 처리 필요 \(error.localizedDescription)")
+      assertionFailure("서버동작 에러! 적절한 처리 필요 \(error.localizedDescription)")
       throw error
     }
   }
