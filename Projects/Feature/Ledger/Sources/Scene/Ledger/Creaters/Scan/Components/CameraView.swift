@@ -22,7 +22,7 @@ final class CameraView: UIView {
   init() {
     super.init(frame: .zero)
     setupUI()
-    settingCamera()
+    setupCamera()
   }
   
   @available(*, unavailable)
@@ -34,7 +34,7 @@ final class CameraView: UIView {
     layer.addSublayer(videoPreviewLayer)
   }
   
-  private func settingCamera() {
+  private func setupCamera() {
     // 사용 가능한 카메라 중 후면 카메라를 선택
     guard let backCamera = AVCaptureDevice.default(for: .video),
           let input = try? AVCaptureDeviceInput(device: backCamera) else {
