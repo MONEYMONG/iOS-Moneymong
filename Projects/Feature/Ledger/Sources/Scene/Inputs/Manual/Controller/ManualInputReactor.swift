@@ -51,14 +51,7 @@ final class ManualInputReactor: Reactor {
     ]
     @Pulse var selectedSection: ImageSectionModel.Section? = nil
     @Pulse var alertMessage: (String, String?, AlertType)? = nil
-    @Pulse var isValids: [ContentType: Bool?] = [
-      .source: nil,
-      .amount: nil,
-      .fundType: nil,
-      .date: nil,
-      .time: nil,
-      .memo: nil
-    ]
+    @Pulse var isButtonEnabled = false
     @Pulse var destination: Destination?
     var content = Content()
     
@@ -180,7 +173,7 @@ final class ManualInputReactor: Reactor {
       newState.selectedSection = section
     case .setContent(let value, let type):
       setContent(&newState.content, value: value, type: type)
-      newState.isValids[type] = checkContent(newState.content, type: type)
+      newState.isButtonEnabled = checkContent(newState.content)
     case .setDestination:
       newState.destination = .ledger
     case .addImageURL(let imageURL, let section):
@@ -229,33 +222,54 @@ private extension ManualInputReactor {
     }
   }
   
-  func checkContent(_ content: Content, type: ContentType) -> Bool? {
-    var pattern: String!
-    var value: String!
-    switch type {
-    case .source:
-      if content.source.isEmpty { return nil }
-      return content.source.count <= 20
-    case .amount:
-      if content.amount.isEmpty { return nil }
-      return Int(content.amount.replacingOccurrences(of: ",", with: ""))! <= 999999999
-    case .fundType:
-      return content.amountSign == 1 || content.amountSign == 0
-    case .date:
-      pattern = "^\\d{4}/(0[1-9]|1[012])/(0[1-9]|[12]\\d|3[01])$"
-      value = content.date
-    case .time:
-      pattern = "^([01]?[0-9]|2[0-3]):[0-5][0-9](:[0-5][0-9])?$"
-      value = content.time
-    case .memo:
-      if content.memo.isEmpty { return nil }
-      return content.memo.count <= 300
+  func checkContent(_ content: Content) -> Bool {
+    // source
+    guard content.source.isEmpty == false,
+          content.source.count <= 20
+    else {
+      return false
     }
     
-    let regex = try! NSRegularExpression(pattern: pattern)
-    let result = regex.firstMatch(in: value, range: NSRange(location: 0, length: value.count))
+    // amount
+    guard content.amount.isEmpty == false,
+          let amount = Int(content.amount.replacingOccurrences(of: ",", with: "")),
+          amount <= 999_999_999
+    else {
+      return false
+    }
 
-    return result != nil
+    // fund
+    guard content.amountSign == 1 || content.amountSign == 0 else {
+      return false
+    }
+    
+    var pattern: String
+    var value: String
+    var regex: NSRegularExpression
+    var result: NSTextCheckingResult?
+    
+    // date
+    pattern = "^\\d{4}/(0[1-9]|1[012])/(0[1-9]|[12]\\d|3[01])$"
+    value = content.date
+    regex = try! NSRegularExpression(pattern: pattern)
+    result = regex.firstMatch(in: value, range: NSRange(location: 0, length: value.count))
+    guard result != nil else { return false }
+    
+    // time
+    pattern = "^([01]?[0-9]|2[0-3]):[0-5][0-9](:[0-5][0-9])?$"
+    value = content.time
+    regex = try! NSRegularExpression(pattern: pattern)
+    result = regex.firstMatch(in: value, range: NSRange(location: 0, length: value.count))
+    guard result != nil else { return false }
+
+    // memo
+    guard content.memo.isEmpty == false,
+          content.memo.count <= 300
+    else {
+      return false
+    }
+    
+    return true
   }
   
   func requestCreateLedgerRecord() -> Observable<Mutation> {

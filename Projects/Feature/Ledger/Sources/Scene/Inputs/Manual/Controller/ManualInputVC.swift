@@ -7,6 +7,8 @@ import DesignSystem
 import ReactorKit
 import RxDataSources
 
+// TODO: 각 텍스트 필드에 조건 넣어줘야함
+
 final class ManualInputVC: BaseVC, View {
   weak var coordinator: ManualInputCoordinator?
   private struct ViewSize {
@@ -329,7 +331,6 @@ final class ManualInputVC: BaseVC, View {
     
     reactor.pulse(\.$userName)
       .filter { $0.isEmpty == false }
-      .debug()
       .observe(on: MainScheduler.instance)
       .bind(with: self) { owner, name in
         owner.writerNameLabel.setTextWithLineHeight(text: name, lineHeight: 20)
@@ -372,17 +373,13 @@ final class ManualInputVC: BaseVC, View {
         )
       }
       .disposed(by: disposeBag)
-//
-//    reactor.pulse(\.$isValids)
-//      .compactMap { $0[.amount] }
-//      .distinctUntilChanged()
-//      .filter { $0 == false }
-//      .bind(with: self, onNext: { owner, isValid in
-//        owner.amountTextField.setError(message: "999,999,999원 이내로 입력해주세요")
-//        owner.amountTextField.flex.markDirty()
-//        owner.view.setNeedsLayout()
-//      })
-//      .disposed(by: disposeBag)
+    
+    reactor.pulse(\.$isButtonEnabled)
+      .observe(on: MainScheduler.instance)
+      .bind(with: self) { owner, isEnabled in
+        owner.completeButton.setState(isEnabled ? .primary : .disable)
+      }
+      .disposed(by: disposeBag)
   }
   
   private func updateCollectionHeigh(images: [ImageSectionModel.Model]) {
