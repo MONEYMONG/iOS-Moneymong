@@ -85,6 +85,22 @@ final class ManualInputVC: BaseVC, View {
     return v
   }()
   
+  private let writerTitleLabel: UILabel = {
+    let v = UILabel()
+    v.textColor = Colors.Gray._6
+    v.font = Fonts.body._2
+    v.setTextWithLineHeight(text: "작성자", lineHeight: 18)
+    return v
+  }()
+  
+  private let writerNameLabel: UILabel = {
+    let v = UILabel()
+    v.textColor = Colors.Gray._10
+    v.font = Fonts.body._3
+    v.setTextWithLineHeight(text: "머니몽", lineHeight: 20)
+    return v
+  }()
+  
   private lazy var collectionView: UICollectionView = {
     let layout = UICollectionViewFlowLayout()
     layout.itemSize = ViewSize.cell
@@ -145,18 +161,28 @@ final class ManualInputVC: BaseVC, View {
         flex.addItem(content).marginTop(12).marginHorizontal(20).define { flex in
           flex.addItem(sourceTextField).marginBottom(24)
           flex.addItem(amountTextField).marginBottom(24)
+          
           flex.addItem().define { flex in
             flex.addItem(selectionLabel).marginBottom(8)
             flex.addItem(fundTypeSelection)
           }.marginBottom(24)
+          
           flex.addItem(dateTextField).marginBottom(24)
           flex.addItem(timeTextField).marginBottom(24)
+          
           flex.addItem().define { flex in
             flex.addItem(collectionView).marginRight(-8)
           }.marginBottom(24)
-          flex.addItem(memoTextView)
+          
+          flex.addItem(memoTextView).marginBottom(24)
+          
+          flex.addItem().alignItems(.start).define { flex in
+            flex.addItem(writerTitleLabel).marginBottom(8)
+            flex.addItem(writerNameLabel)
+          }
         }.paddingBottom(50)
       }
+      
       flex.addItem(keyboardSpaceView).backgroundColor(.clear).height(60)
       flex.addItem(smogView).position(.absolute).bottom(0).horizontally(0).height(100)
     }
@@ -176,6 +202,11 @@ final class ManualInputVC: BaseVC, View {
       .disposed(by: disposeBag)
     
     collectionView.rx.setDelegate(self)
+      .disposed(by: disposeBag)
+    
+    rx.viewDidLoad
+      .map { Reactor.Action.onAppear }
+      .bind(to: reactor.action)
       .disposed(by: disposeBag)
     
     collectionView.rx.modelSelected(ImageSectionModel.Item.self)
@@ -294,6 +325,15 @@ final class ManualInputVC: BaseVC, View {
     
     reactor.pulse(\.content.$time)
       .bind(to: timeTextField.textField.rx.text)
+      .disposed(by: disposeBag)
+    
+    reactor.pulse(\.$userName)
+      .filter { $0.isEmpty == false }
+      .debug()
+      .observe(on: MainScheduler.instance)
+      .bind(with: self) { owner, name in
+        owner.writerNameLabel.setTextWithLineHeight(text: name, lineHeight: 20)
+      }
       .disposed(by: disposeBag)
     
     reactor.pulse(\.$destination)

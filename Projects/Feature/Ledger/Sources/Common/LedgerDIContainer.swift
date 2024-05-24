@@ -67,7 +67,7 @@ public final class LedgerDIContainer {
     let vc = UINavigationController()
     let manualInputCoordinator = ManualInputCoordinator(
       navigationController: vc,
-      diContainer: ManualInputDIContainer(repo: ledgerRepo, ledgerService: ledgerService)
+      diContainer: ManualInputDIContainer(ledgerRepo: ledgerRepo, userRepo: userRepo, ledgerService: ledgerService)
     )
     coordinator.childCoordinators.append(manualInputCoordinator)
     manualInputCoordinator.parentCoordinator = coordinator

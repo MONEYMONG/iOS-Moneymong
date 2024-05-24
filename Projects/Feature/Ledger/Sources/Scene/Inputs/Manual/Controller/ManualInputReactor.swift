@@ -21,6 +21,7 @@ final class ManualInputReactor: Reactor {
   }
   
   enum Action {
+    case onAppear
     case didTapCompleteButton
     case presentedAlert(AlertType)
     case didTapImageDeleteAlertButton(_ item: ImageSectionModel.Item)
@@ -30,6 +31,7 @@ final class ManualInputReactor: Reactor {
   }
   
   enum Mutation {
+    case setName(String)
     case addImage(ImageSectionModel.Item)
     case deleteImage(UUID, ImageSectionModel.Section)
     case deleteImageURL(Int, ImageSectionModel.Section)
@@ -42,6 +44,7 @@ final class ManualInputReactor: Reactor {
   
   struct State {
     let agencyId: Int
+    @Pulse var userName: String = ""
     @Pulse var images: [ImageSectionModel.Model] = [
       .init(model: .receipt, items: [.button(.receipt)]),
       .init(model: .document, items: [.button(.document)])
@@ -77,25 +80,31 @@ final class ManualInputReactor: Reactor {
   
   let initialState: State
   private let service: LedgerServiceInterface
-  private let repo: LedgerRepositoryInterface
+  private let ledgerRepo: LedgerRepositoryInterface
+  private let userRepo: UserRepositoryInterface
   private let formatter = ContentFormatter()
   
   init(
     agencyId: Int,
-    repo: LedgerRepositoryInterface,
+    ledgerRepo: LedgerRepositoryInterface,
+    userRepo: UserRepositoryInterface,
     ledgerService: LedgerServiceInterface
   ) {
-    self.repo = repo
+    self.ledgerRepo = ledgerRepo
+    self.userRepo = userRepo
     self.service = ledgerService
     self.initialState = State(agencyId: agencyId)
   }
   
   func mutate(action: Action) -> Observable<Mutation> {
     switch action {
+    case .onAppear:
+      return .task { try await userRepo.user().nickname }
+        .map { .setName($0) }
     case .selectedImage(let item):
       guard case let .image(imageInfo, section) = item else { return .empty() }
       return .task {
-        var entity = try await repo.imageUpload(imageInfo.data)
+        var entity = try await ledgerRepo.imageUpload(imageInfo.data)
         entity.id = imageInfo.id
         return entity
       }
@@ -123,7 +132,7 @@ final class ManualInputReactor: Reactor {
           })
           imageURL = currentState.content.documentImages[index]
         }
-        try await repo.imageDelete(imageURL)
+        try await ledgerRepo.imageDelete(imageURL)
         return index
       }
       .flatMap { Observable<Mutation>.concat([
@@ -150,6 +159,9 @@ final class ManualInputReactor: Reactor {
     newState.selectedSection = nil
     newState.alertMessage = nil
     switch mutation {
+    case let .setName(name):
+      newState.userName = name
+      
     case .addImage(let item):
       guard case let .image(_, section) = item else { return newState }
       newState.images[section.rawValue].items.append(item)
@@ -258,7 +270,7 @@ private extension ManualInputReactor {
       else {
         throw MoneyMongError.appError(errorMessage: "날짜 및 시간을 확인해 주세요")
       }
-      return try await repo.create(
+      return try await ledgerRepo.create(
         id: currentState.agencyId,
         storeInfo: currentState.content.source,
         fundType: currentState.content.amountSign == 1 ? .income : .expense,

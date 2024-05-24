@@ -4,10 +4,12 @@ import NetworkService
 
 final class ManualInputDIContainer {
   private let ledgerRepo: LedgerRepositoryInterface
+  private let userRepo: UserRepositoryInterface
   private let ledgerService: LedgerServiceInterface
   
-  init(repo: LedgerRepositoryInterface, ledgerService: LedgerServiceInterface) {
-    self.ledgerRepo = repo
+  init(ledgerRepo: LedgerRepositoryInterface, userRepo: UserRepositoryInterface, ledgerService: LedgerServiceInterface) {
+    self.ledgerRepo = ledgerRepo
+    self.userRepo = userRepo
     self.ledgerService = ledgerService
   }
   
@@ -15,7 +17,8 @@ final class ManualInputDIContainer {
     let vc = ManualInputVC()
     vc.reactor = ManualInputReactor(
       agencyId: agencyId,
-      repo: ledgerRepo,
+      ledgerRepo: ledgerRepo,
+      userRepo: userRepo,
       ledgerService: ledgerService
     )
     vc.coordinator = coordinator
