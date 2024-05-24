@@ -43,6 +43,12 @@ public final class TokenRequestIntercepter: RequestInterceptor {
       completion(.success(urlRequest))
       return
     }
+    
+    //OCR
+    if urlRequest.url?.absoluteString.hasSuffix("/document/receipt") == true {
+      completion(.success(urlRequest))
+      return
+    }
 
     var urlRequest = urlRequest
     urlRequest.setValue("Bearer " + accessToken, forHTTPHeaderField: "Authorization")

@@ -50,7 +50,7 @@ public final class NetworkManager: NetworkManagerInterfacae {
 
     let dataRequest: DataRequest
     switch target.task {
-    case .upload(let multipartFormData):
+    case .upload(_, let multipartFormData):
       dataRequest = AF.upload(multipartFormData: multipartFormData, with: target, interceptor: tokenIntercepter)
     default:
       dataRequest = AF.request(target, interceptor: tokenIntercepter)
