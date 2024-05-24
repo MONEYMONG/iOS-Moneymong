@@ -8,6 +8,7 @@ public extension UIViewController {
     case closeWhite
     case trash
     case 수정완료
+    case warning
     case none
 
     var button: UIBarButtonItem {
@@ -32,6 +33,9 @@ public extension UIViewController {
         button.tintColor = Colors.Blue._4
       case .none:
         button.image = UIImage()
+      case .warning:
+        button.image = Images.warning?.withRenderingMode(.alwaysTemplate)
+        button.tintColor = .white
       }
       
       return button

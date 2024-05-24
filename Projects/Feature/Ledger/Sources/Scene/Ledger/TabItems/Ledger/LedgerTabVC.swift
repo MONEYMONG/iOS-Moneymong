@@ -50,7 +50,10 @@ final class LedgerTabVC: BaseVC, View {
   private let ledgerList: UICollectionView = {
     let flowLayout = UICollectionViewFlowLayout()
     flowLayout.minimumLineSpacing = 20
-    flowLayout.estimatedItemSize.width = UIScreen.main.bounds.width - 40
+    flowLayout.itemSize = CGSize(
+      width: UIScreen.main.bounds.width - 40,
+      height: 44
+    )
 
     let v = UICollectionView(frame: .zero, collectionViewLayout: flowLayout)
     v.showsVerticalScrollIndicator = false
@@ -62,10 +65,12 @@ final class LedgerTabVC: BaseVC, View {
   override func setupUI() {
     super.setupUI()
     floatingButton.addWriteAction { [weak self] in
-      guard let self else { return }
-      if let id = reactor?.currentState.agencyID {
-        self.coordinator?.present(.inputManual(id))
+      if let id = self?.reactor?.currentState.agencyID {
+        self?.coordinator?.present(.manualCreater(id))
       }
+    }
+    floatingButton.addScanAction { [weak self] in
+      self?.coordinator?.present(.scanCreater)
     }
     ledgerList.backgroundView = emptyView
   }

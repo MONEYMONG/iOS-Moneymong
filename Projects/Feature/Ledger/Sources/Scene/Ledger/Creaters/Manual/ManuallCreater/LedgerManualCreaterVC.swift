@@ -7,7 +7,7 @@ import DesignSystem
 import ReactorKit
 import RxDataSources
 
-final class ManualInputVC: BaseVC, View {
+final class LedgerManualCreaterVC: BaseVC, View {
   weak var coordinator: ManualInputCoordinator?
   private struct ViewSize {
     static var cell: CGSize {
@@ -163,13 +163,13 @@ final class ManualInputVC: BaseVC, View {
     view.addSubview(completeButton)
   }
   
-  func bind(reactor: ManualInputReactor) {
+  func bind(reactor: LedgerManualCreaterReactor) {
     setRightItem(.closeBlack)
     bindAction(reactor: reactor)
     bindState(reactor: reactor)
   }
   
-  private func bindAction(reactor: ManualInputReactor) {
+  private func bindAction(reactor: LedgerManualCreaterReactor) {
     navigationItem.rightBarButtonItem?.rx.tap
       .map { Reactor.Action.presentedAlert(.end) }
       .bind(to: reactor.action)
@@ -265,7 +265,7 @@ final class ManualInputVC: BaseVC, View {
       .disposed(by: disposeBag)
   }
   
-  private func bindState(reactor: ManualInputReactor) {
+  private func bindState(reactor: LedgerManualCreaterReactor) {
     reactor.pulse(\.$images)
       .bind(to: collectionView.rx.items(dataSource: dataSource))
       .disposed(by: disposeBag)
@@ -358,7 +358,7 @@ final class ManualInputVC: BaseVC, View {
   }
 }
 
-extension ManualInputVC: UICollectionViewDelegateFlowLayout {
+extension LedgerManualCreaterVC: UICollectionViewDelegateFlowLayout {
   func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, referenceSizeForHeaderInSection section: Int) -> CGSize {
     if section == 0 {
       return CGSize(
@@ -374,7 +374,7 @@ extension ManualInputVC: UICollectionViewDelegateFlowLayout {
   }
 }
 
-extension ManualInputVC: UIImagePickerControllerDelegate, UINavigationControllerDelegate {
+extension LedgerManualCreaterVC: UIImagePickerControllerDelegate, UINavigationControllerDelegate {
   func imagePickerController(_ picker: UIImagePickerController, didFinishPickingMediaWithInfo info: [UIImagePickerController.InfoKey : Any]) {
     if let image = info[.originalImage] as? UIImage {
       Task {

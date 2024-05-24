@@ -59,7 +59,7 @@ public final class LedgerRepository: LedgerRepositoryInterface {
         description: description,
         paymentDate: paymentDate,
         receiptImageUrls: receiptImageUrls,
-        documentImageUrls: receiptImageUrls
+        documentImageUrls: documentImageUrls
       )
     )
     _ = try await networkManager.request(target: targetType, of: LedgerDetailResponseDTO.self)
