@@ -50,7 +50,10 @@ final class LedgerTabVC: BaseVC, View {
   private let ledgerList: UICollectionView = {
     let flowLayout = UICollectionViewFlowLayout()
     flowLayout.minimumLineSpacing = 20
-    flowLayout.estimatedItemSize.width = UIScreen.main.bounds.width - 40
+    flowLayout.itemSize = CGSize(
+      width: UIScreen.main.bounds.width - 40,
+      height: 44
+    )
 
     let v = UICollectionView(frame: .zero, collectionViewLayout: flowLayout)
     v.showsVerticalScrollIndicator = false
