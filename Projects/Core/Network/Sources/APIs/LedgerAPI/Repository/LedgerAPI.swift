@@ -10,7 +10,7 @@ enum LedgerAPI {
   case ledgerList(id: Int, param: LedgerListRequestDTO)
   case ledgerFilterList(id: Int, param: LedgerListRequestDTO)
   case ledgerDetail(id: Int)
-  case receiptOCR(param: ReceiptOCRRequestDTO, data: Data)
+  case receiptOCR(param: OCRRequestDTO, data: Data)
 }
 
 extension LedgerAPI: TargetType {

@@ -1,6 +1,6 @@
 import Foundation
 
-struct ReceiptOCRRequestDTO: Encodable {
+struct OCRRequestDTO: Encodable {
   let version: String = "V2"
   let requestId: String
   let timestamp: Int = 0
