@@ -118,13 +118,16 @@ final class ManualInputVC: BaseVC, View {
     return v
   }()
   
-  private let dataSource = RxCollectionViewSectionedReloadDataSource<ImageSectionModel.Model>(
+  private lazy var dataSource = RxCollectionViewSectionedReloadDataSource<ImageSectionModel.Model>(
     configureCell: { dataSource, collectionView, indexPath, item in
       switch item {
       case .button:
         return collectionView.dequeueCell(AddImageCell.self, for: indexPath)
       case .image(_, _):
-        return collectionView.dequeueCell(ImageCell.self, for: indexPath).configure(with: item)
+        return collectionView.dequeueCell(ImageCell.self, for: indexPath)
+          .configure(with: item) { [weak self] in
+            self?.reactor?.action.onNext(.presentedAlert(.deleteImage($0)))
+          }
       }
     },
     configureSupplementaryView: { dataSource, collectionView, kind, indexPath in
@@ -290,12 +293,6 @@ final class ManualInputVC: BaseVC, View {
         owner.keyboardSpaceView.flex.height(60).markDirty()
         owner.rootContainer.flex.layout()
       }.disposed(by: disposeBag)
-    
-    NotificationCenter.default.rx.notification(.didTapImageDeleteButton)
-      .compactMap { $0.object as? ImageSectionModel.Item }
-      .map { Reactor.Action.presentedAlert(.deleteImage($0)) }
-      .bind(to: reactor.action)
-      .disposed(by: disposeBag)
   }
   
   private func bindState(reactor: ManualInputReactor) {
