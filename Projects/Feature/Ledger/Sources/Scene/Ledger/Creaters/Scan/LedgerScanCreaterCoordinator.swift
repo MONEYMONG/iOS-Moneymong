@@ -11,6 +11,7 @@ final class LedgerScanCreaterCoordinator: Coordinator {
   
   enum Scene {
     case guide
+    case alert(title: String, subTitle: String?, type: MMAlerts.`Type`)
   }
 
   init(navigationController: UINavigationController, diContainer: LedgerScanCreaterDIContainer) {
@@ -32,6 +33,8 @@ final class LedgerScanCreaterCoordinator: Coordinator {
     switch scene {
     case .guide:
       scanGuide(animated: animated)
+    case let .alert(title, subTitle, type):
+      AlertsManager.show(title: title, subTitle: subTitle, type: type)
     }
   }
 }

@@ -14,7 +14,7 @@ final class LedgerScanCreaterDIContainer {
   func scanCreater(with coordinator: LedgerScanCreaterCoordinator) -> LedgerScanCreaterVC {
     let vc = LedgerScanCreaterVC()
     vc.coordinator = coordinator
-    vc.reactor = LedgerScanCreaterReactor()
+    vc.reactor = LedgerScanCreaterReactor(ledgerRepo: ledgerRepo)
     return vc
   }
   

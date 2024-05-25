@@ -2,6 +2,7 @@ import UIKit
 import AVFoundation
 
 import DesignSystem
+import NetworkService
 
 import FlexLayout
 import PinLayout
@@ -11,6 +12,8 @@ final class LedgerScanCreaterVC: UIViewController, View {
   var disposeBag = DisposeBag()
   
   weak var coordinator: LedgerScanCreaterCoordinator?
+  
+  private let deviceHeight = UIScreen.main.bounds.height
   
   private let rootContainer = UIView()
   
@@ -53,6 +56,22 @@ final class LedgerScanCreaterVC: UIViewController, View {
     return v
   }()
   
+  private let captureImageView: UIImageView = {
+    let v = UIImageView()
+    v.contentMode = .scaleAspectFill
+    v.clipsToBounds = true
+    v.isHidden = true
+    return v
+  }()
+  
+  private let indicatorContainer: UIView = {
+    let v = UIView()
+    v.backgroundColor = .black.withAlphaComponent(0.7)
+    v.isHidden = true
+    return v
+  }()
+  
+  private let indicator = MMIndicator()
   
   override func viewDidLoad() {
     super.viewDidLoad()
@@ -60,17 +79,15 @@ final class LedgerScanCreaterVC: UIViewController, View {
     setupConstraints()
     coordinator?.present(.guide, animated: false)
   }
-  
-  override func viewWillAppear(_ animated: Bool) {
-    super.viewWillAppear(animated)
-    
-  }
 
   override func viewDidLayoutSubviews() {
     super.viewDidLayoutSubviews()
     cameraView.pin.all()
+    captureImageView.pin.all()
     rootContainer.pin.horizontally().bottom().top(view.pin.safeArea.top)
     rootContainer.flex.layout()
+    indicatorContainer.frame = view.frame
+    indicatorContainer.flex.layout()
     
     let guideLineWidth: Int = Int(UIScreen.main.bounds.width - 40)
     let guideLineXPosition: Int = (Int(UIScreen.main.bounds.width) - guideLineWidth) / 2
@@ -91,16 +108,23 @@ final class LedgerScanCreaterVC: UIViewController, View {
   }
 
   private func setupUI() {
-    cameraView.delegate = self
     let appearance = UINavigationBarAppearance()
     appearance.backgroundColor = .black.withAlphaComponent(0.6)
     appearance.backgroundEffect = nil
     navigationController?.navigationBar.scrollEdgeAppearance = appearance
     navigationController?.navigationBar.standardAppearance = appearance
+    
+    do {
+      cameraView.delegate = self
+      try cameraView.setupCamera()
+    } catch {
+      reactor?.action.onNext(.onError(error as! MoneyMongError))
+    }
   }
   
   private func setupConstraints() {
     view.addSubview(cameraView)
+    view.addSubview(captureImageView)
     view.addSubview(rootContainer)
     
     rootContainer.flex.define { flex in
@@ -109,11 +133,20 @@ final class LedgerScanCreaterVC: UIViewController, View {
       }.alignItems(.center).justifyContent(.center)
       flex.addItem(bottomContainer).define { flex in
         flex.addItem(cameraShutterButton)
-      }.alignItems(.center).justifyContent(.center)
-      .height(142)
+          .size(deviceHeight * 0.074)
+      }
+      .alignItems(.center)
+      .justifyContent(.center)
+      .height(deviceHeight * 0.175)
     }
+    
     navigationController?.navigationBar.addSubview(tapGuideLine)
     bottomContainer.addSubview(bottomGuideLine)
+    navigationController?.view.addSubview(indicatorContainer)
+    
+    indicatorContainer.flex.justifyContent(.center).alignItems(.center).define { flex in
+      flex.addItem(indicator)
+    }
   }
   
   func bind(reactor: LedgerScanCreaterReactor) {
@@ -131,14 +164,55 @@ final class LedgerScanCreaterVC: UIViewController, View {
         owner.coordinator?.dismiss(animated: true)
       }
       .disposed(by: disposeBag)
+    
+    cameraShutterButton.rx.tap
+      .bind(to: cameraView.takePhoto)
+      .disposed(by: disposeBag)
+    
+    rx.viewWillAppear
+      .map { Reactor.Action.appear }
+      .bind(to: reactor.action)
+      .disposed(by: disposeBag)
+    
+    reactor.pulse(\.$imageData)
+      .map { $0 != nil ? UIImage(data: $0!) : nil }
+      .bind(to: captureImageView.rx.image)
+      .disposed(by: disposeBag)
+    
+    reactor.pulse(\.$imageData)
+      .map { $0 == nil }
+      .bind(with: self) { owner, value in
+        owner.captureImageView.isHidden = value
+        owner.guideLabel.isHidden = !value
+      }
+      .disposed(by: disposeBag)
+    
+    reactor.pulse(\.$isLoading)
+      .observe(on: MainScheduler.instance)
+      .bind(with: self) { owner, value in
+        owner.indicatorContainer.isHidden = !value
+        if value {
+          owner.indicator.startAnimating()
+        } else {
+          owner.indicator.stopAnimating()
+        }
+      }
+      .disposed(by: disposeBag)
+    
+    reactor.pulse(\.$error)
+      .compactMap { $0?.errorDescription }
+      .bind(with: self) { owner, message in
+        owner.coordinator?.present(
+          .alert(title: "오류", subTitle: message, type: .onlyOkButton())
+        )
+      }
+      .disposed(by: disposeBag)
   }
 }
 
 extension LedgerScanCreaterVC: AVCapturePhotoCaptureDelegate {
   func photoOutput(_ output: AVCapturePhotoOutput, didFinishProcessingPhoto photo: AVCapturePhoto, error: Error?) {
-    // 사진 캡처 후 처리
-    guard let imageData = photo.fileDataRepresentation() else { return }
-    let image = UIImage(data: imageData)
-    // 이제 UIImage 객체를 사용할 수 있습니다.
+    let imageData = photo.fileDataRepresentation()
+    reactor?.action.onNext(.receiptShoot(imageData))
   }
 }
