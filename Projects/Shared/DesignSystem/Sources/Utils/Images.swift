@@ -79,5 +79,10 @@ public enum Images {
   public static var indicator = UIImage(named: "indicator", in: Bundle.module, with: nil)
   public static var cameraShutter = UIImage(named: "camera.shutter", in: Bundle.module, with: nil)
   public static var scanGuide = UIImage(named: "scan.guide", in: Bundle.module, with: nil)
+  
+  public static var agencyLine = UIImage(named: "agency.line", in: Bundle.module, with: nil)
+  public static var moneyLine = UIImage(named: "money.line", in: Bundle.module, with: nil)
+  public static var planLine = UIImage(named: "plan.line", in: Bundle.module, with: nil)
+  public static var timeLine = UIImage(named: "time.line", in: Bundle.module, with: nil)
 }
 
