@@ -49,12 +49,12 @@ struct OCRResponseDTO: Responsable {
         }
         
         struct SubResult: Decodable {
-          let items: [Item]
+          let items: [Item]?
           
           struct Item: Decodable {
             let name: Info?
             let count: Info?
-            let price: Price
+            let price: Price?
             
             struct Price: Decodable {
               let price: Info?
@@ -72,9 +72,9 @@ struct OCRResponseDTO: Responsable {
         }
         
         struct Info: Decodable {
-          let text: String
+          let text: String?
           let formatted: BizNumFormatted?
-          let keyText: String
+          let keyText: String?
           
           struct BizNumFormatted: Decodable {
             let value: String?
@@ -103,9 +103,9 @@ struct OCRResponseDTO: Responsable {
         images.first?.receipt.result.paymentInfo?.date?.formatted?.day ?? ""
       ],
       itme: [
-        images.first?.receipt.result.paymentInfo?.date?.formatted?.hour ?? "",
-        images.first?.receipt.result.paymentInfo?.date?.formatted?.minute ?? "",
-        images.first?.receipt.result.paymentInfo?.date?.formatted?.second ?? ""
+        images.first?.receipt.result.paymentInfo?.time?.formatted?.hour ?? "",
+        images.first?.receipt.result.paymentInfo?.time?.formatted?.minute ?? "",
+        images.first?.receipt.result.paymentInfo?.time?.formatted?.second ?? ""
       ]
     )
   }

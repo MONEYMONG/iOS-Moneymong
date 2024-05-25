@@ -69,7 +69,13 @@ extension LedgerAPI: TargetType {
     case let .receiptOCR(param, data):
       let multipartFormData = MultipartFormData()
       multipartFormData.append(data, withName: "file", fileName: "\(data).jpeg", mimeType: "image/jpeg")
-      return .upload(params: param, data: multipartFormData)
+      guard let object = try? JSONEncoder().encode(param) else {
+        return .upload(data: multipartFormData)
+      }
+
+      multipartFormData.append(object, withName: "message")
+      
+      return .upload(data: multipartFormData)
     }
   }
   

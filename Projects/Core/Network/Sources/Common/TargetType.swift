@@ -5,7 +5,7 @@ import Alamofire
 public enum HTTPTask {
   case plain
   case requestJSONEncodable(params: Encodable? = nil, query: Encodable? = nil)
-  case upload(params: Encodable? = nil, data: MultipartFormData)
+  case upload(data: MultipartFormData)
 }
 
 public typealias HTTPMethod = Alamofire.HTTPMethod
@@ -67,10 +67,7 @@ extension TargetType {
           })
         urlRequest.url = urlComponents.url
       }
-    case let .upload(params, _):
-      if let params {
-        urlRequest.httpBody = try! JSONEncoder().encode(params)
-      }
+    case .upload: break
     }
     return urlRequest
   }
