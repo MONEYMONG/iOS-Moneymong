@@ -215,6 +215,7 @@ extension MMTextField {
 
     charactorLimitView.isHidden = !value
     charactorLimitView.flex.isIncludedInLayout(value).markDirty()
+    clearButton.isHidden = !value
     setNeedsLayout()
   }
 

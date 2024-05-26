@@ -3,7 +3,8 @@ import Foundation
 import Alamofire
 
 enum LedgerAPI {
-  case create(id: Int, param: CreateLedgerRequestDTO) // 장부 등록
+  case create(id: Int, param: LedgerRequestDTO) // 장부 등록
+  case update(id: Int, param: LedgerRequestDTO) // 장부 정보 변경
   case delete(id: Int) // 장부 삭제
   case uploadImage(Data)
   case deleteImage(param: ImageDeleteRequestDTO)
@@ -20,6 +21,7 @@ extension LedgerAPI: TargetType {
   var path: String {
     switch self {
     case .create(let id, _): return "v1/ledger/\(id)"
+    case .update(let id, _): return "v1/ledger/ledger-detail/\(id)"
     case .delete(let id): return "v1/ledger-detail/\(id)"
     case .uploadImage(_): return "v1/images"
     case .deleteImage(_): return "v1/images"
@@ -32,6 +34,7 @@ extension LedgerAPI: TargetType {
   var method: HTTPMethod {
     switch self {
     case .create(_, _): return .post
+    case .update(_, _): return .put
     case .delete(_): return .delete
     case .uploadImage(_): return .post
     case .deleteImage(_): return .delete
@@ -44,6 +47,8 @@ extension LedgerAPI: TargetType {
   var task: HTTPTask {
     switch self {
     case .create(_, let param): 
+      return .requestJSONEncodable(params: param)
+    case .update(_, let param):
       return .requestJSONEncodable(params: param)
     case .delete(_): return .plain
     case .uploadImage(let data):

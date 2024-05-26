@@ -10,11 +10,16 @@ import RxDataSources
 final class LedgerContentsView: BaseV, View {
 
   public enum `Type` {
-    case create
     case read
     case update
   }
 
+  struct DynamicViewHeight {
+    static var keyboardHeight: Double = 0
+    static var verticalMargin: Double = 40
+  }
+
+  var coordinator: ImagePickerPresentable?
   var disposeBag = DisposeBag()
 
   private let scrollView: UIScrollView = {
@@ -26,6 +31,8 @@ final class LedgerContentsView: BaseV, View {
   }()
 
   private let contentsView = UIView()
+
+  private let keyboardSpaceView = UIView()
 
   private let storeInfoTextField: MMTextField = {
     let v = MMTextField(charactorLimitCount: 20, title: Const.storeInfoTitle)
@@ -70,21 +77,17 @@ final class LedgerContentsView: BaseV, View {
     return v
   }()
 
-  private lazy var receiptCollectionView: LedgerContensImageCollentionView = {
-    let v = LedgerContensImageCollentionView()
-    return v
-  }()
+  private lazy var receiptCollectionView = LedgerContentsCollectionView()
 
-  private lazy var documentCollentionView: LedgerContensImageCollentionView = {
-    let v = LedgerContensImageCollentionView()
-    return v
-  }()
+  private lazy var documentCollentionView = LedgerContentsCollectionView()
 
   private let authorNameTextField = MMTextField(title: Const.authorNameTitle)
 
   private var type: `Type` {
     didSet { updateState() }
   }
+
+  private var isShowKeyboard: Bool = false
 
   init(type: `Type`) {
     self.type = type
@@ -94,15 +97,15 @@ final class LedgerContentsView: BaseV, View {
 
   override func layoutSubviews() {
     super.layoutSubviews()
-    scrollView.contentSize = CGSize(
-      width: contentsView.frame.width,
-      height: contentsView.frame.height + 40
-    )
+    var contentsViewHeight = contentsView.frame.height + DynamicViewHeight.verticalMargin
+    if isShowKeyboard { contentsViewHeight += DynamicViewHeight.keyboardHeight }
+    scrollView.contentSize.height = contentsViewHeight
   }
 
   override func setupUI() {
     super.setupUI()
     backgroundColor = .clear
+    setupHideKeyboardGesture()
   }
 
   func bind(reactor: LedgerContentsReactor) {
@@ -112,6 +115,7 @@ final class LedgerContentsView: BaseV, View {
 
   func bindState(reactor: LedgerContentsReactor) {
     reactor.pulse(\.$currentLedgerItem)
+      .distinctUntilChanged()
       .map { $0.fundType }
       .bind(with: self) { owner, fundType in
         owner.amountTextField.setTitle(
@@ -123,65 +127,175 @@ final class LedgerContentsView: BaseV, View {
       .disposed(by: disposeBag)
 
     reactor.pulse(\.$currentLedgerItem)
+      .distinctUntilChanged()
       .map { $0.storeInfo }
       .bind(to: storeInfoTextField.textField.rx.text)
       .disposed(by: disposeBag)
 
     reactor.pulse(\.$currentLedgerItem)
+      .distinctUntilChanged()
       .map { $0.amount }
       .bind(to: amountTextField.textField.rx.text)
       .disposed(by: disposeBag)
 
     reactor.pulse(\.$currentLedgerItem)
+      .distinctUntilChanged()
       .map { $0.date }
       .bind(to: dateTextField.textField.rx.text)
       .disposed(by: disposeBag)
 
     reactor.pulse(\.$currentLedgerItem)
+      .distinctUntilChanged()
       .map { $0.time }
       .bind(to: timeTextField.textField.rx.text)
       .disposed(by: disposeBag)
 
     reactor.pulse(\.$currentLedgerItem)
+      .distinctUntilChanged()
       .map { $0.memo }
+      .map { $0.isEmpty ? Const.emptyDescription : $0 }
       .bind(to: memoTextField.textField.rx.text)
       .disposed(by: disposeBag)
 
     reactor.pulse(\.$currentLedgerItem)
+      .distinctUntilChanged()
+      .map { $0.memo }
+      .bind(with: self, onNext: { owner, value in
+        owner.memoTextView.setText(to: value)
+      })
+      .disposed(by: disposeBag)
+
+    receiptCollectionView.rx.setDelegate(self)
+      .disposed(by: disposeBag)
+
+    reactor.pulse(\.$currentLedgerItem)
+      .distinctUntilChanged()
       .map { $0.receiptImages }
       .bind(to: receiptCollectionView.rx.items(dataSource: receiptCollectionView.dataSources))
       .disposed(by: disposeBag)
 
     reactor.pulse(\.$currentLedgerItem)
+      .distinctUntilChanged()
       .map { $0.receiptImages }
       .bind(with: self) { owner, items in
-        owner.receiptCollectionView.updateCollectionHeigh(images: items)
+        owner.receiptCollectionView.updateCollectionHeigh(items: items)
       }
       .disposed(by: disposeBag)
 
+    documentCollentionView.rx.setDelegate(self)
+      .disposed(by: disposeBag)
+
     reactor.pulse(\.$currentLedgerItem)
+      .distinctUntilChanged()
       .map { $0.documentImages }
       .bind(to: documentCollentionView.rx.items(dataSource: documentCollentionView.dataSources))
       .disposed(by: disposeBag)
 
     reactor.pulse(\.$currentLedgerItem)
+      .distinctUntilChanged()
       .map { $0.documentImages }
       .bind(with: self) { owner, items in
-        owner.documentCollentionView.updateCollectionHeigh(images: items)
+        owner.documentCollentionView.updateCollectionHeigh(items: items)
       }
       .disposed(by: disposeBag)
 
     reactor.pulse(\.$currentLedgerItem)
+      .distinctUntilChanged()
       .map { $0.authorName }
       .bind(to: authorNameTextField.textField.rx.text)
       .disposed(by: disposeBag)
   }
 
   private func bindAction(reactor: LedgerContentsReactor) {
+    NotificationCenter.default.rx.notification(UIResponder.keyboardWillShowNotification)
+      .bind(with: self) { owner, noti in
+        guard let keyboardFrame = noti.userInfo?[UIResponder.keyboardFrameEndUserInfoKey] as? NSValue else {
+          return
+        }
+        owner.isShowKeyboard = true
+        DynamicViewHeight.keyboardHeight = keyboardFrame.cgRectValue.height - 120
+        owner.keyboardSpaceView.flex.height(keyboardFrame.cgRectValue.height - 120)
+          .markDirty()
+        owner.setNeedsLayout()
+      }
+      .disposed(by: disposeBag)
+
+    NotificationCenter.default.rx.notification(UIResponder.keyboardWillHideNotification)
+      .bind(with: self) { owner, _ in
+        owner.isShowKeyboard = false
+        DynamicViewHeight.keyboardHeight = 0
+        owner.keyboardSpaceView.flex.height(0).markDirty()
+        owner.setNeedsLayout()
+      }
+      .disposed(by: disposeBag)
+
     storeInfoTextField.textField.rx.text
-      .compactMap { $0 }
       .distinctUntilChanged()
+      .compactMap { $0 }
       .map { Reactor.Action.didValueChanged(.storeInfo($0)) }
+      .bind(to: reactor.action)
+      .disposed(by: disposeBag)
+
+    storeInfoTextField.clearButton.rx.tap
+      .map { Reactor.Action.didValueChanged(.storeInfo(Const.emptyString)) }
+      .bind(to: reactor.action)
+      .disposed(by: disposeBag)
+
+    amountTextField.textField.rx.text
+      .distinctUntilChanged()
+      .compactMap { $0 }
+      .map { Reactor.Action.didValueChanged(.amount($0)) }
+      .bind(to: reactor.action)
+      .disposed(by: disposeBag)
+
+    amountTextField.clearButton.rx.tap
+      .map { Reactor.Action.didValueChanged(.amount(Const.emptyString)) }
+      .bind(to: reactor.action)
+      .disposed(by: disposeBag)
+
+    dateTextField.textField.rx.text
+      .distinctUntilChanged()
+      .compactMap { $0 }
+      .map { Reactor.Action.didValueChanged(.date($0)) }
+      .bind(to: reactor.action)
+      .disposed(by: disposeBag)
+
+    dateTextField.clearButton.rx.tap
+      .map { Reactor.Action.didValueChanged(.date(Const.emptyString)) }
+      .bind(to: reactor.action)
+      .disposed(by: disposeBag)
+
+    timeTextField.textField.rx.text
+      .distinctUntilChanged()
+      .compactMap { $0 }
+      .map { Reactor.Action.didValueChanged(.time($0)) }
+      .bind(to: reactor.action)
+      .disposed(by: disposeBag)
+
+    timeTextField.clearButton.rx.tap
+      .map { Reactor.Action.didValueChanged(.time(Const.emptyString)) }
+      .bind(to: reactor.action)
+      .disposed(by: disposeBag)
+
+    memoTextView.textView.rx.text
+      .distinctUntilChanged()
+      .compactMap { $0 }
+      .bind(with: self) { owner, value in
+        owner.memoTextField.setText(to: value.isEmpty ? Const.emptyDescription : value)
+        reactor.action.onNext(.didValueChanged(.memo(value)))
+        owner.setNeedsLayout()
+      }
+      .disposed(by: disposeBag)
+
+    authorNameTextField.textField.rx.text
+      .distinctUntilChanged()
+      .compactMap { $0 }
+      .map { Reactor.Action.didValueChanged(.authorName($0)) }
+      .bind(to: reactor.action)
+      .disposed(by: disposeBag)
+
+    authorNameTextField.clearButton.rx.tap
+      .map { Reactor.Action.didValueChanged(.authorName(Const.emptyString)) }
       .bind(to: reactor.action)
       .disposed(by: disposeBag)
   }
@@ -203,23 +317,71 @@ final class LedgerContentsView: BaseV, View {
             .backgroundColor(Colors.White._1)
             .cornerRadius(16)
             .border(1, Colors.Blue._3)
-            .padding(8, 16)
+            .paddingVertical(8)
             .define { flex in
-              flex.addItem(storeInfoTextField).marginTop(20).marginBottom(2)
-              flex.addItem(LineDashDivider()).height(1)
-              flex.addItem(amountTextField).marginTop(20).marginBottom(2)
-              flex.addItem(LineDashDivider()).height(1)
-              flex.addItem(dateTextField).marginTop(20).marginBottom(2)
-              flex.addItem(LineDashDivider()).height(1)
-              flex.addItem(timeTextField).marginTop(20).marginBottom(2)
-              flex.addItem(LineDashDivider()).height(1)
-              flex.addItem(memoTextField).marginTop(20).marginBottom(2)
-              flex.addItem(LineDashDivider()).height(1)
-              flex.addItem(receiptCollectionView).marginVertical(20)
-              flex.addItem(LineDashDivider()).height(1)
-              flex.addItem(documentCollentionView).marginVertical(20)
-              flex.addItem(LineDashDivider()).height(1)
-              flex.addItem(authorNameTextField).marginTop(20).marginBottom(2)
+              flex.addItem(storeInfoTextField)
+                .marginTop(20)
+                .marginBottom(2)
+                .marginHorizontal(16)
+
+              flex.addItem(LineDashDivider())
+                .height(1)
+                .marginHorizontal(16)
+
+              flex.addItem(amountTextField)
+                .marginTop(20)
+                .marginBottom(2)
+                .marginHorizontal(16)
+
+              flex.addItem(LineDashDivider())
+                .height(1)
+                .marginHorizontal(16)
+
+              flex.addItem(dateTextField)
+                .marginTop(20)
+                .marginBottom(2)
+                .marginHorizontal(16)
+
+              flex.addItem(LineDashDivider())
+                .height(1)
+                .marginHorizontal(16)
+
+              flex.addItem(timeTextField)
+                .marginTop(20)
+                .marginBottom(2)
+                .marginHorizontal(16)
+
+              flex.addItem(LineDashDivider())
+                .height(1)
+                .marginHorizontal(16)
+
+              flex.addItem(memoTextField)
+                .marginTop(20)
+                .marginBottom(2)
+                .marginHorizontal(16)
+
+              flex.addItem(LineDashDivider())
+                .height(1)
+                .marginHorizontal(16)
+
+              flex.addItem(receiptCollectionView)
+                .marginVertical(20)
+
+              flex.addItem(LineDashDivider())
+                .height(1)
+                .marginHorizontal(16)
+
+              flex.addItem(documentCollentionView)
+                .marginVertical(20)
+
+              flex.addItem(LineDashDivider())
+                .height(1)
+                .marginHorizontal(16)
+
+              flex.addItem(authorNameTextField)
+                .marginTop(20)
+                .marginBottom(2)
+                .marginHorizontal(16)
             }
         }
     }
@@ -247,6 +409,8 @@ final class LedgerContentsView: BaseV, View {
 
   private func setupUpdate() {
     contentsView.removeAllSubViews()
+    scrollView.removeAllSubViews()
+    rootContainer.removeAllSubViews()
 
     rootContainer.flex.define { flex in
       flex.addItem(scrollView)
@@ -257,27 +421,27 @@ final class LedgerContentsView: BaseV, View {
             .backgroundColor(Colors.White._1)
             .cornerRadius(16)
             .border(1, Colors.Blue._3)
-            .padding(8, 16)
+            .paddingVertical(8)
             .define { flex in
-              flex.addItem(storeInfoTextField).marginVertical(20)
-              flex.addItem(LineDashDivider()).height(1)
-              flex.addItem(amountTextField).marginVertical(20)
-              flex.addItem(LineDashDivider()).height(1)
-              flex.addItem(dateTextField).marginVertical(20)
-              flex.addItem(LineDashDivider()).height(1)
-              flex.addItem(timeTextField).marginVertical(20)
-              flex.addItem(LineDashDivider()).height(1)
-              flex.addItem(memoTextView).marginVertical(20)
-              flex.addItem(LineDashDivider()).height(1)
+              flex.addItem(storeInfoTextField).margin(20, 16)
+              flex.addItem(LineDashDivider()).height(1).marginHorizontal(16)
+              flex.addItem(amountTextField).margin(20, 16)
+              flex.addItem(LineDashDivider()).height(1).marginHorizontal(16)
+              flex.addItem(dateTextField).margin(20, 16)
+              flex.addItem(LineDashDivider()).height(1).marginHorizontal(16)
+              flex.addItem(timeTextField).margin(20, 16)
+              flex.addItem(LineDashDivider()).height(1).marginHorizontal(16)
+              flex.addItem(memoTextView).margin(20, 16)
+              flex.addItem(LineDashDivider()).height(1).marginHorizontal(16)
               flex.addItem(receiptCollectionView).marginVertical(20)
-              flex.addItem(LineDashDivider()).height(1)
+              flex.addItem(LineDashDivider()).height(1).marginHorizontal(16)
               flex.addItem(documentCollentionView).marginVertical(20)
-              flex.addItem(LineDashDivider()).height(1)
-              flex.addItem(authorNameTextField).marginVertical(20)
+              flex.addItem(LineDashDivider()).height(1).marginHorizontal(16)
+              flex.addItem(authorNameTextField).margin(20, 16)
             }
+          flex.addItem(keyboardSpaceView).backgroundColor(.clear)
         }
     }
-
     storeInfoTextField.setIsEnabled(to: true)
     storeInfoTextField.setRequireMark(to: true)
     amountTextField.setIsEnabled(to: true)
@@ -290,23 +454,17 @@ final class LedgerContentsView: BaseV, View {
     memoTextField.setRequireMark(to: true)
     authorNameTextField.setIsEnabled(to: false)
     authorNameTextField.setRequireMark(to: false)
-
     memoTextField.isHidden = true
     memoTextField.flex.display(.none).markDirty()
     memoTextView.isHidden = false
     memoTextView.flex.display(.flex).markDirty()
-
     scrollView.setContentOffset(CGPoint(x: 0, y: 0), animated: true)
     storeInfoTextField.textField.becomeFirstResponder()
-
     setNeedsLayout()
   }
 
   private func updateState() {
     switch type {
-    case .create:
-      //   setupCreate()
-      return
     case .read:
       setupRead()
     case .update:
@@ -321,8 +479,64 @@ extension LedgerContentsView {
   }
 }
 
-extension LedgerContentsView: UICollectionViewDelegate {}
+/// Hide Keyboard Action
+fileprivate extension LedgerContentsView {
+  func setupHideKeyboardGesture() {
+    let tapGesture = UITapGestureRecognizer(target: self, action: #selector(rootViewTabAction))
+    tapGesture.cancelsTouchesInView = false
+    addGestureRecognizer(tapGesture)
+  }
+
+  @objc func rootViewTabAction() {
+    endEditing(true)
+  }
+}
+
+extension LedgerContentsView: UICollectionViewDelegateFlowLayout {
+  func collectionView(
+    _ collectionView: UICollectionView,
+    layout collectionViewLayout: UICollectionViewLayout,
+    referenceSizeForHeaderInSection section: Int
+  ) -> CGSize {
+    return CGSize(
+      width: collectionView.frame.width,
+      height: 16
+    )
+  }
+}
+
+extension LedgerContentsView: UIImagePickerControllerDelegate, UINavigationControllerDelegate {
+  func imagePickerController(
+    _ picker: UIImagePickerController,
+    didFinishPickingMediaWithInfo info: [UIImagePickerController.InfoKey : Any]
+  ) {
+    if let url = info[.imageURL] as? URL {
+//      Task {
+//        let scale = ViewSize.cell.width / image.size.width
+//        guard let data = image.jpegData(compressionQuality: scale) else { return }
+//        if reactor?.currentState.selectedSection == .receipt {
+//          reactor?.action.onNext(
+//            .selectedImage(
+//              .image(.init(id: .init(), data: data), .receipt)
+//            )
+//          )
+//        } else {
+//          reactor?.action.onNext(
+//            .selectedImage(
+//              .image(.init(id: .init(), data: data), .document)
+//            )
+//          )
+//        }
+//      }
+    }
+    picker.dismiss(animated: true, completion: nil)
+  }
+}
+
+
 fileprivate enum Const {
+  static var emptyString: String { "" }
+  static var emptyDescription: String { "내용없음" }
   static var storeInfoTitle: String { "수입·지출 출처" }
   static var storeInfoPlaceholder: String { "점포명을 입력해주세요" }
   static var expenseTitle: String { "지출 금액" }

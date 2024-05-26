@@ -3,92 +3,120 @@ import NetworkService
 import ReactorKit
 
 final class LedgerDetailReactor: Reactor {
-  
+
   enum Action {
     case onAppear
     case didTapDelete
     case didTapEdit
-    case didValueChanged(Bool)
   }
-  
+
   enum Mutation {
     case setLedger(LedgerDetail)
+    case setError(MoneyMongError)
     case setIsLoading(Bool)
     case setIsEdit(Bool)
     case setDeleteCompleted(Void)
-    case isChanged(Bool)
+    case setIsValid(Bool)
+    case setIsChanged(Bool)
+    case setUpdatedItem(LedgerDetail)
   }
-  
+
   struct State {
     let ledgerId: Int
+    var isChanged: Bool = false
+    var updatedItem: LedgerDetail?
     @Pulse var role: Member.Role
     @Pulse var ledger: LedgerDetail?
+    @Pulse var error: MoneyMongError?
     @Pulse var isLoading: Bool?
     @Pulse var isEdit: Bool = false
-    @Pulse var isChanged: Bool?
+    @Pulse var isValid: Bool?
     @Pulse var deleteCompleted: Void?
   }
-  
+
   var initialState: State
   private let formatter = ContentFormatter()
   private let ledgerRepository: LedgerRepositoryInterface
-  private(set) var ledgerService: LedgerServiceInterface
+  private let ledgerService: LedgerServiceInterface
+  private(set) var ledgerDetailService: LedgerDetailContentsServiceInterface
 
   init(
     ledgerID: Int,
     role: Member.Role,
     ledgerRepository: LedgerRepositoryInterface,
-    ledgerService: LedgerServiceInterface
+    ledgerService: LedgerServiceInterface,
+    ledgerDetailService: LedgerDetailContentsServiceInterface
   ) {
     self.initialState = State(ledgerId: ledgerID, role: role)
     self.ledgerRepository = ledgerRepository
     self.ledgerService = ledgerService
+    self.ledgerDetailService = ledgerDetailService
   }
 
-  func transform(action: Observable<Action>) -> Observable<Action> {
-    return Observable.merge(action, serviceAction)
+  func transform(mutation: Observable<Mutation>) -> Observable<Mutation> {
+    return Observable.merge(mutation, serviceMutation)
   }
 
-  private var serviceAction: Observable<Action> {
-    return ledgerService.ledgerContents.event
+  private var serviceMutation: Observable<Mutation> {
+    return ledgerDetailService.event
       .withUnretained(self)
-      .flatMap { owner, action -> Observable<Action> in
-        if case .isValueChanged(let value) = action {
-          return .just(.didValueChanged(value))
+      .flatMap { owner, mutation -> Observable<Mutation> in
+        switch mutation {
+        case .isValueChanged(let isChanged, let item):
+          return .concat([
+            .just(.setIsChanged(isChanged)),
+            .just(.setUpdatedItem(item))
+          ])
+        case .isValidChanged(let value):
+          return .just(.setIsValid(value))
         }
-        return .just(.didValueChanged(false))
       }
   }
 
   func mutate(action: Action) -> Observable<Mutation> {
     switch action {
-      
+
     case .onAppear:
       return .concat([
         .just(.setIsLoading(true)),
-        .task { return try await ledgerRepository.fetchLedgerDetail(id: currentState.ledgerId) }
-          .map { .setLedger($0) },
-        .just(.setIsLoading(false))
+
+          .task { return try await ledgerRepository.fetchLedgerDetail(id: currentState.ledgerId) }
+          .map { .setLedger($0) }
+          .catch { return .just(.setError($0.toMMError))},
+
+          .just(.setIsLoading(false))
       ])
-      
+
     case .didTapDelete:
       return .concat([
         .just(.setIsLoading(true)),
-        .task { return try await ledgerRepository.delete(id: currentState.ledgerId) }
-          .map { [weak self] in
-            self?.ledgerService.ledgerList.updateList()
-          }
-          .map { .setDeleteCompleted(()) },
-        .just(.setIsLoading(false))
-      ])
-      
-    case .didTapEdit:
-      return .just(.setIsEdit(!(currentState.isEdit)))
 
-    case .didValueChanged(let value):
-      return .just(.isChanged(value))
+          .task { return try await ledgerRepository.delete(id: currentState.ledgerId) }
+          .map { [weak self] in self?.ledgerService.ledgerList.updateList() }
+          .map { .setDeleteCompleted(()) }
+          .catch { return .just(.setError($0.toMMError))},
+
+          .just(.setIsLoading(false))
+      ])
+
+    case .didTapEdit:
+      if let ledger = currentState.updatedItem, currentState.isEdit, currentState.isChanged {
+        return .concat([
+          .just(.setIsLoading(true)),
+
+            .task { return try await ledgerRepository.update(ledger: ledger) }
+            .map { [weak self] in self?.ledgerService.ledgerList.updateList() }
+            .map { .setIsLoading(false) }
+            .catch { return .just(.setError($0.toMMError))},
+
+            .just(.setIsEdit(!(currentState.isEdit)))
+        ])
+      } else {
+        return .just(.setIsEdit(!(currentState.isEdit)))
+      }
     }
   }
+
   func reduce(state: State, mutation: Mutation) -> State {
     var newState = state
     switch mutation {
@@ -100,8 +128,14 @@ final class LedgerDetailReactor: Reactor {
       newState.isEdit = isEdit
     case .setDeleteCompleted(let event):
       newState.deleteCompleted = event
-    case .isChanged(let value):
-      newState.isChanged = value
+    case .setIsValid(let value):
+      newState.isValid = value
+    case .setError(let error):
+      newState.error = error
+    case .setIsChanged(let isChanged):
+      newState.isChanged = isChanged
+    case .setUpdatedItem(let item):
+      newState.updatedItem = item
     }
     return newState
   }

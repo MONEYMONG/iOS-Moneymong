@@ -85,6 +85,7 @@ final class LedgerDetailVC: BaseVC, View {
       .disposed(by: disposeBag)
 
     reactor.pulse(\.$ledger)
+      .distinctUntilChanged()
       .compactMap { $0 }
       .observe(on: MainScheduler.instance)
       .bind(with: self) { owner, ledger in
@@ -93,16 +94,29 @@ final class LedgerDetailVC: BaseVC, View {
           ? Const.expenseTitle
           : Const.incomeTitle
         )
-        owner.contentsView.reactor = LedgerContentsReactor(
-          ledgerService: reactor.ledgerService,
+        let contentsViewReactor = LedgerContentsReactor(
+          ledgerDetailService: reactor.ledgerDetailService,
           ledger: ledger
         )
+        owner.contentsView.coordinator = owner.coordinator
+        owner.contentsView.bind(reactor: contentsViewReactor)
       }
       .disposed(by: disposeBag)
 
     reactor.pulse(\.$isLoading)
       .compactMap { $0 }
       .bind(to: rx.isLoading)
+      .disposed(by: disposeBag)
+
+    reactor.pulse(\.$error)
+      .compactMap { $0 }
+      .bind(with: self) { owner, error in
+        owner.coordinator?.present(.alert(
+          title: "네트워크 에러",
+          subTitle: error.localizedDescription,
+          type: .onlyOkButton({})
+        ))
+      }
       .disposed(by: disposeBag)
 
     reactor.pulse(\.$isEdit)
@@ -116,12 +130,13 @@ final class LedgerDetailVC: BaseVC, View {
       }
       .disposed(by: disposeBag)
 
-    reactor.pulse(\.$isChanged)
+    reactor.pulse(\.$isValid)
+      .distinctUntilChanged()
       .compactMap { $0 }
       .observe(on: MainScheduler.instance)
-      .bind(with: self) { owner, isChanged in
-        owner.navigationItem.rightBarButtonItem?.isEnabled = isChanged
-        owner.editButton.setState(isChanged ? .primary : .disable)
+      .bind(with: self) { owner, isValid in
+        owner.navigationItem.rightBarButtonItem?.isEnabled = isValid
+        owner.editButton.setState(isValid ? .primary : .disable)
       }
       .disposed(by: disposeBag)
 

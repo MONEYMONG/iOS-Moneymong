@@ -3,25 +3,26 @@ import UIKit
 import RxDataSources
 import FlexLayout
 
-final class LedgerContensImageCollentionView: UICollectionView {
+final class LedgerContentsCollectionView: UICollectionView {
 
   private let layout = UICollectionViewFlowLayout()
 
   lazy var dataSources = RxCollectionViewSectionedReloadDataSource<LedgerImageSectionModel.Model>(
     configureCell: { [weak self] dataSource, collectionView, indexPath, item in
       switch item {
-      case .creatAdd:
-        return collectionView.dequeueCell(CreateAddImageCell.self, for: indexPath)
+      case .description(let description):
+        return collectionView.dequeueCell(DescriptionCell.self, for: indexPath)
+          .configure(with: description)
 
-      case .updateAdd:
+      case .creatButton:
+        return collectionView.dequeueCell(CreateAddButtonCell.self, for: indexPath)
+
+      case .updateButton:
         return collectionView.dequeueCell(UpdateAddImageCell.self, for: indexPath)
 
-      case .readImage(let url):
+      case .image(let url):
         return collectionView.dequeueCell(DefaultImageCell.self, for: indexPath)
           .configure(with: url)
-
-      case .updateImage:
-        return collectionView.dequeueCell(DefaultImageCell.self, for: indexPath)
       }
     },
     configureSupplementaryView: { dataSource, collectionView, kind, indexPath in
@@ -46,44 +47,38 @@ final class LedgerContensImageCollentionView: UICollectionView {
   }
 
   private func setupUI() {
-    delegate = self
     isScrollEnabled = false
-    register(AddImageCell.self)
-    register(CreateAddImageCell.self)
+    register(DescriptionCell.self)
+    register(UpdateButtonCell.self)
+    register(CreateAddButtonCell.self)
     register(DefaultImageCell.self)
     registerHeader(DefaultSectionHeader.self)
   }
 
-  func updateCollectionHeigh(images: [LedgerImageSectionModel.Model]) {
+  func updateCollectionHeigh(items: [LedgerImageSectionModel.Model]) {
+    layout.minimumLineSpacing = 9
+    layout.minimumInteritemSpacing = 9
+    layout.sectionInset = UIEdgeInsets(top: 8, left: 16, bottom: 0, right: 16)
+
+    /// item이 description일 경우 Height
+    if case LedgerImageSectionModel.Item.description(_) = items[0].items[0] {
+      flex.height(16 + 8 + 20).markDirty()
+      setNeedsLayout()
+      return
+    }
 
     let cellSize: CGSize = {
-      let width = frame.width * 0.313
+      let width = frame.width * 0.28
       let height = width * 1.33
       return CGSize(width: width, height: height)
     }()
 
     layout.itemSize = cellSize
-    layout.minimumLineSpacing = 9
-    layout.minimumInteritemSpacing = 9
-    layout.sectionInset = UIEdgeInsets(top: 8, left: 0, bottom: 0, right: 0)
-    let imageCount = images[0].items.count
+    let imageCount = items[0].items.count
     let lineCount = ceil(Double(imageCount) / 3)
     flex.height(
       16 + 8 + ((lineCount - 1) * 9) + (cellSize.height * lineCount)
     ).markDirty()
     setNeedsLayout()
-  }
-}
-
-extension LedgerContensImageCollentionView: UICollectionViewDelegateFlowLayout {
-  func collectionView(
-    _ collectionView: UICollectionView,
-    layout collectionViewLayout: UICollectionViewLayout,
-    referenceSizeForHeaderInSection section: Int
-  ) -> CGSize {
-    return CGSize(
-      width: collectionView.frame.width,
-      height: 16
-    )
   }
 }

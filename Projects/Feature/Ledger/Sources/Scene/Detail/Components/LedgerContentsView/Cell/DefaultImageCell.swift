@@ -17,6 +17,12 @@ final class DefaultImageCell: UICollectionViewCell, ReusableView {
     return v
   }()
 
+  private let deleteButton: UIButton = {
+    let v = UIButton()
+    v.setImage(Images.closeFill, for: .normal)
+    return v
+  }()
+
   override init(frame: CGRect) {
     super.init(frame: frame)
     setupView()
@@ -46,16 +52,18 @@ final class DefaultImageCell: UICollectionViewCell, ReusableView {
 
   private func setupConstraints() {
     contentView.addSubview(rootContainer)
+
     rootContainer.flex
       .justifyContent(.center)
       .alignItems(.center)
       .define { flex in
         flex.addItem(imageView)
           .border(1, Colors.Blue._1)
-        //    flex.addItem(deleteButton)
-        //     .position(.absolute)
-        //     .top(-6)
-        //     .right(-6)
+
+        flex.addItem(deleteButton)
+          .position(.absolute)
+          .top(-6)
+          .right(-6)
       }
   }
 

@@ -8,12 +8,10 @@ struct LedgerImageSectionModel {
   }
 
   enum Item: Equatable {
-    case creatAdd
-    case updateAdd
-    case readImage(String)
-    case updateImage
-//    case button(Section)
-//    case image(ImageData, Section)
+    case description(String)
+    case creatButton
+    case updateButton
+    case image(String)
   }
 
   let model: Section

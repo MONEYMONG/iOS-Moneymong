@@ -113,14 +113,22 @@ public final class LedgerDIContainer {
     ledgerID: Int,
     role: Member.Role
   ) -> LedgerDetailVC {
-    let vc = LedgerDetailVC()
-    vc.coordinator = coordinator
-    vc.reactor = LedgerDetailReactor(
+    let reactor = LedgerDetailReactor(
       ledgerID: ledgerID,
       role: role,
       ledgerRepository: ledgerRepo,
-      ledgerService: ledgerService
+      ledgerService: ledgerService,
+      ledgerDetailService: LedgerDetailContentsService()
     )
+    let vc = LedgerDetailVC()
+    vc.coordinator = coordinator
+    vc.reactor = reactor
     return vc
+  }
+
+  func imagePicker() -> UIImagePickerController {
+    let picker = UIImagePickerController()
+    picker.sourceType = .photoLibrary
+    return picker
   }
 }

@@ -92,7 +92,7 @@ final class ManualInputVC: BaseVC, View {
     layout.minimumInteritemSpacing = ViewSize.cellSpacing
     layout.sectionInset = UIEdgeInsets(top: 8, left: 0, bottom: 24, right: 8)
     let v = UICollectionView(frame: .zero, collectionViewLayout: layout)
-    v.register(AddImageCell.self)
+    v.register(UpdateButtonCell.self)
     v.register(ImageCell.self)
     v.registerHeader(ReceiptHeader.self)
     v.registerHeader(DocumentHeader.self)
@@ -104,7 +104,7 @@ final class ManualInputVC: BaseVC, View {
     configureCell: { dataSource, collectionView, indexPath, item in
       switch item {
       case .button:
-        return collectionView.dequeueCell(AddImageCell.self, for: indexPath)
+        return collectionView.dequeueCell(UpdateButtonCell.self, for: indexPath)
       case .image(_, _):
         return collectionView.dequeueCell(ImageCell.self, for: indexPath).configure(with: item)
       }

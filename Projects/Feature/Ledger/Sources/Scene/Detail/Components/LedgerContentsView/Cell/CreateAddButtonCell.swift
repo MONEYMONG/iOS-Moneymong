@@ -3,7 +3,7 @@ import UIKit
 import DesignSystem
 import Utility
 
-final class CreateAddImageCell: UICollectionViewCell, ReusableView {
+final class CreateAddButtonCell: UICollectionViewCell, ReusableView {
 
   private let rootContainer = UIView()
 

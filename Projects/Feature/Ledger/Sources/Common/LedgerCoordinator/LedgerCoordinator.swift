@@ -4,7 +4,7 @@ import DesignSystem
 import NetworkService
 import BaseFeature
 
-public final class LedgerCoordinator: Coordinator {
+public final class LedgerCoordinator: Coordinator, ImagePickerPresentable {
   public var navigationController: UINavigationController
   private let diContainer: LedgerDIContainer
   public weak var parentCoordinator: Coordinator?
@@ -15,6 +15,7 @@ public final class LedgerCoordinator: Coordinator {
     case alert(title: String, subTitle: String?, type: MMAlerts.`Type`)
     case inputManual(Int)
     case datePicker(start: DateInfo, end: DateInfo)
+    case imagePicker(delegate: UIImagePickerControllerDelegate & UINavigationControllerDelegate)
     case detail(Ledger, Member.Role)
     case selectAgency
   }
@@ -34,6 +35,8 @@ public final class LedgerCoordinator: Coordinator {
       manualInput(agencyId: agencyId, animated: animated)
     case let .datePicker(start, end):
       datePicker(start: start, end: end)
+    case let .imagePicker(delegate):
+      imagePicker(animated: true, delegate: delegate)
     case .selectAgency:
       selectAgencySheet()
     case let .editMember(id, member):
