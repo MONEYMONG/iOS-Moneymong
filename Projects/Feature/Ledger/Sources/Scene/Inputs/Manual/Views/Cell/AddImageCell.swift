@@ -3,7 +3,7 @@ import UIKit
 import DesignSystem
 import Utility
 
-final class UpdateButtonCell: UICollectionViewCell, ReusableView {
+final class AddImageCell: UICollectionViewCell, ReusableView {
   private let rootContainer = UIView()
   
   override init(frame: CGRect) {

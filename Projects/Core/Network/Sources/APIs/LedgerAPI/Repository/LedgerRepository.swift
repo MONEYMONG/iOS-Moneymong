@@ -27,6 +27,8 @@ public protocol LedgerRepositoryInterface {
     limit: Int,
     fundType: FundType?
   ) async throws -> LedgerList
+
+  func receiptImageDelete(detailId: Int, receiptId: Int) async throws
 }
 
 public final class LedgerRepository: LedgerRepositoryInterface {
@@ -128,6 +130,11 @@ public final class LedgerRepository: LedgerRepositoryInterface {
   public func fetchLedgerDetail(id: Int) async throws -> LedgerDetail {
     let targetType = LedgerAPI.ledgerDetail(id: id)
     return try await networkManager.request(target: targetType, of: LedgerDetailResponseDTO.self).toEntity
+  }
+
+  public func receiptImageDelete(detailId: Int, receiptId: Int) async throws {
+    let targetType = LedgerAPI.receiptDelete(detailId: detailId, receiptId: receiptId)
+    return try await networkManager.request(target: targetType)
   }
 }
 

@@ -11,6 +11,10 @@ enum LedgerAPI {
   case ledgerList(id: Int, param: LedgerListRequestDTO)
   case ledgerFilterList(id: Int, param: LedgerListRequestDTO)
   case ledgerDetail(id: Int)
+//  case receiptUpload(detailId: Int, data: Data)
+  case receiptDelete(detailId: Int, receiptId: Int)
+//  case
+
 }
 
 extension LedgerAPI: TargetType {
@@ -28,6 +32,7 @@ extension LedgerAPI: TargetType {
     case .ledgerList(let id, _): return "v2/ledger/\(id)"
     case .ledgerFilterList(let id, _): return "v2/ledger/\(id)/filter"
     case .ledgerDetail(let id): return "v1/ledger-detail/\(id)"
+    case .receiptDelete(let detailId, let receiptId): return "v1/ledger-detail/\(detailId)/ledger-receipt/\(receiptId)}"
     }
   }
   
@@ -41,6 +46,7 @@ extension LedgerAPI: TargetType {
     case .ledgerList(_, _): return .get
     case .ledgerFilterList(_, _): return .get
     case .ledgerDetail(_): return .get
+    case .receiptDelete(_, _): return .delete
     }
   }
   
@@ -62,6 +68,8 @@ extension LedgerAPI: TargetType {
     case .ledgerFilterList(_, let query):
       return .requestJSONEncodable(query: query)
     case .ledgerDetail(_):
+      return .plain
+    case .receiptDelete(_, _):
       return .plain
     }
   }

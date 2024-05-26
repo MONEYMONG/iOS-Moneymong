@@ -15,14 +15,14 @@ final class LedgerContentsCollectionView: UICollectionView {
           .configure(with: description)
 
       case .creatButton:
-        return collectionView.dequeueCell(CreateAddButtonCell.self, for: indexPath)
+        return collectionView.dequeueCell(CreateButtonCell.self, for: indexPath)
 
       case .updateButton:
-        return collectionView.dequeueCell(UpdateAddImageCell.self, for: indexPath)
+        return collectionView.dequeueCell(UpdateButtonCell.self, for: indexPath)
 
-      case .image(let url):
+      case .image(let item):
         return collectionView.dequeueCell(DefaultImageCell.self, for: indexPath)
-          .configure(with: url)
+          .configure(with: item)
       }
     },
     configureSupplementaryView: { dataSource, collectionView, kind, indexPath in
@@ -47,10 +47,11 @@ final class LedgerContentsCollectionView: UICollectionView {
   }
 
   private func setupUI() {
+    delegate = self
     isScrollEnabled = false
     register(DescriptionCell.self)
+    register(CreateButtonCell.self)
     register(UpdateButtonCell.self)
-    register(CreateAddButtonCell.self)
     register(DefaultImageCell.self)
     registerHeader(DefaultSectionHeader.self)
   }
@@ -80,5 +81,18 @@ final class LedgerContentsCollectionView: UICollectionView {
       16 + 8 + ((lineCount - 1) * 9) + (cellSize.height * lineCount)
     ).markDirty()
     setNeedsLayout()
+  }
+}
+
+extension LedgerContentsCollectionView: UICollectionViewDelegateFlowLayout {
+  func collectionView(
+    _ collectionView: UICollectionView,
+    layout collectionViewLayout: UICollectionViewLayout,
+    referenceSizeForHeaderInSection section: Int
+  ) -> CGSize {
+    return CGSize(
+      width: collectionView.frame.width,
+      height: 16
+    )
   }
 }

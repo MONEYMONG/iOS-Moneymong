@@ -1,4 +1,7 @@
+import NetworkService
+
 import RxDataSources
+
 
 struct LedgerImageSectionModel {
   typealias Model = SectionModel<Section, Item>
@@ -11,7 +14,7 @@ struct LedgerImageSectionModel {
     case description(String)
     case creatButton
     case updateButton
-    case image(String)
+    case image(LedgerDetail.ImageURL)
   }
 
   let model: Section

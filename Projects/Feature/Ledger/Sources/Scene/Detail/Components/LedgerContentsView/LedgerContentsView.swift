@@ -3,11 +3,12 @@ import UIKit
 import BaseFeature
 import DesignSystem
 import Utility
+import NetworkService
 
 import ReactorKit
 import RxDataSources
 
-final class LedgerContentsView: BaseV, View {
+final class LedgerContentsView: BaseV, View, UIScrollViewDelegate {
 
   public enum `Type` {
     case read
@@ -165,9 +166,6 @@ final class LedgerContentsView: BaseV, View {
       })
       .disposed(by: disposeBag)
 
-    receiptCollectionView.rx.setDelegate(self)
-      .disposed(by: disposeBag)
-
     reactor.pulse(\.$currentLedgerItem)
       .distinctUntilChanged()
       .map { $0.receiptImages }
@@ -180,9 +178,6 @@ final class LedgerContentsView: BaseV, View {
       .bind(with: self) { owner, items in
         owner.receiptCollectionView.updateCollectionHeigh(items: items)
       }
-      .disposed(by: disposeBag)
-
-    documentCollentionView.rx.setDelegate(self)
       .disposed(by: disposeBag)
 
     reactor.pulse(\.$currentLedgerItem)
@@ -203,6 +198,13 @@ final class LedgerContentsView: BaseV, View {
       .distinctUntilChanged()
       .map { $0.authorName }
       .bind(to: authorNameTextField.textField.rx.text)
+      .disposed(by: disposeBag)
+
+    reactor.pulse(\.$selectedSection)
+      .compactMap { $0 }
+      .bind(with: self) { owner, _ in
+        owner.coordinator?.imagePicker(animated: true, delegate: owner)
+      }
       .disposed(by: disposeBag)
   }
 
@@ -296,6 +298,24 @@ final class LedgerContentsView: BaseV, View {
 
     authorNameTextField.clearButton.rx.tap
       .map { Reactor.Action.didValueChanged(.authorName(Const.emptyString)) }
+      .bind(to: reactor.action)
+      .disposed(by: disposeBag)
+
+    receiptCollectionView.rx.modelSelected(LedgerImageSectionModel.Item.self)
+      .filter { $0 == .updateButton || $0 == .creatButton }
+      .map { _ in Reactor.Action.selectedImageSection(.receipt) }
+      .bind(to: reactor.action)
+      .disposed(by: disposeBag)
+
+    documentCollentionView.rx.modelSelected(LedgerImageSectionModel.Item.self)
+      .filter { $0 == .updateButton || $0 == .creatButton }
+      .map { _ in Reactor.Action.selectedImageSection(.document) }
+      .bind(to: reactor.action)
+      .disposed(by: disposeBag)
+
+    NotificationCenter.default.rx.notification(.didTapLedgerDetailImageDeleteButton)
+      .compactMap { $0.object as? LedgerDetail.ImageURL }
+      .map { Reactor.Action.deleteImage($0) }
       .bind(to: reactor.action)
       .disposed(by: disposeBag)
   }
@@ -492,43 +512,22 @@ fileprivate extension LedgerContentsView {
   }
 }
 
-extension LedgerContentsView: UICollectionViewDelegateFlowLayout {
-  func collectionView(
-    _ collectionView: UICollectionView,
-    layout collectionViewLayout: UICollectionViewLayout,
-    referenceSizeForHeaderInSection section: Int
-  ) -> CGSize {
-    return CGSize(
-      width: collectionView.frame.width,
-      height: 16
-    )
-  }
-}
-
 extension LedgerContentsView: UIImagePickerControllerDelegate, UINavigationControllerDelegate {
   func imagePickerController(
     _ picker: UIImagePickerController,
     didFinishPickingMediaWithInfo info: [UIImagePickerController.InfoKey : Any]
   ) {
-    if let url = info[.imageURL] as? URL {
-//      Task {
-//        let scale = ViewSize.cell.width / image.size.width
-//        guard let data = image.jpegData(compressionQuality: scale) else { return }
-//        if reactor?.currentState.selectedSection == .receipt {
-//          reactor?.action.onNext(
-//            .selectedImage(
-//              .image(.init(id: .init(), data: data), .receipt)
-//            )
-//          )
-//        } else {
-//          reactor?.action.onNext(
-//            .selectedImage(
-//              .image(.init(id: .init(), data: data), .document)
-//            )
-//          )
-//        }
-//      }
+    guard let url = info[.imageURL] as? URL else {
+      picker.dismiss(animated: true, completion: nil)
+      return
     }
+
+    if reactor?.currentState.selectedSection == .document {
+      reactor?.action.onNext(.selectedImage(.document, url.absoluteString))
+    } else {
+      reactor?.action.onNext(.selectedImage(.receipt, url.absoluteString))
+    }
+
     picker.dismiss(animated: true, completion: nil)
   }
 }

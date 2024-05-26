@@ -5,6 +5,7 @@ import RxSwift
 enum LedgerDetailContentsEvent {
   case isValueChanged(Bool, LedgerDetail)
   case isValidChanged(Bool)
+  case shouldDeleteImage(LedgerDetail.ImageURL)
 }
 
 protocol LedgerDetailContentsServiceInterface {
@@ -12,6 +13,7 @@ protocol LedgerDetailContentsServiceInterface {
 
   func didValueChanged(isChanged: Bool, item: LedgerDetail)
   func didValidChanged(_ value: Bool)
+  func didDeleteImage(_ to: LedgerDetail.ImageURL)
 }
 
 final class LedgerDetailContentsService: LedgerDetailContentsServiceInterface {
@@ -23,5 +25,9 @@ final class LedgerDetailContentsService: LedgerDetailContentsServiceInterface {
 
   func didValidChanged(_ value: Bool) {
     event.onNext(.isValidChanged(value))
+  }
+
+  func didDeleteImage(_ to: LedgerDetail.ImageURL) {
+    event.onNext(.shouldDeleteImage(to))
   }
 }

@@ -2,8 +2,10 @@ import UIKit
 
 import DesignSystem
 import Utility
+import NetworkService
 
 import RxSwift
+import RxCocoa
 import Kingfisher
 
 final class DefaultImageCell: UICollectionViewCell, ReusableView {
@@ -23,10 +25,15 @@ final class DefaultImageCell: UICollectionViewCell, ReusableView {
     return v
   }()
 
+  private var item: LedgerDetail.ImageURL?
+
+  private let disposeBag = DisposeBag()
+
   override init(frame: CGRect) {
     super.init(frame: frame)
     setupView()
     setupConstraints()
+    bind()
   }
 
   @available(*, unavailable)
@@ -67,17 +74,26 @@ final class DefaultImageCell: UICollectionViewCell, ReusableView {
       }
   }
 
-  func configure(with urlString: String) -> Self {
-    guard let url = URL(string: urlString) else {
-      return self
-    }
-    imageView.kf.indicatorType = .activity
-    imageView.kf.setImage(
-      with: KF.ImageResource(
-        downloadURL: url,
-        cacheKey: urlString
+  private func bind() {
+    deleteButton.rx.tap
+      .bind(with: self) { owner, _ in
+        NotificationCenter.default.post(name: .didTapLedgerDetailImageDeleteButton, object: owner.item)
+      }
+      .disposed(by: disposeBag)
+  }
+
+  func configure(with item: LedgerDetail.ImageURL) -> Self {
+    self.item = item
+
+    if let url = URL(string: item.url) {
+      imageView.kf.indicatorType = .activity
+      imageView.kf.setImage(
+        with: KF.ImageResource(
+          downloadURL: url,
+          cacheKey: item.url
+        )
       )
-    )
+    }
     imageView.flex.markDirty()
     setNeedsLayout()
     return self

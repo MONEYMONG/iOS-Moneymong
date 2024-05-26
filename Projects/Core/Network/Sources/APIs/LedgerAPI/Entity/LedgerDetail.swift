@@ -36,6 +36,11 @@ public struct LedgerDetail {
   public struct ImageURL: Equatable {
     public let id: Int
     public let url: String
+
+    public init(id: Int, url: String) {
+      self.id = id
+      self.url = url
+    }
   }
 }
 

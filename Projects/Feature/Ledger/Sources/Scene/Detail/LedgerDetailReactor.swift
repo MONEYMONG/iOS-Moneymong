@@ -69,6 +69,21 @@ final class LedgerDetailReactor: Reactor {
           ])
         case .isValidChanged(let value):
           return .just(.setIsValid(value))
+        case .shouldDeleteImage(let imageItem):
+          return .concat([
+            .just(.setIsLoading(true)),
+
+              .task {
+                return try await self.ledgerRepository.receiptImageDelete(
+                  detailId: self.currentState.ledgerId,
+                  receiptId: imageItem.id
+                )
+              }
+              .map { .setIsLoading(false) }
+              .catch { .just(.setError($0.toMMError)) },
+
+              .just(.setIsLoading(false))
+          ])
         }
       }
   }

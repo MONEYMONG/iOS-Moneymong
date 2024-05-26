@@ -31,15 +31,16 @@ struct LedgerDetailItem {
         model: .default("영수증(최대12장)"),
         items: ledger?.receiptImageUrls.count == 0
         ? [.description("내용없음")]
-        : ledger?.receiptImageUrls.map { return .image($0.url) } ?? []
+        : [.updateButton]
+//        : ledger?.receiptImageUrls.map { return .image($0) } ?? [] +
       )
     ]
     self.documentImages = [
       LedgerImageSectionModel.Model.init(
-        model: .default("영수증(최대12장)"),
+        model: .default("증빙자료(최대12장)"),
         items: ledger?.documentImageUrls.count == 0
         ? [.description("내용없음")]
-        : ledger?.documentImageUrls.map { return .image($0.url) } ?? []
+        : ledger?.documentImageUrls.map { return .image($0) } ?? []
       )
     ]
     self.authorName = ledger?.authorName ?? ""

@@ -16,19 +16,32 @@ final class LedgerContentsReactor: Reactor {
     case date(String)
     case time(String)
     case authorName(String)
+    case receiptImage(String)
+    case documentImage(String)
+  }
+
+  enum ImageSection {
+    case receipt
+    case document
   }
 
   enum Action {
     case didValueChanged(ContentType)
+    case selectedImageSection(ImageSection)
+    case selectedImage(ImageSection, String)
+    case deleteImage(LedgerDetail.ImageURL)
   }
 
   enum Mutation {
     case setValueChanged(ContentType)
+    case setSelectedImageSection(ImageSection)
+    case empty
   }
 
   struct State {
     let prevCurrentLedgerItem: LedgerDetailItem
     @Pulse var currentLedgerItem: LedgerDetailItem
+    @Pulse var selectedSection: ImageSection?
   }
 
   var initialState: State
@@ -48,6 +61,21 @@ final class LedgerContentsReactor: Reactor {
     case .didValueChanged(let valueType):
       let convertedFormValue = setContentValueFormat(valueType)
       return .just(.setValueChanged(convertedFormValue))
+
+    case .selectedImageSection(let section):
+      return .just(.setSelectedImageSection(section))
+
+    case .selectedImage(let section, let url):
+      switch section {
+      case .receipt:
+        return .just(.setValueChanged(.receiptImage(url)))
+      case .document:
+        return .just(.setValueChanged(.documentImage(url)))
+      }
+
+    case .deleteImage(let item):
+      ledgerDetailService.didDeleteImage(item)
+      return .just(.empty)
     }
   }
 
@@ -76,13 +104,21 @@ final class LedgerContentsReactor: Reactor {
       case .authorName(let authorName):
         ledgerDetailService.didValidChanged(!authorName.isEmpty)
         newState.currentLedgerItem.authorName = authorName
+      case .receiptImage(let url):
+        newState.currentLedgerItem.receiptImages[0].items.append(.image(LedgerDetail.ImageURL(id: 0, url: url)))
+      case .documentImage(let url):
+        newState.currentLedgerItem.documentImages[0].items.append(.image(LedgerDetail.ImageURL(id: 0, url: url)))
       }
-      
       /// 값이 변경되었는지 여부와 변경된 값
       ledgerDetailService.didValueChanged(
         isChanged: currentState.prevCurrentLedgerItem != currentState.currentLedgerItem,
         item: currentState.currentLedgerItem.toEntity
       )
+
+    case .empty:
+      break
+    case .setSelectedImageSection(let section):
+      newState.selectedSection = section
     }
 
     return newState
@@ -106,6 +142,10 @@ fileprivate extension LedgerContentsReactor {
       return .fundType(value)
     case .authorName(let value):
       return .authorName(value)
+    case .receiptImage(let value):
+      return.receiptImage(value)
+    case .documentImage(let value):
+      return .documentImage(value)
     }
   }
 
