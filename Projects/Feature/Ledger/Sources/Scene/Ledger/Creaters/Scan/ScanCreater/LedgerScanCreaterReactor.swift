@@ -5,10 +5,10 @@ import NetworkService
 import ReactorKit
 
 final class LedgerScanCreaterReactor: Reactor {
-  var initialState: State = State()
+  var initialState: State
   
   enum Action {
-    case appear
+    case onAppear
     case receiptShoot(Data?)
     case onError(MoneyMongError)
   }
@@ -21,27 +21,30 @@ final class LedgerScanCreaterReactor: Reactor {
   }
   
   struct State {
+    @Pulse var agencyId: Int
     @Pulse var imageData: Data?
     @Pulse var isLoading: Bool = false
     @Pulse var error: MoneyMongError?
     @Pulse var destination: Destination?
     
     enum Destination {
-      case scanResult(OCRResult)
+      case scanResult(Int, model: OCRResult, imageData: Data)
     }
   }
   
   private let ledgerRepo: LedgerRepositoryInterface
 
   init(
+    agencyId: Int,
     ledgerRepo: LedgerRepositoryInterface
   ) {
     self.ledgerRepo = ledgerRepo
+    self.initialState = State(agencyId: agencyId)
   }
   
   func mutate(action: Action) -> Observable<Mutation> {
     switch action {
-    case .appear:
+    case .onAppear:
         .just(.setImageData(nil))
     case .receiptShoot(let data):
         .concat([
@@ -73,12 +76,11 @@ final class LedgerScanCreaterReactor: Reactor {
   
   private func requsetOCR(_ data: Data?) -> Observable<Mutation> {
     guard let data else { return .empty() }
+    let agencyId = currentState.agencyId
     return .task {
-      //return try await ledgerRepo.fetchOCR(data)
-      try await Task.sleep(nanoseconds: 3_000_000_000)
-      return OCRResult(source: "가", amount: "1,000", date: ["2024", "04", "04"], time: ["11", "11", "11"])
+      return try await ledgerRepo.fetchOCR(data)
     }
-    .map { .setDestination(.scanResult($0)) }
+    .map { .setDestination(.scanResult(agencyId, model: $0, imageData: data)) }
     .catch {
       return .just(.setError($0.toMMError))
     }

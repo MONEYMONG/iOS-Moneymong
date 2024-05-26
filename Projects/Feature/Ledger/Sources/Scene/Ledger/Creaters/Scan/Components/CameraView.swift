@@ -19,7 +19,6 @@ final class CameraView: UIView {
   private let videoPreviewLayer: AVCaptureVideoPreviewLayer = {
     let layer = AVCaptureVideoPreviewLayer()
     layer.videoGravity = .resizeAspectFill
-    layer.frame = UIScreen.main.bounds
     return layer
   }()
   
@@ -35,6 +34,11 @@ final class CameraView: UIView {
   
   private func setupUI() {
     layer.addSublayer(videoPreviewLayer)
+  }
+  
+  func setupCameraFrame(frame: CGRect) {
+    videoPreviewLayer.frame = frame
+    setNeedsLayout()
   }
   
   func setupCamera() throws {
