@@ -102,7 +102,7 @@ struct OCRResponseDTO: Responsable {
         images.first?.receipt.result.paymentInfo?.date?.formatted?.month ?? "",
         images.first?.receipt.result.paymentInfo?.date?.formatted?.day ?? ""
       ],
-      itme: [
+      time: [
         images.first?.receipt.result.paymentInfo?.time?.formatted?.hour ?? "",
         images.first?.receipt.result.paymentInfo?.time?.formatted?.minute ?? "",
         images.first?.receipt.result.paymentInfo?.time?.formatted?.second ?? ""

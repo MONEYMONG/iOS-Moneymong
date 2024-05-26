@@ -76,7 +76,7 @@ final class LedgerScanCreaterReactor: Reactor {
     return .task {
       //return try await ledgerRepo.fetchOCR(data)
       try await Task.sleep(nanoseconds: 3_000_000_000)
-      return OCRResult(source: "가", amount: "1,000", date: ["2024", "04", "04"], itme: ["11", "11", "11"])
+      return OCRResult(source: "가", amount: "1,000", date: ["2024", "04", "04"], time: ["11", "11", "11"])
     }
     .map { .setDestination(.scanResult($0)) }
     .catch {
