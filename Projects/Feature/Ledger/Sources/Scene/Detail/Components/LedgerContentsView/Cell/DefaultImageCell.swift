@@ -16,16 +16,18 @@ final class DefaultImageCell: UICollectionViewCell, ReusableView {
     v.layer.cornerRadius = 8
     v.clipsToBounds = true
     v.contentMode = .scaleAspectFill
+    v.kf.indicatorType = .activity
     return v
   }()
 
   private let deleteButton: UIButton = {
     let v = UIButton()
+    v.isHidden = true
     v.setImage(Images.closeFill, for: .normal)
     return v
   }()
 
-  private var item: LedgerDetail.ImageURL?
+  private var item: LedgerImageInfo?
 
   private let disposeBag = DisposeBag()
 
@@ -75,18 +77,28 @@ final class DefaultImageCell: UICollectionViewCell, ReusableView {
   }
 
   private func bind() {
+    NotificationCenter.default.rx.notification(.didContentViewUpdateState)
+      .compactMap { $0.object as? LedgerContentsView.State }
+      .bind(with: self) { owner, state in
+        owner.deleteButton.isHidden = state == .read ? true : false
+        owner.setNeedsLayout()
+      }
+      .disposed(by: disposeBag)
+
     deleteButton.rx.tap
       .bind(with: self) { owner, _ in
-        NotificationCenter.default.post(name: .didTapLedgerDetailImageDeleteButton, object: owner.item)
+        NotificationCenter.default.post(
+          name: .didTapLedgerDetailImageDeleteButton,
+          object: owner.item
+        )
       }
       .disposed(by: disposeBag)
   }
 
-  func configure(with item: LedgerDetail.ImageURL) -> Self {
+  func configure(with item: LedgerImageInfo) -> Self {
     self.item = item
 
     if let url = URL(string: item.url) {
-      imageView.kf.indicatorType = .activity
       imageView.kf.setImage(
         with: KF.ImageResource(
           downloadURL: url,

@@ -7,14 +7,14 @@ import PinLayout
 import FlexLayout
 
 final class DefaultSectionHeader: UICollectionReusableView, ReusableView {
+  private let rootContainer = UIView()
+
   private let titleLabel: UILabel = {
     let v = UILabel()
     v.textColor = Colors.Gray._6
     v.font = Fonts.body._2
     return v
   }()
-
-  private let rootContainer = UIView()
 
   override init(frame: CGRect) {
     super.init(frame: frame)

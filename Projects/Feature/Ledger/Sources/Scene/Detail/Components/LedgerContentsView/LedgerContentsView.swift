@@ -10,7 +10,7 @@ import RxDataSources
 
 final class LedgerContentsView: BaseV, View, UIScrollViewDelegate {
 
-  public enum `Type` {
+  public enum State {
     case read
     case update
   }
@@ -84,13 +84,13 @@ final class LedgerContentsView: BaseV, View, UIScrollViewDelegate {
 
   private let authorNameTextField = MMTextField(title: Const.authorNameTitle)
 
-  private var type: `Type` {
+  private(set) var type: State {
     didSet { updateState() }
   }
 
   private var isShowKeyboard: Bool = false
 
-  init(type: `Type`) {
+  init(type: State) {
     self.type = type
     super.init()
     updateState()
@@ -167,28 +167,29 @@ final class LedgerContentsView: BaseV, View, UIScrollViewDelegate {
       .disposed(by: disposeBag)
 
     reactor.pulse(\.$currentLedgerItem)
+      .map { [$0.receiptImages] }
       .distinctUntilChanged()
-      .map { $0.receiptImages }
+      .observe(on: MainScheduler.instance)
       .bind(to: receiptCollectionView.rx.items(dataSource: receiptCollectionView.dataSources))
       .disposed(by: disposeBag)
 
     reactor.pulse(\.$currentLedgerItem)
-      .distinctUntilChanged()
       .map { $0.receiptImages }
+      .distinctUntilChanged()
       .bind(with: self) { owner, items in
         owner.receiptCollectionView.updateCollectionHeigh(items: items)
       }
       .disposed(by: disposeBag)
 
     reactor.pulse(\.$currentLedgerItem)
+      .map { [$0.documentImages] }
       .distinctUntilChanged()
-      .map { $0.documentImages }
       .bind(to: documentCollentionView.rx.items(dataSource: documentCollentionView.dataSources))
       .disposed(by: disposeBag)
 
     reactor.pulse(\.$currentLedgerItem)
-      .distinctUntilChanged()
       .map { $0.documentImages }
+      .distinctUntilChanged()
       .bind(with: self) { owner, items in
         owner.documentCollentionView.updateCollectionHeigh(items: items)
       }
@@ -204,6 +205,32 @@ final class LedgerContentsView: BaseV, View, UIScrollViewDelegate {
       .compactMap { $0 }
       .bind(with: self) { owner, _ in
         owner.coordinator?.imagePicker(animated: true, delegate: owner)
+      }
+      .disposed(by: disposeBag)
+
+    reactor.pulse(\.$error)
+      .compactMap { $0 }
+      .bind(with: self) { owner, error in
+//        owner.coordinator?.present(.alert(
+//          title: "네트워크 에러",
+//          subTitle: error.localizedDescription,
+//          type: .onlyOkButton({})
+//        ))
+      }
+      .disposed(by: disposeBag)
+
+    reactor.pulse(\.$state)
+      .bind(with: self) { owner, state in
+
+        switch state {
+        case .update: owner.setupUpdate()
+        case .read: owner.setupRead()
+        }
+
+        NotificationCenter.default.post(
+          name: .didContentViewUpdateState,
+          object: state
+        )
       }
       .disposed(by: disposeBag)
   }
@@ -314,13 +341,11 @@ final class LedgerContentsView: BaseV, View, UIScrollViewDelegate {
       .disposed(by: disposeBag)
 
     NotificationCenter.default.rx.notification(.didTapLedgerDetailImageDeleteButton)
-      .compactMap { $0.object as? LedgerDetail.ImageURL }
+      .compactMap { $0.object as? LedgerImageInfo }
       .map { Reactor.Action.deleteImage($0) }
       .bind(to: reactor.action)
       .disposed(by: disposeBag)
   }
-
-  private func setupCreate() {}
 
   private func setupRead() {
     contentsView.removeAllSubViews()
@@ -474,12 +499,14 @@ final class LedgerContentsView: BaseV, View, UIScrollViewDelegate {
     memoTextField.setRequireMark(to: true)
     authorNameTextField.setIsEnabled(to: false)
     authorNameTextField.setRequireMark(to: false)
+
     memoTextField.isHidden = true
     memoTextField.flex.display(.none).markDirty()
     memoTextView.isHidden = false
     memoTextView.flex.display(.flex).markDirty()
     scrollView.setContentOffset(CGPoint(x: 0, y: 0), animated: true)
     storeInfoTextField.textField.becomeFirstResponder()
+
     setNeedsLayout()
   }
 
@@ -494,7 +521,7 @@ final class LedgerContentsView: BaseV, View, UIScrollViewDelegate {
 }
 
 extension LedgerContentsView {
-  func setType(_ type: `Type`) {
+  func setType(_ type: State) {
     self.type = type
   }
 }
@@ -512,22 +539,18 @@ fileprivate extension LedgerContentsView {
   }
 }
 
+/// ImagePicker
 extension LedgerContentsView: UIImagePickerControllerDelegate, UINavigationControllerDelegate {
   func imagePickerController(
     _ picker: UIImagePickerController,
     didFinishPickingMediaWithInfo info: [UIImagePickerController.InfoKey : Any]
   ) {
-    guard let url = info[.imageURL] as? URL else {
-      picker.dismiss(animated: true, completion: nil)
-      return
-    }
-
-    if reactor?.currentState.selectedSection == .document {
-      reactor?.action.onNext(.selectedImage(.document, url.absoluteString))
-    } else {
-      reactor?.action.onNext(.selectedImage(.receipt, url.absoluteString))
-    }
-
+//    Task {
+      guard let image = info[.originalImage] as? UIImage else { return }
+      let scale = (receiptCollectionView.frame.width * 0.28) / image.size.width
+      guard let data = image.jpegData(compressionQuality: scale) else { return }
+      reactor?.action.onNext(.selectedImage(data))
+//    }
     picker.dismiss(animated: true, completion: nil)
   }
 }

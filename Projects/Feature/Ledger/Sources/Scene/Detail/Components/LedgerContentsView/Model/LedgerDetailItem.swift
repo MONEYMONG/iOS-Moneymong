@@ -8,8 +8,8 @@ struct LedgerDetailItem {
   var memo: String
   var date: String
   var time: String
-  var receiptImages: [LedgerImageSectionModel.Model]
-  var documentImages: [LedgerImageSectionModel.Model]
+  var receiptImages: LedgerImageSectionModel.Model
+  var documentImages: LedgerImageSectionModel.Model
   var authorName: String
 
   private let formatter: ContentFormatter
@@ -26,28 +26,27 @@ struct LedgerDetailItem {
     self.memo = ledger?.description ?? ""
     self.date = date
     self.time = time
-    self.receiptImages = [
-      LedgerImageSectionModel.Model.init(
-        model: .default("영수증(최대12장)"),
-        items: ledger?.receiptImageUrls.count == 0
-        ? [.description("내용없음")]
-        : [.updateButton]
-//        : ledger?.receiptImageUrls.map { return .image($0) } ?? [] +
-      )
-    ]
-    self.documentImages = [
-      LedgerImageSectionModel.Model.init(
-        model: .default("증빙자료(최대12장)"),
-        items: ledger?.documentImageUrls.count == 0
-        ? [.description("내용없음")]
-        : ledger?.documentImageUrls.map { return .image($0) } ?? []
-      )
-    ]
+    self.receiptImages = LedgerImageSectionModel.Model.init(
+      model: .default("영수증(최대12장)"),
+      items: ledger?.receiptImageUrls.count == 0
+      ? [.description("내용없음")]
+      : ledger?.receiptImageUrls.map { return .image(.init(
+        imageSection: .receipt, key: "\($0.id)", url: $0.url
+      )) } ?? []
+    )
+    self.documentImages = LedgerImageSectionModel.Model.init(
+      model: .default("증빙자료(최대12장)"),
+      items: ledger?.documentImageUrls.count == 0
+      ? [.description("내용없음")]
+      : ledger?.documentImageUrls.map { return .image(.init(
+        imageSection: .document, key: "\($0.id)", url: $0.url
+      )) } ?? []
+    )
     self.authorName = ledger?.authorName ?? ""
   }
 
   var toEntity: LedgerDetail {
-    .init(
+    return .init(
       id: id,
       storeInfo: storeInfo,
       amount: Int(amount.filter { $0.isNumber }) ?? 0,
@@ -56,6 +55,16 @@ struct LedgerDetailItem {
       paymentDate: formatter.convertToISO8601(date: date, time: time) ?? "",
       receiptImageUrls: [],
       documentImageUrls: [],
+//      receiptImageUrls: receiptImages.items.map {
+//        if case $0 == .image(let imageInfo) {
+//          return LedgerDetail.ImageURL(id: imageInfo.id, url: imageInfo.url)
+//        }
+//      },
+//      documentImageUrls: documentImages.items.map {
+//        if case $0 == .image(let imageInfo) {
+//          return LedgerDetail.ImageURL(id: imageInfo.id, url: imageInfo.url)
+//        }
+//      }
       authorName: authorName
     )
   }

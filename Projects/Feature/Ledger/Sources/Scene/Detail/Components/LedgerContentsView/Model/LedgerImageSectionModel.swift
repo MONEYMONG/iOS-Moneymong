@@ -14,7 +14,7 @@ struct LedgerImageSectionModel {
     case description(String)
     case creatButton
     case updateButton
-    case image(LedgerDetail.ImageURL)
+    case image(LedgerImageInfo)
   }
 
   let model: Section

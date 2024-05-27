@@ -4,7 +4,6 @@ import DesignSystem
 import Utility
 
 final class CreateButtonCell: UICollectionViewCell, ReusableView {
-
   private let rootContainer = UIView()
 
   override init(frame: CGRect) {

@@ -36,7 +36,7 @@ final class LedgerDetailReactor: Reactor {
 
   var initialState: State
   private let formatter = ContentFormatter()
-  private let ledgerRepository: LedgerRepositoryInterface
+  private(set) var ledgerRepository: LedgerRepositoryInterface
   private let ledgerService: LedgerServiceInterface
   private(set) var ledgerDetailService: LedgerDetailContentsServiceInterface
 
@@ -58,32 +58,12 @@ final class LedgerDetailReactor: Reactor {
   }
 
   private var serviceMutation: Observable<Mutation> {
-    return ledgerDetailService.event
+    return ledgerDetailService.contentsViewEvent
       .withUnretained(self)
       .flatMap { owner, mutation -> Observable<Mutation> in
         switch mutation {
-        case .isValueChanged(let isChanged, let item):
-          return .concat([
-            .just(.setIsChanged(isChanged)),
-            .just(.setUpdatedItem(item))
-          ])
         case .isValidChanged(let value):
           return .just(.setIsValid(value))
-        case .shouldDeleteImage(let imageItem):
-          return .concat([
-            .just(.setIsLoading(true)),
-
-              .task {
-                return try await self.ledgerRepository.receiptImageDelete(
-                  detailId: self.currentState.ledgerId,
-                  receiptId: imageItem.id
-                )
-              }
-              .map { .setIsLoading(false) }
-              .catch { .just(.setError($0.toMMError)) },
-
-              .just(.setIsLoading(false))
-          ])
         }
       }
   }
@@ -120,13 +100,19 @@ final class LedgerDetailReactor: Reactor {
           .just(.setIsLoading(true)),
 
             .task { return try await ledgerRepository.update(ledger: ledger) }
-            .map { [weak self] in self?.ledgerService.ledgerList.updateList() }
+            .map { [weak self] in
+              self?.ledgerService.ledgerList.updateList()
+              self?.ledgerDetailService.shouldTypeChanged(
+                to: self?.currentState.isEdit == true ? .read : .update
+              )
+            }
             .map { .setIsLoading(false) }
             .catch { return .just(.setError($0.toMMError))},
 
             .just(.setIsEdit(!(currentState.isEdit)))
         ])
       } else {
+        ledgerDetailService.shouldTypeChanged(to: currentState.isEdit ? .read : .update)
         return .just(.setIsEdit(!(currentState.isEdit)))
       }
     }

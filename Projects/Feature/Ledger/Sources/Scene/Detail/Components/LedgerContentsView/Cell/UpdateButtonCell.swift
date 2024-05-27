@@ -3,15 +3,18 @@ import UIKit
 import DesignSystem
 import Utility
 
-final class UpdateButtonCell: UICollectionViewCell, ReusableView {
+import RxSwift
 
+final class UpdateButtonCell: UICollectionViewCell, ReusableView {
   private let rootContainer = UIView()
 
   private let imageView: UIImageView = {
-    let imageView = UIImageView()
-    imageView.image = Images.plusCircleFillBlue
-    return imageView
+    let v = UIImageView()
+    v.image = Images.plusCircleFillBlue
+    return v
   }()
+
+  private let disposeBag = DisposeBag()
 
   override init(frame: CGRect) {
     super.init(frame: frame)

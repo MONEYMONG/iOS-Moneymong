@@ -7,7 +7,6 @@ import FlexLayout
 import PinLayout
 
 final class DescriptionCell: UICollectionViewCell, ReusableView {
-
   private let rootContainer = UIView()
 
   private let descriptionLabel: UILabel = {

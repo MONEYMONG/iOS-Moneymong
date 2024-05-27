@@ -3,31 +3,37 @@ import NetworkService
 import RxSwift
 
 enum LedgerDetailContentsEvent {
-  case isValueChanged(Bool, LedgerDetail)
   case isValidChanged(Bool)
-  case shouldDeleteImage(LedgerDetail.ImageURL)
+}
+
+enum ParentEvent {
+  case shouldTypeChanged(LedgerContentsView.State)
+  case shouldLedgerInfoUpdate(Void)
 }
 
 protocol LedgerDetailContentsServiceInterface {
-  var event: PublishSubject<LedgerDetailContentsEvent> { get }
+  var contentsViewEvent: PublishSubject<LedgerDetailContentsEvent> { get }
+  var parentViewEvent: PublishSubject<ParentEvent> { get }
 
-  func didValueChanged(isChanged: Bool, item: LedgerDetail)
   func didValidChanged(_ value: Bool)
-  func didDeleteImage(_ to: LedgerDetail.ImageURL)
+
+  func shouldTypeChanged(to: LedgerContentsView.State)
 }
 
 final class LedgerDetailContentsService: LedgerDetailContentsServiceInterface {
-  let event = PublishSubject<LedgerDetailContentsEvent>()
-
-  func didValueChanged(isChanged: Bool, item: LedgerDetail) {
-    event.onNext(.isValueChanged(isChanged, item))
-  }
+  let contentsViewEvent = PublishSubject<LedgerDetailContentsEvent>()
+  let parentViewEvent = PublishSubject<ParentEvent>()
 
   func didValidChanged(_ value: Bool) {
-    event.onNext(.isValidChanged(value))
+    contentsViewEvent.onNext(.isValidChanged(value))
   }
 
-  func didDeleteImage(_ to: LedgerDetail.ImageURL) {
-    event.onNext(.shouldDeleteImage(to))
+  /// ContentsView Type 변경
+  func shouldTypeChanged(to: LedgerContentsView.State) {
+    parentViewEvent.onNext(.shouldTypeChanged(to))
+  }
+
+  func shouldLedgerInfoUpdate() {
+    parentViewEvent.onNext(.shouldLedgerInfoUpdate(()))
   }
 }

@@ -94,12 +94,13 @@ final class LedgerDetailVC: BaseVC, View {
           ? Const.expenseTitle
           : Const.incomeTitle
         )
-        let contentsViewReactor = LedgerContentsReactor(
-          ledgerDetailService: reactor.ledgerDetailService,
-          ledger: ledger
-        )
         owner.contentsView.coordinator = owner.coordinator
-        owner.contentsView.bind(reactor: contentsViewReactor)
+        owner.contentsView.reactor = LedgerContentsReactor(
+          ledgerDetailService: reactor.ledgerDetailService,
+          ledgerRepo: reactor.ledgerRepository,
+          ledger: ledger,
+          state: .read
+        )
       }
       .disposed(by: disposeBag)
 
@@ -125,7 +126,6 @@ final class LedgerDetailVC: BaseVC, View {
       .bind(with: self) { owner, info in
         let (isEdit, role) = info
         owner.editButton.setTitle(to: isEdit ? Const.editCompleted : Const.edit)
-        owner.contentsView.setType(isEdit ? .update : .read)
         owner.setNavigationBarRightButton(isEdit: role == .staff && isEdit)
       }
       .disposed(by: disposeBag)

@@ -20,9 +20,9 @@ final class LedgerContentsCollectionView: UICollectionView {
       case .updateButton:
         return collectionView.dequeueCell(UpdateButtonCell.self, for: indexPath)
 
-      case .image(let item):
+      case .image(let imageInfo):
         return collectionView.dequeueCell(DefaultImageCell.self, for: indexPath)
-          .configure(with: item)
+          .configure(with: imageInfo)
       }
     },
     configureSupplementaryView: { dataSource, collectionView, kind, indexPath in
@@ -56,13 +56,13 @@ final class LedgerContentsCollectionView: UICollectionView {
     registerHeader(DefaultSectionHeader.self)
   }
 
-  func updateCollectionHeigh(items: [LedgerImageSectionModel.Model]) {
+  func updateCollectionHeigh(items: LedgerImageSectionModel.Model) {
     layout.minimumLineSpacing = 9
     layout.minimumInteritemSpacing = 9
     layout.sectionInset = UIEdgeInsets(top: 8, left: 16, bottom: 0, right: 16)
 
     /// item이 description일 경우 Height
-    if case LedgerImageSectionModel.Item.description(_) = items[0].items[0] {
+    if case LedgerImageSectionModel.Item.description(_) = items.items[0] {
       flex.height(16 + 8 + 20).markDirty()
       setNeedsLayout()
       return
@@ -75,7 +75,7 @@ final class LedgerContentsCollectionView: UICollectionView {
     }()
 
     layout.itemSize = cellSize
-    let imageCount = items[0].items.count
+    let imageCount = items.items.count
     let lineCount = ceil(Double(imageCount) / 3)
     flex.height(
       16 + 8 + ((lineCount - 1) * 9) + (cellSize.height * lineCount)

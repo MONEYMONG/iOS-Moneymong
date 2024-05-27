@@ -16,8 +16,8 @@ final class LedgerContentsReactor: Reactor {
     case date(String)
     case time(String)
     case authorName(String)
-    case receiptImage(String)
-    case documentImage(String)
+    case receiptImage(LedgerImageInfo, Bool)
+    case documentImage(LedgerImageInfo, Bool)
   }
 
   enum ImageSection {
@@ -26,38 +26,81 @@ final class LedgerContentsReactor: Reactor {
   }
 
   enum Action {
+    case didInfoUpdate
+    case didTypeChanged(LedgerContentsView.State)
     case didValueChanged(ContentType)
     case selectedImageSection(ImageSection)
-    case selectedImage(ImageSection, String)
-    case deleteImage(LedgerDetail.ImageURL)
+    case selectedImage(Data)
+    case deleteImage(LedgerImageInfo)
   }
 
   enum Mutation {
     case setValueChanged(ContentType)
     case setSelectedImageSection(ImageSection)
-    case empty
+    case setState(LedgerContentsView.State)
+    case setError(MoneyMongError)
+    case setIsLoading(Bool)
   }
 
   struct State {
-    let prevCurrentLedgerItem: LedgerDetailItem
     @Pulse var currentLedgerItem: LedgerDetailItem
     @Pulse var selectedSection: ImageSection?
+    @Pulse var error: MoneyMongError?
+    @Pulse var state: LedgerContentsView.State
+    @Pulse var isLoading: Bool?
   }
 
   var initialState: State
   private let formatter = ContentFormatter()
   private let ledgerDetailService: LedgerDetailContentsServiceInterface
+  private let ledgerRepo: LedgerRepositoryInterface
 
-  init(ledgerDetailService: LedgerDetailContentsServiceInterface, ledger: LedgerDetail?) {
+  init(
+    ledgerDetailService: LedgerDetailContentsServiceInterface,
+    ledgerRepo: LedgerRepositoryInterface,
+    ledger: LedgerDetail?,
+    state: LedgerContentsView.State = .read
+  ) {
     self.ledgerDetailService = ledgerDetailService
+    self.ledgerRepo = ledgerRepo
     self.initialState = State(
-      prevCurrentLedgerItem: LedgerDetailItem(ledger: ledger, formatter: formatter),
-      currentLedgerItem: LedgerDetailItem(ledger: ledger, formatter: formatter)
+      currentLedgerItem: LedgerDetailItem(ledger: ledger, formatter: formatter),
+      state: state
     )
+  }
+
+  func transform(action: Observable<Action>) -> Observable<Action> {
+    return Observable.merge(action, serviceAction)
+  }
+
+  private var serviceAction: Observable<Action> {
+    return ledgerDetailService.parentViewEvent
+      .withUnretained(self)
+      .flatMap { owner, mutation -> Observable<Action> in
+        switch mutation {
+        case .shouldTypeChanged(let state):
+          return .just(.didTypeChanged(state))
+        case .shouldLedgerInfoUpdate:
+          return .just(.didInfoUpdate)
+        }
+      }
   }
 
   func mutate(action: Action) -> Observable<Mutation> {
     switch action {
+
+    case .didInfoUpdate:
+      return .concat([
+        .just(.setIsLoading(true)),
+        .task { return try await ledgerRepo.update(ledger: currentState.currentLedgerItem.toEntity) }
+          .map { .setIsLoading(false) }
+          .catch { .just(.setError($0.toMMError)) },
+        .just(.setIsLoading(false))
+      ])
+
+    case .didTypeChanged(let state):
+      return .just(.setState(state))
+
     case .didValueChanged(let valueType):
       let convertedFormValue = setContentValueFormat(valueType)
       return .just(.setValueChanged(convertedFormValue))
@@ -65,17 +108,34 @@ final class LedgerContentsReactor: Reactor {
     case .selectedImageSection(let section):
       return .just(.setSelectedImageSection(section))
 
-    case .selectedImage(let section, let url):
-      switch section {
-      case .receipt:
-        return .just(.setValueChanged(.receiptImage(url)))
-      case .document:
-        return .just(.setValueChanged(.documentImage(url)))
-      }
+    case .selectedImage(let data):
+      return .task { return try await ledgerRepo.imageUpload(data) }
+        .map { [weak self] imageInfo in
+          let selectedSection = self?.currentState.selectedSection ?? .receipt
+          switch selectedSection {
+          case .receipt:
+            return .setValueChanged(
+              .receiptImage(.init(imageSection: .receipt, key: imageInfo.key, url: imageInfo.url), true)
+            )
+          case .document:
+            return .setValueChanged(
+              .documentImage(.init(imageSection: .document, key: imageInfo.key, url: imageInfo.url), true)
+            )
+          }
+        }
+        .catch { .just(.setError($0.toMMError)) }
 
     case .deleteImage(let item):
-      ledgerDetailService.didDeleteImage(item)
-      return .just(.empty)
+      return .task { return try await ledgerRepo.imageDelete(item.toEntity) }
+        .map {
+          switch item.imageSection {
+          case .receipt:
+            return .setValueChanged(.receiptImage(item, false))
+          case .document:
+            return .setValueChanged(.documentImage(item, false))
+          }
+        }
+        .catch { .just(.setError($0.toMMError)) }
     }
   }
 
@@ -85,40 +145,73 @@ final class LedgerContentsReactor: Reactor {
     switch mutation {
     case .setValueChanged(let valueType):
       switch valueType {
+
       case .storeInfo(let storeInfo):
         ledgerDetailService.didValidChanged(!storeInfo.isEmpty)
         newState.currentLedgerItem.storeInfo = storeInfo
+
       case .amount(let amount):
         ledgerDetailService.didValidChanged(!amount.isEmpty)
         newState.currentLedgerItem.amount = amount
+
       case .fundType(let fundType):
         newState.currentLedgerItem.fundType = fundType
+
       case .memo(let memo):
         newState.currentLedgerItem.memo = memo
+
       case .date(let date):
         ledgerDetailService.didValidChanged(!date.isEmpty)
         newState.currentLedgerItem.date = date
+
       case .time(let time):
         ledgerDetailService.didValidChanged(!time.isEmpty)
         newState.currentLedgerItem.time = time
+
       case .authorName(let authorName):
         ledgerDetailService.didValidChanged(!authorName.isEmpty)
         newState.currentLedgerItem.authorName = authorName
-      case .receiptImage(let url):
-        newState.currentLedgerItem.receiptImages[0].items.append(.image(LedgerDetail.ImageURL(id: 0, url: url)))
-      case .documentImage(let url):
-        newState.currentLedgerItem.documentImages[0].items.append(.image(LedgerDetail.ImageURL(id: 0, url: url)))
-      }
-      /// 값이 변경되었는지 여부와 변경된 값
-      ledgerDetailService.didValueChanged(
-        isChanged: currentState.prevCurrentLedgerItem != currentState.currentLedgerItem,
-        item: currentState.currentLedgerItem.toEntity
-      )
 
-    case .empty:
-      break
+      case .receiptImage(let imageInfo, let isAdd):
+        let prevItems = newState.currentLedgerItem.receiptImages.items
+
+        if isAdd {
+          newState.currentLedgerItem.receiptImages.items = prevItems + [.image(imageInfo)]
+        } else {
+          let filteredItem = prevItems.filter {
+            guard case .image(let info) = $0 else { return false }
+            return info.key != imageInfo.key ? true : false
+          }
+          newState.currentLedgerItem.receiptImages.items = filteredItem
+        }
+
+      case .documentImage(let imageInfo, let isAdd):
+        let prevItems = newState.currentLedgerItem.documentImages.items
+
+        if isAdd {
+          newState.currentLedgerItem.documentImages.items = prevItems + [.image(imageInfo)]
+        } else {
+          let filteredItem = prevItems.filter {
+            guard case .image(let info) = $0 else { return false }
+            return info.key != imageInfo.key ? true : false
+          }
+          newState.currentLedgerItem.documentImages.items = filteredItem
+        }
+      }
+
     case .setSelectedImageSection(let section):
       newState.selectedSection = section
+
+    case .setError(let error):
+      newState.error = error
+
+    case .setState(let state):
+      newState.currentLedgerItem.receiptImages.items = setImageItems(to: state, section: .receipt)
+      newState.currentLedgerItem.documentImages.items = setImageItems(to: state, section: .document)
+      newState.state = state
+
+    case .setIsLoading(let isLoading):
+      newState.isLoading = isLoading
     }
 
     return newState
@@ -126,6 +219,59 @@ final class LedgerContentsReactor: Reactor {
 }
 
 fileprivate extension LedgerContentsReactor {
+  func setImageItems(
+    to state: LedgerContentsView.State,
+    section: ImageSection
+  ) -> [LedgerImageSectionModel.Item] {
+    var items: [LedgerImageSectionModel.Item] = []
+
+    switch section {
+    case .receipt:
+      let receiptItems = currentState.currentLedgerItem.receiptImages.items
+
+      /// State Read
+      if state == .read {
+        let imageItems = receiptItems.filter {
+          guard case .updateButton = $0 else { return true }
+          return false
+        }
+        items = imageItems.isEmpty ? [.description("내용없음")] : imageItems
+      }
+
+      /// State Update
+      if currentState.currentLedgerItem.receiptImages.items.count != 12 && state == .update {
+        let imageItems = receiptItems.filter {
+          guard case .description = $0 else { return true }
+          return false
+        }
+        items = [.updateButton] + imageItems
+      }
+
+    case .document:
+      let documentItems = currentState.currentLedgerItem.documentImages.items
+
+      /// State Read
+      if state == .read {
+        let imageItems = documentItems.filter {
+          guard case .updateButton = $0 else { return true }
+          return false
+        }
+
+        items = imageItems.isEmpty ? [.description("내용없음")] : imageItems
+      }
+
+      /// State Update
+      if currentState.currentLedgerItem.documentImages.items.count != 12 && state == .update {
+        let imageItems = documentItems.filter {
+          guard case .description = $0 else { return true }
+          return false
+        }
+        items = [.updateButton] + imageItems
+      }
+    }
+    return items
+  }
+
   func setContentValueFormat(_ type: ContentType) -> ContentType {
     switch type {
     case .storeInfo(let value):
@@ -142,10 +288,10 @@ fileprivate extension LedgerContentsReactor {
       return .fundType(value)
     case .authorName(let value):
       return .authorName(value)
-    case .receiptImage(let value):
-      return.receiptImage(value)
-    case .documentImage(let value):
-      return .documentImage(value)
+    case .receiptImage(let imageInfo, let isAdd):
+      return.receiptImage(imageInfo, isAdd)
+    case .documentImage(let imageInfo, let isAdd):
+      return .documentImage(imageInfo, isAdd)
     }
   }
 
