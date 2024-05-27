@@ -260,9 +260,11 @@ final class ManualInputVC: BaseVC, View {
       .disposed(by: disposeBag)
     
     fundTypeSelection.$selectedIndex
+      .removeDuplicates()
       .sink {
         reactor.action.onNext(.inputContent("\($0)", type: .fundType))
-    }.store(in: &cancelBag)
+      }
+      .store(in: &cancelBag)
     
     dateTextField.textField.rx.text
       .compactMap { $0 }
@@ -311,6 +313,16 @@ final class ManualInputVC: BaseVC, View {
       .compactMap { $0 }
       .bind(with: self) { owner, _ in
         owner.coordinator?.present(.imagePicker(delegate: owner))
+      }
+      .disposed(by: disposeBag)
+    
+    reactor.pulse(\.content.$source)
+      .bind(to: sourceTextField.textField.rx.text)
+      .disposed(by: disposeBag)
+      
+    reactor.pulse(\.content.$amountSign)
+      .bind(with: self) { owner, value in
+        owner.fundTypeSelection.selectedIndex = value
       }
       .disposed(by: disposeBag)
     

@@ -1,6 +1,7 @@
 import Foundation
 
 import NetworkService
+import BaseFeature
 
 import ReactorKit
 
@@ -31,6 +32,7 @@ final class ManualInputReactor: Reactor {
   }
   
   enum Mutation {
+    case setOperatingCostValues // 동아리 운영비 등록하러 가기 일때의 고정값
     case setName(String)
     case addImage(ImageSectionModel.Item)
     case deleteImage(UUID, ImageSectionModel.Section)
@@ -44,6 +46,7 @@ final class ManualInputReactor: Reactor {
   
   struct State {
     let agencyId: Int
+    let type: `Type`
     @Pulse var userName: String = ""
     @Pulse var images: [ImageSectionModel.Model] = [
       .init(model: .receipt, items: [.button(.receipt)]),
@@ -57,6 +60,11 @@ final class ManualInputReactor: Reactor {
     
     enum Destination {
       case ledger
+    }
+    
+    enum `Type` {
+      case operatingCost // 운영비 등록화면
+      case other // 그외
     }
   }
   
@@ -79,6 +87,7 @@ final class ManualInputReactor: Reactor {
   
   init(
     agencyId: Int,
+    type: State.`Type`,
     ledgerRepo: LedgerRepositoryInterface,
     userRepo: UserRepositoryInterface,
     ledgerService: LedgerServiceInterface
@@ -86,14 +95,24 @@ final class ManualInputReactor: Reactor {
     self.ledgerRepo = ledgerRepo
     self.userRepo = userRepo
     self.service = ledgerService
-    self.initialState = State(agencyId: agencyId)
+    self.initialState = State(agencyId: agencyId, type: type)
   }
   
   func mutate(action: Action) -> Observable<Mutation> {
     switch action {
     case .onAppear:
-      return .task { try await userRepo.user().nickname }
-        .map { .setName($0) }
+      switch currentState.type {
+      case .operatingCost:
+        return .merge(
+          .task { try await userRepo.user().nickname }
+            .map { .setName($0) },
+          .just(.setOperatingCostValues)
+        )
+      case .other:
+        return .task { try await userRepo.user().nickname }
+          .map { .setName($0) }
+      }
+      
     case .selectedImage(let item):
       guard case let .image(imageInfo, section) = item else { return .empty() }
       return .task {
@@ -152,6 +171,12 @@ final class ManualInputReactor: Reactor {
     newState.selectedSection = nil
     newState.alertMessage = nil
     switch mutation {
+    case .setOperatingCostValues:
+      setContent(&newState.content, value: "동아리 운영비", type: .source)
+      setContent(&newState.content, value: formatter.convertToDate(date: .now), type: .date)
+      setContent(&newState.content, value: formatter.convertToTime(date: .now), type: .time)
+      setContent(&newState.content, value: "1", type: .fundType)
+      
     case let .setName(name):
       newState.userName = name
       
@@ -277,7 +302,7 @@ private extension ManualInputReactor {
       guard let amount = Int(currentState.content.amount.filter { $0.isNumber }) else {
         throw MoneyMongError.appError(errorMessage: "금액을 확인해 주세요")
       }
-      guard let date = formatter.convertToISO8601(
+      guard let date = formatter.mergeWithISO8601(
         date: currentState.content.date,
         time: currentState.content.time
       )

@@ -19,8 +19,8 @@ final class ManualInputCoordinator: Coordinator {
     self.diContainer = diContainer
   }
 
-  func start(agencyId: Int, animated: Bool) {
-    manualInput(agencyId: agencyId, animated: animated)
+  func start(agencyId: Int, isClubBudget: Bool, animated: Bool) {
+    manualInput(agencyId: agencyId, isClubBudget: isClubBudget, animated: animated)
   }
   
   func dismiss(animated: Bool) {
@@ -38,8 +38,8 @@ final class ManualInputCoordinator: Coordinator {
 }
 
 extension ManualInputCoordinator {
-  private func manualInput(agencyId: Int, animated: Bool) {
-    let vc = diContainer.manualInput(with: self, agencyId: agencyId)
+  private func manualInput(agencyId: Int, isClubBudget: Bool, animated: Bool) {
+    let vc = diContainer.manualInput(with: self, isClubBudget: isClubBudget, agencyId: agencyId)
     navigationController.viewControllers = [vc]
   }
   

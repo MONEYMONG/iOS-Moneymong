@@ -63,15 +63,19 @@ public final class LedgerDIContainer {
     return vc
   }
   
-  func manualInput(with coordinator: Coordinator, agencyId: Int) -> UIViewController {
+  func manualInput(with coordinator: Coordinator, agencyId: Int, isClubBudget: Bool) -> UIViewController {
     let vc = UINavigationController()
     let manualInputCoordinator = ManualInputCoordinator(
       navigationController: vc,
-      diContainer: ManualInputDIContainer(ledgerRepo: ledgerRepo, userRepo: userRepo, ledgerService: ledgerService)
+      diContainer: ManualInputDIContainer(
+        ledgerRepo: ledgerRepo,
+        userRepo: userRepo,
+        ledgerService: ledgerService
+      )
     )
     coordinator.childCoordinators.append(manualInputCoordinator)
     manualInputCoordinator.parentCoordinator = coordinator
-    manualInputCoordinator.start(agencyId: agencyId, animated: false)
+    manualInputCoordinator.start(agencyId: agencyId, isClubBudget: isClubBudget, animated: false)
     return vc
   }
   
