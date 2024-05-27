@@ -64,12 +64,14 @@ final class LedgerTabVC: BaseVC, View {
   
   override func setupUI() {
     super.setupUI()
+    
     floatingButton.addWriteAction { [weak self] in
       self?.reactor?.action.onNext(.didTapWriteButton)
     }
     floatingButton.addScanAction { [weak self] in
       self?.reactor?.action.onNext(.didTapScanButton)
     }
+    
     ledgerList.backgroundView = emptyView
   }
   
@@ -102,6 +104,16 @@ final class LedgerTabVC: BaseVC, View {
   }
   
   func bind(reactor: LedgerTabReactor) {
+    NotificationCenter.default.rx.notification(.presentManualInput)
+      .compactMap { $0.userInfo?["id"] as? Int }
+      .delay(.seconds(1), scheduler: MainScheduler.instance)
+      .observe(on: MainScheduler.instance)
+      .bind(with: self) { owner, id in
+        owner.coordinator?.present(.manualCreater(id, true))
+      }
+      .disposed(by: disposeBag)
+      
+    
     dateRangeView.rx.tapGesture
       .map { _ in Reactor.Action.didTapDateRangeView }
       .bind(to: reactor.action)
@@ -166,7 +178,7 @@ final class LedgerTabVC: BaseVC, View {
         case let .datePicker(start, end):
           owner.coordinator?.present(.datePicker(start: start, end: end))
         case let .manualCreater(id):
-          owner.coordinator?.present(.manualCreater(id))
+          owner.coordinator?.present(.manualCreater(id, false))
         case let .scanCreater(id):
           owner.coordinator?.present(.scanCreater(id))
         }

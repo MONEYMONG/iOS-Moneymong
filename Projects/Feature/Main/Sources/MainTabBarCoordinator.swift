@@ -1,6 +1,7 @@
 import UIKit
 
 import BaseFeature
+import LedgerFeature
 
 public final class MainTabBarCoordinator: Coordinator {
   public var navigationController: UINavigationController
@@ -26,6 +27,11 @@ public final class MainTabBarCoordinator: Coordinator {
     case .login:
       parentCoordinator?.move(to: .login)
       remove()
+    case .ledger:
+      tabBarController?.selectedIndex = 0
+    case let .manualInput(agencyID):
+      tabBarController?.selectedIndex = 0
+      NotificationCenter.default.post(name: .presentManualInput, object: nil, userInfo: ["id": agencyID])
     case .agency:
       tabBarController?.selectedIndex = 1
     }

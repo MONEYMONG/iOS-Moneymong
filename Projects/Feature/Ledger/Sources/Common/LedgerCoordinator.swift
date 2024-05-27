@@ -13,7 +13,7 @@ public final class LedgerCoordinator: Coordinator {
   enum Scene {
     case editMember(Int, Member)
     case alert(title: String, subTitle: String?, type: MMAlerts.`Type`)
-    case manualCreater(Int)
+    case manualCreater(Int, Bool)
     case scanCreater(Int)
     case datePicker(start: DateInfo, end: DateInfo)
     case detail(Ledger)
@@ -31,8 +31,8 @@ public final class LedgerCoordinator: Coordinator {
   
   func present(_ scene: Scene, animated: Bool = true) {
     switch scene {
-    case .manualCreater(let agencyId):
-      manualCreater(agencyId: agencyId, animated: animated)
+    case let .manualCreater(agencyId, isClubBudget):
+      manualCreater(agencyId: agencyId, isClubBudget: isClubBudget, animated: animated)
     case let .datePicker(start, end):
       datePicker(start: start, end: end)
     case .selectAgency: selectAgencySheet()
@@ -53,13 +53,14 @@ public final class LedgerCoordinator: Coordinator {
 }
 
 extension LedgerCoordinator {
+  
   private func ledger(animated: Bool) {
     let vc = diContainer.ledger(with: self)
     navigationController.viewControllers = [vc]
   }
   
-  private func manualCreater(agencyId: Int, animated: Bool) {
-    let vc = diContainer.manualCreater(with: self, agencyId: agencyId)
+  private func manualCreater(agencyId: Int, isClubBudget: Bool, animated: Bool) {
+    let vc = diContainer.manualCreater(with: self, agencyId: agencyId, isClubBudget: isClubBudget)
     vc.modalPresentationStyle = .fullScreen
     navigationController.present(vc, animated: animated)
   }

@@ -94,7 +94,7 @@ private extension LedgerScanResultReactor {
       guard let amount = Int(currentState.money.filter { $0.isNumber }) else {
         throw MoneyMongError.appError(errorMessage: "금액을 확인해 주세요")
       }
-      guard let date = formatter.convertToISO8601(
+      guard let date = formatter.mergeWithISO8601(
         date: currentState.date.joined(separator: "/"),
         time: currentState.time.joined(separator: ":")
       )

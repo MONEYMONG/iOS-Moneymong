@@ -45,7 +45,7 @@ final class DetailReactor: Reactor {
         .just(.setIsLoading(true)),
         .task { return try await ledgerRepository.fetchLedgerDetail(id: currentState.ledgerId) }
           .map {
-            let (date, time) = self.formatter.convertToDateTime(with: $0.paymentDate)
+            let (date, time) = self.formatter.splitToDateTime(with: $0.paymentDate)
             return LedgerDetailItem.init(
               id: $0.id,
               storeInfo: $0.storeInfo,

@@ -63,18 +63,21 @@ public final class LedgerDIContainer {
     return vc
   }
   
-  func manualCreater(with coordinator: Coordinator, agencyId: Int) -> UIViewController {
-    let nv = UINavigationController()
-    let manualInputCoordinator = LedgerManualCreaterCoordinator(
-      navigationController: nv,
-      diContainer: LedgerManualCreaterDIContainer(repo: ledgerRepo, ledgerService: ledgerService)
+  func manualCreater(with coordinator: Coordinator, agencyId: Int, isClubBudget: Bool) -> UIViewController {
+    let vc = UINavigationController()
+    let manualCreaterCoordinator = LedgerManualCreaterCoordinator(
+      navigationController: vc,
+      diContainer: LedgerManualCreaterDIContainer(
+        ledgerRepo: ledgerRepo,
+        userRepo: userRepo,
+        ledgerService: ledgerService
+      )
     )
-    coordinator.childCoordinators.append(manualInputCoordinator)
-    manualInputCoordinator.parentCoordinator = coordinator
-    manualInputCoordinator.start(agencyId: agencyId, animated: false)
-    return nv
+    coordinator.childCoordinators.append(manualCreaterCoordinator)
+    manualCreaterCoordinator.parentCoordinator = coordinator
+    manualCreaterCoordinator.start(agencyId: agencyId, isClubBudget: isClubBudget, animated: false)
+    return vc
   }
-  
   func scanCreater(agencyId: Int, with coordinator: Coordinator) -> UIViewController {
     let nv = UINavigationController()
     let scanCreatercoordinator = LedgerScanCreaterCoordinator(

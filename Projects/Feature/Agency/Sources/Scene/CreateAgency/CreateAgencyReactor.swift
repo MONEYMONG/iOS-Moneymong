@@ -15,7 +15,7 @@ final class CreateAgencyReactor: Reactor {
     @Pulse var destination: Destination?
     
     enum Destination {
-      case complete
+      case complete(Int)
     }
   }
   
@@ -62,7 +62,7 @@ final class CreateAgencyReactor: Reactor {
             type: currentState.index == 0 ? "STUDENT_COUNCIL" : "IN_SCHOOL_CLUB"
           )
         }
-        .map { _ in .setDestination(.complete) }
+        .map { .setDestination(.complete($0)) }
         .catch { return .just(.setError($0.toMMError)) },
         
         .just(.setLoading(false))

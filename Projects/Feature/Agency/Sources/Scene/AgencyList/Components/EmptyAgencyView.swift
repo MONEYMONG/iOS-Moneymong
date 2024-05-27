@@ -42,7 +42,7 @@ final class EmptyAgencyView: UIView {
   private func setupConstraints() {
     addSubview(rootContainer)
     
-    rootContainer.flex.justifyContent(.center).alignItems(.center).define { flex in
+    rootContainer.flex.justifyContent(.center).alignItems(.center).backgroundColor(Colors.White._1).define { flex in
       flex.addItem(iconImageView).size(80).marginBottom(8)
       flex.addItem(descriptionLabel)
     }

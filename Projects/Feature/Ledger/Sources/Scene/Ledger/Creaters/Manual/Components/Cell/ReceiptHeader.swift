@@ -18,7 +18,6 @@ final class ReceiptHeader: UICollectionReusableView, ReusableView {
   private let receiptLabel2: UILabel = {
     let v = UILabel()
     v.textColor = Colors.Blue._4
-    v.numberOfLines = 0
     v.text = "*지출일 경우 영수증을 꼭 제출해주세요"
     v.font = Fonts.body._2
     return v

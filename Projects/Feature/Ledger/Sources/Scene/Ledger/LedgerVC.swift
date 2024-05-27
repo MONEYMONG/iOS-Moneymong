@@ -23,7 +23,7 @@ public final class LedgerVC: BaseVC, View {
     return UIButton(configuration: config)
   }()
   
-  private let lineTab: LineTabViewController
+  let lineTab: LineTabViewController
   
   init(_ childVC: [UIViewController]) {
     self.lineTab = LineTabViewController(childVC)

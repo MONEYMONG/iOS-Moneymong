@@ -7,12 +7,6 @@ final class ContentFormatter {
     return formatter
   }()
   
-  private lazy var dateFormatter: DateFormatter = {
-    let formatter = DateFormatter()
-    formatter.dateFormat = "YYYY/MM"
-    return formatter
-  }()
-  
   func convertToAmount(with value: String) -> String? {
     guard let num = Int(value.filter { $0.isNumber }) else { return nil }
     return numberFormatter.string(from: NSNumber(value: num))
@@ -58,7 +52,36 @@ final class ContentFormatter {
     return String(timeArray)
   }
   
-  func convertToISO8601(date: String, time: String) -> String? {
+  
+  /**
+   Convert Date to Time String
+   -  2024-05-24 10:52:58 -> "10:52:58"
+   */
+  func convertToTime(date: Date) -> String {
+    let components = Calendar.current.dateComponents([.hour, .minute, .second], from: date)
+    
+    guard let hour = components.hour, let minute = components.minute, let second = components.second else {
+      return ""
+    }
+    
+    return String(format: "%02d:%02d:%02d", hour, minute, second)
+  }
+  
+  /**
+   Convert Date to Date String
+   -  2024-05-24 10:52:58 -> "2024/05/24"
+   */
+  func convertToDate(date: Date) -> String {
+    let components = Calendar.current.dateComponents([.year, .month, .day], from: date)
+    
+    guard let year = components.year, let month = components.month, let day = components.day else {
+      return ""
+    }
+    
+    return String(format: "%d/%02d/%02d", year, month, day)
+  }
+  
+  func mergeWithISO8601(date: String, time: String) -> String? {
     let inputFormatter = DateFormatter()
     inputFormatter.dateFormat = "YYYY/MM/dd HH:mm:ss"
     inputFormatter.timeZone = TimeZone(abbreviation: "UTC")
@@ -69,12 +92,7 @@ final class ContentFormatter {
     return outputFormatter.string(from: date)
   }
   
-  func convertToYearMonth(with date: Date) -> (year: Int, month: Int) {
-    let date = dateFormatter.string(from: date).split(separator: "/").map { Int($0)! }
-    return (date[0], date[1])
-  }
-  
-  func convertToDateTime(with dateString: String) -> (date: String, time: String) {
+  func splitToDateTime(with dateString: String) -> (date: String, time: String) {
     let value = dateString.prefix(19).split(separator: "T")
     let date = String(value[0]).replacingOccurrences(of: "-", with: ".")
     let time = String(value[1])
