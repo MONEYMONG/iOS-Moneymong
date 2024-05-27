@@ -182,13 +182,17 @@ final class MemberTabReactor: Reactor {
       
       switch event {
       case let .update(agency):
-        return .concat(
-          .just(.setAgencyID(agency.id)),
-          .just(.setLoading(true)),
-          requestInvitationCode(agencyID: agency.id),
-          requestMembers(agencyID: agency.id),
-          .just(.setLoading(false))
-        )
+        if currentState.agencyID == agency.id {
+          return .empty()
+        } else {
+          return .concat(
+            .just(.setAgencyID(agency.id)),
+            .just(.setLoading(true)),
+            requestInvitationCode(agencyID: agency.id),
+            requestMembers(agencyID: agency.id),
+            .just(.setLoading(false))
+          )
+        }
       }
     }
     
