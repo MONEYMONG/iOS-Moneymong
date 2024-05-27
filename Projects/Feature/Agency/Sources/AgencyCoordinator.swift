@@ -21,7 +21,7 @@ public final class AgencyCoordinator: Coordinator {
     case joinAgency(id: Int, name: String)
     case joinComplete
     case createAgency
-    case createComplete
+    case createComplete(id: Int)
   }
 
   public func start(animated: Bool) {
@@ -38,8 +38,8 @@ public final class AgencyCoordinator: Coordinator {
       joinComplete(animated: animated)
     case .createAgency: 
       createAgency(animated: animated)
-    case .createComplete:
-      createComplete(animated: animated)
+    case let .createComplete(id):
+      createComplete(agencyID: id, animated: animated)
     }
   }
   
@@ -51,9 +51,8 @@ public final class AgencyCoordinator: Coordinator {
     parentCoordinator?.move(to: .ledger)
   }
   
-  func goCreateLedger() {
-    // TODO: 동아리 운영비 등록하러 가기 화면이 떠야함..!
-    parentCoordinator?.move(to: .ledger)
+  func goManualInput(agencyID: Int) {
+    parentCoordinator?.move(to: .manualInput(agencyID))
   }
 }
 
@@ -70,8 +69,8 @@ extension AgencyCoordinator {
     navigationController.topViewController?.present(vc, animated: animated)
   }
   
-  private func createComplete(animated: Bool) {
-    let vc = diContainer.createComplete(with: self)
+  private func createComplete(agencyID: Int, animated: Bool) {
+    let vc = diContainer.createComplete(with: self, id: agencyID)
     secondFlowNavigationController?.pushViewController(vc, animated: animated)
   }
   

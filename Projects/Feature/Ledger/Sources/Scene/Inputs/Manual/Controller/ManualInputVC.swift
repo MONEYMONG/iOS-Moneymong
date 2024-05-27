@@ -7,6 +7,8 @@ import DesignSystem
 import ReactorKit
 import RxDataSources
 
+// TODO: 각 텍스트 필드에 조건 넣어줘야함
+
 final class ManualInputVC: BaseVC, View {
   weak var coordinator: ManualInputCoordinator?
   private struct ViewSize {
@@ -85,6 +87,22 @@ final class ManualInputVC: BaseVC, View {
     return v
   }()
   
+  private let writerTitleLabel: UILabel = {
+    let v = UILabel()
+    v.textColor = Colors.Gray._6
+    v.font = Fonts.body._2
+    v.setTextWithLineHeight(text: "작성자", lineHeight: 18)
+    return v
+  }()
+  
+  private let writerNameLabel: UILabel = {
+    let v = UILabel()
+    v.textColor = Colors.Gray._10
+    v.font = Fonts.body._3
+    v.setTextWithLineHeight(text: "머니몽", lineHeight: 20)
+    return v
+  }()
+  
   private lazy var collectionView: UICollectionView = {
     let layout = UICollectionViewFlowLayout()
     layout.itemSize = ViewSize.cell
@@ -100,13 +118,16 @@ final class ManualInputVC: BaseVC, View {
     return v
   }()
   
-  private let dataSource = RxCollectionViewSectionedReloadDataSource<ImageSectionModel.Model>(
+  private lazy var dataSource = RxCollectionViewSectionedReloadDataSource<ImageSectionModel.Model>(
     configureCell: { dataSource, collectionView, indexPath, item in
       switch item {
       case .button:
         return collectionView.dequeueCell(AddImageCell.self, for: indexPath)
       case .image(_, _):
-        return collectionView.dequeueCell(ImageCell.self, for: indexPath).configure(with: item)
+        return collectionView.dequeueCell(ImageCell.self, for: indexPath)
+          .configure(with: item) { [weak self] in
+            self?.reactor?.action.onNext(.presentedAlert(.deleteImage($0)))
+          }
       }
     },
     configureSupplementaryView: { dataSource, collectionView, kind, indexPath in
@@ -145,18 +166,28 @@ final class ManualInputVC: BaseVC, View {
         flex.addItem(content).marginTop(12).marginHorizontal(20).define { flex in
           flex.addItem(sourceTextField).marginBottom(24)
           flex.addItem(amountTextField).marginBottom(24)
+          
           flex.addItem().define { flex in
             flex.addItem(selectionLabel).marginBottom(8)
             flex.addItem(fundTypeSelection)
           }.marginBottom(24)
+          
           flex.addItem(dateTextField).marginBottom(24)
           flex.addItem(timeTextField).marginBottom(24)
+          
           flex.addItem().define { flex in
             flex.addItem(collectionView).marginRight(-8)
           }.marginBottom(24)
-          flex.addItem(memoTextView)
+          
+          flex.addItem(memoTextView).marginBottom(24)
+          
+          flex.addItem().alignItems(.start).define { flex in
+            flex.addItem(writerTitleLabel).marginBottom(8)
+            flex.addItem(writerNameLabel)
+          }
         }.paddingBottom(50)
       }
+      
       flex.addItem(keyboardSpaceView).backgroundColor(.clear).height(60)
       flex.addItem(smogView).position(.absolute).bottom(0).horizontally(0).height(100)
     }
@@ -176,6 +207,11 @@ final class ManualInputVC: BaseVC, View {
       .disposed(by: disposeBag)
     
     collectionView.rx.setDelegate(self)
+      .disposed(by: disposeBag)
+    
+    rx.viewDidLoad
+      .map { Reactor.Action.onAppear }
+      .bind(to: reactor.action)
       .disposed(by: disposeBag)
     
     collectionView.rx.modelSelected(ImageSectionModel.Item.self)
@@ -224,9 +260,11 @@ final class ManualInputVC: BaseVC, View {
       .disposed(by: disposeBag)
     
     fundTypeSelection.$selectedIndex
+      .removeDuplicates()
       .sink {
         reactor.action.onNext(.inputContent("\($0)", type: .fundType))
-    }.store(in: &cancelBag)
+      }
+      .store(in: &cancelBag)
     
     dateTextField.textField.rx.text
       .compactMap { $0 }
@@ -257,12 +295,6 @@ final class ManualInputVC: BaseVC, View {
         owner.keyboardSpaceView.flex.height(60).markDirty()
         owner.rootContainer.flex.layout()
       }.disposed(by: disposeBag)
-    
-    NotificationCenter.default.rx.notification(.didTapImageDeleteButton)
-      .compactMap { $0.object as? ImageSectionModel.Item }
-      .map { Reactor.Action.presentedAlert(.deleteImage($0)) }
-      .bind(to: reactor.action)
-      .disposed(by: disposeBag)
   }
   
   private func bindState(reactor: ManualInputReactor) {
@@ -284,6 +316,16 @@ final class ManualInputVC: BaseVC, View {
       }
       .disposed(by: disposeBag)
     
+    reactor.pulse(\.content.$source)
+      .bind(to: sourceTextField.textField.rx.text)
+      .disposed(by: disposeBag)
+      
+    reactor.pulse(\.content.$amountSign)
+      .bind(with: self) { owner, value in
+        owner.fundTypeSelection.selectedIndex = value
+      }
+      .disposed(by: disposeBag)
+    
     reactor.pulse(\.content.$amount)
       .bind(to: amountTextField.textField.rx.text)
       .disposed(by: disposeBag)
@@ -294,6 +336,14 @@ final class ManualInputVC: BaseVC, View {
     
     reactor.pulse(\.content.$time)
       .bind(to: timeTextField.textField.rx.text)
+      .disposed(by: disposeBag)
+    
+    reactor.pulse(\.$userName)
+      .filter { $0.isEmpty == false }
+      .observe(on: MainScheduler.instance)
+      .bind(with: self) { owner, name in
+        owner.writerNameLabel.setTextWithLineHeight(text: name, lineHeight: 20)
+      }
       .disposed(by: disposeBag)
     
     reactor.pulse(\.$destination)
@@ -332,17 +382,13 @@ final class ManualInputVC: BaseVC, View {
         )
       }
       .disposed(by: disposeBag)
-//
-//    reactor.pulse(\.$isValids)
-//      .compactMap { $0[.amount] }
-//      .distinctUntilChanged()
-//      .filter { $0 == false }
-//      .bind(with: self, onNext: { owner, isValid in
-//        owner.amountTextField.setError(message: "999,999,999원 이내로 입력해주세요")
-//        owner.amountTextField.flex.markDirty()
-//        owner.view.setNeedsLayout()
-//      })
-//      .disposed(by: disposeBag)
+    
+    reactor.pulse(\.$isButtonEnabled)
+      .observe(on: MainScheduler.instance)
+      .bind(with: self) { owner, isEnabled in
+        owner.completeButton.setState(isEnabled ? .primary : .disable)
+      }
+      .disposed(by: disposeBag)
   }
   
   private func updateCollectionHeigh(images: [ImageSectionModel.Model]) {

@@ -4,18 +4,22 @@ import NetworkService
 
 final class ManualInputDIContainer {
   private let ledgerRepo: LedgerRepositoryInterface
+  private let userRepo: UserRepositoryInterface
   private let ledgerService: LedgerServiceInterface
   
-  init(repo: LedgerRepositoryInterface, ledgerService: LedgerServiceInterface) {
-    self.ledgerRepo = repo
+  init(ledgerRepo: LedgerRepositoryInterface, userRepo: UserRepositoryInterface, ledgerService: LedgerServiceInterface) {
+    self.ledgerRepo = ledgerRepo
+    self.userRepo = userRepo
     self.ledgerService = ledgerService
   }
   
-  func manualInput(with coordinator: ManualInputCoordinator, agencyId: Int) -> ManualInputVC {
+  func manualInput(with coordinator: ManualInputCoordinator, isClubBudget: Bool, agencyId: Int) -> ManualInputVC {
     let vc = ManualInputVC()
     vc.reactor = ManualInputReactor(
       agencyId: agencyId,
-      repo: ledgerRepo,
+      type: isClubBudget ? .operatingCost : .other,
+      ledgerRepo: ledgerRepo,
+      userRepo: userRepo,
       ledgerService: ledgerService
     )
     vc.coordinator = coordinator

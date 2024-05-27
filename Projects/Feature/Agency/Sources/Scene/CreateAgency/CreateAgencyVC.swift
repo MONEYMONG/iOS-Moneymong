@@ -110,8 +110,8 @@ final class CreateAgencyVC: BaseVC, View {
       .observe(on: MainScheduler.instance)
       .bind(with: self) { owner, value in
         switch value {
-        case .complete:
-          owner.coordinator?.present(.createComplete)
+        case let .complete(id):
+          owner.coordinator?.present(.createComplete(id: id))
         }
       }
       .disposed(by: disposeBag)

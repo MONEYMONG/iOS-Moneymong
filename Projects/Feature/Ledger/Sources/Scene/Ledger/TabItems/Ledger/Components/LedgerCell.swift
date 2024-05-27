@@ -94,7 +94,7 @@ final class LedgerCell: UICollectionViewCell, ReusableView {
     titleLabel.text = item.storeInfo
     let balance = formatter.convertToAmount(with: String(item.balance)) ?? "0"
     balanceLabel.text = "잔액 \(balance)원"
-    let (date, time) = formatter.convertToDateTime(with: item.paymentDate)
+    let (date, time) = formatter.splitToDateTime(with: item.paymentDate)
     dateLabel.text = date + " " + time
     let amount = formatter.convertToAmount(with: String(item.amount)) ?? "0"
     switch item.fundType {

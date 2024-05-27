@@ -33,7 +33,7 @@ public final class LedgerVC: BaseVC, View {
     return v
   }()
   
-  private let lineTab: LineTabViewController
+  let lineTab: LineTabViewController
   
   init(_ childVC: [UIViewController]) {
     self.lineTab = LineTabViewController(childVC)

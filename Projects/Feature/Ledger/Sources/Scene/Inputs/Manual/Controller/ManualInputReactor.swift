@@ -1,6 +1,7 @@
 import Foundation
 
 import NetworkService
+import BaseFeature
 
 import ReactorKit
 
@@ -21,6 +22,7 @@ final class ManualInputReactor: Reactor {
   }
   
   enum Action {
+    case onAppear
     case didTapCompleteButton
     case presentedAlert(AlertType)
     case didTapImageDeleteAlertButton(_ item: ImageSectionModel.Item)
@@ -30,6 +32,8 @@ final class ManualInputReactor: Reactor {
   }
   
   enum Mutation {
+    case setOperatingCostValues // 동아리 운영비 등록하러 가기 일때의 고정값
+    case setName(String)
     case addImage(ImageSectionModel.Item)
     case deleteImage(UUID, ImageSectionModel.Section)
     case deleteImageURL(Int, ImageSectionModel.Section)
@@ -42,25 +46,25 @@ final class ManualInputReactor: Reactor {
   
   struct State {
     let agencyId: Int
+    let type: `Type`
+    @Pulse var userName: String = ""
     @Pulse var images: [ImageSectionModel.Model] = [
       .init(model: .receipt, items: [.button(.receipt)]),
       .init(model: .document, items: [.button(.document)])
     ]
     @Pulse var selectedSection: ImageSectionModel.Section? = nil
     @Pulse var alertMessage: (String, String?, AlertType)? = nil
-    @Pulse var isValids: [ContentType: Bool?] = [
-      .source: nil,
-      .amount: nil,
-      .fundType: nil,
-      .date: nil,
-      .time: nil,
-      .memo: nil
-    ]
+    @Pulse var isButtonEnabled = false
     @Pulse var destination: Destination?
     var content = Content()
     
     enum Destination {
       case ledger
+    }
+    
+    enum `Type` {
+      case operatingCost // 운영비 등록화면
+      case other // 그외
     }
   }
   
@@ -77,25 +81,42 @@ final class ManualInputReactor: Reactor {
   
   let initialState: State
   private let service: LedgerServiceInterface
-  private let repo: LedgerRepositoryInterface
+  private let ledgerRepo: LedgerRepositoryInterface
+  private let userRepo: UserRepositoryInterface
   private let formatter = ContentFormatter()
   
   init(
     agencyId: Int,
-    repo: LedgerRepositoryInterface,
+    type: State.`Type`,
+    ledgerRepo: LedgerRepositoryInterface,
+    userRepo: UserRepositoryInterface,
     ledgerService: LedgerServiceInterface
   ) {
-    self.repo = repo
+    self.ledgerRepo = ledgerRepo
+    self.userRepo = userRepo
     self.service = ledgerService
-    self.initialState = State(agencyId: agencyId)
+    self.initialState = State(agencyId: agencyId, type: type)
   }
   
   func mutate(action: Action) -> Observable<Mutation> {
     switch action {
+    case .onAppear:
+      switch currentState.type {
+      case .operatingCost:
+        return .merge(
+          .task { try await userRepo.user().nickname }
+            .map { .setName($0) },
+          .just(.setOperatingCostValues)
+        )
+      case .other:
+        return .task { try await userRepo.user().nickname }
+          .map { .setName($0) }
+      }
+      
     case .selectedImage(let item):
       guard case let .image(imageInfo, section) = item else { return .empty() }
       return .task {
-        var entity = try await repo.imageUpload(imageInfo.data)
+        var entity = try await ledgerRepo.imageUpload(imageInfo.data)
         entity.id = imageInfo.id
         return entity
       }
@@ -123,7 +144,7 @@ final class ManualInputReactor: Reactor {
           })
           imageURL = currentState.content.documentImages[index]
         }
-        try await repo.imageDelete(imageURL)
+        try await ledgerRepo.imageDelete(imageURL)
         return index
       }
       .flatMap { Observable<Mutation>.concat([
@@ -150,6 +171,15 @@ final class ManualInputReactor: Reactor {
     newState.selectedSection = nil
     newState.alertMessage = nil
     switch mutation {
+    case .setOperatingCostValues:
+      setContent(&newState.content, value: "동아리 운영비", type: .source)
+      setContent(&newState.content, value: formatter.convertToDate(date: .now), type: .date)
+      setContent(&newState.content, value: formatter.convertToTime(date: .now), type: .time)
+      setContent(&newState.content, value: "1", type: .fundType)
+      
+    case let .setName(name):
+      newState.userName = name
+      
     case .addImage(let item):
       guard case let .image(_, section) = item else { return newState }
       newState.images[section.rawValue].items.append(item)
@@ -168,7 +198,7 @@ final class ManualInputReactor: Reactor {
       newState.selectedSection = section
     case .setContent(let value, let type):
       setContent(&newState.content, value: value, type: type)
-      newState.isValids[type] = checkContent(newState.content, type: type)
+      newState.isButtonEnabled = checkContent(newState.content)
     case .setDestination:
       newState.destination = .ledger
     case .addImageURL(let imageURL, let section):
@@ -217,33 +247,54 @@ private extension ManualInputReactor {
     }
   }
   
-  func checkContent(_ content: Content, type: ContentType) -> Bool? {
-    var pattern: String!
-    var value: String!
-    switch type {
-    case .source:
-      if content.source.isEmpty { return nil }
-      return content.source.count <= 20
-    case .amount:
-      if content.amount.isEmpty { return nil }
-      return Int(content.amount.replacingOccurrences(of: ",", with: ""))! <= 999999999
-    case .fundType:
-      return content.amountSign == 1 || content.amountSign == 0
-    case .date:
-      pattern = "^\\d{4}/(0[1-9]|1[012])/(0[1-9]|[12]\\d|3[01])$"
-      value = content.date
-    case .time:
-      pattern = "^([01]?[0-9]|2[0-3]):[0-5][0-9](:[0-5][0-9])?$"
-      value = content.time
-    case .memo:
-      if content.memo.isEmpty { return nil }
-      return content.memo.count <= 300
+  func checkContent(_ content: Content) -> Bool {
+    // source
+    guard content.source.isEmpty == false,
+          content.source.count <= 20
+    else {
+      return false
     }
     
-    let regex = try! NSRegularExpression(pattern: pattern)
-    let result = regex.firstMatch(in: value, range: NSRange(location: 0, length: value.count))
+    // amount
+    guard content.amount.isEmpty == false,
+          let amount = Int(content.amount.replacingOccurrences(of: ",", with: "")),
+          amount <= 999_999_999
+    else {
+      return false
+    }
 
-    return result != nil
+    // fund
+    guard content.amountSign == 1 || content.amountSign == 0 else {
+      return false
+    }
+    
+    var pattern: String
+    var value: String
+    var regex: NSRegularExpression
+    var result: NSTextCheckingResult?
+    
+    // date
+    pattern = "^\\d{4}/(0[1-9]|1[012])/(0[1-9]|[12]\\d|3[01])$"
+    value = content.date
+    regex = try! NSRegularExpression(pattern: pattern)
+    result = regex.firstMatch(in: value, range: NSRange(location: 0, length: value.count))
+    guard result != nil else { return false }
+    
+    // time
+    pattern = "^([01]?[0-9]|2[0-3]):[0-5][0-9](:[0-5][0-9])?$"
+    value = content.time
+    regex = try! NSRegularExpression(pattern: pattern)
+    result = regex.firstMatch(in: value, range: NSRange(location: 0, length: value.count))
+    guard result != nil else { return false }
+
+    // memo
+    guard content.memo.isEmpty == false,
+          content.memo.count <= 300
+    else {
+      return false
+    }
+    
+    return true
   }
   
   func requestCreateLedgerRecord() -> Observable<Mutation> {
@@ -251,14 +302,14 @@ private extension ManualInputReactor {
       guard let amount = Int(currentState.content.amount.filter { $0.isNumber }) else {
         throw MoneyMongError.appError(errorMessage: "금액을 확인해 주세요")
       }
-      guard let date = formatter.convertToISO8601(
+      guard let date = formatter.mergeWithISO8601(
         date: currentState.content.date,
         time: currentState.content.time
       )
       else {
         throw MoneyMongError.appError(errorMessage: "날짜 및 시간을 확인해 주세요")
       }
-      return try await repo.create(
+      return try await ledgerRepo.create(
         id: currentState.agencyId,
         storeInfo: currentState.content.source,
         fundType: currentState.content.amountSign == 1 ? .income : .expense,
