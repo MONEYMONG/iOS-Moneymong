@@ -18,7 +18,7 @@ final class LedgerScanResultReactor: Reactor {
   }
   
   struct State {
-    @Pulse var agencyId: Int
+    let agencyId: Int
     @Pulse var receiptImageData: Data
     @Pulse var source: String
     @Pulse var money: String

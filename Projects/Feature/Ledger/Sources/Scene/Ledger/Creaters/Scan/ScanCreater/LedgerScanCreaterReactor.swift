@@ -21,7 +21,7 @@ final class LedgerScanCreaterReactor: Reactor {
   }
   
   struct State {
-    @Pulse var agencyId: Int
+    let agencyId: Int
     @Pulse var imageData: Data?
     @Pulse var isLoading: Bool = false
     @Pulse var error: MoneyMongError?
