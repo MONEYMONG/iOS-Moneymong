@@ -65,12 +65,10 @@ final class LedgerTabVC: BaseVC, View {
   override func setupUI() {
     super.setupUI()
     floatingButton.addWriteAction { [weak self] in
-      if let id = self?.reactor?.currentState.agencyID {
-        self?.coordinator?.present(.manualCreater(id))
-      }
+      self?.reactor?.action.onNext(.didTapWriteButton)
     }
     floatingButton.addScanAction { [weak self] in
-      self?.coordinator?.present(.scanCreater)
+      self?.reactor?.action.onNext(.didTapScanButton)
     }
     ledgerList.backgroundView = emptyView
   }
@@ -167,6 +165,10 @@ final class LedgerTabVC: BaseVC, View {
         switch destination {
         case let .datePicker(start, end):
           owner.coordinator?.present(.datePicker(start: start, end: end))
+        case let .manualCreater(id):
+          owner.coordinator?.present(.manualCreater(id))
+        case let .scanCreater(id):
+          owner.coordinator?.present(.scanCreater(id))
         }
       }
       .disposed(by: disposeBag)

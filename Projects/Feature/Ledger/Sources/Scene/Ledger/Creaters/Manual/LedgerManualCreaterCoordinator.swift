@@ -3,9 +3,9 @@ import UIKit
 import BaseFeature
 import DesignSystem
 
-final class ManualInputCoordinator: Coordinator {
+final class LedgerManualCreaterCoordinator: Coordinator {
   var navigationController: UINavigationController
-  private let diContainer: ManualInputDIContainer
+  private let diContainer: LedgerManualCreaterDIContainer
   weak var parentCoordinator: Coordinator?
   var childCoordinators: [Coordinator] = []
   
@@ -14,7 +14,7 @@ final class ManualInputCoordinator: Coordinator {
     case alert(title: String, subTitle: String?, type: MMAlerts.`Type`)
   }
 
-  init(navigationController: UINavigationController, diContainer: ManualInputDIContainer) {
+  init(navigationController: UINavigationController, diContainer: LedgerManualCreaterDIContainer) {
     self.navigationController = navigationController
     self.diContainer = diContainer
   }
@@ -37,7 +37,7 @@ final class ManualInputCoordinator: Coordinator {
   }
 }
 
-extension ManualInputCoordinator {
+extension LedgerManualCreaterCoordinator {
   private func manualCreater(agencyId: Int, animated: Bool) {
     let vc = diContainer.manualCreater(with: self, agencyId: agencyId)
     navigationController.viewControllers = [vc]

@@ -7,6 +7,8 @@ final class LedgerTabReactor: Reactor {
   enum Action {
     case didTapDateRangeView
     case selectedFilter(Int)
+    case didTapWriteButton
+    case didTapScanButton
   }
 
   enum Mutation {
@@ -35,6 +37,8 @@ final class LedgerTabReactor: Reactor {
     
     enum Destination {
       case datePicker(start: DateInfo, end: DateInfo)
+      case manualCreater(Int)
+      case scanCreater(Int)
     }
   }
   
@@ -81,6 +85,10 @@ final class LedgerTabReactor: Reactor {
         .just(.setFilterType(fundType)),
         requestLedgerList()
       ])
+    case .didTapWriteButton:
+      return .just(.setDestination(.manualCreater(currentState.agencyID)))
+    case .didTapScanButton:
+      return .just(.setDestination(.scanCreater(currentState.agencyID)))
     }
   }
   

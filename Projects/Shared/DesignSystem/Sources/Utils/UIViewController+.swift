@@ -4,6 +4,7 @@ import UIKit
 public extension UIViewController {
   enum BarItem {
     case back
+    case backWhite
     case closeBlack
     case closeWhite
     case trash
@@ -18,6 +19,9 @@ public extension UIViewController {
       case .back:
         button.image = Images.chevronLeft?.withRenderingMode(.alwaysTemplate)
         button.tintColor = Colors.Gray._7
+      case .backWhite:
+        button.image = Images.chevronLeft?.withRenderingMode(.alwaysTemplate)
+        button.tintColor = Colors.White._1
       case .closeBlack:
         button.image = Images.close?.withRenderingMode(.alwaysTemplate)
         button.tintColor = Colors.Gray._7

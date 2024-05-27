@@ -1,6 +1,10 @@
 import UIKit
 import AVFoundation
 
+import NetworkService
+
+import RxSwift
+
 final class CameraView: UIView {
   weak var delegate: AVCapturePhotoCaptureDelegate?
   
@@ -15,14 +19,12 @@ final class CameraView: UIView {
   private let videoPreviewLayer: AVCaptureVideoPreviewLayer = {
     let layer = AVCaptureVideoPreviewLayer()
     layer.videoGravity = .resizeAspectFill
-    layer.frame = UIScreen.main.bounds
     return layer
   }()
   
   init() {
     super.init(frame: .zero)
     setupUI()
-    setupCamera()
   }
   
   @available(*, unavailable)
@@ -34,20 +36,23 @@ final class CameraView: UIView {
     layer.addSublayer(videoPreviewLayer)
   }
   
-  private func setupCamera() {
+  func setupCameraFrame(frame: CGRect) {
+    videoPreviewLayer.frame = frame
+    setNeedsLayout()
+  }
+  
+  func setupCamera() throws {
     // 사용 가능한 카메라 중 후면 카메라를 선택
     guard let backCamera = AVCaptureDevice.default(for: .video),
           let input = try? AVCaptureDeviceInput(device: backCamera) else {
-      print("후면 카메라를 사용할 수 없습니다.")
-      return
+      throw MoneyMongError.appError(errorMessage: "후면 카메라를 사용할 수 없습니다.")
     }
     
     // 세션에 입력 추가
     if captureSession.canAddInput(input) {
       captureSession.addInput(input)
     } else {
-      print("입력을 세션에 추가할 수 없습니다.")
-      return
+      throw MoneyMongError.appError(errorMessage: "입력을 세션에 추가할 수 없습니다.")
     }
     
     // 사진 출력 설정
@@ -62,13 +67,14 @@ final class CameraView: UIView {
     captureSession.startRunning()
   }
   
-  // 사진 캡처 함수
-  func takePhoto() {
-    guard let delegate else {
-      fatalError("델리게이트를 설정하세요.")
+  var takePhoto: Binder<Void> {
+    return Binder(self) { owner, _ in
+      guard let delegate = owner.delegate else {
+        fatalError("델리게이트를 설정하세요.")
+      }
+      let settings = AVCapturePhotoSettings()
+      owner.stillImageOutput.capturePhoto(with: settings, delegate: delegate)
     }
-    let settings = AVCapturePhotoSettings()
-    stillImageOutput.capturePhoto(with: settings, delegate: delegate)
   }
 }
 

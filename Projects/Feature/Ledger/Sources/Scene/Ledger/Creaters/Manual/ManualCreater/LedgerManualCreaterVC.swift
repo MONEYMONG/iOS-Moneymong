@@ -8,7 +8,7 @@ import ReactorKit
 import RxDataSources
 
 final class LedgerManualCreaterVC: BaseVC, View {
-  weak var coordinator: ManualInputCoordinator?
+  weak var coordinator: LedgerManualCreaterCoordinator?
   private struct ViewSize {
     static var cell: CGSize {
       let width = UIScreen.main.bounds.width * 0.28
@@ -30,7 +30,18 @@ final class LedgerManualCreaterVC: BaseVC, View {
     return v
   }()
   private let content = UIView()
-  private let smogView = SmogView()
+  private let smogView: GradationView = {
+    let v = GradationView()
+    v.setGradation(
+      colors: [
+        UIColor.white.withAlphaComponent(0.0).cgColor,
+        UIColor.white.cgColor
+      ],
+      location: [0.0, 0.4]
+    )
+
+    return v
+  }()
   private let keyboardSpaceView = UIView()
   
   private let completeButton = MMButton(title: "작성하기", type: .primary)

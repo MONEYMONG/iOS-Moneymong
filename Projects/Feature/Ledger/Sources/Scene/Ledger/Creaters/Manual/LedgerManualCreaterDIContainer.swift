@@ -2,7 +2,7 @@ import UIKit
 
 import NetworkService
 
-final class ManualInputDIContainer {
+final class LedgerManualCreaterDIContainer {
   private let ledgerRepo: LedgerRepositoryInterface
   private let ledgerService: LedgerServiceInterface
   
@@ -11,7 +11,7 @@ final class ManualInputDIContainer {
     self.ledgerService = ledgerService
   }
   
-  func manualCreater(with coordinator: ManualInputCoordinator, agencyId: Int) -> LedgerManualCreaterVC {
+  func manualCreater(with coordinator: LedgerManualCreaterCoordinator, agencyId: Int) -> LedgerManualCreaterVC {
     let vc = LedgerManualCreaterVC()
     vc.reactor = LedgerManualCreaterReactor(
       agencyId: agencyId,
