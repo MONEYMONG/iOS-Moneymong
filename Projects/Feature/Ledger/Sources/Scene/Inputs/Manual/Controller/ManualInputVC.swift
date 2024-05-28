@@ -343,6 +343,8 @@ final class ManualInputVC: BaseVC, View {
       .observe(on: MainScheduler.instance)
       .bind(with: self) { owner, name in
         owner.writerNameLabel.setTextWithLineHeight(text: name, lineHeight: 20)
+        owner.writerNameLabel.flex.markDirty()
+        owner.writerNameLabel.setNeedsLayout()
       }
       .disposed(by: disposeBag)
     

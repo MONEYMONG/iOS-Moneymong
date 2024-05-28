@@ -3,14 +3,13 @@ import UIKit
 import BaseFeature
 import DesignSystem
 
+import ReactorKit
 import RxCocoa
 import RxSwift
 
-final class CreateCompleteVC: BaseVC {
-  private let disposeBag = DisposeBag()
+final class CreateCompleteVC: BaseVC, View {
+  var disposeBag = DisposeBag()
   weak var coordinator: AgencyCoordinator?
-  
-  let agencyID: Int
   
   private let completeImageView = UIImageView(image: Images.agencyCongrats)
   private let completeLabel: UILabel = {
@@ -23,18 +22,6 @@ final class CreateCompleteVC: BaseVC {
   
   private let ledgerButton = MMButton(title: "소속 장부 확인하러 가기", type: .secondary)
   private let registerLedgerButton = MMButton(title: "동아리 운영비 등록하러 가기", type: .primary)
-  
-  init(id: Int) {
-    self.agencyID = id
-    super.init()
-  }
-  
-  override func viewDidLoad() {
-    super.viewDidLoad()
-    
-    bind()
-  }
-  
 
   override func setupUI() {
     super.setupUI()
@@ -59,30 +46,44 @@ final class CreateCompleteVC: BaseVC {
     }
   }
   
-  func bind() {
+  func bind(reactor: CreateCompleteReactor) {
+    
+    reactor.pulse(\.$destination)
+      .observe(on: MainScheduler.instance)
+      .compactMap { $0 }
+      .bind(with: self) { owner, destination in
+        switch destination {
+        case .dismiss:
+          owner.coordinator?.dismiss()
+        case .ledger:
+          owner.coordinator?.dismiss(animated: false)
+          owner.coordinator?.goLedger()
+        case .manualInput:
+          let id = reactor.currentState.agencyID
+          owner.coordinator?.dismiss(animated: false)
+          owner.coordinator?.goManualInput(agencyID: id)
+        }
+      }
+      .disposed(by: disposeBag)
+    
     setRightItem(.closeBlack, color: Colors.White._1)
     
     navigationItem.rightBarButtonItem?.rx.tap
       .throttle(.seconds(1), latest: false, scheduler: MainScheduler.instance)
-      .bind(with: self) { owner, _ in
-        owner.coordinator?.dismiss()
-      }
+      .map { Reactor.Action.tapDismiss }
+      .bind(to: reactor.action)
       .disposed(by: disposeBag)
     
     ledgerButton.rx.tap
       .throttle(.seconds(1), latest: false, scheduler: MainScheduler.instance)
-      .bind(with: self) { owner, _ in
-        owner.coordinator?.dismiss(animated: false)
-        owner.coordinator?.goLedger()
-      }
+      .map { Reactor.Action.tapLedger }
+      .bind(to: reactor.action)
       .disposed(by: disposeBag)
     
     registerLedgerButton.rx.tap
       .throttle(.seconds(1), latest: false, scheduler: MainScheduler.instance)
-      .bind(with: self) { owner, _ in
-        owner.coordinator?.dismiss(animated: false)
-        owner.coordinator?.goManualInput(agencyID: owner.agencyID)
-      }
+      .map { Reactor.Action.tapOperatingCost }
+      .bind(to: reactor.action)
       .disposed(by: disposeBag)
   }
 }
