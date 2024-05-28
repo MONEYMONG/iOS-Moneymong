@@ -12,8 +12,7 @@ struct LedgerImageSectionModel {
 
   enum Item: Equatable {
     case description(String)
-    case creatButton
-    case updateButton
+    case imageAddButton
     case image(LedgerImageInfo)
   }
 

@@ -17,14 +17,10 @@ final class LedgerDetailReactor: Reactor {
     case setIsEdit(Bool)
     case setDeleteCompleted(Void)
     case setIsValid(Bool)
-    case setIsChanged(Bool)
-    case setUpdatedItem(LedgerDetail)
   }
 
   struct State {
     let ledgerId: Int
-    var isChanged: Bool = false
-    var updatedItem: LedgerDetail?
     @Pulse var role: Member.Role
     @Pulse var ledger: LedgerDetail?
     @Pulse var error: MoneyMongError?
@@ -35,7 +31,6 @@ final class LedgerDetailReactor: Reactor {
   }
 
   var initialState: State
-  private let formatter = ContentFormatter()
   private(set) var ledgerRepository: LedgerRepositoryInterface
   private let ledgerService: LedgerServiceInterface
   private(set) var ledgerDetailService: LedgerDetailContentsServiceInterface
@@ -95,26 +90,8 @@ final class LedgerDetailReactor: Reactor {
       ])
 
     case .didTapEdit:
-      if let ledger = currentState.updatedItem, currentState.isEdit, currentState.isChanged {
-        return .concat([
-          .just(.setIsLoading(true)),
-
-            .task { return try await ledgerRepository.update(ledger: ledger) }
-            .map { [weak self] in
-              self?.ledgerService.ledgerList.updateList()
-              self?.ledgerDetailService.shouldTypeChanged(
-                to: self?.currentState.isEdit == true ? .read : .update
-              )
-            }
-            .map { .setIsLoading(false) }
-            .catch { return .just(.setError($0.toMMError))},
-
-            .just(.setIsEdit(!(currentState.isEdit)))
-        ])
-      } else {
-        ledgerDetailService.shouldTypeChanged(to: currentState.isEdit ? .read : .update)
-        return .just(.setIsEdit(!(currentState.isEdit)))
-      }
+      ledgerDetailService.shouldTypeChanged(to: currentState.isEdit ? .read : .update)
+      return .just(.setIsEdit(!(currentState.isEdit)))
     }
   }
 
@@ -133,10 +110,6 @@ final class LedgerDetailReactor: Reactor {
       newState.isValid = value
     case .setError(let error):
       newState.error = error
-    case .setIsChanged(let isChanged):
-      newState.isChanged = isChanged
-    case .setUpdatedItem(let item):
-      newState.updatedItem = item
     }
     return newState
   }

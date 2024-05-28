@@ -11,10 +11,10 @@ enum LedgerAPI {
   case ledgerList(id: Int, param: LedgerListRequestDTO)
   case ledgerFilterList(id: Int, param: LedgerListRequestDTO)
   case ledgerDetail(id: Int)
-//  case receiptUpload(detailId: Int, data: Data)
-  case receiptDelete(detailId: Int, receiptId: Int)
-//  case
-
+  case receiptImagesUpload(detailId: Int, receiptImageUrls: [String]) // 영수증 이미지 추가
+  case receiptImageDelete(detailId: Int, receiptId: Int) // 영수증 이미지 제거
+  case documentImagesUpload(detailId: Int, documentImageUrls: [String])
+  case documentImageDelete(detailId: Int, documentId: Int)
 }
 
 extension LedgerAPI: TargetType {
@@ -32,21 +32,27 @@ extension LedgerAPI: TargetType {
     case .ledgerList(let id, _): return "v2/ledger/\(id)"
     case .ledgerFilterList(let id, _): return "v2/ledger/\(id)/filter"
     case .ledgerDetail(let id): return "v1/ledger-detail/\(id)"
-    case .receiptDelete(let detailId, let receiptId): return "v1/ledger-detail/\(detailId)/ledger-receipt/\(receiptId)}"
+    case .receiptImagesUpload(let detailId, _): return "v1/ledger-detail/\(detailId)/ledger-receipt"
+    case .receiptImageDelete(let detailId, let receiptId): return "v1/ledger-detail/\(detailId)/ledger-receipt/\(receiptId)}"
+    case .documentImagesUpload(let detailId, _): return "v1/ledger-detail/\(detailId)/ledger-document"
+    case .documentImageDelete(let detailId, let documentId): return "v1/ledger-detail/\(detailId)/ledger-document/\(documentId)"
     }
   }
-  
+
   var method: HTTPMethod {
     switch self {
     case .create(_, _): return .post
-    case .update(_, _): return .put
-    case .delete(_): return .delete
+    case .update: return .put
+    case .delete: return .delete
     case .uploadImage(_): return .post
     case .deleteImage(_): return .delete
     case .ledgerList(_, _): return .get
     case .ledgerFilterList(_, _): return .get
     case .ledgerDetail(_): return .get
-    case .receiptDelete(_, _): return .delete
+    case .receiptImagesUpload: return .post
+    case .receiptImageDelete: return .delete
+    case .documentImagesUpload: return .post
+    case .documentImageDelete: return .delete
     }
   }
   
@@ -56,7 +62,7 @@ extension LedgerAPI: TargetType {
       return .requestJSONEncodable(params: param)
     case .update(_, let param):
       return .requestJSONEncodable(params: param)
-    case .delete(_): return .plain
+    case .delete: return .plain
     case .uploadImage(let data):
       let multipartFormData = MultipartFormData()
       multipartFormData.append(data, withName: "file", fileName: "\(data).jpeg", mimeType: "image/jpeg")
@@ -69,7 +75,13 @@ extension LedgerAPI: TargetType {
       return .requestJSONEncodable(query: query)
     case .ledgerDetail(_):
       return .plain
-    case .receiptDelete(_, _):
+    case .receiptImagesUpload(_, let receiptImageUrls):
+      return .requestJSONEncodable(params: receiptImageUrls)
+    case .receiptImageDelete:
+      return .plain
+    case .documentImagesUpload(_, let documentImageUrls):
+      return .requestJSONEncodable(params: documentImageUrls)
+    case .documentImageDelete:
       return .plain
     }
   }

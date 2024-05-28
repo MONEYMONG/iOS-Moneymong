@@ -14,11 +14,8 @@ final class LedgerContentsCollectionView: UICollectionView {
         return collectionView.dequeueCell(DescriptionCell.self, for: indexPath)
           .configure(with: description)
 
-      case .creatButton:
-        return collectionView.dequeueCell(CreateButtonCell.self, for: indexPath)
-
-      case .updateButton:
-        return collectionView.dequeueCell(UpdateButtonCell.self, for: indexPath)
+      case .imageAddButton:
+        return collectionView.dequeueCell(AddImageButtonCell.self, for: indexPath)
 
       case .image(let imageInfo):
         return collectionView.dequeueCell(DefaultImageCell.self, for: indexPath)
@@ -50,8 +47,7 @@ final class LedgerContentsCollectionView: UICollectionView {
     delegate = self
     isScrollEnabled = false
     register(DescriptionCell.self)
-    register(CreateButtonCell.self)
-    register(UpdateButtonCell.self)
+    register(AddImageButtonCell.self)
     register(DefaultImageCell.self)
     registerHeader(DefaultSectionHeader.self)
   }
@@ -62,7 +58,7 @@ final class LedgerContentsCollectionView: UICollectionView {
     layout.sectionInset = UIEdgeInsets(top: 8, left: 16, bottom: 0, right: 16)
 
     /// item이 description일 경우 Height
-    if case LedgerImageSectionModel.Item.description(_) = items.items[0] {
+    if case .description = items.items[0] {
       flex.height(16 + 8 + 20).markDirty()
       setNeedsLayout()
       return

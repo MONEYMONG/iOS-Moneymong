@@ -8,7 +8,6 @@ enum LedgerDetailContentsEvent {
 
 enum ParentEvent {
   case shouldTypeChanged(LedgerContentsView.State)
-  case shouldLedgerInfoUpdate(Void)
 }
 
 protocol LedgerDetailContentsServiceInterface {
@@ -31,9 +30,5 @@ final class LedgerDetailContentsService: LedgerDetailContentsServiceInterface {
   /// ContentsView Type 변경
   func shouldTypeChanged(to: LedgerContentsView.State) {
     parentViewEvent.onNext(.shouldTypeChanged(to))
-  }
-
-  func shouldLedgerInfoUpdate() {
-    parentViewEvent.onNext(.shouldLedgerInfoUpdate(()))
   }
 }

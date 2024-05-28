@@ -14,7 +14,7 @@ final class LedgerDetailVC: BaseVC, View {
 
   weak var coordinator: LedgerCoordinator?
 
-  private let contentsView = LedgerContentsView(type: .read)
+  private let contentsView = LedgerContentsView()
 
   private let editButtonContainer: UIView = {
     let view = UIView()

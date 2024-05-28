@@ -45,6 +45,11 @@ struct LedgerDetailItem {
     self.authorName = ledger?.authorName ?? ""
   }
 
+  lazy var dd = self.receiptImages.items.filter {
+  guard case .image(let imageInfo) = $0 else { return true }
+  return false
+}
+
   var toEntity: LedgerDetail {
     return .init(
       id: id,
@@ -53,7 +58,22 @@ struct LedgerDetailItem {
       fundType: fundType,
       description: memo,
       paymentDate: formatter.convertToISO8601(date: date, time: time) ?? "",
-      receiptImageUrls: [],
+      receiptImageUrls: []
+//        receiptImages.items
+//        .filter {
+//          guard case .image = $0 else { return true }
+//          return false
+//        }
+//        .map {
+//          if case .image(let imageInfo) = $0 {
+//            return .init(id: Int(imageInfo.key) ?? 0, url: imageInfo.url)
+//          }
+//        }
+//        let receiptImages.items.filter {
+//        guard case $0 = .image(let imageInfo) else { return true }
+//        return false
+//      }
+      ,
       documentImageUrls: [],
 //      receiptImageUrls: receiptImages.items.map {
 //        if case $0 == .image(let imageInfo) {

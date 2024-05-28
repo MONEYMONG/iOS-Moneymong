@@ -3,8 +3,18 @@ import UIKit
 import DesignSystem
 import Utility
 
-final class CreateButtonCell: UICollectionViewCell, ReusableView {
+import RxSwift
+
+final class AddImageButtonCell: UICollectionViewCell, ReusableView {
   private let rootContainer = UIView()
+
+  private let imageView: UIImageView = {
+    let v = UIImageView()
+    v.image = Images.plusCircleFillBlue
+    return v
+  }()
+
+  private let disposeBag = DisposeBag()
 
   override init(frame: CGRect) {
     super.init(frame: frame)
@@ -33,17 +43,17 @@ final class CreateButtonCell: UICollectionViewCell, ReusableView {
   private func setupView() {
     clipsToBounds = true
     layer.cornerRadius = 8
-    layer.borderWidth = 1
-    layer.borderColor = Colors.Blue._3.cgColor
   }
 
   private func setupConstraints() {
     contentView.addSubview(rootContainer)
+
     rootContainer.flex
+      .backgroundColor(Colors.Blue._1)
       .justifyContent(.center)
       .alignItems(.center)
       .define { flex in
-      flex.addItem(UIImageView(image: Images.plusCircleFillBlue))
-    }
+        flex.addItem(imageView)
+      }
   }
 }

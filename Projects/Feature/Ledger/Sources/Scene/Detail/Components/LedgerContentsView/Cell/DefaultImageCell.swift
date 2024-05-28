@@ -22,7 +22,6 @@ final class DefaultImageCell: UICollectionViewCell, ReusableView {
 
   private let deleteButton: UIButton = {
     let v = UIButton()
-    v.isHidden = true
     v.setImage(Images.closeFill, for: .normal)
     return v
   }()

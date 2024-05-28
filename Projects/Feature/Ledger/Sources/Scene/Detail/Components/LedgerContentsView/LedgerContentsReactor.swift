@@ -26,7 +26,6 @@ final class LedgerContentsReactor: Reactor {
   }
 
   enum Action {
-    case didInfoUpdate
     case didTypeChanged(LedgerContentsView.State)
     case didValueChanged(ContentType)
     case selectedImageSection(ImageSection)
@@ -35,6 +34,7 @@ final class LedgerContentsReactor: Reactor {
   }
 
   enum Mutation {
+    case setLedger(LedgerDetailItem)
     case setValueChanged(ContentType)
     case setSelectedImageSection(ImageSection)
     case setState(LedgerContentsView.State)
@@ -43,6 +43,7 @@ final class LedgerContentsReactor: Reactor {
   }
 
   struct State {
+    var prevLedgerItem: LedgerDetailItem
     @Pulse var currentLedgerItem: LedgerDetailItem
     @Pulse var selectedSection: ImageSection?
     @Pulse var error: MoneyMongError?
@@ -64,6 +65,7 @@ final class LedgerContentsReactor: Reactor {
     self.ledgerDetailService = ledgerDetailService
     self.ledgerRepo = ledgerRepo
     self.initialState = State(
+      prevLedgerItem: LedgerDetailItem(ledger: ledger, formatter: formatter),
       currentLedgerItem: LedgerDetailItem(ledger: ledger, formatter: formatter),
       state: state
     )
@@ -76,12 +78,10 @@ final class LedgerContentsReactor: Reactor {
   private var serviceAction: Observable<Action> {
     return ledgerDetailService.parentViewEvent
       .withUnretained(self)
-      .flatMap { owner, mutation -> Observable<Action> in
-        switch mutation {
+      .flatMap { owner, action -> Observable<Action> in
+        switch action {
         case .shouldTypeChanged(let state):
           return .just(.didTypeChanged(state))
-        case .shouldLedgerInfoUpdate:
-          return .just(.didInfoUpdate)
         }
       }
   }
@@ -89,17 +89,23 @@ final class LedgerContentsReactor: Reactor {
   func mutate(action: Action) -> Observable<Mutation> {
     switch action {
 
-    case .didInfoUpdate:
-      return .concat([
-        .just(.setIsLoading(true)),
-        .task { return try await ledgerRepo.update(ledger: currentState.currentLedgerItem.toEntity) }
-          .map { .setIsLoading(false) }
-          .catch { .just(.setError($0.toMMError)) },
-        .just(.setIsLoading(false))
-      ])
-
     case .didTypeChanged(let state):
-      return .just(.setState(state))
+      // 변경사항이 있는경우
+      if currentState.currentLedgerItem != currentState.prevLedgerItem {
+        return .concat([
+          .just(.setIsLoading(true)),
+
+          .task { return try await ledgerRepo.update(ledger: currentState.currentLedgerItem.toEntity) }
+            .map { .setLedger(.init(ledger: $0, formatter: self.formatter)) }
+            .catch { .just(.setError($0.toMMError)) },
+
+          .just(.setIsLoading(false)),
+
+          .just(.setState(state))
+        ])
+      } else {
+        return .just(.setState(state))
+      }
 
     case .didValueChanged(let valueType):
       let convertedFormValue = setContentValueFormat(valueType)
@@ -174,28 +180,52 @@ final class LedgerContentsReactor: Reactor {
 
       case .receiptImage(let imageInfo, let isAdd):
         let prevItems = newState.currentLedgerItem.receiptImages.items
+        let imageItems = prevItems.filter {
+          guard case .imageAddButton = $0 else { return true }
+          return false
+        }
 
         if isAdd {
-          newState.currentLedgerItem.receiptImages.items = prevItems + [.image(imageInfo)]
+          if prevItems.count == 13 {
+            newState.currentLedgerItem.receiptImages.items = imageItems
+          } else {
+            newState.currentLedgerItem.receiptImages.items = prevItems + [.image(imageInfo)]
+          }
         } else {
           let filteredItem = prevItems.filter {
             guard case .image(let info) = $0 else { return false }
             return info.key != imageInfo.key ? true : false
           }
-          newState.currentLedgerItem.receiptImages.items = filteredItem
+          if prevItems.count == 12 {
+            newState.currentLedgerItem.receiptImages.items = [.imageAddButton] + filteredItem
+          } else {
+            newState.currentLedgerItem.receiptImages.items = filteredItem
+          }
         }
 
       case .documentImage(let imageInfo, let isAdd):
         let prevItems = newState.currentLedgerItem.documentImages.items
+        let imageItems = prevItems.filter {
+          guard case .imageAddButton = $0 else { return true }
+          return false
+        }
 
         if isAdd {
-          newState.currentLedgerItem.documentImages.items = prevItems + [.image(imageInfo)]
+          if prevItems.count == 13 {
+            newState.currentLedgerItem.documentImages.items = imageItems
+          } else {
+            newState.currentLedgerItem.documentImages.items = prevItems + [.image(imageInfo)]
+          }
         } else {
           let filteredItem = prevItems.filter {
             guard case .image(let info) = $0 else { return false }
             return info.key != imageInfo.key ? true : false
           }
-          newState.currentLedgerItem.documentImages.items = filteredItem
+          if prevItems.count == 12 {
+            newState.currentLedgerItem.documentImages.items = [.imageAddButton] + filteredItem
+          } else {
+            newState.currentLedgerItem.documentImages.items = filteredItem
+          }
         }
       }
 
@@ -212,6 +242,9 @@ final class LedgerContentsReactor: Reactor {
 
     case .setIsLoading(let isLoading):
       newState.isLoading = isLoading
+    case .setLedger(let ledger):
+      newState.prevLedgerItem = ledger
+      newState.currentLedgerItem = ledger
     }
 
     return newState
@@ -232,19 +265,23 @@ fileprivate extension LedgerContentsReactor {
       /// State Read
       if state == .read {
         let imageItems = receiptItems.filter {
-          guard case .updateButton = $0 else { return true }
+          guard case .imageAddButton = $0 else { return true }
           return false
         }
         items = imageItems.isEmpty ? [.description("내용없음")] : imageItems
       }
 
       /// State Update
-      if currentState.currentLedgerItem.receiptImages.items.count != 12 && state == .update {
+      if state == .update {
         let imageItems = receiptItems.filter {
           guard case .description = $0 else { return true }
           return false
         }
-        items = [.updateButton] + imageItems
+        if currentState.currentLedgerItem.receiptImages.items.count != 12 {
+          items = [.imageAddButton] + imageItems
+        } else {
+          items = imageItems
+        }
       }
 
     case .document:
@@ -253,7 +290,7 @@ fileprivate extension LedgerContentsReactor {
       /// State Read
       if state == .read {
         let imageItems = documentItems.filter {
-          guard case .updateButton = $0 else { return true }
+          guard case .imageAddButton = $0 else { return true }
           return false
         }
 
@@ -261,12 +298,16 @@ fileprivate extension LedgerContentsReactor {
       }
 
       /// State Update
-      if currentState.currentLedgerItem.documentImages.items.count != 12 && state == .update {
+      if state == .update {
         let imageItems = documentItems.filter {
           guard case .description = $0 else { return true }
           return false
         }
-        items = [.updateButton] + imageItems
+        if currentState.currentLedgerItem.documentImages.items.count != 12 {
+          items = [.imageAddButton] + imageItems
+        } else {
+          items = imageItems
+        }
       }
     }
     return items

@@ -4,7 +4,7 @@ import DesignSystem
 import NetworkService
 import BaseFeature
 
-public final class LedgerCoordinator: Coordinator, ImagePickerPresentable {
+public final class LedgerCoordinator: Coordinator {
   public var navigationController: UINavigationController
   private let diContainer: LedgerDIContainer
   public weak var parentCoordinator: Coordinator?
@@ -92,5 +92,19 @@ extension LedgerCoordinator {
   private func detail(ledgerID: Int, role: Member.Role, animated: Bool = true) {
     let vc = diContainer.detail(with: self, ledgerID: ledgerID, role: role)
     navigationController.pushViewController(vc, animated: animated)
+  }
+
+  private func imagePicker(
+    animated: Bool,
+    delegate: UIImagePickerControllerDelegate & UINavigationControllerDelegate
+  ) {
+    let picker: UIImagePickerController = {
+      let v = UIImagePickerController()
+      v.sourceType = .photoLibrary
+      return v
+    }()
+    picker.delegate = delegate
+    picker.modalPresentationStyle = .fullScreen
+    navigationController.present(picker, animated: animated)
   }
 }

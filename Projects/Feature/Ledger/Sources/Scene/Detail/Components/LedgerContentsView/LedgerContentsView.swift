@@ -15,12 +15,12 @@ final class LedgerContentsView: BaseV, View, UIScrollViewDelegate {
     case update
   }
 
-  struct DynamicViewHeight {
+  struct ViewHeight {
     static var keyboardHeight: Double = 0
     static var verticalMargin: Double = 40
   }
 
-  var coordinator: ImagePickerPresentable?
+  var coordinator: LedgerCoordinator?
   var disposeBag = DisposeBag()
 
   private let scrollView: UIScrollView = {
@@ -84,22 +84,12 @@ final class LedgerContentsView: BaseV, View, UIScrollViewDelegate {
 
   private let authorNameTextField = MMTextField(title: Const.authorNameTitle)
 
-  private(set) var type: State {
-    didSet { updateState() }
-  }
-
   private var isShowKeyboard: Bool = false
-
-  init(type: State) {
-    self.type = type
-    super.init()
-    updateState()
-  }
 
   override func layoutSubviews() {
     super.layoutSubviews()
-    var contentsViewHeight = contentsView.frame.height + DynamicViewHeight.verticalMargin
-    if isShowKeyboard { contentsViewHeight += DynamicViewHeight.keyboardHeight }
+    var contentsViewHeight = contentsView.frame.height + ViewHeight.verticalMargin
+    if isShowKeyboard { contentsViewHeight += ViewHeight.keyboardHeight }
     scrollView.contentSize.height = contentsViewHeight
   }
 
@@ -176,6 +166,7 @@ final class LedgerContentsView: BaseV, View, UIScrollViewDelegate {
     reactor.pulse(\.$currentLedgerItem)
       .map { $0.receiptImages }
       .distinctUntilChanged()
+      .observe(on: MainScheduler.instance)
       .bind(with: self) { owner, items in
         owner.receiptCollectionView.updateCollectionHeigh(items: items)
       }
@@ -184,12 +175,14 @@ final class LedgerContentsView: BaseV, View, UIScrollViewDelegate {
     reactor.pulse(\.$currentLedgerItem)
       .map { [$0.documentImages] }
       .distinctUntilChanged()
+      .observe(on: MainScheduler.instance)
       .bind(to: documentCollentionView.rx.items(dataSource: documentCollentionView.dataSources))
       .disposed(by: disposeBag)
 
     reactor.pulse(\.$currentLedgerItem)
       .map { $0.documentImages }
       .distinctUntilChanged()
+      .observe(on: MainScheduler.instance)
       .bind(with: self) { owner, items in
         owner.documentCollentionView.updateCollectionHeigh(items: items)
       }
@@ -204,22 +197,22 @@ final class LedgerContentsView: BaseV, View, UIScrollViewDelegate {
     reactor.pulse(\.$selectedSection)
       .compactMap { $0 }
       .bind(with: self) { owner, _ in
-        owner.coordinator?.imagePicker(animated: true, delegate: owner)
+        owner.coordinator?.present(.imagePicker(delegate: owner))
       }
       .disposed(by: disposeBag)
 
     reactor.pulse(\.$error)
       .compactMap { $0 }
+      .observe(on: MainScheduler.instance)
       .bind(with: self) { owner, error in
-//        owner.coordinator?.present(.alert(
-//          title: "네트워크 에러",
-//          subTitle: error.localizedDescription,
-//          type: .onlyOkButton({})
-//        ))
+        owner.coordinator?.present(
+          .alert(title: error.localizedDescription, subTitle: nil, type: .onlyOkButton({}))
+        )
       }
       .disposed(by: disposeBag)
 
     reactor.pulse(\.$state)
+      .observe(on: MainScheduler.instance)
       .bind(with: self) { owner, state in
 
         switch state {
@@ -231,6 +224,7 @@ final class LedgerContentsView: BaseV, View, UIScrollViewDelegate {
           name: .didContentViewUpdateState,
           object: state
         )
+        owner.setNeedsLayout()
       }
       .disposed(by: disposeBag)
   }
@@ -242,7 +236,7 @@ final class LedgerContentsView: BaseV, View, UIScrollViewDelegate {
           return
         }
         owner.isShowKeyboard = true
-        DynamicViewHeight.keyboardHeight = keyboardFrame.cgRectValue.height - 120
+        ViewHeight.keyboardHeight = keyboardFrame.cgRectValue.height - 120
         owner.keyboardSpaceView.flex.height(keyboardFrame.cgRectValue.height - 120)
           .markDirty()
         owner.setNeedsLayout()
@@ -252,7 +246,7 @@ final class LedgerContentsView: BaseV, View, UIScrollViewDelegate {
     NotificationCenter.default.rx.notification(UIResponder.keyboardWillHideNotification)
       .bind(with: self) { owner, _ in
         owner.isShowKeyboard = false
-        DynamicViewHeight.keyboardHeight = 0
+        ViewHeight.keyboardHeight = 0
         owner.keyboardSpaceView.flex.height(0).markDirty()
         owner.setNeedsLayout()
       }
@@ -329,13 +323,13 @@ final class LedgerContentsView: BaseV, View, UIScrollViewDelegate {
       .disposed(by: disposeBag)
 
     receiptCollectionView.rx.modelSelected(LedgerImageSectionModel.Item.self)
-      .filter { $0 == .updateButton || $0 == .creatButton }
+      .filter { $0 == .imageAddButton }
       .map { _ in Reactor.Action.selectedImageSection(.receipt) }
       .bind(to: reactor.action)
       .disposed(by: disposeBag)
 
     documentCollentionView.rx.modelSelected(LedgerImageSectionModel.Item.self)
-      .filter { $0 == .updateButton || $0 == .creatButton }
+      .filter { $0 == .imageAddButton }
       .map { _ in Reactor.Action.selectedImageSection(.document) }
       .bind(to: reactor.action)
       .disposed(by: disposeBag)
@@ -509,21 +503,6 @@ final class LedgerContentsView: BaseV, View, UIScrollViewDelegate {
 
     setNeedsLayout()
   }
-
-  private func updateState() {
-    switch type {
-    case .read:
-      setupRead()
-    case .update:
-      setupUpdate()
-    }
-  }
-}
-
-extension LedgerContentsView {
-  func setType(_ type: State) {
-    self.type = type
-  }
 }
 
 /// Hide Keyboard Action
@@ -545,12 +524,10 @@ extension LedgerContentsView: UIImagePickerControllerDelegate, UINavigationContr
     _ picker: UIImagePickerController,
     didFinishPickingMediaWithInfo info: [UIImagePickerController.InfoKey : Any]
   ) {
-//    Task {
-      guard let image = info[.originalImage] as? UIImage else { return }
-      let scale = (receiptCollectionView.frame.width * 0.28) / image.size.width
-      guard let data = image.jpegData(compressionQuality: scale) else { return }
-      reactor?.action.onNext(.selectedImage(data))
-//    }
+    guard let image = info[.originalImage] as? UIImage else { return }
+    let scale = (receiptCollectionView.frame.width * 0.28) / image.size.width
+    guard let data = image.jpegData(compressionQuality: scale) else { return }
+    reactor?.action.onNext(.selectedImage(data))
     picker.dismiss(animated: true, completion: nil)
   }
 }
