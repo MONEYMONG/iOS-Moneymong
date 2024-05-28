@@ -115,7 +115,22 @@ final class LedgerContentsReactor: Reactor {
       return .just(.setSelectedImageSection(section))
 
     case .selectedImage(let data):
-      return .task { return try await ledgerRepo.imageUpload(data) }
+      return .task {
+        let imageInfo = try await ledgerRepo.imageUpload(data)
+        let selectedSection = currentState.selectedSection ?? .receipt
+        switch selectedSection {
+        case .receipt: 
+          try await ledgerRepo.receiptImagesUpload(
+            detailId: currentState.currentLedgerItem.id,
+            receiptImageUrls: [imageInfo.url]
+          )
+        case .document: try await ledgerRepo.documentImagesUpload(
+          detailId: currentState.currentLedgerItem.id,
+          documentImageUrls: [imageInfo.url]
+        )
+        }
+        return imageInfo
+      }
         .map { [weak self] imageInfo in
           let selectedSection = self?.currentState.selectedSection ?? .receipt
           switch selectedSection {
@@ -132,7 +147,18 @@ final class LedgerContentsReactor: Reactor {
         .catch { .just(.setError($0.toMMError)) }
 
     case .deleteImage(let item):
-      return .task { return try await ledgerRepo.imageDelete(item.toEntity) }
+      return .task {
+        switch item.imageSection {
+        case .receipt:
+          try await ledgerRepo.receiptImageDelete(
+            detailId: currentState.currentLedgerItem.id,
+            receiptId: Int(item.key) ?? 0)
+        case .document:
+          try await ledgerRepo.documentImageDelete(
+            detailId: currentState.currentLedgerItem.id,
+            documentId: Int(item.key) ?? 0)
+        }
+      }
         .map {
           switch item.imageSection {
           case .receipt:

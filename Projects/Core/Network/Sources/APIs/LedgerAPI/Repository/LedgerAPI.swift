@@ -11,10 +11,10 @@ enum LedgerAPI {
   case ledgerList(id: Int, param: LedgerListRequestDTO)
   case ledgerFilterList(id: Int, param: LedgerListRequestDTO)
   case ledgerDetail(id: Int)
-  case receiptImagesUpload(detailId: Int, receiptImageUrls: [String]) // 영수증 이미지 추가
+  case receiptImagesUpload(detailId: Int, receiptImageUrls: ReceiptUploadRequestDTO) // 영수증 이미지 등록
   case receiptImageDelete(detailId: Int, receiptId: Int) // 영수증 이미지 제거
-  case documentImagesUpload(detailId: Int, documentImageUrls: [String])
-  case documentImageDelete(detailId: Int, documentId: Int)
+  case documentImagesUpload(detailId: Int, documentImageUrls: DocumentUploadRequestDTO) // 증빙자료 이미지 등록
+  case documentImageDelete(detailId: Int, documentId: Int) // 증빙자료 이미지 제거
 }
 
 extension LedgerAPI: TargetType {
