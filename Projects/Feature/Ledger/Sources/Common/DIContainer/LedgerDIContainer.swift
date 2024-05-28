@@ -113,16 +113,23 @@ public final class LedgerDIContainer {
     ledgerID: Int,
     role: Member.Role
   ) -> LedgerDetailVC {
-    let reactor = LedgerDetailReactor(
+    let service = LedgerDetailContentsService()
+    let contentsView = LedgerContentsView()
+    contentsView.reactor = LedgerContentsReactor(
+      ledgerContentsService: service,
+      ledgerRepo: ledgerRepo
+    )
+    contentsView.coordinator = coordinator
+
+    let vc = LedgerDetailVC(contentsView: contentsView)
+    vc.reactor = LedgerDetailReactor(
       ledgerID: ledgerID,
       role: role,
       ledgerRepository: ledgerRepo,
       ledgerService: ledgerService,
-      ledgerDetailService: LedgerDetailContentsService()
+      ledgerContentsService: service
     )
-    let vc = LedgerDetailVC()
     vc.coordinator = coordinator
-    vc.reactor = reactor
     return vc
   }
 

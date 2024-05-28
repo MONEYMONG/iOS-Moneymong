@@ -12,43 +12,59 @@ struct LedgerDetailItem {
   var documentImages: LedgerImageSectionModel.Model
   var authorName: String
 
-  private let formatter: ContentFormatter
+  private let formatter = ContentFormatter()
 
-  init(ledger: LedgerDetail?, formatter: ContentFormatter) {
-    self.formatter = formatter
+  init(ledger: LedgerDetail) {
+    let (date, time) = formatter.convertToDateTime(with: ledger.paymentDate)
 
-    let (date, time) = formatter.convertToDateTime(with: ledger?.paymentDate ?? "")
-
-    self.id = ledger?.id ?? 0
-    self.storeInfo = ledger?.storeInfo ?? ""
-    self.amount = formatter.convertToAmount(with: ledger?.amount ?? 0) ?? "0"
-    self.fundType = ledger?.fundType ?? .expense
-    self.memo = ledger?.description ?? ""
+    self.id = ledger.id
+    self.storeInfo = ledger.storeInfo
+    self.amount = formatter.convertToAmount(with: ledger.amount) ?? "0"
+    self.fundType = ledger.fundType
+    self.memo = ledger.description
     self.date = date
     self.time = time
-    self.receiptImages = LedgerImageSectionModel.Model.init(
+    self.receiptImages = .init(
       model: .default("영수증(최대12장)"),
-      items: ledger?.receiptImageUrls.count == 0
+      items: ledger.receiptImageUrls.count == 0
       ? [.description("내용없음")]
-      : ledger?.receiptImageUrls.map { return .image(.init(
+      : ledger.receiptImageUrls.map { return .image(.init(
         imageSection: .receipt, key: "\($0.id)", url: $0.url
-      )) } ?? []
+      )) }
     )
-    self.documentImages = LedgerImageSectionModel.Model.init(
+    self.documentImages = .init(
       model: .default("증빙자료(최대12장)"),
-      items: ledger?.documentImageUrls.count == 0
+      items: ledger.documentImageUrls.count == 0
       ? [.description("내용없음")]
-      : ledger?.documentImageUrls.map { return .image(.init(
+      : ledger.documentImageUrls.map { return .image(.init(
         imageSection: .document, key: "\($0.id)", url: $0.url
-      )) } ?? []
+      )) }
     )
-    self.authorName = ledger?.authorName ?? ""
+    self.authorName = ledger.authorName
   }
 
-  lazy var dd = self.receiptImages.items.filter {
-  guard case .image(let imageInfo) = $0 else { return true }
-  return false
-}
+  private init() {
+    self.id = 0
+    self.storeInfo = ""
+    self.amount = "0"
+    self.fundType = .expense
+    self.memo = ""
+    self.date = ""
+    self.time = ""
+    self.receiptImages = .init(
+      model: .default("영수증(최대12장)"),
+      items: [.description("내용없음")]
+    )
+    self.documentImages = .init(
+      model: .default("증빙자료(최대12장)"),
+      items: [.description("내용없음")]
+    )
+    self.authorName = ""
+  }
+
+  static var empty: LedgerDetailItem {
+    .init()
+  }
 
   var toEntity: LedgerDetail {
     return .init(

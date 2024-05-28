@@ -43,16 +43,3 @@ public struct LedgerDetail {
     }
   }
 }
-
-extension LedgerDetail: Equatable {
-  public static func == (lhs: LedgerDetail, rhs: LedgerDetail) -> Bool {
-    if lhs.id == rhs.id && lhs.storeInfo == rhs.storeInfo && lhs.amount == rhs.amount
-        && lhs.fundType == rhs.fundType && lhs.paymentDate == rhs.paymentDate
-        && lhs.description == rhs.description && lhs.receiptImageUrls == rhs.receiptImageUrls
-        && lhs.documentImageUrls == rhs.documentImageUrls && lhs.authorName == rhs.authorName
-    {
-      return true
-    }
-    return false
-  }
-}

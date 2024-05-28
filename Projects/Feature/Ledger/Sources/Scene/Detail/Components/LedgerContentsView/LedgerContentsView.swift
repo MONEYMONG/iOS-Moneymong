@@ -108,6 +108,7 @@ final class LedgerContentsView: BaseV, View, UIScrollViewDelegate {
     reactor.pulse(\.$currentLedgerItem)
       .distinctUntilChanged()
       .map { $0.fundType }
+      .observe(on: MainScheduler.instance)
       .bind(with: self) { owner, fundType in
         owner.amountTextField.setTitle(
           to: fundType == .expense
@@ -151,6 +152,7 @@ final class LedgerContentsView: BaseV, View, UIScrollViewDelegate {
     reactor.pulse(\.$currentLedgerItem)
       .distinctUntilChanged()
       .map { $0.memo }
+      .observe(on: MainScheduler.instance)
       .bind(with: self, onNext: { owner, value in
         owner.memoTextView.setText(to: value)
       })
@@ -175,7 +177,6 @@ final class LedgerContentsView: BaseV, View, UIScrollViewDelegate {
     reactor.pulse(\.$currentLedgerItem)
       .map { [$0.documentImages] }
       .distinctUntilChanged()
-      .observe(on: MainScheduler.instance)
       .bind(to: documentCollentionView.rx.items(dataSource: documentCollentionView.dataSources))
       .disposed(by: disposeBag)
 
@@ -196,6 +197,7 @@ final class LedgerContentsView: BaseV, View, UIScrollViewDelegate {
 
     reactor.pulse(\.$selectedSection)
       .compactMap { $0 }
+      .observe(on: MainScheduler.instance)
       .bind(with: self) { owner, _ in
         owner.coordinator?.present(.imagePicker(delegate: owner))
       }
@@ -212,9 +214,9 @@ final class LedgerContentsView: BaseV, View, UIScrollViewDelegate {
       .disposed(by: disposeBag)
 
     reactor.pulse(\.$state)
+      .compactMap { $0 }
       .observe(on: MainScheduler.instance)
       .bind(with: self) { owner, state in
-
         switch state {
         case .update: owner.setupUpdate()
         case .read: owner.setupRead()
@@ -527,7 +529,9 @@ extension LedgerContentsView: UIImagePickerControllerDelegate, UINavigationContr
     guard let image = info[.originalImage] as? UIImage else { return }
     let scale = (receiptCollectionView.frame.width * 0.28) / image.size.width
     guard let data = image.jpegData(compressionQuality: scale) else { return }
-    reactor?.action.onNext(.selectedImage(data))
+    Task {
+      reactor?.action.onNext(.selectedImage(data))
+    }
     picker.dismiss(animated: true, completion: nil)
   }
 }

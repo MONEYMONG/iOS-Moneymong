@@ -33,19 +33,19 @@ final class LedgerDetailReactor: Reactor {
   var initialState: State
   private(set) var ledgerRepository: LedgerRepositoryInterface
   private let ledgerService: LedgerServiceInterface
-  private(set) var ledgerDetailService: LedgerDetailContentsServiceInterface
+  private(set) var ledgerContentsService: LedgerDetailContentsServiceInterface
 
   init(
     ledgerID: Int,
     role: Member.Role,
     ledgerRepository: LedgerRepositoryInterface,
     ledgerService: LedgerServiceInterface,
-    ledgerDetailService: LedgerDetailContentsServiceInterface
+    ledgerContentsService: LedgerDetailContentsServiceInterface
   ) {
     self.initialState = State(ledgerId: ledgerID, role: role)
     self.ledgerRepository = ledgerRepository
     self.ledgerService = ledgerService
-    self.ledgerDetailService = ledgerDetailService
+    self.ledgerContentsService = ledgerContentsService
   }
 
   func transform(mutation: Observable<Mutation>) -> Observable<Mutation> {
@@ -53,12 +53,14 @@ final class LedgerDetailReactor: Reactor {
   }
 
   private var serviceMutation: Observable<Mutation> {
-    return ledgerDetailService.contentsViewEvent
+    return ledgerContentsService.contentsViewEvent
       .withUnretained(self)
       .flatMap { owner, mutation -> Observable<Mutation> in
         switch mutation {
         case .isValidChanged(let value):
           return .just(.setIsValid(value))
+        case .isLoading(let value):
+          return .just(.setIsLoading(value))
         }
       }
   }
@@ -70,7 +72,11 @@ final class LedgerDetailReactor: Reactor {
       return .concat([
         .just(.setIsLoading(true)),
 
-          .task { return try await ledgerRepository.fetchLedgerDetail(id: currentState.ledgerId) }
+          .task {
+            let ledgerDetail = try await ledgerRepository.fetchLedgerDetail(id: currentState.ledgerId)
+            ledgerContentsService.setLedger(ledgerDetail)
+            return ledgerDetail
+          }
           .map { .setLedger($0) }
           .catch { return .just(.setError($0.toMMError))},
 
@@ -90,7 +96,7 @@ final class LedgerDetailReactor: Reactor {
       ])
 
     case .didTapEdit:
-      ledgerDetailService.shouldTypeChanged(to: currentState.isEdit ? .read : .update)
+      ledgerContentsService.shouldTypeChanged(to: currentState.isEdit ? .read : .update)
       return .just(.setIsEdit(!(currentState.isEdit)))
     }
   }

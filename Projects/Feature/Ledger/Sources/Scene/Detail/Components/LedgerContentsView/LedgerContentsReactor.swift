@@ -26,11 +26,12 @@ final class LedgerContentsReactor: Reactor {
   }
 
   enum Action {
-    case didTypeChanged(LedgerContentsView.State)
+    case didStateChanged(LedgerContentsView.State)
     case didValueChanged(ContentType)
     case selectedImageSection(ImageSection)
     case selectedImage(Data)
     case deleteImage(LedgerImageInfo)
+    case registrationLedger(LedgerDetail)
   }
 
   enum Mutation {
@@ -39,36 +40,27 @@ final class LedgerContentsReactor: Reactor {
     case setSelectedImageSection(ImageSection)
     case setState(LedgerContentsView.State)
     case setError(MoneyMongError)
-    case setIsLoading(Bool)
   }
 
   struct State {
-    var prevLedgerItem: LedgerDetailItem
-    @Pulse var currentLedgerItem: LedgerDetailItem
+    var prevLedgerItem: LedgerDetailItem = .empty
+    @Pulse var currentLedgerItem: LedgerDetailItem = .empty
     @Pulse var selectedSection: ImageSection?
     @Pulse var error: MoneyMongError?
-    @Pulse var state: LedgerContentsView.State
-    @Pulse var isLoading: Bool?
+    @Pulse var state: LedgerContentsView.State = .read
   }
 
-  var initialState: State
+  var initialState = State()
   private let formatter = ContentFormatter()
-  private let ledgerDetailService: LedgerDetailContentsServiceInterface
+  private let ledgerContentsService: LedgerDetailContentsServiceInterface
   private let ledgerRepo: LedgerRepositoryInterface
 
   init(
-    ledgerDetailService: LedgerDetailContentsServiceInterface,
-    ledgerRepo: LedgerRepositoryInterface,
-    ledger: LedgerDetail?,
-    state: LedgerContentsView.State = .read
+    ledgerContentsService: LedgerDetailContentsServiceInterface,
+    ledgerRepo: LedgerRepositoryInterface
   ) {
-    self.ledgerDetailService = ledgerDetailService
+    self.ledgerContentsService = ledgerContentsService
     self.ledgerRepo = ledgerRepo
-    self.initialState = State(
-      prevLedgerItem: LedgerDetailItem(ledger: ledger, formatter: formatter),
-      currentLedgerItem: LedgerDetailItem(ledger: ledger, formatter: formatter),
-      state: state
-    )
   }
 
   func transform(action: Observable<Action>) -> Observable<Action> {
@@ -76,33 +68,39 @@ final class LedgerContentsReactor: Reactor {
   }
 
   private var serviceAction: Observable<Action> {
-    return ledgerDetailService.parentViewEvent
+    return ledgerContentsService.parentViewEvent
       .withUnretained(self)
       .flatMap { owner, action -> Observable<Action> in
         switch action {
         case .shouldTypeChanged(let state):
-          return .just(.didTypeChanged(state))
+          return .just(.didStateChanged(state))
+        case .setLedger(let ledger):
+          return .just(.registrationLedger(ledger))
         }
       }
   }
 
   func mutate(action: Action) -> Observable<Mutation> {
     switch action {
+    case .registrationLedger(let ledger):
+      return .just(.setLedger(.init(ledger: ledger)))
 
-    case .didTypeChanged(let state):
+    case .didStateChanged(let state):
       // 변경사항이 있는경우
       if currentState.currentLedgerItem != currentState.prevLedgerItem {
         return .concat([
-          .just(.setIsLoading(true)),
-
-          .task { return try await ledgerRepo.update(ledger: currentState.currentLedgerItem.toEntity) }
-            .map { .setLedger(.init(ledger: $0, formatter: self.formatter)) }
+            .task {
+              ledgerContentsService.setIsLoading(true)
+              let ledger = try await ledgerRepo.update(ledger: currentState.currentLedgerItem.toEntity)
+              ledgerContentsService.setIsLoading(false)
+              return ledger
+            }
+            .map { .setLedger(.init(ledger: $0)) }
             .catch { .just(.setError($0.toMMError)) },
-
-          .just(.setIsLoading(false)),
 
           .just(.setState(state))
         ])
+        // 변경사항이 없는경우
       } else {
         return .just(.setState(state))
       }
@@ -119,15 +117,16 @@ final class LedgerContentsReactor: Reactor {
         let imageInfo = try await ledgerRepo.imageUpload(data)
         let selectedSection = currentState.selectedSection ?? .receipt
         switch selectedSection {
-        case .receipt: 
+        case .receipt:
           try await ledgerRepo.receiptImagesUpload(
             detailId: currentState.currentLedgerItem.id,
             receiptImageUrls: [imageInfo.url]
           )
-        case .document: try await ledgerRepo.documentImagesUpload(
-          detailId: currentState.currentLedgerItem.id,
-          documentImageUrls: [imageInfo.url]
-        )
+        case .document:
+          try await ledgerRepo.documentImagesUpload(
+            detailId: currentState.currentLedgerItem.id,
+            documentImageUrls: [imageInfo.url]
+          )
         }
         return imageInfo
       }
@@ -179,11 +178,11 @@ final class LedgerContentsReactor: Reactor {
       switch valueType {
 
       case .storeInfo(let storeInfo):
-        ledgerDetailService.didValidChanged(!storeInfo.isEmpty)
+        ledgerContentsService.didValidChanged(!storeInfo.isEmpty)
         newState.currentLedgerItem.storeInfo = storeInfo
 
       case .amount(let amount):
-        ledgerDetailService.didValidChanged(!amount.isEmpty)
+        ledgerContentsService.didValidChanged(!amount.isEmpty)
         newState.currentLedgerItem.amount = amount
 
       case .fundType(let fundType):
@@ -193,15 +192,15 @@ final class LedgerContentsReactor: Reactor {
         newState.currentLedgerItem.memo = memo
 
       case .date(let date):
-        ledgerDetailService.didValidChanged(!date.isEmpty)
+        ledgerContentsService.didValidChanged(!date.isEmpty)
         newState.currentLedgerItem.date = date
 
       case .time(let time):
-        ledgerDetailService.didValidChanged(!time.isEmpty)
+        ledgerContentsService.didValidChanged(!time.isEmpty)
         newState.currentLedgerItem.time = time
 
       case .authorName(let authorName):
-        ledgerDetailService.didValidChanged(!authorName.isEmpty)
+        ledgerContentsService.didValidChanged(!authorName.isEmpty)
         newState.currentLedgerItem.authorName = authorName
 
       case .receiptImage(let imageInfo, let isAdd):
@@ -265,9 +264,7 @@ final class LedgerContentsReactor: Reactor {
       newState.currentLedgerItem.receiptImages.items = setImageItems(to: state, section: .receipt)
       newState.currentLedgerItem.documentImages.items = setImageItems(to: state, section: .document)
       newState.state = state
-
-    case .setIsLoading(let isLoading):
-      newState.isLoading = isLoading
+      
     case .setLedger(let ledger):
       newState.prevLedgerItem = ledger
       newState.currentLedgerItem = ledger
@@ -294,7 +291,7 @@ fileprivate extension LedgerContentsReactor {
           guard case .imageAddButton = $0 else { return true }
           return false
         }
-        items = imageItems.isEmpty ? [.description("내용없음")] : imageItems
+        items = imageItems.isEmpty == true ? [.description("내용없음")] : imageItems
       }
 
       /// State Update
@@ -320,7 +317,7 @@ fileprivate extension LedgerContentsReactor {
           return false
         }
 
-        items = imageItems.isEmpty ? [.description("내용없음")] : imageItems
+        items = imageItems.isEmpty == true ? [.description("내용없음")] : imageItems
       }
 
       /// State Update
@@ -361,33 +358,4 @@ fileprivate extension LedgerContentsReactor {
       return .documentImage(imageInfo, isAdd)
     }
   }
-
-  //  func checkContent(_ content: Content, type: ContentType) -> Bool? {
-  //    var pattern: String!
-  //    var value: String!
-  //    switch type {
-  //    case .source:
-  //      if content.source.isEmpty { return nil }
-  //      return content.source.count <= 20
-  //    case .amount:
-  //      if content.amount.isEmpty { return nil }
-  //      return Int(content.amount.replacingOccurrences(of: ",", with: ""))! <= 999999999
-  //    case .fundType:
-  //      return content.amountSign == 1 || content.amountSign == 0
-  //    case .date:
-  //      pattern = "^\\d{4}/(0[1-9]|1[012])/(0[1-9]|[12]\\d|3[01])$"
-  //      value = content.date
-  //    case .time:
-  //      pattern = "^([01]?[0-9]|2[0-3]):[0-5][0-9](:[0-5][0-9])?$"
-  //      value = content.time
-  //    case .memo:
-  //      if content.memo.isEmpty { return nil }
-  //      return content.memo.count <= 300
-  //    }
-  //
-  //    let regex = try! NSRegularExpression(pattern: pattern)
-  //    let result = regex.firstMatch(in: value, range: NSRange(location: 0, length: value.count))
-  //
-  //    return result != nil
-  //  }
 }

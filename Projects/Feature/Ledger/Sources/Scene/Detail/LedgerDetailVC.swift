@@ -14,7 +14,7 @@ final class LedgerDetailVC: BaseVC, View {
 
   weak var coordinator: LedgerCoordinator?
 
-  private let contentsView = LedgerContentsView()
+  private let contentsView: LedgerContentsView
 
   private let editButtonContainer: UIView = {
     let view = UIView()
@@ -23,6 +23,11 @@ final class LedgerDetailVC: BaseVC, View {
   }()
 
   private let editButton = MMButton(title: Const.edit, type: .primary)
+
+  init(contentsView: LedgerContentsView) {
+    self.contentsView = contentsView
+    super.init()
+  }
 
   override func viewDidLayoutSubviews() {
     super.viewDidLayoutSubviews()
@@ -85,7 +90,6 @@ final class LedgerDetailVC: BaseVC, View {
       .disposed(by: disposeBag)
 
     reactor.pulse(\.$ledger)
-      .distinctUntilChanged()
       .compactMap { $0 }
       .observe(on: MainScheduler.instance)
       .bind(with: self) { owner, ledger in
@@ -93,13 +97,6 @@ final class LedgerDetailVC: BaseVC, View {
           ledger.fundType == .expense
           ? Const.expenseTitle
           : Const.incomeTitle
-        )
-        owner.contentsView.coordinator = owner.coordinator
-        owner.contentsView.reactor = LedgerContentsReactor(
-          ledgerDetailService: reactor.ledgerDetailService,
-          ledgerRepo: reactor.ledgerRepository,
-          ledger: ledger,
-          state: .read
         )
       }
       .disposed(by: disposeBag)
