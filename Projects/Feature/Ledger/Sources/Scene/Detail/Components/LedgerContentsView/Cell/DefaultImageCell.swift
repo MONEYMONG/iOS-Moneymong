@@ -68,7 +68,6 @@ final class DefaultImageCell: UICollectionViewCell, ReusableView {
       .define { flex in
         flex.addItem(imageView)
           .border(1, Colors.Blue._1)
-          .backgroundColor(.red)
 
         flex.addItem(deleteButton)
           .position(.absolute)
@@ -98,19 +97,17 @@ final class DefaultImageCell: UICollectionViewCell, ReusableView {
       })
       .disposed(by: disposeBag)
   }
-
+  
   func configure(with item: LedgerImageInfo) {
     self.item = item
 
-    DispatchQueue.main.async { [weak self] in
-      if let url = URL(string: item.url) {
-        self?.imageView.kf.setImage(
-          with: KF.ImageResource(
-            downloadURL: url,
-            cacheKey: item.url
-          )
+    if let url = URL(string: item.url) {
+      imageView.kf.setImage(
+        with: KF.ImageResource(
+          downloadURL: url,
+          cacheKey: item.url
         )
-      }
+      )
     }
   }
 }

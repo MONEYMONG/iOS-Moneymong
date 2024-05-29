@@ -43,6 +43,9 @@ final class LedgerContentsReactor: Reactor {
   }
 
   struct State {
+    var addedReceiptImageUrls: [ImageInfo] = []
+    var deletedReceiptImageUrls: [ImageInfo] = []
+
     var prevLedgerItem: LedgerDetailItem = .empty
     @Pulse var currentLedgerItem: LedgerDetailItem = .empty
     @Pulse var selectedSection: ImageSection?
@@ -90,8 +93,14 @@ final class LedgerContentsReactor: Reactor {
       if currentState.currentLedgerItem != currentState.prevLedgerItem {
         return .concat([
             .task {
-              ledgerContentsService.setIsLoading(true)
+              try await registrationReceiptImages() // 영수증 이미지 업로드된게 있을경우 해당 장부에 이미지 등록
+              try await registrationDocumentImages() // 증빙자료 이미지 업로드된게 있을경우 해당 장부에 이미지 등록
+              try await deleteReceiptImages() // 영수증 이미지 제거해야할게 있을경우 해당 장부에서 제거
+              try await deleteDocumentImages() // 증빙자료 이미지 제거해야할게 있을경우 해당 장부에서 제거
+
+              // 이미지를 제외한 내용 수정
               let ledger = try await ledgerRepo.update(ledger: currentState.currentLedgerItem.toEntity)
+              ledgerContentsService.setIsLoading(false)
               return ledger
             }
             .map { .setLedger(.init(ledger: $0)) }
@@ -112,23 +121,7 @@ final class LedgerContentsReactor: Reactor {
       return .just(.setSelectedImageSection(section))
 
     case .selectedImage(let data):
-      return .task {
-        let imageInfo = try await ledgerRepo.imageUpload(data)
-        let selectedSection = currentState.selectedSection ?? .receipt
-        switch selectedSection {
-        case .receipt:
-          try await ledgerRepo.receiptImagesUpload(
-            detailId: currentState.currentLedgerItem.id,
-            receiptImageUrls: [imageInfo.url]
-          )
-        case .document:
-          try await ledgerRepo.documentImagesUpload(
-            detailId: currentState.currentLedgerItem.id,
-            documentImageUrls: [imageInfo.url]
-          )
-        }
-        return imageInfo
-      }
+      return .task { return try await ledgerRepo.imageUpload(data) }
         .map { [weak self] imageInfo in
           let selectedSection = self?.currentState.selectedSection ?? .receipt
           switch selectedSection {
@@ -145,18 +138,7 @@ final class LedgerContentsReactor: Reactor {
         .catch { .just(.setError($0.toMMError)) }
 
     case .deleteImage(let item):
-      return .task {
-        switch item.imageSection {
-        case .receipt:
-          try await ledgerRepo.receiptImageDelete(
-            detailId: currentState.currentLedgerItem.id,
-            receiptId: Int(item.key) ?? 0)
-        case .document:
-          try await ledgerRepo.documentImageDelete(
-            detailId: currentState.currentLedgerItem.id,
-            documentId: Int(item.key) ?? 0)
-        }
-      }
+      return .task { try await ledgerRepo.imageDelete(item.toEntity) }
         .map {
           switch item.imageSection {
           case .receipt:
@@ -203,53 +185,17 @@ final class LedgerContentsReactor: Reactor {
         newState.currentLedgerItem.authorName = authorName
 
       case .receiptImage(let imageInfo, let isAdd):
-        let prevItems = newState.currentLedgerItem.receiptImages.items
-        let imageItems = prevItems.filter {
-          guard case .imageAddButton = $0 else { return true }
-          return false
-        }
-
         if isAdd {
-          if prevItems.count == 13 {
-            newState.currentLedgerItem.receiptImages.items = imageItems
-          } else {
-            newState.currentLedgerItem.receiptImages.items = prevItems + [.image(imageInfo)]
-          }
+          newState.currentLedgerItem.addImageItem(section: .receipt, imageInfo: imageInfo)
         } else {
-          let filteredItem = prevItems.filter {
-            guard case .image(let info) = $0 else { return false }
-            return info.key != imageInfo.key ? true : false
-          }
-          if prevItems.count == 12 {
-            newState.currentLedgerItem.receiptImages.items = [.imageAddButton] + filteredItem
-          } else {
-            newState.currentLedgerItem.receiptImages.items = filteredItem
-          }
+          newState.currentLedgerItem.deleteImageItem(section: .receipt, imageInfo: imageInfo)
         }
 
       case .documentImage(let imageInfo, let isAdd):
-        let prevItems = newState.currentLedgerItem.documentImages.items
-        let imageItems = prevItems.filter {
-          guard case .imageAddButton = $0 else { return true }
-          return false
-        }
-
         if isAdd {
-          if prevItems.count == 13 {
-            newState.currentLedgerItem.documentImages.items = imageItems
-          } else {
-            newState.currentLedgerItem.documentImages.items = prevItems + [.image(imageInfo)]
-          }
+          newState.currentLedgerItem.addImageItem(section: .document, imageInfo: imageInfo)
         } else {
-          let filteredItem = prevItems.filter {
-            guard case .image(let info) = $0 else { return false }
-            return info.key != imageInfo.key ? true : false
-          }
-          if prevItems.count == 12 {
-            newState.currentLedgerItem.documentImages.items = [.imageAddButton] + filteredItem
-          } else {
-            newState.currentLedgerItem.documentImages.items = filteredItem
-          }
+          newState.currentLedgerItem.deleteImageItem(section: .document, imageInfo: imageInfo)
         }
       }
 
@@ -260,8 +206,10 @@ final class LedgerContentsReactor: Reactor {
       newState.error = error
 
     case .setState(let state):
-      newState.currentLedgerItem.receiptImages.items = setImageItems(to: state, section: .receipt)
-      newState.currentLedgerItem.documentImages.items = setImageItems(to: state, section: .document)
+      switch state {
+      case .read: newState.currentLedgerItem.setRead()
+      case .update: newState.currentLedgerItem.setUpdate()
+      }
       newState.state = state
       
     case .setLedger(let ledger):
@@ -274,65 +222,34 @@ final class LedgerContentsReactor: Reactor {
 }
 
 fileprivate extension LedgerContentsReactor {
-  func setImageItems(
-    to state: LedgerContentsView.State,
-    section: ImageSection
-  ) -> [LedgerImageSectionModel.Item] {
-    var items: [LedgerImageSectionModel.Item] = []
-
-    switch section {
-    case .receipt:
-      let receiptItems = currentState.currentLedgerItem.receiptImages.items
-
-      /// State Read
-      if state == .read {
-        let imageItems = receiptItems.filter {
-          guard case .imageAddButton = $0 else { return true }
-          return false
-        }
-        items = imageItems.isEmpty == true ? [.description("내용없음")] : imageItems
-      }
-
-      /// State Update
-      if state == .update {
-        let imageItems = receiptItems.filter {
-          guard case .description = $0 else { return true }
-          return false
-        }
-        if currentState.currentLedgerItem.receiptImages.items.count != 12 {
-          items = [.imageAddButton] + imageItems
-        } else {
-          items = imageItems
-        }
-      }
-
-    case .document:
-      let documentItems = currentState.currentLedgerItem.documentImages.items
-
-      /// State Read
-      if state == .read {
-        let imageItems = documentItems.filter {
-          guard case .imageAddButton = $0 else { return true }
-          return false
-        }
-
-        items = imageItems.isEmpty == true ? [.description("내용없음")] : imageItems
-      }
-
-      /// State Update
-      if state == .update {
-        let imageItems = documentItems.filter {
-          guard case .description = $0 else { return true }
-          return false
-        }
-        if currentState.currentLedgerItem.documentImages.items.count != 12 {
-          items = [.imageAddButton] + imageItems
-        } else {
-          items = imageItems
-        }
-      }
+  func registrationReceiptImages() async throws {
+    if currentState.currentLedgerItem.addedReceiptImages.count > 0 {
+      let id = currentState.currentLedgerItem.id
+      let urls = currentState.currentLedgerItem.addedReceiptImages.map { $0.url }
+      try await ledgerRepo.receiptImagesUpload(detailId: id, receiptImageUrls: urls)
     }
-    return items
+  }
+
+  func registrationDocumentImages() async throws {
+    if currentState.currentLedgerItem.addedReceiptImages.count > 0 {
+      let id = currentState.currentLedgerItem.id
+      let urls = currentState.currentLedgerItem.addedReceiptImages.map { $0.url }
+      try await ledgerRepo.receiptImagesUpload(detailId: id, receiptImageUrls: urls)
+    }
+  }
+
+  func deleteReceiptImages() async throws {
+      let id = currentState.currentLedgerItem.id
+      for imageInfo in currentState.currentLedgerItem.deletedReceiptImages {
+          try await ledgerRepo.receiptImageDelete(detailId: id, receiptId: Int(imageInfo.key) ?? 0)
+      }
+  }
+
+  func deleteDocumentImages() async throws {
+      let id = currentState.currentLedgerItem.id
+      for imageInfo in currentState.currentLedgerItem.deletedDocumentImages {
+          try await ledgerRepo.receiptImageDelete(detailId: id, receiptId: Int(imageInfo.key) ?? 0)
+      }
   }
 
   func setContentValueFormat(_ type: ContentType) -> ContentType {

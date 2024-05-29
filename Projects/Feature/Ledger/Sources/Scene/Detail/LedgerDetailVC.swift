@@ -62,12 +62,15 @@ final class LedgerDetailVC: BaseVC, View {
   }
 
   public func bind(reactor: LedgerDetailReactor) {
-    rx.viewWillAppear
-      .do(onNext: { _ in
-        NotificationCenter.default.post(name: .tabBarHidden, object: true)
-      })
+    rx.viewDidLoad
       .map { Reactor.Action.onAppear }
       .bind(to: reactor.action)
+      .disposed(by: disposeBag)
+
+    rx.viewWillAppear
+      .bind(with: self) { owner, _ in
+        NotificationCenter.default.post(name: .tabBarHidden, object: true)
+      }
       .disposed(by: disposeBag)
 
     rx.viewDidDisappear
