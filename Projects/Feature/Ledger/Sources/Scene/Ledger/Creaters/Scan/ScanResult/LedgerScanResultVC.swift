@@ -171,6 +171,11 @@ final class LedgerScanResultVC: UIViewController, View {
       .bind(to: reactor.action)
       .disposed(by: disposeBag)
     
+    editButton.rx.tap
+      .map { Reactor.Action.didTapEditButton }
+      .bind(to: reactor.action)
+      .disposed(by: disposeBag)
+    
     reactor.pulse(\.$receiptImageData)
       .map { UIImage(data: $0) }
       .bind(to: receiptImageView.rx.image)
@@ -209,6 +214,8 @@ final class LedgerScanResultVC: UIViewController, View {
         switch destination {
         case .ledger:
           owner.coordinator?.dismiss()
+        case let .manualCreater(agencyID, isClubBudget):
+          owner.coordinator?.present(.manualCreater(agencyID, isClubBudget))
         }
       }
       .disposed(by: disposeBag)

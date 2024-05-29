@@ -40,7 +40,7 @@ final class LedgerManualCreaterCoordinator: Coordinator {
 extension LedgerManualCreaterCoordinator {
   private func manualInput(agencyId: Int, isClubBudget: Bool, animated: Bool) {
     let vc = diContainer.manualCreater(with: self, isClubBudget: isClubBudget, agencyId: agencyId)
-    navigationController.viewControllers = [vc]
+    navigationController.pushViewController(vc, animated: animated)
   }
   
   private func imagePicker(animated: Bool, delegate: UIImagePickerControllerDelegate & UINavigationControllerDelegate) {

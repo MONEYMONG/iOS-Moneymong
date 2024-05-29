@@ -15,6 +15,7 @@ final class LedgerScanCreaterCoordinator: Coordinator {
     case alert(title: String, subTitle: String?, type: MMAlerts.`Type`)
     case snackBar(title: String)
     case scanResult(Int, model: OCRResult, imageData: Data)
+    case manualCreater(Int, Bool)
   }
 
   init(navigationController: UINavigationController, diContainer: LedgerScanCreaterDIContainer) {
@@ -42,6 +43,8 @@ final class LedgerScanCreaterCoordinator: Coordinator {
       scanResult(agencyId: id, model: model, imageData: data)
     case let .snackBar(title: title):
       SnackBarManager.show(title: title)
+    case let .manualCreater(agencyId, isClubBudget):
+      manualCreater(agencyId: agencyId, isClubBudget: isClubBudget, animated: animated)
     }
   }
 }
@@ -59,11 +62,15 @@ extension LedgerScanCreaterCoordinator {
   
   private func scanResult(agencyId: Int, model: OCRResult, imageData: Data, animated: Bool = true) {
     let vc = diContainer.scanResult(
+      with: self,
       agencyId: agencyId,
       model: model,
-      imageData: imageData,
-      with: self
+      imageData: imageData
     )
     navigationController.pushViewController(vc, animated: animated)
+  }
+  
+  private func manualCreater(agencyId: Int, isClubBudget: Bool, animated: Bool) {
+    diContainer.manualCreater(with: self, agencyId: agencyId, isClubBudget: isClubBudget)
   }
 }

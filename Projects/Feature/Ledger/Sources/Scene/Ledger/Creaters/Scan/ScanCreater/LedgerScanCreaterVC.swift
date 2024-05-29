@@ -120,11 +120,6 @@ final class LedgerScanCreaterVC: UIViewController, View {
   }
 
   private func setupUI() {
-    let appearance = UINavigationBarAppearance()
-    appearance.configureWithTransparentBackground()
-    navigationController?.navigationBar.scrollEdgeAppearance = appearance
-    navigationController?.navigationBar.standardAppearance = appearance
-    
     do {
       cameraView.delegate = self
       try cameraView.setupCamera()

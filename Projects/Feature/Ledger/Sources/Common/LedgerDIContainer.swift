@@ -82,7 +82,11 @@ public final class LedgerDIContainer {
     let nv = UINavigationController()
     let scanCreatercoordinator = LedgerScanCreaterCoordinator(
       navigationController: nv,
-      diContainer: LedgerScanCreaterDIContainer(repo: ledgerRepo, ledgerService: ledgerService)
+      diContainer: LedgerScanCreaterDIContainer(
+        ledgerRepo: ledgerRepo,
+        userRepo: userRepo,
+        ledgerService: ledgerService
+      )
     )
     coordinator.childCoordinators.append(scanCreatercoordinator)
     scanCreatercoordinator.parentCoordinator = coordinator

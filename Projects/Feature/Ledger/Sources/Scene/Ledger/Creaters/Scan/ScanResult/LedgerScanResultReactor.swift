@@ -9,6 +9,7 @@ final class LedgerScanResultReactor: Reactor {
   enum Action {
     case onAppear
     case didTapCompleteButton
+    case didTapEditButton
   }
   
   enum Mutation {
@@ -30,6 +31,7 @@ final class LedgerScanResultReactor: Reactor {
     
     enum Destination {
       case ledger
+      case manualCreater(Int, Bool)
     }
   }
   
@@ -70,6 +72,8 @@ final class LedgerScanResultReactor: Reactor {
       ])
     case .onAppear:
       return .just(.setSuccess(isSuccessOCR(ocrModel)))
+    case .didTapEditButton:
+      return .just(.setDestination(.manualCreater(currentState.agencyId, false)))
     }
   }
   

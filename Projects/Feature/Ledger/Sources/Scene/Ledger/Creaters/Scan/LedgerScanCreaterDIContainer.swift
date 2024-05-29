@@ -1,13 +1,16 @@
 import UIKit
 
+import BaseFeature
 import NetworkService
 
 final class LedgerScanCreaterDIContainer {
   private let ledgerRepo: LedgerRepositoryInterface
+  private let userRepo: UserRepositoryInterface
   private let ledgerService: LedgerServiceInterface
   
-  init(repo: LedgerRepositoryInterface, ledgerService: LedgerServiceInterface) {
-    self.ledgerRepo = repo
+  init(ledgerRepo: LedgerRepositoryInterface, userRepo: UserRepositoryInterface, ledgerService: LedgerServiceInterface) {
+    self.ledgerRepo = ledgerRepo
+    self.userRepo = userRepo
     self.ledgerService = ledgerService
   }
   
@@ -25,10 +28,10 @@ final class LedgerScanCreaterDIContainer {
   }
   
   func scanResult(
+    with coordinator: LedgerScanCreaterCoordinator,
     agencyId: Int,
     model: OCRResult,
-    imageData: Data,
-    with coordinator: LedgerScanCreaterCoordinator
+    imageData: Data
   ) -> UIViewController {
     let vc = LedgerScanResultVC()
     vc.reactor = LedgerScanResultReactor(
@@ -40,6 +43,20 @@ final class LedgerScanCreaterDIContainer {
     )
     vc.coordinator = coordinator
     return vc
+  }
+  
+  func manualCreater(with coordinator: Coordinator, agencyId: Int, isClubBudget: Bool) {
+    let manualCreaterCoordinator = LedgerManualCreaterCoordinator(
+      navigationController: coordinator.navigationController,
+      diContainer: LedgerManualCreaterDIContainer(
+        ledgerRepo: ledgerRepo,
+        userRepo: userRepo,
+        ledgerService: ledgerService
+      )
+    )
+    coordinator.childCoordinators.append(manualCreaterCoordinator)
+    manualCreaterCoordinator.parentCoordinator = coordinator
+    manualCreaterCoordinator.start(agencyId: agencyId, isClubBudget: isClubBudget, animated: true)
   }
 }
 
