@@ -43,10 +43,9 @@ final class DefaultSectionHeader: UICollectionReusableView, ReusableView {
     rootContainer.flex.layout()
   }
 
-  func configure(title: String) -> Self {
+  func configure(title: String) {
     titleLabel.setTextWithLineHeight(text: title, lineHeight: 18)
     titleLabel.flex.markDirty()
     setNeedsLayout()
-    return self
   }
 }

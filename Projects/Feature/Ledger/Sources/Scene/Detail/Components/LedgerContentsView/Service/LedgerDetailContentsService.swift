@@ -1,6 +1,7 @@
 import NetworkService
 
 import RxSwift
+import RxRelay
 
 enum LedgerDetailContentsEvent {
   case isValidChanged(Bool)
@@ -13,7 +14,7 @@ enum ParentEvent {
 }
 
 protocol LedgerDetailContentsServiceInterface {
-  var parentViewEvent: PublishSubject<ParentEvent> { get }
+  var parentViewEvent: ReplaySubject<ParentEvent> { get }
   var contentsViewEvent: PublishSubject<LedgerDetailContentsEvent> { get }
 
   func setLedger(_ ledger: LedgerDetail)
@@ -23,8 +24,9 @@ protocol LedgerDetailContentsServiceInterface {
 }
 
 final class LedgerDetailContentsService: LedgerDetailContentsServiceInterface {
+
+  let parentViewEvent = ReplaySubject<ParentEvent>.create(bufferSize: 1)
   let contentsViewEvent = PublishSubject<LedgerDetailContentsEvent>()
-  let parentViewEvent = PublishSubject<ParentEvent>()
 
   func setLedger(_ ledger: LedgerDetail) {
     parentViewEvent.onNext(.setLedger(ledger))

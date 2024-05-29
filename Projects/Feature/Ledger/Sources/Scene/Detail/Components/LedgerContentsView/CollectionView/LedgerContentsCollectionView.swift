@@ -7,19 +7,26 @@ final class LedgerContentsCollectionView: UICollectionView {
 
   private let layout = UICollectionViewFlowLayout()
 
+  weak var reactor: LedgerContentsReactor?
+
   lazy var dataSources = RxCollectionViewSectionedReloadDataSource<LedgerImageSectionModel.Model>(
     configureCell: { [weak self] dataSource, collectionView, indexPath, item in
       switch item {
       case .description(let description):
-        return collectionView.dequeueCell(DescriptionCell.self, for: indexPath)
-          .configure(with: description)
+        let cell = collectionView.dequeueCell(DescriptionCell.self, for: indexPath)
+        cell.configure(with: description)
+        return cell
 
       case .imageAddButton:
-        return collectionView.dequeueCell(AddImageButtonCell.self, for: indexPath)
+        let cell = collectionView.dequeueCell(AddImageButtonCell.self, for: indexPath)
+        return cell
 
       case .image(let imageInfo):
-        return collectionView.dequeueCell(DefaultImageCell.self, for: indexPath)
-          .configure(with: imageInfo)
+        let cell = collectionView.dequeueCell(DefaultImageCell.self, for: indexPath)
+        cell.reactor = self?.reactor
+        cell.bind()
+        cell.configure(with: imageInfo)
+        return cell
       }
     },
     configureSupplementaryView: { dataSource, collectionView, kind, indexPath in
@@ -27,7 +34,7 @@ final class LedgerContentsCollectionView: UICollectionView {
       switch section.model {
       case .default(let title):
         let section = collectionView.dequeueHeader(DefaultSectionHeader.self, for: indexPath)
-          .configure(title: title)
+        section.configure(title: title)
         return section
       }
     }

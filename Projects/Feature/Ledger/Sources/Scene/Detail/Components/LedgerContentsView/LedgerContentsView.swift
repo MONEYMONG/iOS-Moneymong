@@ -20,7 +20,8 @@ final class LedgerContentsView: BaseV, View, UIScrollViewDelegate {
     static var verticalMargin: Double = 40
   }
 
-  var coordinator: LedgerCoordinator?
+  weak var coordinator: LedgerCoordinator?
+
   var disposeBag = DisposeBag()
 
   private let scrollView: UIScrollView = {
@@ -78,13 +79,27 @@ final class LedgerContentsView: BaseV, View, UIScrollViewDelegate {
     return v
   }()
 
-  private lazy var receiptCollectionView = LedgerContentsCollectionView()
+  lazy var receiptCollectionView: LedgerContentsCollectionView = {
+    let v = LedgerContentsCollectionView()
+    v.reactor = reactor
+    return v
+  }()
 
-  private lazy var documentCollentionView = LedgerContentsCollectionView()
+  lazy var documentCollentionView: LedgerContentsCollectionView = {
+    let v = LedgerContentsCollectionView()
+    v.reactor = reactor
+    return v
+  }()
 
   private let authorNameTextField = MMTextField(title: Const.authorNameTitle)
 
   private var isShowKeyboard: Bool = false
+
+  init(coordinator: LedgerCoordinator, reactor: LedgerContentsReactor) {
+    super.init()
+    self.coordinator = coordinator
+    self.reactor = reactor
+  }
 
   override func layoutSubviews() {
     super.layoutSubviews()
@@ -159,25 +174,19 @@ final class LedgerContentsView: BaseV, View, UIScrollViewDelegate {
       .disposed(by: disposeBag)
 
     reactor.pulse(\.$currentLedgerItem)
-      .map { [$0.receiptImages] }
-      .distinctUntilChanged()
-      .observe(on: MainScheduler.instance)
-      .bind(to: receiptCollectionView.rx.items(dataSource: receiptCollectionView.dataSources))
-      .disposed(by: disposeBag)
-
-    reactor.pulse(\.$currentLedgerItem)
       .map { $0.receiptImages }
       .distinctUntilChanged()
       .observe(on: MainScheduler.instance)
       .bind(with: self) { owner, items in
         owner.receiptCollectionView.updateCollectionHeigh(items: items)
+        owner.setNeedsLayout()
       }
       .disposed(by: disposeBag)
 
     reactor.pulse(\.$currentLedgerItem)
-      .map { [$0.documentImages] }
+      .map { [$0.receiptImages] }
       .distinctUntilChanged()
-      .bind(to: documentCollentionView.rx.items(dataSource: documentCollentionView.dataSources))
+      .bind(to: receiptCollectionView.rx.items(dataSource: receiptCollectionView.dataSources))
       .disposed(by: disposeBag)
 
     reactor.pulse(\.$currentLedgerItem)
@@ -186,7 +195,14 @@ final class LedgerContentsView: BaseV, View, UIScrollViewDelegate {
       .observe(on: MainScheduler.instance)
       .bind(with: self) { owner, items in
         owner.documentCollentionView.updateCollectionHeigh(items: items)
+        owner.setNeedsLayout()
       }
+      .disposed(by: disposeBag)
+
+    reactor.pulse(\.$currentLedgerItem)
+      .map { [$0.documentImages] }
+      .distinctUntilChanged()
+      .bind(to: documentCollentionView.rx.items(dataSource: documentCollentionView.dataSources))
       .disposed(by: disposeBag)
 
     reactor.pulse(\.$currentLedgerItem)
@@ -215,18 +231,13 @@ final class LedgerContentsView: BaseV, View, UIScrollViewDelegate {
 
     reactor.pulse(\.$state)
       .compactMap { $0 }
+      .distinctUntilChanged()
       .observe(on: MainScheduler.instance)
       .bind(with: self) { owner, state in
         switch state {
         case .update: owner.setupUpdate()
         case .read: owner.setupRead()
         }
-
-        NotificationCenter.default.post(
-          name: .didContentViewUpdateState,
-          object: state
-        )
-        owner.setNeedsLayout()
       }
       .disposed(by: disposeBag)
   }
@@ -336,11 +347,11 @@ final class LedgerContentsView: BaseV, View, UIScrollViewDelegate {
       .bind(to: reactor.action)
       .disposed(by: disposeBag)
 
-    NotificationCenter.default.rx.notification(.didTapLedgerDetailImageDeleteButton)
-      .compactMap { $0.object as? LedgerImageInfo }
-      .map { Reactor.Action.deleteImage($0) }
-      .bind(to: reactor.action)
-      .disposed(by: disposeBag)
+//    NotificationCenter.default.rx.notification(.didTapLedgerDetailImageDeleteButton)
+//      .compactMap { $0.object as? LedgerImageInfo }
+//      .map { Reactor.Action.deleteImage($0) }
+//      .bind(to: reactor.action)
+//      .disposed(by: disposeBag)
   }
 
   private func setupRead() {
@@ -529,13 +540,16 @@ extension LedgerContentsView: UIImagePickerControllerDelegate, UINavigationContr
     guard let image = info[.originalImage] as? UIImage else { return }
     let scale = (receiptCollectionView.frame.width * 0.28) / image.size.width
     guard let data = image.jpegData(compressionQuality: scale) else { return }
-    Task {
-      reactor?.action.onNext(.selectedImage(data))
-    }
+    reactor?.action.onNext(.selectedImage(data))
     picker.dismiss(animated: true, completion: nil)
   }
 }
 
+fileprivate extension UIView {
+  func removeAllSubViews() {
+    self.subviews.forEach { $0.removeFromSuperview() }
+  }
+}
 
 fileprivate enum Const {
   static var emptyString: String { "" }

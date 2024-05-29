@@ -92,7 +92,6 @@ final class LedgerContentsReactor: Reactor {
             .task {
               ledgerContentsService.setIsLoading(true)
               let ledger = try await ledgerRepo.update(ledger: currentState.currentLedgerItem.toEntity)
-              ledgerContentsService.setIsLoading(false)
               return ledger
             }
             .map { .setLedger(.init(ledger: $0)) }

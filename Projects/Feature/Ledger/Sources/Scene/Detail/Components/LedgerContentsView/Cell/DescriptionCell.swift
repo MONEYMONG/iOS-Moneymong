@@ -52,10 +52,9 @@ final class DescriptionCell: UICollectionViewCell, ReusableView {
       }
   }
 
-  func configure(with description: String) -> Self {
+  func configure(with description: String) {
     descriptionLabel.setTextWithLineHeight(text: description, lineHeight: 20)
     descriptionLabel.flex.markDirty()
     setNeedsLayout()
-    return self
   }
 }

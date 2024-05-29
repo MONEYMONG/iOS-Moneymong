@@ -4,9 +4,8 @@ import DesignSystem
 import Utility
 import NetworkService
 
-import RxSwift
-import RxCocoa
 import Kingfisher
+import ReactorKit
 
 final class DefaultImageCell: UICollectionViewCell, ReusableView {
   private let rootContainer = UIView()
@@ -27,6 +26,8 @@ final class DefaultImageCell: UICollectionViewCell, ReusableView {
   }()
 
   private var item: LedgerImageInfo?
+
+  weak var reactor: LedgerContentsReactor?
 
   private let disposeBag = DisposeBag()
 
@@ -67,6 +68,7 @@ final class DefaultImageCell: UICollectionViewCell, ReusableView {
       .define { flex in
         flex.addItem(imageView)
           .border(1, Colors.Blue._1)
+          .backgroundColor(.red)
 
         flex.addItem(deleteButton)
           .position(.absolute)
@@ -75,38 +77,40 @@ final class DefaultImageCell: UICollectionViewCell, ReusableView {
       }
   }
 
-  private func bind() {
-    NotificationCenter.default.rx.notification(.didContentViewUpdateState)
-      .compactMap { $0.object as? LedgerContentsView.State }
-      .bind(with: self) { owner, state in
-        owner.deleteButton.isHidden = state == .read ? true : false
+  func bind() {
+    reactor?.pulse(\.$state)
+      .compactMap { $0 }
+      .observe(on: MainScheduler.instance)
+      .bind(with: self, onNext: { owner, state in
+        switch state {
+        case .read: owner.deleteButton.isHidden = true
+        case .update: owner.deleteButton.isHidden = false
+        }
         owner.setNeedsLayout()
-      }
+      })
       .disposed(by: disposeBag)
 
     deleteButton.rx.tap
-      .bind(with: self) { owner, _ in
-        NotificationCenter.default.post(
-          name: .didTapLedgerDetailImageDeleteButton,
-          object: owner.item
-        )
-      }
+      .throttle(.seconds(1), latest: false, scheduler: MainScheduler.instance)
+      .bind(with: self, onNext: { owner, _ in
+        guard let imageInfo = owner.item else { return }
+        owner.reactor?.action.onNext(.deleteImage(imageInfo))
+      })
       .disposed(by: disposeBag)
   }
 
-  func configure(with item: LedgerImageInfo) -> Self {
+  func configure(with item: LedgerImageInfo) {
     self.item = item
 
-    if let url = URL(string: item.url) {
-      imageView.kf.setImage(
-        with: KF.ImageResource(
-          downloadURL: url,
-          cacheKey: item.url
+    DispatchQueue.main.async { [weak self] in
+      if let url = URL(string: item.url) {
+        self?.imageView.kf.setImage(
+          with: KF.ImageResource(
+            downloadURL: url,
+            cacheKey: item.url
+          )
         )
-      )
+      }
     }
-    imageView.flex.markDirty()
-    setNeedsLayout()
-    return self
   }
 }
