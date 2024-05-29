@@ -59,8 +59,8 @@ public final class AgencyCoordinator: Coordinator {
     parentCoordinator?.move(to: .agency)
   }
   
-  func goManualInput(agencyID: Int) {
-    parentCoordinator?.move(to: .manualInput(agencyID))
+  func goManualCreater(agencyID: Int) {
+    parentCoordinator?.move(to: .manualCreater(agencyID))
   }
 }
 

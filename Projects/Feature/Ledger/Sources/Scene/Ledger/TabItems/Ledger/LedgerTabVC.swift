@@ -104,7 +104,7 @@ final class LedgerTabVC: BaseVC, View {
   }
   
   func bind(reactor: LedgerTabReactor) {
-    NotificationCenter.default.rx.notification(.presentManualInput)
+    NotificationCenter.default.rx.notification(.presentManualCreater)
       .compactMap { $0.userInfo?["id"] as? Int }
       .delay(.seconds(1), scheduler: MainScheduler.instance)
       .observe(on: MainScheduler.instance)
@@ -178,7 +178,7 @@ final class LedgerTabVC: BaseVC, View {
         case let .datePicker(start, end):
           owner.coordinator?.present(.datePicker(start: start, end: end))
         case let .manualCreater(id):
-          owner.coordinator?.present(.manualCreater(id, false))
+          owner.coordinator?.present(.manualCreater(id, .ledgerList))
         case let .scanCreater(id):
           owner.coordinator?.present(.scanCreater(id))
         }

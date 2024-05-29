@@ -81,7 +81,7 @@ final class CreateCompleteVC: BaseVC {
       .throttle(.seconds(1), latest: false, scheduler: MainScheduler.instance)
       .bind(with: self) { owner, _ in
         owner.coordinator?.dismiss(animated: false)
-        owner.coordinator?.goManualInput(agencyID: owner.agencyID)
+        owner.coordinator?.goManualCreater(agencyID: owner.agencyID)
       }
       .disposed(by: disposeBag)
   }
