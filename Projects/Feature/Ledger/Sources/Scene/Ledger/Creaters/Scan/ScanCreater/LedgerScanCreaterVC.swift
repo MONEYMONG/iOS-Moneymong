@@ -79,6 +79,10 @@ final class LedgerScanCreaterVC: UIViewController, View {
   
   private let indicator = MMIndicator()
   
+  deinit {
+    coordinator?.remove()
+  }
+  
   override func viewDidLoad() {
     super.viewDidLoad()
     setupUI()
@@ -165,7 +169,7 @@ final class LedgerScanCreaterVC: UIViewController, View {
     
     navigationItem.rightBarButtonItem?.rx.tap
       .bind(with: self) { owner, _ in
-        owner.coordinator?.dismiss(animated: true)
+        owner.dismiss(animated: true)
       }
       .disposed(by: disposeBag)
     

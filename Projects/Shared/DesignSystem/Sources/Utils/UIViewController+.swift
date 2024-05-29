@@ -9,6 +9,7 @@ public extension UIViewController {
     case closeWhite
     case trash
     case 수정완료
+    case 등록하기
     case warning
     case none
 
@@ -40,6 +41,10 @@ public extension UIViewController {
       case .warning:
         button.image = Images.warning?.withRenderingMode(.alwaysTemplate)
         button.tintColor = .white
+      case .등록하기:
+        button.title = "등록하기"
+        button.setTitleTextAttributes([.font: Fonts.body._3], for: .normal)
+        button.tintColor = Colors.Blue._4
       }
       
       return button

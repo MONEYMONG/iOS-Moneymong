@@ -1,4 +1,5 @@
 import Foundation
+import UIKit
 
 import NetworkService
 import BaseFeature
@@ -17,42 +18,46 @@ final class LedgerManualCreaterReactor: Reactor {
   
   enum AlertType {
     case error(MoneyMongError)
-    case deleteImage(ImageSectionModel.Item)
+    case deleteImage(Image.Item, Section)
     case end
+  }
+
+  enum Section: Int, Equatable {
+    case receipt
+    case document
   }
   
   enum Action {
     case onAppear
     case didTapCompleteButton
     case presentedAlert(AlertType)
-    case didTapImageDeleteAlertButton(_ item: ImageSectionModel.Item)
-    case didTapImageAddButton(_ section: ImageSectionModel.Section)
-    case selectedImage(_ item: ImageSectionModel.Item)
+    case didTapImageDeleteAlertButton(Image.Item, Section)
+    case didTapImageAddButton(Section)
+    case selectedImage(Image.Item, Section)
     case inputContent(_ value: String, type: ContentType)
   }
   
   enum Mutation {
     case setOperatingCostValues // 동아리 운영비 등록하러 가기 일때의 고정값
     case setName(String)
-    case addImage(ImageSectionModel.Item)
-    case deleteImage(UUID, ImageSectionModel.Section)
-    case deleteImageURL(Int, ImageSectionModel.Section)
-    case setContent(_ value: String, type: ContentType)
-    case setSection(_ section: ImageSectionModel.Section)
-    case addImageURL(_ image: ImageInfo, _ section: ImageSectionModel.Section)
+    case addImage(Image.Item, Section)
+    case deleteImage(UUID, Section)
+    case deleteImageURL(Int, Section)
+    case setContent(String, type: ContentType)
+    case setSection(Section)
+    case addImageURL(ImageInfo, Section)
     case setDestination
     case setAlertContent(AlertType)
+    case setOCRResult(OCRResult)
   }
   
   struct State {
     let agencyId: Int
-    let type: `Type`
+    let type: Starting
     @Pulse var userName: String = ""
-    @Pulse var images: [ImageSectionModel.Model] = [
-      .init(model: .receipt, items: [.button(.receipt)]),
-      .init(model: .document, items: [.button(.document)])
-    ]
-    @Pulse var selectedSection: ImageSectionModel.Section? = nil
+    @Pulse var receiptImages: [Image.Item] = [.button]
+    @Pulse var documentImages: [Image.Item] = [.button]
+    @Pulse var selectedSection: Section? = nil
     @Pulse var alertMessage: (String, String?, AlertType)? = nil
     @Pulse var isButtonEnabled = false
     @Pulse var destination: Destination?
@@ -62,16 +67,17 @@ final class LedgerManualCreaterReactor: Reactor {
       case ledger
     }
     
-    enum `Type` {
-      case operatingCost // 운영비 등록화면
-      case other // 그외
+    enum Starting {
+      case agencyCreate // 운영비 등록화면
+      case ocrResult(OCRResult, Data) // ocr 결과 수정화면
+      case ledgerList
     }
   }
   
   struct Content {
     @Pulse var source: String = ""
     @Pulse var amount: String = ""
-    @Pulse var amountSign: Int = -1
+    @Pulse var fundType: Int = -1
     @Pulse var date: String = ""
     @Pulse var time: String = ""
     @Pulse var memo: String = ""
@@ -87,7 +93,7 @@ final class LedgerManualCreaterReactor: Reactor {
   
   init(
     agencyId: Int,
-    type: State.`Type`,
+    type: State.Starting,
     ledgerRepo: LedgerRepositoryInterface,
     userRepo: UserRepositoryInterface,
     ledgerService: LedgerServiceInterface
@@ -102,33 +108,33 @@ final class LedgerManualCreaterReactor: Reactor {
     switch action {
     case .onAppear:
       switch currentState.type {
-      case .operatingCost:
+      case .agencyCreate:
         return .merge(
           .task { try await userRepo.user().nickname }
             .map { .setName($0) },
           .just(.setOperatingCostValues)
         )
-      case .other:
+      case .ledgerList:
         return .task { try await userRepo.user().nickname }
           .map { .setName($0) }
+      case let .ocrResult(model, imageData):
+        let resizeImageData = UIImage(data: imageData)?.jpegData(compressionQuality: 0.33)
+        let image = Image(id: .init(), data: resizeImageData!)
+        return .merge([
+          .task { try await userRepo.user().nickname }.map { .setName($0) },
+          uploadImage(image: image, section: .receipt),
+          .just(.setOCRResult(model))
+        ])
       }
       
-    case .selectedImage(let item):
-      guard case let .image(imageInfo, section) = item else { return .empty() }
-      return .task {
-        var entity = try await ledgerRepo.imageUpload(imageInfo.data)
-        entity.id = imageInfo.id
-        return entity
-      }
-      .flatMap { Observable<Mutation>.concat([
-        .just(.addImage(item)),
-        .just(.addImageURL($0, section))
-      ]) }
+    case let .selectedImage(item, section):
+      guard case let .image(image) = item else { return .empty() }
+      return uploadImage(image: image, section: section)
       .catch { .just(.setAlertContent(.error($0.toMMError))) }
     case .presentedAlert(let type):
         return .just(.setAlertContent(type))
-    case .didTapImageDeleteAlertButton(let item):
-      guard case let .image(image, section) = item else { return .empty() }
+    case let .didTapImageDeleteAlertButton(item, section):
+      guard case let .image(image) = item else { return .empty() }
       return .task {
         var index: Int!
         var imageURL: ImageInfo!
@@ -172,28 +178,27 @@ final class LedgerManualCreaterReactor: Reactor {
     newState.alertMessage = nil
     switch mutation {
     case .setOperatingCostValues:
-      setContent(&newState.content, value: "동아리 운영비", type: .source)
-      setContent(&newState.content, value: formatter.convertToDate(date: .now), type: .date)
-      setContent(&newState.content, value: formatter.convertToTime(date: .now), type: .time)
-      setContent(&newState.content, value: "1", type: .fundType)
-      
+      newState.content.source = "동아리 운영비"
+      newState.content.date = formatter.convertToDate(date: .now)
+      newState.content.time = formatter.convertToTime(date: .now)
+      newState.content.fundType = 1
     case let .setName(name):
       newState.userName = name
       
-    case .addImage(let item):
-      guard case let .image(_, section) = item else { return newState }
-      newState.images[section.rawValue].items.append(item)
-      if newState.images[section.rawValue].items.count > 12 {
-        newState.images[section.rawValue].items.removeFirst()
+    case let .addImage(item, section):
+      switch section {
+      case .receipt:
+        addImage(images: &newState.receiptImages, item: item)
+      case .document:
+        addImage(images: &newState.documentImages, item: item)
       }
     case .deleteImage(let id, let section):
-        newState.images[section.rawValue].items.removeAll {
-          guard case let .image(model, _) = $0 else { return false }
-          return model.id == id
-        }
-        if !newState.images[section.rawValue].items.contains(.button(section)) {
-          newState.images[section.rawValue].items.insert(.button(section), at: 0)
-        }
+      switch section {
+      case .receipt:
+        deleteImage(images: &newState.receiptImages, id: id)
+      case .document:
+        deleteImage(images: &newState.documentImages, id: id)
+      }
     case .setSection(let section):
       newState.selectedSection = section
     case .setContent(let value, let type):
@@ -219,17 +224,40 @@ final class LedgerManualCreaterReactor: Reactor {
       switch type {
       case .error(let moneyMongError):
         newState.alertMessage = (moneyMongError.errorDescription!, nil, type)
-      case .deleteImage(_):
+      case .deleteImage:
         newState.alertMessage = ("사진을 삭제하시겠습니까?", "삭제된 사진은 되돌릴 수 없습니다", type)
       case .end:
         newState.alertMessage = ("정말 나가시겠습니까?", "작성한 내용이 저장되지 않았습니다", type)
       }
+    case let .setOCRResult(model):
+      newState.content.source = model.source
+      newState.content.amount = model.amount
+      newState.content.date = model.date.joined(separator: "/")
+      newState.content.time = model.time.joined(separator: ":")
+      newState.content.fundType = 0
     }
     return newState
   }
 }
 
 private extension LedgerManualCreaterReactor {
+  func addImage(images: inout [Image.Item], item: Image.Item) {
+    images.append(item)
+    if images.count > 12 {
+      images.removeFirst()
+    }
+  }
+  
+  func deleteImage(images: inout [Image.Item], id: UUID) {
+    images.removeAll {
+      guard case let .image(image) = $0 else { return false }
+      return image.id == id
+    }
+    if !images.contains(.button) {
+      images.insert(.button, at: 0)
+    }
+  }
+  
   func setContent(_ content: inout Content, value: String, type: ContentType) {
     switch type {
     case .source:
@@ -237,7 +265,7 @@ private extension LedgerManualCreaterReactor {
     case .amount:
       content.amount = formatter.convertToAmount(with: value) ?? ""
     case .fundType:
-      content.amountSign = Int(value)!
+      content.fundType = Int(value)!
     case .date:
       content.date = formatter.convertToDate(with: value)
     case .time:
@@ -264,7 +292,7 @@ private extension LedgerManualCreaterReactor {
     }
 
     // fund
-    guard content.amountSign == 1 || content.amountSign == 0 else {
+    guard content.fundType == 1 || content.fundType == 0 else {
       return false
     }
     
@@ -288,8 +316,7 @@ private extension LedgerManualCreaterReactor {
     guard result != nil else { return false }
 
     // memo
-    guard content.memo.isEmpty == false,
-          content.memo.count <= 300
+    guard content.memo.count <= 300
     else {
       return false
     }
@@ -309,12 +336,13 @@ private extension LedgerManualCreaterReactor {
       else {
         throw MoneyMongError.appError(errorMessage: "날짜 및 시간을 확인해 주세요")
       }
+      let memo = currentState.content.memo.isEmpty ? "내용없음" : currentState.content.memo
       return try await ledgerRepo.create(
         id: currentState.agencyId,
         storeInfo: currentState.content.source,
-        fundType: currentState.content.amountSign == 1 ? .income : .expense,
+        fundType: currentState.content.fundType == 1 ? .income : .expense,
         amount: amount,
-        description: currentState.content.memo,
+        description: memo,
         paymentDate: date,
         receiptImageUrls: currentState.content.receiptImages.map(\.url),
         documentImageUrls: currentState.content.documentImages.map(\.url)
@@ -323,5 +351,17 @@ private extension LedgerManualCreaterReactor {
       .catch {
         return .just(.setAlertContent(.error($0.toMMError)))
       }
+  }
+  
+  func uploadImage(image: Image, section: Section) -> Observable<Mutation> {
+     return .task {
+      var entity = try await ledgerRepo.imageUpload(image.data)
+      entity.id = image.id
+      return entity
+     }
+     .flatMap { Observable<Mutation>.merge([
+      .just(.addImage(.image(image), section)),
+      .just(.addImageURL($0, section))
+     ]) }
   }
 }

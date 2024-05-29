@@ -151,7 +151,7 @@ final class LedgerScanResultVC: UIViewController, View {
     
     navigationItem.rightBarButtonItem?.rx.tap
       .bind(with: self) { owner, _ in
-        owner.coordinator?.dismiss()
+        owner.dismiss(animated: true)
       }
       .disposed(by: disposeBag)
     
@@ -213,9 +213,9 @@ final class LedgerScanResultVC: UIViewController, View {
       .bind(with: self) { owner, destination in
         switch destination {
         case .ledger:
-          owner.coordinator?.dismiss()
-        case let .manualCreater(agencyID, isClubBudget):
-          owner.coordinator?.present(.manualCreater(agencyID, isClubBudget))
+          owner.dismiss(animated: true)
+        case let .manualCreater(agencyID, ocrModel, imageData):
+          owner.coordinator?.present(.manualCreater(agencyID, .ocrResult(ocrModel, imageData)))
         }
       }
       .disposed(by: disposeBag)

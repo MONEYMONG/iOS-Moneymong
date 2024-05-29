@@ -4,8 +4,6 @@ import DesignSystem
 import Utility
 
 final class ImageCell: UICollectionViewCell, ReusableView {
-  
-  private var itme: ImageSectionModel.Item?
   private let rootContainer = UIView()
   private let deleteButton: UIButton = {
     let v = UIButton()
@@ -20,8 +18,11 @@ final class ImageCell: UICollectionViewCell, ReusableView {
     return v
   }()
   
+  private var buttonAction: () -> Void = {}
+  
   override init(frame: CGRect) {
     super.init(frame: frame)
+    setupUI()
     setupConstraints()
   }
 
@@ -35,6 +36,13 @@ final class ImageCell: UICollectionViewCell, ReusableView {
     
     rootContainer.pin.all()
     rootContainer.flex.layout()
+  }
+  
+  private func setupUI() {
+    deleteButton.addAction { [weak self] in
+      guard let self else { return }
+      buttonAction()
+    }
   }
   
   private func setupConstraints() {
@@ -51,13 +59,13 @@ final class ImageCell: UICollectionViewCell, ReusableView {
     }
   }
 
-  func configure(with item: ImageSectionModel.Item, action: @escaping (ImageSectionModel.Item) -> Void) -> Self {
-    guard case let .image(image, _) = item else { return self }
-    self.itme = item
+  func configure(
+    with item: Image.Item,
+    action: @escaping () -> Void
+  ) -> Self {
+    guard case let .image(image) = item else { return self }
     imageView.image = UIImage(data: image.data)
-    deleteButton.addAction {
-      action(item)
-    }
+    self.buttonAction = action
     return self
   }
 }

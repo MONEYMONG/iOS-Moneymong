@@ -5,7 +5,7 @@ import DesignSystem
 import NetworkService
 
 final class LedgerScanCreaterCoordinator: Coordinator {
-  var navigationController: UINavigationController
+  unowned var navigationController: UINavigationController
   private let diContainer: LedgerScanCreaterDIContainer
   weak var parentCoordinator: Coordinator?
   var childCoordinators: [Coordinator] = []
@@ -15,7 +15,7 @@ final class LedgerScanCreaterCoordinator: Coordinator {
     case alert(title: String, subTitle: String?, type: MMAlerts.`Type`)
     case snackBar(title: String)
     case scanResult(Int, model: OCRResult, imageData: Data)
-    case manualCreater(Int, Bool)
+    case manualCreater(Int, LedgerManualCreaterReactor.State.Starting)
   }
 
   init(navigationController: UINavigationController, diContainer: LedgerScanCreaterDIContainer) {
@@ -25,12 +25,6 @@ final class LedgerScanCreaterCoordinator: Coordinator {
 
   func start(agencyId: Int, animated: Bool) {
     scanCreater(agencyId: agencyId)
-  }
-  
-  func dismiss(animated: Bool = true) {
-    navigationController.dismiss(animated: animated) { [weak self] in
-      self?.remove()
-    }
   }
   
   @MainActor func present(_ scene: Scene, animated: Bool = true) {
@@ -43,8 +37,12 @@ final class LedgerScanCreaterCoordinator: Coordinator {
       scanResult(agencyId: id, model: model, imageData: data)
     case let .snackBar(title: title):
       SnackBarManager.show(title: title)
-    case let .manualCreater(agencyId, isClubBudget):
-      manualCreater(agencyId: agencyId, isClubBudget: isClubBudget, animated: animated)
+    case let .manualCreater(agencyId, type):
+      manualCreater(
+        agencyId: agencyId,
+        from: type,
+        animated: animated
+      )
     }
   }
 }
@@ -70,7 +68,11 @@ extension LedgerScanCreaterCoordinator {
     navigationController.pushViewController(vc, animated: animated)
   }
   
-  private func manualCreater(agencyId: Int, isClubBudget: Bool, animated: Bool) {
-    diContainer.manualCreater(with: self, agencyId: agencyId, isClubBudget: isClubBudget)
+  private func manualCreater(
+    agencyId: Int,
+    from type: LedgerManualCreaterReactor.State.Starting,
+    animated: Bool
+  ) {
+    diContainer.manualCreater(with: self, agencyId: agencyId, from: type)
   }
 }

@@ -4,7 +4,7 @@ import BaseFeature
 import DesignSystem
 
 final class LedgerManualCreaterCoordinator: Coordinator {
-  var navigationController: UINavigationController
+  unowned var navigationController: UINavigationController
   private let diContainer: LedgerManualCreaterDIContainer
   weak var parentCoordinator: Coordinator?
   var childCoordinators: [Coordinator] = []
@@ -19,14 +19,8 @@ final class LedgerManualCreaterCoordinator: Coordinator {
     self.diContainer = diContainer
   }
 
-  func start(agencyId: Int, isClubBudget: Bool, animated: Bool) {
-    manualInput(agencyId: agencyId, isClubBudget: isClubBudget, animated: animated)
-  }
-  
-  func dismiss(animated: Bool) {
-    navigationController.dismiss(animated: animated) { [weak self] in
-      self?.remove()
-    }
+  func start(agencyId: Int, from type: LedgerManualCreaterReactor.State.Starting, animated: Bool) {
+    manualCreater(agencyId: agencyId, from: type, animated: animated)
   }
   
   func present(_ scene: Scene, animated: Bool = true) {
@@ -38,8 +32,8 @@ final class LedgerManualCreaterCoordinator: Coordinator {
 }
 
 extension LedgerManualCreaterCoordinator {
-  private func manualInput(agencyId: Int, isClubBudget: Bool, animated: Bool) {
-    let vc = diContainer.manualCreater(with: self, isClubBudget: isClubBudget, agencyId: agencyId)
+  private func manualCreater(agencyId: Int, from type: LedgerManualCreaterReactor.State.Starting, animated: Bool) {
+    let vc = diContainer.manualCreater(with: self, from: type, agencyId: agencyId)
     navigationController.pushViewController(vc, animated: animated)
   }
   

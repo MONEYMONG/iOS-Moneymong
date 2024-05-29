@@ -45,7 +45,7 @@ final class LedgerScanCreaterDIContainer {
     return vc
   }
   
-  func manualCreater(with coordinator: Coordinator, agencyId: Int, isClubBudget: Bool) {
+  func manualCreater(with coordinator: Coordinator, agencyId: Int, from type: LedgerManualCreaterReactor.State.Starting) {
     let manualCreaterCoordinator = LedgerManualCreaterCoordinator(
       navigationController: coordinator.navigationController,
       diContainer: LedgerManualCreaterDIContainer(
@@ -56,7 +56,7 @@ final class LedgerScanCreaterDIContainer {
     )
     coordinator.childCoordinators.append(manualCreaterCoordinator)
     manualCreaterCoordinator.parentCoordinator = coordinator
-    manualCreaterCoordinator.start(agencyId: agencyId, isClubBudget: isClubBudget, animated: true)
+    manualCreaterCoordinator.start(agencyId: agencyId, from: type, animated: true)
   }
 }
 

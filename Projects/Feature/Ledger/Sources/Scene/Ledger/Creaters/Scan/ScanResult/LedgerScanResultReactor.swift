@@ -31,7 +31,7 @@ final class LedgerScanResultReactor: Reactor {
     
     enum Destination {
       case ledger
-      case manualCreater(Int, Bool)
+      case manualCreater(Int, OCRResult, Data)
     }
   }
   
@@ -73,7 +73,13 @@ final class LedgerScanResultReactor: Reactor {
     case .onAppear:
       return .just(.setSuccess(isSuccessOCR(ocrModel)))
     case .didTapEditButton:
-      return .just(.setDestination(.manualCreater(currentState.agencyId, false)))
+      return .just(.setDestination(
+        .manualCreater(
+          currentState.agencyId,
+          ocrModel,
+          currentState.receiptImageData
+        )
+      ))
     }
   }
   

@@ -109,7 +109,7 @@ final class LedgerTabVC: BaseVC, View {
       .delay(.seconds(1), scheduler: MainScheduler.instance)
       .observe(on: MainScheduler.instance)
       .bind(with: self) { owner, id in
-        owner.coordinator?.present(.manualCreater(id, true))
+        owner.coordinator?.present(.manualCreater(id, .agencyCreate))
       }
       .disposed(by: disposeBag)
       

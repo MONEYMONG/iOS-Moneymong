@@ -13,11 +13,15 @@ final class LedgerManualCreaterDIContainer {
     self.ledgerService = ledgerService
   }
   
-  func manualCreater(with coordinator: LedgerManualCreaterCoordinator, isClubBudget: Bool, agencyId: Int) -> LedgerManualCreaterVC {
+  func manualCreater(
+    with coordinator: LedgerManualCreaterCoordinator,
+    from type: LedgerManualCreaterReactor.State.Starting,
+    agencyId: Int
+  ) -> LedgerManualCreaterVC {
     let vc = LedgerManualCreaterVC()
     vc.reactor = LedgerManualCreaterReactor(
       agencyId: agencyId,
-      type: isClubBudget ? .operatingCost : .other,
+      type: type,
       ledgerRepo: ledgerRepo,
       userRepo: userRepo,
       ledgerService: ledgerService
