@@ -9,6 +9,7 @@ public final class AgencyDIContainer {
   private let networkManager: NetworkManagerInterfacae
 
   private let agencyRepo: AgencyRepositoryInterface
+  private let userRepo: UserRepositoryInterface
   
   public init(
     localStorage: LocalStorageInterface,
@@ -17,6 +18,7 @@ public final class AgencyDIContainer {
     self.localStorage = localStorage
     self.networkManager = networkManager
     self.agencyRepo = AgencyRepository(networkManager: networkManager)
+    self.userRepo = UserRepository(networkManager: networkManager, localStorage: localStorage)
   }
 
   func agency(with coordinator: AgencyCoordinator) -> AgencyListVC {
@@ -35,7 +37,8 @@ public final class AgencyDIContainer {
   }
   
   func createComplete(with coordinator: AgencyCoordinator, id: Int) -> CreateCompleteVC {
-    let vc = CreateCompleteVC(id: id)
+    let vc = CreateCompleteVC()
+    vc.reactor = CreateCompleteReactor(userRepo: userRepo, id: id)
     vc.coordinator = coordinator
     return vc
   }
@@ -43,7 +46,7 @@ public final class AgencyDIContainer {
   func joinAgency(id: Int, name: String, with coordinator: AgencyCoordinator) -> UIViewController {
     let vc = JoinAgencyVC()
     let rootVC = UINavigationController(rootViewController: vc)
-    vc.reactor = JoinAgencyReactor(id: id, name: name, repo: agencyRepo)
+    vc.reactor = JoinAgencyReactor(id: id, name: name, agencyRepo: agencyRepo, userRepo: userRepo)
     vc.coordinator = coordinator
     return rootVC
   }

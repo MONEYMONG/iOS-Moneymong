@@ -46,7 +46,7 @@ public final class LedgerCoordinator: Coordinator {
   }
   
   func goAgency() {
-    parentCoordinator?.move(to: .ledger)
+    parentCoordinator?.move(to: .agency)
   }
 
   func pop(animated: Bool = true) {

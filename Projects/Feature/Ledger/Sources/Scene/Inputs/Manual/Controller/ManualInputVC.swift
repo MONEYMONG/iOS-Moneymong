@@ -7,8 +7,6 @@ import DesignSystem
 import ReactorKit
 import RxDataSources
 
-// TODO: 각 텍스트 필드에 조건 넣어줘야함
-
 final class ManualInputVC: BaseVC, View {
   weak var coordinator: ManualInputCoordinator?
   private struct ViewSize {
@@ -36,20 +34,25 @@ final class ManualInputVC: BaseVC, View {
   private let keyboardSpaceView = UIView()
   
   private let completeButton = MMButton(title: "작성하기", type: .primary)
-
+  
   private let sourceTextField: MMTextField = {
-    let v = MMTextField(charactorLimitCount: 20, title: "수입·지출 출처")
-    v.setPlaceholder(to: "점포명을 입력해주세요")
-    v.setRequireMark()
-    return v
+    MMTextField(charactorLimitCount: 20, title: "수입·지출 출처")
+      .setPlaceholder(to: "점포명을 입력해주세요")
+      .setRequireMark()
   }()
   
   private let amountTextField: MMTextField = {
-    let v = MMTextField(title: "금액")
-    v.setPlaceholder(to: "거래 금액을 입력해주세요")
-    v.setRequireMark()
-    v.setKeyboardType(to: .numberPad)
-    return v
+    MMTextField(title: "금액")
+      .setPlaceholder(to: "거래 금액을 입력해주세요")
+      .setRequireMark()
+      .setKeyboardType(to: .numberPad)
+      .setError(message: "999,999,999원 이내로 입력해주세요") { text in
+        guard let value = Int(text.replacingOccurrences(of: ",", with: "")) else {
+          return false
+        }
+        
+        return value <= 999_999_999
+      }
   }()
   
   private let selectionLabel: UILabel = {
@@ -72,19 +75,29 @@ final class ManualInputVC: BaseVC, View {
   )
   
   private let dateTextField: MMTextField = {
-    let v = MMTextField(title: "날짜")
-    v.setPlaceholder(to: "YYYY/MM/DD")
-    v.setRequireMark()
-    v.setKeyboardType(to: .numberPad)
-    return v
+    MMTextField(title: "날짜")
+      .setPlaceholder(to: "YYYY/MM/DD")
+      .setRequireMark()
+      .setKeyboardType(to: .numberPad)
+      .setError(message: "올바른 날짜를 입력해 주세요") { text in
+        let pattern = "^\\d{4}/(0[1-9]|1[012])/(0[1-9]|[12]\\d|3[01])$"
+        let regex = try! NSRegularExpression(pattern: pattern)
+        
+        return regex.firstMatch(in: text, range: NSRange(location: 0, length: text.count)) != nil
+      }
   }()
   
   private let timeTextField: MMTextField = {
-    let v = MMTextField(title: "시간")
-    v.setPlaceholder(to: "00:00:00(24시 단위)")
-    v.setRequireMark()
-    v.setKeyboardType(to: .numberPad)
-    return v
+    MMTextField(title: "시간")
+      .setPlaceholder(to: "00:00:00(24시 단위)")
+      .setRequireMark()
+      .setKeyboardType(to: .numberPad)
+      .setError(message: "올바른 시간을 입력해 주세요") { text in
+        let pattern = "^([01]?[0-9]|2[0-3]):[0-5][0-9]:[0-5][0-9]$"
+        let regex = try! NSRegularExpression(pattern: pattern)
+        
+        return regex.firstMatch(in: text, range: NSRange(location: 0, length: text.count)) != nil
+      }
   }()
   
   private let writerTitleLabel: UILabel = {
@@ -143,11 +156,10 @@ final class ManualInputVC: BaseVC, View {
   )
   
   private let memoTextView: MMTextView = {
-    let v = MMTextView(charactorLimitCount: 300, title: "메모")
-    v.setPlaceholder(to: "메모할 내용을 입력하세요")
-    return v
+    MMTextView(charactorLimitCount: 300, title: "메모")
+      .setPlaceholder(to: "메모할 내용을 입력하세요")
   }()
-
+  
   override func viewDidLayoutSubviews() {
     super.viewDidLayoutSubviews()
     completeButton.pin.height(56).bottom(view.safeAreaInsets.bottom + 12).horizontally(20)
@@ -219,7 +231,7 @@ final class ManualInputVC: BaseVC, View {
       .bind(with: self) { owner, value in
         guard case let .button(section) = value else { return }
         reactor.action.onNext(.didTapImageAddButton(section))
-    }.disposed(by: disposeBag)
+      }.disposed(by: disposeBag)
     
     completeButton.rx.tap
       .map { Reactor.Action.didTapCompleteButton }
@@ -319,7 +331,7 @@ final class ManualInputVC: BaseVC, View {
     reactor.pulse(\.content.$source)
       .bind(to: sourceTextField.textField.rx.text)
       .disposed(by: disposeBag)
-      
+    
     reactor.pulse(\.content.$amountSign)
       .bind(with: self) { owner, value in
         owner.fundTypeSelection.selectedIndex = value
@@ -343,6 +355,8 @@ final class ManualInputVC: BaseVC, View {
       .observe(on: MainScheduler.instance)
       .bind(with: self) { owner, name in
         owner.writerNameLabel.setTextWithLineHeight(text: name, lineHeight: 20)
+        owner.writerNameLabel.flex.markDirty()
+        owner.writerNameLabel.setNeedsLayout()
       }
       .disposed(by: disposeBag)
     
