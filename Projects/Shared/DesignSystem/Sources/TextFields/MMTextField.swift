@@ -208,6 +208,18 @@ extension MMTextField: UITextFieldDelegate {
 }
 
 extension MMTextField {
+  public func setIsEnabled(to value: Bool) {
+    textField.isEnabled = value
+
+    colorLineView.isHidden = !value
+    colorLineView.flex.isIncludedInLayout(value).markDirty()
+
+    charactorLimitView.isHidden = !value
+    charactorLimitView.flex.isIncludedInLayout(value).markDirty()
+    clearButton.isHidden = !value
+    setNeedsLayout()
+  }
+
   @discardableResult
   public func setError(message: String, condition: @escaping (String) -> Bool) -> Self {
     self.errorMessage = message

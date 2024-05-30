@@ -15,6 +15,7 @@ public final class LedgerCoordinator: Coordinator {
     case alert(title: String, subTitle: String?, type: MMAlerts.`Type`)
     case inputManual(Int, Bool)
     case datePicker(start: DateInfo, end: DateInfo)
+    case imagePicker(delegate: UIImagePickerControllerDelegate & UINavigationControllerDelegate)
     case detail(Ledger, Member.Role)
     case selectAgency
   }
@@ -34,6 +35,8 @@ public final class LedgerCoordinator: Coordinator {
       manualInput(agencyId: agencyId, isClubBudget: isClubBudget, animated: animated)
     case let .datePicker(start, end):
       datePicker(start: start, end: end)
+    case let .imagePicker(delegate):
+      imagePicker(animated: true, delegate: delegate)
     case .selectAgency:
       selectAgencySheet()
     case let .editMember(id, member):
@@ -90,5 +93,19 @@ extension LedgerCoordinator {
   private func detail(ledgerID: Int, role: Member.Role, animated: Bool = true) {
     let vc = diContainer.detail(with: self, ledgerID: ledgerID, role: role)
     navigationController.pushViewController(vc, animated: animated)
+  }
+
+  private func imagePicker(
+    animated: Bool,
+    delegate: UIImagePickerControllerDelegate & UINavigationControllerDelegate
+  ) {
+    let picker: UIImagePickerController = {
+      let v = UIImagePickerController()
+      v.sourceType = .photoLibrary
+      return v
+    }()
+    picker.delegate = delegate
+    picker.modalPresentationStyle = .fullScreen
+    navigationController.present(picker, animated: animated)
   }
 }

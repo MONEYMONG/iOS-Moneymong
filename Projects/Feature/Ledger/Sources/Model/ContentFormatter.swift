@@ -16,9 +16,9 @@ final class ContentFormatter {
     return numberFormatter.string(from: NSNumber(value: value))
   }
 
-  func convertToDate(with value: String) -> String {
+  func convertToDate(with value: String, separator: Character = "/") -> String {
     var dateString = value
-    if value.last == "/" {
+    if value.last == separator {
       dateString.removeLast()
       return dateString
     }
@@ -26,14 +26,14 @@ final class ContentFormatter {
     var dateArray = Array(dateString)
 
     if dateArray.count == 5 {
-      dateArray.insert("/", at: 4)
+      dateArray.insert(separator, at: 4)
     } else if dateArray.count == 8 {
-      dateArray.insert("/", at: 7)
+      dateArray.insert(separator, at: 7)
     }
 
     return String(dateArray)
   }
-  
+
   func convertToTime(with value: String) -> String {
     var timeString = value
     if value.last == ":" {

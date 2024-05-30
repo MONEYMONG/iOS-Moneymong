@@ -281,7 +281,7 @@ private extension ManualInputReactor {
     guard result != nil else { return false }
     
     // time
-    pattern = "^([01]?[0-9]|2[0-3]):[0-5][0-9](:[0-5][0-9])?$"
+    pattern = "^([01]?[0-9]|2[0-3]):[0-5][0-9]:[0-5][0-9]$"
     value = content.time
     regex = try! NSRegularExpression(pattern: pattern)
     result = regex.firstMatch(in: value, range: NSRange(location: 0, length: value.count))

@@ -29,6 +29,7 @@ public extension UIViewController {
       case .수정완료:
         button.title = "수정완료"
         button.setTitleTextAttributes([.font: Fonts.body._3], for: .normal)
+        button.setTitleTextAttributes([.font: Fonts.body._3], for: .disabled)
         button.tintColor = Colors.Blue._4
       case .none:
         button.image = UIImage()

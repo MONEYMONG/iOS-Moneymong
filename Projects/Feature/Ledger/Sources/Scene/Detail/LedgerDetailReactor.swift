@@ -11,76 +11,93 @@ final class LedgerDetailReactor: Reactor {
   }
 
   enum Mutation {
-    case setLedger(LedgerDetailItem)
+    case setLedger(LedgerDetail)
+    case setError(MoneyMongError)
     case setIsLoading(Bool)
     case setIsEdit(Bool)
     case setDeleteCompleted(Void)
+    case setIsValid(Bool)
   }
 
   struct State {
     let ledgerId: Int
-    let role: Member.Role
-    @Pulse var ledger: LedgerDetailItem?
-    @Pulse var isLoading: Bool = false
+    @Pulse var role: Member.Role
+    @Pulse var ledger: LedgerDetail?
+    @Pulse var error: MoneyMongError?
+    @Pulse var isLoading: Bool?
     @Pulse var isEdit: Bool = false
-    @Pulse var isChanged: Bool = false
+    @Pulse var isValid: Bool?
     @Pulse var deleteCompleted: Void?
   }
 
   var initialState: State
-  private let formatter = ContentFormatter()
-  private let ledgerRepository: LedgerRepositoryInterface
+  private(set) var ledgerRepository: LedgerRepositoryInterface
   private let ledgerService: LedgerServiceInterface
+  private(set) var ledgerContentsService: LedgerDetailContentsServiceInterface
 
   init(
     ledgerID: Int,
     role: Member.Role,
     ledgerRepository: LedgerRepositoryInterface,
-    ledgerService: LedgerServiceInterface
+    ledgerService: LedgerServiceInterface,
+    ledgerContentsService: LedgerDetailContentsServiceInterface
   ) {
     self.initialState = State(ledgerId: ledgerID, role: role)
     self.ledgerRepository = ledgerRepository
     self.ledgerService = ledgerService
+    self.ledgerContentsService = ledgerContentsService
+  }
+
+  func transform(mutation: Observable<Mutation>) -> Observable<Mutation> {
+    return Observable.merge(mutation, serviceMutation)
+  }
+
+  private var serviceMutation: Observable<Mutation> {
+    return ledgerContentsService.contentsViewEvent
+      .withUnretained(self)
+      .flatMap { owner, mutation -> Observable<Mutation> in
+        switch mutation {
+        case .isValidChanged(let value):
+          return .just(.setIsValid(value))
+        case .isLoading(let value):
+          return .just(.setIsLoading(value))
+        }
+      }
   }
 
   func mutate(action: Action) -> Observable<Mutation> {
     switch action {
+
     case .onAppear:
       return .concat([
         .just(.setIsLoading(true)),
-        .task { return try await ledgerRepository.fetchLedgerDetail(id: currentState.ledgerId) }
-          .map {
-            let (date, time) = self.formatter.splitToDateTime(with: $0.paymentDate)
-            return LedgerDetailItem.init(
-              id: $0.id,
-              storeInfo: $0.storeInfo,
-              amountText: self.formatter.convertToAmount(with: $0.amount) ?? "0",
-              fundType: $0.fundType,
-              memo: $0.description,
-              paymentDate: date,
-              paymentTime: time,
-              receiptImageUrls: $0.receiptImageUrls,
-              documentImageUrls: $0.documentImageUrls,
-              authorName: $0.authorName
-            )
+
+          .task {
+            let ledgerDetail = try await ledgerRepository.fetchLedgerDetail(id: currentState.ledgerId)
+            ledgerContentsService.setLedger(ledgerDetail)
+            return ledgerDetail
           }
-          .map { .setLedger($0) },
-        .just(.setIsLoading(false))
+          .map { .setLedger($0) }
+          .catch { return .just(.setError($0.toMMError))},
+
+          .just(.setIsLoading(false))
       ])
 
     case .didTapDelete:
       return .concat([
         .just(.setIsLoading(true)),
-        .task { return try await ledgerRepository.delete(id: currentState.ledgerId) }
-          .map { [weak self] in
-            self?.ledgerService.ledgerList.updateList()
-          }
-          .map { .setDeleteCompleted(()) },
-        .just(.setIsLoading(false))
+
+          .task { return try await ledgerRepository.delete(id: currentState.ledgerId) }
+          .map { [weak self] in self?.ledgerService.ledgerList.updateList() }
+          .map { .setDeleteCompleted(()) }
+          .catch { return .just(.setError($0.toMMError))},
+
+          .just(.setIsLoading(false))
       ])
 
     case .didTapEdit:
-      return .just(.setIsEdit(!currentState.isEdit))
+      ledgerContentsService.shouldTypeChanged(to: currentState.isEdit ? .read : .update)
+      return .just(.setIsEdit(!(currentState.isEdit)))
     }
   }
 
@@ -95,6 +112,10 @@ final class LedgerDetailReactor: Reactor {
       newState.isEdit = isEdit
     case .setDeleteCompleted(let event):
       newState.deleteCompleted = event
+    case .setIsValid(let value):
+      newState.isValid = value
+    case .setError(let error):
+      newState.error = error
     }
     return newState
   }

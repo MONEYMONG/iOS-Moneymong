@@ -47,8 +47,8 @@ extension TargetType {
       
     case let .requestJSONEncodable(params, query):
       if let params {
+        let dd = try! JSONEncoder().encode(params)
         urlRequest.httpBody = try! JSONEncoder().encode(params)
-
       }
       
       if let query {

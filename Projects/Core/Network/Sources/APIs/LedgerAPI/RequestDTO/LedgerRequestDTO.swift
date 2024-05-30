@@ -1,6 +1,6 @@
 import Foundation
 
-struct CreateLedgerRequestDTO: Encodable {
+struct LedgerRequestDTO: Encodable {
   let storeInfo: String
   let fundType: String
   let amount: Int
@@ -9,5 +9,3 @@ struct CreateLedgerRequestDTO: Encodable {
   let receiptImageUrls: [String]
   let documentImageUrls: [String]
 }
-
-
