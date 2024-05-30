@@ -1,11 +1,11 @@
 import Foundation
 
-struct Image: Equatable {
+struct ImageData: Equatable {
   let id: UUID
   let data: Data
   
   enum Item: Equatable {
     case button
-    case image(Image)
+    case image(ImageData)
   }
 }

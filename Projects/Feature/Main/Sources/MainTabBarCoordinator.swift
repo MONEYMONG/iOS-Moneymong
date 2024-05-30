@@ -29,7 +29,7 @@ public final class MainTabBarCoordinator: Coordinator {
       remove()
     case .ledger:
       tabBarController?.selectedIndex = 0
-    case let .manualCreater(agencyID):
+    case let .createManualLedger(agencyID):
       tabBarController?.selectedIndex = 0
       NotificationCenter.default.post(name: .presentManualCreater, object: nil, userInfo: ["id": agencyID])
     case .agency:

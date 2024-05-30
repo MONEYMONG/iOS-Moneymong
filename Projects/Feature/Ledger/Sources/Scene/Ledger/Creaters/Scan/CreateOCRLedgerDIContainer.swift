@@ -3,7 +3,7 @@ import UIKit
 import BaseFeature
 import NetworkService
 
-final class LedgerScanCreaterDIContainer {
+final class CreateOCRLedgerDIContainer {
   private let ledgerRepo: LedgerRepositoryInterface
   private let userRepo: UserRepositoryInterface
   private let ledgerService: LedgerServiceInterface
@@ -14,10 +14,10 @@ final class LedgerScanCreaterDIContainer {
     self.ledgerService = ledgerService
   }
   
-  func scanCreater(agencyId: Int, with coordinator: LedgerScanCreaterCoordinator) -> LedgerScanCreaterVC {
-    let vc = LedgerScanCreaterVC()
+  func scanCreater(agencyId: Int, with coordinator: CreateOCRLedgerCoordinator) -> CreateOCRLedgerVC {
+    let vc = CreateOCRLedgerVC()
     vc.coordinator = coordinator
-    vc.reactor = LedgerScanCreaterReactor(agencyId: agencyId, ledgerRepo: ledgerRepo)
+    vc.reactor = CreateOCRLedgerReactor(agencyId: agencyId, ledgerRepo: ledgerRepo)
     return vc
   }
   
@@ -28,13 +28,13 @@ final class LedgerScanCreaterDIContainer {
   }
   
   func scanResult(
-    with coordinator: LedgerScanCreaterCoordinator,
+    with coordinator: CreateOCRLedgerCoordinator,
     agencyId: Int,
     model: OCRResult,
     imageData: Data
   ) -> UIViewController {
-    let vc = LedgerScanResultVC()
-    vc.reactor = LedgerScanResultReactor(
+    let vc = OCRResultVC()
+    vc.reactor = OCRResultReactor(
       agencyId: agencyId,
       model: model,
       imageData: imageData,
@@ -45,10 +45,10 @@ final class LedgerScanCreaterDIContainer {
     return vc
   }
   
-  func manualCreater(with coordinator: Coordinator, agencyId: Int, from type: LedgerManualCreaterReactor.State.Starting) {
-    let manualCreaterCoordinator = LedgerManualCreaterCoordinator(
+  func createManualLedger(with coordinator: Coordinator, agencyId: Int, type: CreateManualLedgerReactor.`Type`) {
+    let manualCreaterCoordinator = CreateManualLedgerCoordinator(
       navigationController: coordinator.navigationController,
-      diContainer: LedgerManualCreaterDIContainer(
+      diContainer: CreateManualLedgerDIContainer(
         ledgerRepo: ledgerRepo,
         userRepo: userRepo,
         ledgerService: ledgerService
@@ -56,7 +56,7 @@ final class LedgerScanCreaterDIContainer {
     )
     coordinator.childCoordinators.append(manualCreaterCoordinator)
     manualCreaterCoordinator.parentCoordinator = coordinator
-    manualCreaterCoordinator.start(agencyId: agencyId, from: type, animated: true)
+    manualCreaterCoordinator.start(agencyId: agencyId, type: type, animated: true)
   }
 }
 

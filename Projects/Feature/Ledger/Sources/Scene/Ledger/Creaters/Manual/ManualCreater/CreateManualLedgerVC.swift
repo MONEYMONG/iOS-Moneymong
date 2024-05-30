@@ -11,8 +11,8 @@ import FlexLayout
 
 // TODO: 각 텍스트 필드에 조건 넣어줘야함
 
-final class LedgerManualCreaterVC: BaseVC, View {
-  weak var coordinator: LedgerManualCreaterCoordinator?
+final class CreateManualLedgerVC: BaseVC, View {
+  weak var coordinator: CreateManualLedgerCoordinator?
   private struct ViewSize {
     static var cell: CGSize {
       let width = UIScreen.main.bounds.width * 0.28
@@ -27,7 +27,7 @@ final class LedgerManualCreaterVC: BaseVC, View {
   
   var disposeBag = DisposeBag()
   private var cancelBag = Set<AnyCancellable>()
-  private var startingType: LedgerManualCreaterReactor.State.Starting = .ledgerList
+  private var startingType: CreateManualLedgerReactor.`Type` = .createManual
   
   private let scrollView: UIScrollView = {
     let v = UIScrollView()
@@ -169,7 +169,7 @@ final class LedgerManualCreaterVC: BaseVC, View {
   override func setupUI() {
     super.setupUI()
     switch startingType {
-    case .ocrResult:
+    case .ocrResultEdit:
       setTitle("상세내역")
     default:
       setTitle("장부작성")
@@ -182,7 +182,7 @@ final class LedgerManualCreaterVC: BaseVC, View {
       flex.addItem(scrollView).shrink(1).define { flex in
         flex.addItem(content).define { flex in
           switch startingType {
-          case .ocrResult:
+          case .ocrResultEdit:
             flex.addItem(recepitImageView).height(240).marginBottom(16)
           default: break
           }
@@ -198,7 +198,7 @@ final class LedgerManualCreaterVC: BaseVC, View {
             flex.addItem(dateTextField).marginBottom(24)
             flex.addItem(timeTextField).marginBottom(24)
             switch startingType {
-            case .ocrResult:
+            case .ocrResultEdit:
               flex.addItem(memoTextView).marginBottom(24)
               flex.addItem(UILabel().text("증빙 자료 (최대 12장)", font: Fonts.body._2, color: Colors.Gray._6))
               flex.addItem(documentCollectionView).marginBottom(24).marginRight(-8)
@@ -226,11 +226,11 @@ final class LedgerManualCreaterVC: BaseVC, View {
     view.addSubview(completeButton)
   }
   
-  func bind(reactor: LedgerManualCreaterReactor) {
+  func bind(reactor: CreateManualLedgerReactor) {
     
     startingType = reactor.initialState.type
     switch reactor.initialState.type {
-    case .ocrResult:
+    case .ocrResultEdit:
       setLeftItem(.back)
       setRightItem(.등록하기)
     default:
@@ -240,9 +240,9 @@ final class LedgerManualCreaterVC: BaseVC, View {
     bindState(reactor: reactor)
   }
   
-  private func bindAction(reactor: LedgerManualCreaterReactor) {
+  private func bindAction(reactor: CreateManualLedgerReactor) {
     switch reactor.initialState.type {
-    case .ocrResult:
+    case .ocrResultEdit:
       navigationItem.leftBarButtonItem?.rx.tap
         .bind(with: self, onNext: { owner, _ in
           owner.navigationController?.popViewController(animated: true)
@@ -263,13 +263,13 @@ final class LedgerManualCreaterVC: BaseVC, View {
       .bind(to: reactor.action)
       .disposed(by: disposeBag)
     
-    receiptCollectionView.rx.modelSelected(Image.Item.self)
+    receiptCollectionView.rx.modelSelected(ImageData.Item.self)
       .filter { $0 == .button }
       .bind(with: self) { owner, _ in
         reactor.action.onNext(.didTapImageAddButton(.receipt))
     }.disposed(by: disposeBag)
     
-    documentCollectionView.rx.modelSelected(Image.Item.self)
+    documentCollectionView.rx.modelSelected(ImageData.Item.self)
       .filter { $0 == .button }
       .bind(with: self) { owner, _ in
         reactor.action.onNext(.didTapImageAddButton(.document))
@@ -351,9 +351,9 @@ final class LedgerManualCreaterVC: BaseVC, View {
       }.disposed(by: disposeBag)
   }
   
-  private func bindState(reactor: LedgerManualCreaterReactor) {
+  private func bindState(reactor: CreateManualLedgerReactor) {
     switch reactor.initialState.type {
-    case .ocrResult:
+    case .ocrResultEdit:
       reactor.pulse(\.$receiptImages)
         .compactMap { item -> UIImage? in
           guard case let .image(image) = item.last else { return UIImage() }
@@ -497,7 +497,7 @@ final class LedgerManualCreaterVC: BaseVC, View {
   
   private func updateCollectionHeigh(
     collectionView: UICollectionView,
-    images: [Image.Item]
+    images: [ImageData.Item]
   ) {
     let imageCount = images.count
     let lineCount = ceil(Double(imageCount) / 3)
@@ -509,7 +509,7 @@ final class LedgerManualCreaterVC: BaseVC, View {
   }
 }
 
-extension LedgerManualCreaterVC: UIImagePickerControllerDelegate, UINavigationControllerDelegate {
+extension CreateManualLedgerVC: UIImagePickerControllerDelegate, UINavigationControllerDelegate {
   func imagePickerController(_ picker: UIImagePickerController, didFinishPickingMediaWithInfo info: [UIImagePickerController.InfoKey : Any]) {
     if let image = info[.originalImage] as? UIImage {
       Task {
@@ -518,14 +518,14 @@ extension LedgerManualCreaterVC: UIImagePickerControllerDelegate, UINavigationCo
         if reactor?.currentState.selectedSection == .receipt {
           reactor?.action.onNext(
             .selectedImage(
-              Image.Item.image(.init(id: .init(), data: data)),
+              ImageData.Item.image(.init(id: .init(), data: data)),
               .receipt
             )
           )
         } else {
           reactor?.action.onNext(
             .selectedImage(
-              Image.Item.image(.init(id: .init(), data: data)),
+              ImageData.Item.image(.init(id: .init(), data: data)),
               .document
             )
           )

@@ -5,7 +5,7 @@ import NetworkService
 
 import ReactorKit
 
-final class LedgerScanResultReactor: Reactor {
+final class OCRResultReactor: Reactor {
   enum Action {
     case onAppear
     case didTapCompleteButton
@@ -31,7 +31,7 @@ final class LedgerScanResultReactor: Reactor {
     
     enum Destination {
       case ledger
-      case manualCreater(Int, OCRResult, Data)
+      case createManualLedger(Int, OCRResult, Data)
     }
   }
   
@@ -74,7 +74,7 @@ final class LedgerScanResultReactor: Reactor {
       return .just(.setSuccess(isSuccessOCR(ocrModel)))
     case .didTapEditButton:
       return .just(.setDestination(
-        .manualCreater(
+        .createManualLedger(
           currentState.agencyId,
           ocrModel,
           currentState.receiptImageData
@@ -98,7 +98,7 @@ final class LedgerScanResultReactor: Reactor {
   }
 }
 
-private extension LedgerScanResultReactor {
+private extension OCRResultReactor {
   func requestCreateLedgerRecord() -> Observable<Mutation> {
     return .task {
       guard let amount = Int(currentState.money.filter { $0.isNumber }) else {

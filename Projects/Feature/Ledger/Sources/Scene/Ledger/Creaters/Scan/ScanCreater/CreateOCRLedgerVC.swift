@@ -8,10 +8,10 @@ import FlexLayout
 import PinLayout
 import ReactorKit
 
-final class LedgerScanCreaterVC: UIViewController, View {
+final class CreateOCRLedgerVC: UIViewController, View {
   var disposeBag = DisposeBag()
   
-  weak var coordinator: LedgerScanCreaterCoordinator?
+  weak var coordinator: CreateOCRLedgerCoordinator?
   
   private let deviceHeight = UIScreen.main.bounds.height
   
@@ -157,7 +157,7 @@ final class LedgerScanCreaterVC: UIViewController, View {
     }
   }
   
-  func bind(reactor: LedgerScanCreaterReactor) {
+  func bind(reactor: CreateOCRLedgerReactor) {
     setLeftItem(.warning)
     setRightItem(.closeWhite)
     
@@ -230,7 +230,7 @@ final class LedgerScanCreaterVC: UIViewController, View {
   }
 }
 
-extension LedgerScanCreaterVC: AVCapturePhotoCaptureDelegate {
+extension CreateOCRLedgerVC: AVCapturePhotoCaptureDelegate {
   func photoOutput(_ output: AVCapturePhotoOutput, didFinishProcessingPhoto photo: AVCapturePhoto, error: Error?) {
     let imageData = photo.fileDataRepresentation()
     reactor?.action.onNext(.receiptShoot(imageData))

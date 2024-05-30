@@ -6,9 +6,9 @@ import ReactorKit
 import PinLayout
 import FlexLayout
 
-final class LedgerScanResultVC: UIViewController, View {
+final class OCRResultVC: UIViewController, View {
   var disposeBag = DisposeBag()
-  weak var coordinator: LedgerScanCreaterCoordinator?
+  weak var coordinator: CreateOCRLedgerCoordinator?
   private let rootContainer = UIView()
   
   private let receiptImageView: UIImageView = {
@@ -139,7 +139,7 @@ final class LedgerScanResultVC: UIViewController, View {
     }
   }
   
-  func bind(reactor: LedgerScanResultReactor) {
+  func bind(reactor: OCRResultReactor) {
     setLeftItem(.backWhite)
     setRightItem(.closeWhite)
     
@@ -214,8 +214,8 @@ final class LedgerScanResultVC: UIViewController, View {
         switch destination {
         case .ledger:
           owner.dismiss(animated: true)
-        case let .manualCreater(agencyID, ocrModel, imageData):
-          owner.coordinator?.present(.manualCreater(agencyID, .ocrResult(ocrModel, imageData)))
+        case let .createManualLedger(agencyID, ocrModel, imageData):
+          owner.coordinator?.present(.createManualLedger(agencyID, .ocrResultEdit(ocrModel, imageData)))
         }
       }
       .disposed(by: disposeBag)

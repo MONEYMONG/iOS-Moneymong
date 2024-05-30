@@ -4,9 +4,9 @@ import BaseFeature
 import DesignSystem
 import NetworkService
 
-final class LedgerScanCreaterCoordinator: Coordinator {
+final class CreateOCRLedgerCoordinator: Coordinator {
   unowned var navigationController: UINavigationController
-  private let diContainer: LedgerScanCreaterDIContainer
+  private let diContainer: CreateOCRLedgerDIContainer
   weak var parentCoordinator: Coordinator?
   var childCoordinators: [Coordinator] = []
   
@@ -15,10 +15,10 @@ final class LedgerScanCreaterCoordinator: Coordinator {
     case alert(title: String, subTitle: String?, type: MMAlerts.`Type`)
     case snackBar(title: String)
     case scanResult(Int, model: OCRResult, imageData: Data)
-    case manualCreater(Int, LedgerManualCreaterReactor.State.Starting)
+    case createManualLedger(Int, CreateManualLedgerReactor.`Type`)
   }
 
-  init(navigationController: UINavigationController, diContainer: LedgerScanCreaterDIContainer) {
+  init(navigationController: UINavigationController, diContainer: CreateOCRLedgerDIContainer) {
     self.navigationController = navigationController
     self.diContainer = diContainer
   }
@@ -37,17 +37,17 @@ final class LedgerScanCreaterCoordinator: Coordinator {
       scanResult(agencyId: id, model: model, imageData: data)
     case let .snackBar(title: title):
       SnackBarManager.show(title: title)
-    case let .manualCreater(agencyId, type):
-      manualCreater(
+    case let .createManualLedger(agencyId, type):
+      createManualLedger(
         agencyId: agencyId,
-        from: type,
+        type: type,
         animated: animated
       )
     }
   }
 }
 
-extension LedgerScanCreaterCoordinator {
+extension CreateOCRLedgerCoordinator {
   private func scanCreater(agencyId: Int) {
     let vc = diContainer.scanCreater(agencyId: agencyId, with: self)
     navigationController.viewControllers = [vc]
@@ -68,11 +68,11 @@ extension LedgerScanCreaterCoordinator {
     navigationController.pushViewController(vc, animated: animated)
   }
   
-  private func manualCreater(
+  private func createManualLedger(
     agencyId: Int,
-    from type: LedgerManualCreaterReactor.State.Starting,
+    type: CreateManualLedgerReactor.`Type`,
     animated: Bool
   ) {
-    diContainer.manualCreater(with: self, agencyId: agencyId, from: type)
+    diContainer.createManualLedger(with: self, agencyId: agencyId, type: type)
   }
 }

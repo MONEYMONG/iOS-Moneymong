@@ -2,7 +2,7 @@ import UIKit
 
 import NetworkService
 
-final class LedgerManualCreaterDIContainer {
+final class CreateManualLedgerDIContainer {
   private let ledgerRepo: LedgerRepositoryInterface
   private let userRepo: UserRepositoryInterface
   private let ledgerService: LedgerServiceInterface
@@ -13,13 +13,13 @@ final class LedgerManualCreaterDIContainer {
     self.ledgerService = ledgerService
   }
   
-  func manualCreater(
-    with coordinator: LedgerManualCreaterCoordinator,
-    from type: LedgerManualCreaterReactor.State.Starting,
+  func createManualLedger(
+    with coordinator: CreateManualLedgerCoordinator,
+    type: CreateManualLedgerReactor.`Type`,
     agencyId: Int
-  ) -> LedgerManualCreaterVC {
-    let vc = LedgerManualCreaterVC()
-    vc.reactor = LedgerManualCreaterReactor(
+  ) -> CreateManualLedgerVC {
+    let vc = CreateManualLedgerVC()
+    vc.reactor = CreateManualLedgerReactor(
       agencyId: agencyId,
       type: type,
       ledgerRepo: ledgerRepo,

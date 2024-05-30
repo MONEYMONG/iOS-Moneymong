@@ -109,7 +109,7 @@ final class LedgerTabVC: BaseVC, View {
       .delay(.seconds(1), scheduler: MainScheduler.instance)
       .observe(on: MainScheduler.instance)
       .bind(with: self) { owner, id in
-        owner.coordinator?.present(.manualCreater(id, .agencyCreate))
+        owner.coordinator?.present(.createManualLedger(id, .operatingCost))
       }
       .disposed(by: disposeBag)
       
@@ -177,10 +177,10 @@ final class LedgerTabVC: BaseVC, View {
         switch destination {
         case let .datePicker(start, end):
           owner.coordinator?.present(.datePicker(start: start, end: end))
-        case let .manualCreater(id):
-          owner.coordinator?.present(.manualCreater(id, .ledgerList))
-        case let .scanCreater(id):
-          owner.coordinator?.present(.scanCreater(id))
+        case let .createManualLedger(id):
+          owner.coordinator?.present(.createManualLedger(id, .createManual))
+        case let .createOCRLedger(id):
+          owner.coordinator?.present(.createOCRLedger(id))
         }
       }
       .disposed(by: disposeBag)

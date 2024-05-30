@@ -4,7 +4,7 @@ public enum Scene {
   case main // 메인화면
   case login // 로그인화면
   case ledger // 장부화면
-  case manualCreater(Int) // 운영비 등록화면
+  case createManualLedger(Int) // 운영비 등록화면
   case agency // 소속화면
 }
 

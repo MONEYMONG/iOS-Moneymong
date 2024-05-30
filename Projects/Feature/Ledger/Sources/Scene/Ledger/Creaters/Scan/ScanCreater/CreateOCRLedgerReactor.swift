@@ -4,7 +4,7 @@ import NetworkService
 
 import ReactorKit
 
-final class LedgerScanCreaterReactor: Reactor {
+final class CreateOCRLedgerReactor: Reactor {
   var initialState: State
   
   enum Action {

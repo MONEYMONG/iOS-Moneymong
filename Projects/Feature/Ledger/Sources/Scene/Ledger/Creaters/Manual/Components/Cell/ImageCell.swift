@@ -60,7 +60,7 @@ final class ImageCell: UICollectionViewCell, ReusableView {
   }
 
   func configure(
-    with item: Image.Item,
+    with item: ImageData.Item,
     action: @escaping () -> Void
   ) -> Self {
     guard case let .image(image) = item else { return self }

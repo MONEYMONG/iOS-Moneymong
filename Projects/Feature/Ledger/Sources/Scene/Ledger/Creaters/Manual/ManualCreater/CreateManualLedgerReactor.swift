@@ -6,7 +6,13 @@ import BaseFeature
 
 import ReactorKit
 
-final class LedgerManualCreaterReactor: Reactor {
+final class CreateManualLedgerReactor: Reactor {
+  enum `Type` {
+    case operatingCost // 운영비 등록화면
+    case ocrResultEdit(OCRResult, Data) // ocr 결과 수정화면
+    case createManual
+  }
+  
   enum ContentType {
     case source
     case amount
@@ -18,7 +24,7 @@ final class LedgerManualCreaterReactor: Reactor {
   
   enum AlertType {
     case error(MoneyMongError)
-    case deleteImage(Image.Item, Section)
+    case deleteImage(ImageData.Item, Section)
     case end
   }
 
@@ -31,16 +37,16 @@ final class LedgerManualCreaterReactor: Reactor {
     case onAppear
     case didTapCompleteButton
     case presentedAlert(AlertType)
-    case didTapImageDeleteAlertButton(Image.Item, Section)
+    case didTapImageDeleteAlertButton(ImageData.Item, Section)
     case didTapImageAddButton(Section)
-    case selectedImage(Image.Item, Section)
+    case selectedImage(ImageData.Item, Section)
     case inputContent(_ value: String, type: ContentType)
   }
   
   enum Mutation {
     case setOperatingCostValues // 동아리 운영비 등록하러 가기 일때의 고정값
     case setName(String)
-    case addImage(Image.Item, Section)
+    case addImage(ImageData.Item, Section)
     case deleteImage(UUID, Section)
     case deleteImageURL(Int, Section)
     case setContent(String, type: ContentType)
@@ -53,10 +59,10 @@ final class LedgerManualCreaterReactor: Reactor {
   
   struct State {
     let agencyId: Int
-    let type: Starting
+    let type: `Type`
     @Pulse var userName: String = ""
-    @Pulse var receiptImages: [Image.Item] = [.button]
-    @Pulse var documentImages: [Image.Item] = [.button]
+    @Pulse var receiptImages: [ImageData.Item] = [.button]
+    @Pulse var documentImages: [ImageData.Item] = [.button]
     @Pulse var selectedSection: Section? = nil
     @Pulse var alertMessage: (String, String?, AlertType)? = nil
     @Pulse var isButtonEnabled = false
@@ -65,12 +71,6 @@ final class LedgerManualCreaterReactor: Reactor {
     
     enum Destination {
       case ledger
-    }
-    
-    enum Starting {
-      case agencyCreate // 운영비 등록화면
-      case ocrResult(OCRResult, Data) // ocr 결과 수정화면
-      case ledgerList
     }
   }
   
@@ -93,7 +93,7 @@ final class LedgerManualCreaterReactor: Reactor {
   
   init(
     agencyId: Int,
-    type: State.Starting,
+    type: `Type`,
     ledgerRepo: LedgerRepositoryInterface,
     userRepo: UserRepositoryInterface,
     ledgerService: LedgerServiceInterface
@@ -108,18 +108,18 @@ final class LedgerManualCreaterReactor: Reactor {
     switch action {
     case .onAppear:
       switch currentState.type {
-      case .agencyCreate:
+      case .operatingCost:
         return .merge(
           .task { try await userRepo.user().nickname }
             .map { .setName($0) },
           .just(.setOperatingCostValues)
         )
-      case .ledgerList:
+      case .createManual:
         return .task { try await userRepo.user().nickname }
           .map { .setName($0) }
-      case let .ocrResult(model, imageData):
+      case let .ocrResultEdit(model, imageData):
         let resizeImageData = UIImage(data: imageData)?.jpegData(compressionQuality: 0.33)
-        let image = Image(id: .init(), data: resizeImageData!)
+        let image = ImageData(id: .init(), data: resizeImageData!)
         return .merge([
           .task { try await userRepo.user().nickname }.map { .setName($0) },
           uploadImage(image: image, section: .receipt),
@@ -240,15 +240,15 @@ final class LedgerManualCreaterReactor: Reactor {
   }
 }
 
-private extension LedgerManualCreaterReactor {
-  func addImage(images: inout [Image.Item], item: Image.Item) {
+private extension CreateManualLedgerReactor {
+  func addImage(images: inout [ImageData.Item], item: ImageData.Item) {
     images.append(item)
     if images.count > 12 {
       images.removeFirst()
     }
   }
   
-  func deleteImage(images: inout [Image.Item], id: UUID) {
+  func deleteImage(images: inout [ImageData.Item], id: UUID) {
     images.removeAll {
       guard case let .image(image) = $0 else { return false }
       return image.id == id
@@ -353,7 +353,7 @@ private extension LedgerManualCreaterReactor {
       }
   }
   
-  func uploadImage(image: Image, section: Section) -> Observable<Mutation> {
+  func uploadImage(image: ImageData, section: Section) -> Observable<Mutation> {
      return .task {
       var entity = try await ledgerRepo.imageUpload(image.data)
       entity.id = image.id
