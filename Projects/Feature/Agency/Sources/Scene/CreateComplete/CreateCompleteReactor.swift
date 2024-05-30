@@ -26,7 +26,7 @@ final class CreateCompleteReactor: Reactor {
     case setDestination(State.Destination)
   }
   
-  let userRepo: UserRepositoryInterface
+  private let userRepo: UserRepositoryInterface
   
   let initialState: State
   
