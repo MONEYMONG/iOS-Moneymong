@@ -8,7 +8,7 @@ import NetworkService
 import ReactorKit
 import RxDataSources
 
-final class LedgerContentsView: BaseV, View, UIScrollViewDelegate {
+final class LedgerContentsView: BaseView, View, UIScrollViewDelegate {
 
   public enum State {
     case read
@@ -48,6 +48,13 @@ final class LedgerContentsView: BaseV, View, UIScrollViewDelegate {
     v.setPlaceholder(to: Const.amountPlaceholder)
     v.setRequireMark()
     v.setKeyboardType(to: .numberPad)
+    v.setError(message: "999,999,999원 이내로 입력해주세요") { text in
+      guard let value = Int(text.replacingOccurrences(of: ",", with: "")) else {
+        return false
+      }
+
+      return value <= 999_999_999
+    }
     return v
   }()
 
@@ -56,6 +63,12 @@ final class LedgerContentsView: BaseV, View, UIScrollViewDelegate {
     v.setPlaceholder(to: Const.paymentDatePlaceholder)
     v.setRequireMark()
     v.setKeyboardType(to: .numberPad)
+    v.setError(message: "올바른 날짜를 입력해 주세요") { text in
+      let pattern = "^\\d{4}.(0[1-9]|1[012]).(0[1-9]|[12]\\d|3[01])$"
+      let regex = try! NSRegularExpression(pattern: pattern)
+
+      return regex.firstMatch(in: text, range: NSRange(location: 0, length: text.count)) != nil
+    }
     return v
   }()
 
@@ -64,6 +77,12 @@ final class LedgerContentsView: BaseV, View, UIScrollViewDelegate {
     v.setPlaceholder(to: Const.paymentTimePlaceholder)
     v.setRequireMark()
     v.setKeyboardType(to: .numberPad)
+    v.setError(message: "올바른 시간을 입력해 주세요") { text in
+      let pattern = "^([01]?[0-9]|2[0-3]):[0-5][0-9]:[0-5][0-9]$"
+      let regex = try! NSRegularExpression(pattern: pattern)
+
+      return regex.firstMatch(in: text, range: NSRange(location: 0, length: text.count)) != nil
+    }
     return v
   }()
 

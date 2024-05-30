@@ -90,6 +90,8 @@ final class LedgerContentsReactor: Reactor {
       if currentState.currentLedgerItem != currentState.prevLedgerItem {
         return .concat([
             .task {
+              ledgerContentsService.setIsLoading(true)
+
               try await registrationReceiptImages() // 영수증 이미지 업로드된게 있을경우 해당 장부에 이미지 등록
               try await registrationDocumentImages() // 증빙자료 이미지 업로드된게 있을경우 해당 장부에 이미지 등록
               try await deleteReceiptImages() // 영수증 이미지 제거해야할게 있을경우 해당 장부에서 제거
@@ -112,6 +114,8 @@ final class LedgerContentsReactor: Reactor {
 
     case .didValueChanged(let valueType):
       let convertedFormValue = setContentValueFormat(valueType)
+      let isValid = checkContent(valueType)
+      ledgerContentsService.didValidChanged(isValid)
       return .just(.setValueChanged(convertedFormValue))
 
     case .selectedImageSection(let section):
@@ -156,11 +160,9 @@ final class LedgerContentsReactor: Reactor {
       switch valueType {
 
       case .storeInfo(let storeInfo):
-        ledgerContentsService.didValidChanged(!storeInfo.isEmpty)
         newState.currentLedgerItem.storeInfo = storeInfo
 
       case .amount(let amount):
-        ledgerContentsService.didValidChanged(!amount.isEmpty)
         newState.currentLedgerItem.amount = amount
 
       case .fundType(let fundType):
@@ -170,15 +172,12 @@ final class LedgerContentsReactor: Reactor {
         newState.currentLedgerItem.memo = memo
 
       case .date(let date):
-        ledgerContentsService.didValidChanged(!date.isEmpty)
         newState.currentLedgerItem.date = date
 
       case .time(let time):
-        ledgerContentsService.didValidChanged(!time.isEmpty)
         newState.currentLedgerItem.time = time
 
       case .authorName(let authorName):
-        ledgerContentsService.didValidChanged(!authorName.isEmpty)
         newState.currentLedgerItem.authorName = authorName
 
       case .receiptImage(let imageInfo, let isAdd):
@@ -249,6 +248,46 @@ fileprivate extension LedgerContentsReactor {
       }
   }
 
+  func checkContent(_ content: ContentType) -> Bool {
+    switch content {
+    case .storeInfo(let v):
+      return (1...20) ~= v.count
+
+    case .amount(let v):
+      guard v.isEmpty == false,
+            let amount = Int(v.replacingOccurrences(of: ",", with: "")),
+            amount <= 999_999_999
+      else {
+        return false
+      }
+      return true
+
+    case .date(let v):
+      let pattern = "^\\d{4}.(0[1-9]|1[012]).(0[1-9]|[12]\\d|3[01])$"
+      let regex = try! NSRegularExpression(pattern: pattern)
+      let result = regex.firstMatch(
+        in: v,
+        range: NSRange(location: 0, length: v.count)
+      )
+      return result != nil
+
+    case .time(let v):
+      let pattern = "^([01]?[0-9]|2[0-3]):[0-5][0-9]:[0-5][0-9]$"
+      let regex = try! NSRegularExpression(pattern: pattern)
+      let result = regex.firstMatch(
+        in: v,
+        range: NSRange(location: 0, length: v.count)
+      )
+      return result != nil
+
+    case .memo(let v):
+      return (1...300) ~= v.count
+
+    default:
+      return true
+    }
+  }
+
   func setContentValueFormat(_ type: ContentType) -> ContentType {
     switch type {
     case .storeInfo(let value):
@@ -256,7 +295,7 @@ fileprivate extension LedgerContentsReactor {
     case .amount(let value):
       return .amount(formatter.convertToAmount(with: value) ?? "")
     case .date(let value):
-      return .date(formatter.convertToDate(with: value))
+      return .date(formatter.convertToDate(with: value, separator: "."))
     case .time(let value):
       return .time(formatter.convertToTime(with: value))
     case .memo(let value):

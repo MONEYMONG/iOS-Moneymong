@@ -5,7 +5,7 @@ import PinLayout
 import FlexLayout
 
 /// BaseView
-open class BaseV: UIView {
+open class BaseView: UIView {
   public let rootContainer = UIView()
 
   public init() {
