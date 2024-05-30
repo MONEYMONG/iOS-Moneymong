@@ -55,7 +55,7 @@ public final class AgencyListVC: BaseVC, View {
   public override func viewDidLayoutSubviews() {
     super.viewDidLayoutSubviews()
     
-    collectionView.pin.all(view.pin.safeArea)
+    collectionView.pin.top().bottom(view.pin.safeArea).horizontally()
     createAgencyButton.pin.size(70).bottom(view.pin.safeArea + 10).right(view.pin.safeArea + 10)
   }
 

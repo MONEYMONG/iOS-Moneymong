@@ -51,7 +51,7 @@ extension AgencyAPI: TargetType {
     case let .create(param): return .requestJSONEncodable(params: param)
     case .memberList: return .plain
     case let .changeRole(_, param): return .requestJSONEncodable(params: param)
-    case .kickout: return .plain
+    case let .kickout(_, param): return .requestJSONEncodable(params: param)
     case .myAgency: return .plain
     case .code: return .plain
     case let .certificateCode(_, param): return .requestJSONEncodable(params: param)

@@ -4,12 +4,12 @@ import PinLayout
 import FlexLayout
 
 public class MMTextField: UIView {
-
+  
   public enum State {
     case active
     case unActive
     case error
-
+    
     var color: UIColor {
       switch self {
       case .active: return Colors.Blue._4
@@ -18,21 +18,23 @@ public class MMTextField: UIView {
       }
     }
   }
-
+  
   private var state: State {
     didSet { updateState() }
   }
-
+  
   private let charactorLimitCount: Int
-
+  private var condition: ((String) -> Bool)?
+  private var errorMessage: String?
+  
   private let rootContainer = UIView()
-
+  
   private let titleLabel: UILabel = {
     let label = UILabel()
     label.font = Fonts.body._2
     return label
   }()
-
+  
   private let asteriskLabel: UILabel = {
     let label = UILabel()
     label.font = Fonts.body._2
@@ -40,7 +42,7 @@ public class MMTextField: UIView {
     label.text = "*"
     return label
   }()
-
+  
   public let textField: UITextField = {
     let textField = UITextField()
     textField.font = Fonts.body._3
@@ -52,7 +54,7 @@ public class MMTextField: UIView {
     )
     return textField
   }()
-
+  
   public let clearButton: TouchAreaButton = {
     let button = TouchAreaButton(dx: -10, dy: 0)
     button.isHidden = true
@@ -68,11 +70,11 @@ public class MMTextField: UIView {
     button.tintColor = Colors.Gray._4
     return button
   }()
-
+  
   private let colorLineView = UIView()
-
+  
   private let charactorLimitView: CharacterLimitView
-
+  
   public init(charactorLimitCount: Int = 0, title: String = "") {
     self.state = .unActive
     self.charactorLimitCount = charactorLimitCount
@@ -85,128 +87,127 @@ public class MMTextField: UIView {
     setupConstraints()
     updateState()
   }
-
+  
   @available(*, unavailable)
   required init?(coder: NSCoder) {
     fatalError("init(coder:) has not been implemented")
   }
-
+  
   public override func layoutSubviews() {
     super.layoutSubviews()
     rootContainer.pin.all()
     rootContainer.flex.layout()
   }
-
+  
   private func setupView(with title: String) {
     addSubview(rootContainer)
     titleLabel.text = title
     textField.delegate = self
     clearButton.addTarget(self, action: #selector(didTapClearButton), for: .touchUpInside)
+    textField.addTarget(self, action: #selector(textDidChange), for: .editingChanged)
   }
-
+  
   private func setupConstraints() {
     rootContainer.flex.direction(.column).define { flex in
-
-        flex.addItem().direction(.row).define { flex in
-          flex.addItem(titleLabel)
-          flex.addItem().width(2)
-          flex.addItem(asteriskLabel)
-        }
-        flex.addItem().height(8)
-
-        flex.addItem().direction(.row).define { flex in
-          flex.addItem(textField).grow(1)
-          flex.addItem(clearButton).width(20).height(20)
-        }
-
-        flex.addItem().height(10)
-        flex.addItem(colorLineView).height(1).backgroundColor(state.color)
-        flex.addItem().height(2)
-        flex.addItem(charactorLimitView)
+      flex.addItem().direction(.row).define { flex in
+        flex.addItem(titleLabel)
+        flex.addItem().width(2)
+        flex.addItem(asteriskLabel)
       }
+      flex.addItem().height(8)
+      
+      flex.addItem().direction(.row).define { flex in
+        flex.addItem(textField).grow(1)
+        flex.addItem(clearButton).width(20).height(20)
+      }
+      
+      flex.addItem().height(10)
+      flex.addItem(colorLineView).height(1).backgroundColor(state.color)
+      flex.addItem().height(2)
+      flex.addItem(charactorLimitView)
+    }
   }
-
+  
   private func updateState() {
     titleLabel.textColor = state.color
     colorLineView.backgroundColor = state == .unActive ? Colors.Gray._2 : state.color
     textField.tintColor = state.color
   }
-
+  
   @objc private func didTapClearButton() {
     state = .active
     charactorLimitView.setState(.default(characterCount: 0))
     textField.text = nil
     clearButton.isHidden = true
   }
+  
+  @objc private func textDidChange() {
+    guard let inputText = textField.text else { return }
+    
+    // 글자수 제한이 있을 경우, 애초에 글자수를 넘어가지 않도록 조정
+    if charactorLimitCount != 0 && inputText.count >= charactorLimitCount {
+      textField.text = String(inputText.prefix(charactorLimitCount))
+    }
+    
+    guard let text = textField.text else { return }
+    
+    // 유효성에 문제가 있다면 에러처리
+    if condition?(text) == false {
+      state = .error
+      charactorLimitView.setState(.error(characterCount: text.count, errorMessage: errorMessage ?? ""))
+    } else {
+      state = .active
+      charactorLimitView.setState(.default(characterCount: text.count))
+    }
+  }
 }
 
 extension MMTextField: UITextFieldDelegate {
-  public func textField(
-    _ textField: UITextField,
-    shouldChangeCharactersIn range: NSRange,
-    replacementString string: String
-  ) -> Bool {
-    guard let currentText = textField.text,
-          let stringRange = Range(range, in: currentText) else {
-      return false
-    }
-
-    let updatedText = currentText.replacingCharacters(in: stringRange, with: string)
-
-    clearButton.isHidden = updatedText.count == 0
-
-    // charactorLimitCount 가 0일 경우 LimitCount 미표기 모드,
-    // 에러 상태였더라도 텍스트 입력시 active 상태로 전환
-    guard charactorLimitCount != 0 else {
-      state = .active
-      charactorLimitView.setState(.default(characterCount: 0))
-      return true
-    }
-
-    // charactorLimitCount 가 0이 아닌 경우 LimitCount 표기 모드,
-    // 조건에 따라 에러 상태 해제(리밋 카운트 미만일경우 에러 모드 해제)
-    if charactorLimitCount != 0 && charactorLimitCount >= currentText.count {
-      state = .active
-      charactorLimitView.setState(.default(characterCount: updatedText.count))
-    } else if charactorLimitCount != 0 {
+  
+  public func textFieldDidBeginEditing(_ textField: UITextField) {
+    guard let text = textField.text else { return }
+    
+    // 유효성에 문제가 있다면 에러처리
+    if condition?(text) == false && text.isEmpty == false {
       state = .error
-      charactorLimitView.setState(.error(
-        characterCount: updatedText.count,
-        errorMessage: "글자수를 초과 하였습니다."
-      ))
+      charactorLimitView.setState(.error(characterCount: text.count, errorMessage: self.errorMessage ?? ""))
+    } else {
+      state = .active
+      charactorLimitView.setState(.default(characterCount: text.count))
     }
-    return true
   }
-
-  public func textFieldShouldBeginEditing(_ textField: UITextField) -> Bool {
-    guard let textCount = textField.text?.count, state != .error else { return true }
-
-    state = .active
-    charactorLimitView.setState(.default(characterCount: textCount))
-    return true
-  }
-
+  
   public func textFieldDidEndEditing(_ textField: UITextField) {
-    guard state != .error else { return }
-    state = .unActive
+    guard let text = textField.text else { return }
+    
+    // 유효성에 문제가 있다면 에러처리
+    if condition?(text) == false && text.isEmpty == false {
+      state = .error
+      charactorLimitView.setState(.error(characterCount: text.count, errorMessage: self.errorMessage ?? ""))
+    } else {
+      state = .unActive
+      charactorLimitView.setState(.default(characterCount: text.count))
+    }
   }
-
+  
   public func textFieldShouldReturn(_ textField: UITextField) -> Bool {
+    guard let text = textField.text else { return true }
+    
+    // 유효성에 문제가 있다면 에러처리
+    if condition?(text) == false && text.isEmpty == false {
+      state = .error
+      charactorLimitView.setState(.error(characterCount: text.count, errorMessage: self.errorMessage ?? ""))
+    } else {
+      state = .unActive
+      charactorLimitView.setState(.default(characterCount: text.count))
+    }
+    
     textField.resignFirstResponder()
     return true
   }
 }
 
 extension MMTextField {
-  public func setError(message: String) {
-    guard let textCount = textField.text?.count else { return }
-    state = .error
-    charactorLimitView.setState(.error(
-      characterCount: textCount,
-      errorMessage: message
-    ))
-  }
-
   public func setIsEnabled(to value: Bool) {
     textField.isEnabled = value
 
@@ -219,26 +220,41 @@ extension MMTextField {
     setNeedsLayout()
   }
 
-  public func setText(to text: String) {
+  @discardableResult
+  public func setError(message: String, condition: @escaping (String) -> Bool) -> Self {
+    self.errorMessage = message
+    self.condition = condition
+    return self
+  }
+  
+  @discardableResult
+  public func setText(to text: String) -> Self {
     textField.text = text
+    return self
   }
-
-  public func setTitle(to text: String) {
+  
+  @discardableResult
+  public func setTitle(to text: String) -> Self {
     titleLabel.text = text
-    titleLabel.flex.markDirty()
-    setNeedsLayout()
+    return self
   }
-
-  public func setPlaceholder(to text: String) {
+  
+  @discardableResult
+  public func setPlaceholder(to text: String) -> Self {
     textField.placeholder = text
+    return self
   }
-
-  public func setKeyboardType(to type: UIKeyboardType) {
+  
+  @discardableResult
+  public func setKeyboardType(to type: UIKeyboardType) -> Self {
     textField.keyboardType = type
+    return self
   }
-
+  
   // asterisk(*) 표기 유무
-  public func setRequireMark(to value: Bool = true) {
+  @discardableResult
+  public func setRequireMark(to value: Bool = true) -> Self {
     asteriskLabel.isHidden = !value
+    return self
   }
 }

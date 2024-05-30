@@ -31,11 +31,13 @@ final class JoinAgencyReactor: Reactor {
   
   let initialState: State
   
-  private let repo: AgencyRepositoryInterface
+  private let agencyRepo: AgencyRepositoryInterface
+  private let userRepo: UserRepositoryInterface
   
-  init(id: Int, name: String, repo: AgencyRepositoryInterface) {
+  init(id: Int, name: String, agencyRepo: AgencyRepositoryInterface, userRepo: UserRepositoryInterface) {
     self.initialState = .init(agencyID: id, agencyName: name)
-    self.repo = repo
+    self.agencyRepo = agencyRepo
+    self.userRepo = userRepo
   }
   
   func mutate(action: Action) -> Observable<Mutation> {
@@ -50,7 +52,11 @@ final class JoinAgencyReactor: Reactor {
     case .requestJoinAgency:
       let code = currentState.codes.compactMap { $0 }.map { String($0) }.joined()
       return .task {
-        try await repo.certificateCode(id: currentState.agencyID, code: code)
+        let result = try await agencyRepo.certificateCode(id: currentState.agencyID, code: code)
+        if result {
+          userRepo.updateSelectedAgency(id: currentState.agencyID)
+        }
+        return result
       }
       .map { .joinAgencyResponse(.success($0)) }
       .catch { return .just(.joinAgencyResponse(.failure($0.toMMError))) }
@@ -75,6 +81,7 @@ final class JoinAgencyReactor: Reactor {
     case let .joinAgencyResponse(.success(value)):
       switch value {
       case true:
+        
         newState.destination = .joinComplete
       case false:
         newState.snackBarMessage = "잘못된 초대코드입니다"

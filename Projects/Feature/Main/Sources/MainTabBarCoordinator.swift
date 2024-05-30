@@ -1,6 +1,7 @@
 import UIKit
 
 import BaseFeature
+import LedgerFeature
 
 public final class MainTabBarCoordinator: Coordinator {
   public var navigationController: UINavigationController
@@ -21,15 +22,18 @@ public final class MainTabBarCoordinator: Coordinator {
   
   public func move(to scene: Scene) {
     switch scene {
-    case .main:
+    case .main: // 메인으로 이동
       print("move to main")
-    case .login:
+    case .login: // 로그인으로 이동
       parentCoordinator?.move(to: .login)
       remove()
-    case .ledger:
-      tabBarController?.selectedIndex = 0
-    case .agency:
+    case .ledger: // 장부로 이동
       tabBarController?.selectedIndex = 1
+    case let .manualInput(agencyID): // 장부 이동 &
+      tabBarController?.selectedIndex = 1
+      NotificationCenter.default.post(name: .presentManualInput, object: nil, userInfo: ["id": agencyID])
+    case .agency: // 소속으로 이동
+      tabBarController?.selectedIndex = 0
     }
   }
   

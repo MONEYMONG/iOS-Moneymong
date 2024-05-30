@@ -34,20 +34,25 @@ final class ManualInputVC: BaseVC, View {
   private let keyboardSpaceView = UIView()
   
   private let completeButton = MMButton(title: "작성하기", type: .primary)
-
+  
   private let sourceTextField: MMTextField = {
-    let v = MMTextField(charactorLimitCount: 20, title: "수입·지출 출처")
-    v.setPlaceholder(to: "점포명을 입력해주세요")
-    v.setRequireMark()
-    return v
+    MMTextField(charactorLimitCount: 20, title: "수입·지출 출처")
+      .setPlaceholder(to: "점포명을 입력해주세요")
+      .setRequireMark()
   }()
   
   private let amountTextField: MMTextField = {
-    let v = MMTextField(title: "금액")
-    v.setPlaceholder(to: "거래 금액을 입력해주세요")
-    v.setRequireMark()
-    v.setKeyboardType(to: .numberPad)
-    return v
+    MMTextField(title: "금액")
+      .setPlaceholder(to: "거래 금액을 입력해주세요")
+      .setRequireMark()
+      .setKeyboardType(to: .numberPad)
+      .setError(message: "999,999,999원 이내로 입력해주세요") { text in
+        guard let value = Int(text.replacingOccurrences(of: ",", with: "")) else {
+          return false
+        }
+        
+        return value <= 999_999_999
+      }
   }()
   
   private let selectionLabel: UILabel = {
@@ -70,18 +75,44 @@ final class ManualInputVC: BaseVC, View {
   )
   
   private let dateTextField: MMTextField = {
-    let v = MMTextField(title: "날짜")
-    v.setPlaceholder(to: "YYYY/MM/DD")
-    v.setRequireMark()
-    v.setKeyboardType(to: .numberPad)
-    return v
+    MMTextField(title: "날짜")
+      .setPlaceholder(to: "YYYY/MM/DD")
+      .setRequireMark()
+      .setKeyboardType(to: .numberPad)
+      .setError(message: "올바른 날짜를 입력해 주세요") { text in
+        let pattern = "^\\d{4}/(0[1-9]|1[012])/(0[1-9]|[12]\\d|3[01])$"
+        let regex = try! NSRegularExpression(pattern: pattern)
+        
+        return regex.firstMatch(in: text, range: NSRange(location: 0, length: text.count)) != nil
+      }
   }()
   
   private let timeTextField: MMTextField = {
-    let v = MMTextField(title: "시간")
-    v.setPlaceholder(to: "00:00:00(24시 단위)")
-    v.setRequireMark()
-    v.setKeyboardType(to: .numberPad)
+    MMTextField(title: "시간")
+      .setPlaceholder(to: "00:00:00(24시 단위)")
+      .setRequireMark()
+      .setKeyboardType(to: .numberPad)
+      .setError(message: "올바른 시간을 입력해 주세요") { text in
+        let pattern = "^([01]?[0-9]|2[0-3]):[0-5][0-9]:[0-5][0-9]$"
+        let regex = try! NSRegularExpression(pattern: pattern)
+        
+        return regex.firstMatch(in: text, range: NSRange(location: 0, length: text.count)) != nil
+      }
+  }()
+  
+  private let writerTitleLabel: UILabel = {
+    let v = UILabel()
+    v.textColor = Colors.Gray._6
+    v.font = Fonts.body._2
+    v.setTextWithLineHeight(text: "작성자", lineHeight: 18)
+    return v
+  }()
+  
+  private let writerNameLabel: UILabel = {
+    let v = UILabel()
+    v.textColor = Colors.Gray._10
+    v.font = Fonts.body._3
+    v.setTextWithLineHeight(text: "머니몽", lineHeight: 20)
     return v
   }()
   
@@ -100,13 +131,16 @@ final class ManualInputVC: BaseVC, View {
     return v
   }()
   
-  private let dataSource = RxCollectionViewSectionedReloadDataSource<ImageSectionModel.Model>(
+  private lazy var dataSource = RxCollectionViewSectionedReloadDataSource<ImageSectionModel.Model>(
     configureCell: { dataSource, collectionView, indexPath, item in
       switch item {
       case .button:
         return collectionView.dequeueCell(AddImageCell.self, for: indexPath)
       case .image(_, _):
-        return collectionView.dequeueCell(ImageCell.self, for: indexPath).configure(with: item)
+        return collectionView.dequeueCell(ImageCell.self, for: indexPath)
+          .configure(with: item) { [weak self] in
+            self?.reactor?.action.onNext(.presentedAlert(.deleteImage($0)))
+          }
       }
     },
     configureSupplementaryView: { dataSource, collectionView, kind, indexPath in
@@ -122,11 +156,10 @@ final class ManualInputVC: BaseVC, View {
   )
   
   private let memoTextView: MMTextView = {
-    let v = MMTextView(charactorLimitCount: 300, title: "메모")
-    v.setPlaceholder(to: "메모할 내용을 입력하세요")
-    return v
+    MMTextView(charactorLimitCount: 300, title: "메모")
+      .setPlaceholder(to: "메모할 내용을 입력하세요")
   }()
-
+  
   override func viewDidLayoutSubviews() {
     super.viewDidLayoutSubviews()
     completeButton.pin.height(56).bottom(view.safeAreaInsets.bottom + 12).horizontally(20)
@@ -145,18 +178,28 @@ final class ManualInputVC: BaseVC, View {
         flex.addItem(content).marginTop(12).marginHorizontal(20).define { flex in
           flex.addItem(sourceTextField).marginBottom(24)
           flex.addItem(amountTextField).marginBottom(24)
+          
           flex.addItem().define { flex in
             flex.addItem(selectionLabel).marginBottom(8)
             flex.addItem(fundTypeSelection)
           }.marginBottom(24)
+          
           flex.addItem(dateTextField).marginBottom(24)
           flex.addItem(timeTextField).marginBottom(24)
+          
           flex.addItem().define { flex in
             flex.addItem(collectionView).marginRight(-8)
           }.marginBottom(24)
-          flex.addItem(memoTextView)
+          
+          flex.addItem(memoTextView).marginBottom(24)
+          
+          flex.addItem().alignItems(.start).define { flex in
+            flex.addItem(writerTitleLabel).marginBottom(8)
+            flex.addItem(writerNameLabel)
+          }
         }.paddingBottom(50)
       }
+      
       flex.addItem(keyboardSpaceView).backgroundColor(.clear).height(60)
       flex.addItem(smogView).position(.absolute).bottom(0).horizontally(0).height(100)
     }
@@ -178,12 +221,17 @@ final class ManualInputVC: BaseVC, View {
     collectionView.rx.setDelegate(self)
       .disposed(by: disposeBag)
     
+    rx.viewDidLoad
+      .map { Reactor.Action.onAppear }
+      .bind(to: reactor.action)
+      .disposed(by: disposeBag)
+    
     collectionView.rx.modelSelected(ImageSectionModel.Item.self)
       .filter { $0 == .button(.receipt) || $0 == .button(.document) }
       .bind(with: self) { owner, value in
         guard case let .button(section) = value else { return }
         reactor.action.onNext(.didTapImageAddButton(section))
-    }.disposed(by: disposeBag)
+      }.disposed(by: disposeBag)
     
     completeButton.rx.tap
       .map { Reactor.Action.didTapCompleteButton }
@@ -224,9 +272,11 @@ final class ManualInputVC: BaseVC, View {
       .disposed(by: disposeBag)
     
     fundTypeSelection.$selectedIndex
+      .removeDuplicates()
       .sink {
         reactor.action.onNext(.inputContent("\($0)", type: .fundType))
-    }.store(in: &cancelBag)
+      }
+      .store(in: &cancelBag)
     
     dateTextField.textField.rx.text
       .compactMap { $0 }
@@ -257,12 +307,6 @@ final class ManualInputVC: BaseVC, View {
         owner.keyboardSpaceView.flex.height(60).markDirty()
         owner.rootContainer.flex.layout()
       }.disposed(by: disposeBag)
-    
-    NotificationCenter.default.rx.notification(.didTapImageDeleteButton)
-      .compactMap { $0.object as? ImageSectionModel.Item }
-      .map { Reactor.Action.presentedAlert(.deleteImage($0)) }
-      .bind(to: reactor.action)
-      .disposed(by: disposeBag)
   }
   
   private func bindState(reactor: ManualInputReactor) {
@@ -284,6 +328,16 @@ final class ManualInputVC: BaseVC, View {
       }
       .disposed(by: disposeBag)
     
+    reactor.pulse(\.content.$source)
+      .bind(to: sourceTextField.textField.rx.text)
+      .disposed(by: disposeBag)
+    
+    reactor.pulse(\.content.$amountSign)
+      .bind(with: self) { owner, value in
+        owner.fundTypeSelection.selectedIndex = value
+      }
+      .disposed(by: disposeBag)
+    
     reactor.pulse(\.content.$amount)
       .bind(to: amountTextField.textField.rx.text)
       .disposed(by: disposeBag)
@@ -294,6 +348,16 @@ final class ManualInputVC: BaseVC, View {
     
     reactor.pulse(\.content.$time)
       .bind(to: timeTextField.textField.rx.text)
+      .disposed(by: disposeBag)
+    
+    reactor.pulse(\.$userName)
+      .filter { $0.isEmpty == false }
+      .observe(on: MainScheduler.instance)
+      .bind(with: self) { owner, name in
+        owner.writerNameLabel.setTextWithLineHeight(text: name, lineHeight: 20)
+        owner.writerNameLabel.flex.markDirty()
+        owner.writerNameLabel.setNeedsLayout()
+      }
       .disposed(by: disposeBag)
     
     reactor.pulse(\.$destination)
@@ -332,17 +396,13 @@ final class ManualInputVC: BaseVC, View {
         )
       }
       .disposed(by: disposeBag)
-//
-//    reactor.pulse(\.$isValids)
-//      .compactMap { $0[.amount] }
-//      .distinctUntilChanged()
-//      .filter { $0 == false }
-//      .bind(with: self, onNext: { owner, isValid in
-//        owner.amountTextField.setError(message: "999,999,999원 이내로 입력해주세요")
-//        owner.amountTextField.flex.markDirty()
-//        owner.view.setNeedsLayout()
-//      })
-//      .disposed(by: disposeBag)
+    
+    reactor.pulse(\.$isButtonEnabled)
+      .observe(on: MainScheduler.instance)
+      .bind(with: self) { owner, isEnabled in
+        owner.completeButton.setState(isEnabled ? .primary : .disable)
+      }
+      .disposed(by: disposeBag)
   }
   
   private func updateCollectionHeigh(images: [ImageSectionModel.Model]) {

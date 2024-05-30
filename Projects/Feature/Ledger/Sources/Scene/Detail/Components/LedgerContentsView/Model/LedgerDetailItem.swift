@@ -20,7 +20,7 @@ struct LedgerDetailItem {
   private let formatter = ContentFormatter()
 
   init(ledger: LedgerDetail) {
-    let (date, time) = formatter.convertToDateTime(with: ledger.paymentDate)
+    let (date, time) = formatter.splitToDateTime(with: ledger.paymentDate)
 
     self.id = ledger.id
     self.storeInfo = ledger.storeInfo
@@ -55,7 +55,7 @@ struct LedgerDetailItem {
       amount: Int(amount.filter { $0.isNumber }) ?? 0,
       fundType: fundType,
       description: memo,
-      paymentDate: formatter.convertToISO8601(date: date, time: time) ?? "",
+      paymentDate: formatter.mergeWithISO8601(date: date, time: time) ?? "",
       receiptImageUrls: receiptImages.items
         .compactMap { item -> LedgerDetail.ImageURL? in
           if case .image(let imageInfo) = item {

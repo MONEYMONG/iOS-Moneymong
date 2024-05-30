@@ -2,7 +2,7 @@ import Foundation
 
 public protocol AgencyRepositoryInterface {
   func fetchList() async throws -> [Agency]
-  func create(name: String, type: String) async throws
+  func create(name: String, type: String) async throws -> Int
   func fetchMemberList(id: Int) async throws -> [Member]
   func changeMemberRole(id: Int, userId: Int, role: String) async throws
   func kickoutMember(id: Int, userId: Int) async throws
@@ -25,9 +25,9 @@ public final class AgencyRepository: AgencyRepositoryInterface {
     return dto.toEntity
   }
   
-  public func create(name: String, type: String) async throws {
+  public func create(name: String, type: String) async throws -> Int {
     let targetType = AgencyAPI.create(param: .init(name: name, agencyType: type))
-    try await networkManager.request(target: targetType, of: AgencyIDResponseDTO.self)
+    return try await networkManager.request(target: targetType, of: AgencyIDResponseDTO.self).id
   }
   
   public func fetchMemberList(id: Int) async throws -> [Member] {

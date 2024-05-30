@@ -67,12 +67,14 @@ final class LedgerTabVC: BaseVC, View {
   
   override func setupUI() {
     super.setupUI()
+    
     floatingButton.addWriteAction { [weak self] in
       guard let self else { return }
       if let id = reactor?.currentState.agencyID {
-        self.coordinator?.present(.inputManual(id))
+        self.coordinator?.present(.inputManual(id, false))
       }
     }
+    
     ledgerList.backgroundView = emptyView
   }
   
@@ -105,6 +107,16 @@ final class LedgerTabVC: BaseVC, View {
   }
   
   func bind(reactor: LedgerTabReactor) {
+    NotificationCenter.default.rx.notification(.presentManualInput)
+      .compactMap { $0.userInfo?["id"] as? Int }
+      .delay(.seconds(1), scheduler: MainScheduler.instance)
+      .observe(on: MainScheduler.instance)
+      .bind(with: self) { owner, id in
+        owner.coordinator?.present(.inputManual(id, true))
+      }
+      .disposed(by: disposeBag)
+      
+    
     dateRangeView.rx.tapGesture
       .map { _ in Reactor.Action.didTapDateRangeView }
       .bind(to: reactor.action)

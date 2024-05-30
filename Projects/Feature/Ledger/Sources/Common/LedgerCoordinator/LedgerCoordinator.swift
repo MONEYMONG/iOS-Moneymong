@@ -13,7 +13,7 @@ public final class LedgerCoordinator: Coordinator {
   enum Scene {
     case editMember(Int, Member)
     case alert(title: String, subTitle: String?, type: MMAlerts.`Type`)
-    case inputManual(Int)
+    case inputManual(Int, Bool)
     case datePicker(start: DateInfo, end: DateInfo)
     case imagePicker(delegate: UIImagePickerControllerDelegate & UINavigationControllerDelegate)
     case detail(Ledger, Member.Role)
@@ -31,8 +31,8 @@ public final class LedgerCoordinator: Coordinator {
   
   func present(_ scene: Scene, animated: Bool = true) {
     switch scene {
-    case let .inputManual(agencyId):
-      manualInput(agencyId: agencyId, animated: animated)
+    case let .inputManual(agencyId, isClubBudget):
+      manualInput(agencyId: agencyId, isClubBudget: isClubBudget, animated: animated)
     case let .datePicker(start, end):
       datePicker(start: start, end: end)
     case let .imagePicker(delegate):
@@ -49,7 +49,7 @@ public final class LedgerCoordinator: Coordinator {
   }
   
   func goAgency() {
-    parentCoordinator?.move(to: .ledger)
+    parentCoordinator?.move(to: .agency)
   }
 
   func pop(animated: Bool = true) {
@@ -58,13 +58,14 @@ public final class LedgerCoordinator: Coordinator {
 }
 
 extension LedgerCoordinator {
+  
   private func ledger(animated: Bool) {
     let vc = diContainer.ledger(with: self)
     navigationController.viewControllers = [vc]
   }
   
-  private func manualInput(agencyId: Int, animated: Bool) {
-    let vc = diContainer.manualInput(with: self, agencyId: agencyId)
+  private func manualInput(agencyId: Int, isClubBudget: Bool, animated: Bool) {
+    let vc = diContainer.manualInput(with: self, agencyId: agencyId, isClubBudget: isClubBudget)
     vc.modalPresentationStyle = .fullScreen
     navigationController.present(vc, animated: animated)
   }
