@@ -43,9 +43,6 @@ final class LedgerContentsReactor: Reactor {
   }
 
   struct State {
-    var addedReceiptImageUrls: [ImageInfo] = []
-    var deletedReceiptImageUrls: [ImageInfo] = []
-
     var prevLedgerItem: LedgerDetailItem = .empty
     @Pulse var currentLedgerItem: LedgerDetailItem = .empty
     @Pulse var selectedSection: ImageSection?
@@ -231,10 +228,10 @@ fileprivate extension LedgerContentsReactor {
   }
 
   func registrationDocumentImages() async throws {
-    if currentState.currentLedgerItem.addedReceiptImages.count > 0 {
+    if currentState.currentLedgerItem.addedDocumentImages.count > 0 {
       let id = currentState.currentLedgerItem.id
       let urls = currentState.currentLedgerItem.addedReceiptImages.map { $0.url }
-      try await ledgerRepo.receiptImagesUpload(detailId: id, receiptImageUrls: urls)
+      try await ledgerRepo.documentImagesUpload(detailId: id, documentImageUrls: urls)
     }
   }
 
@@ -248,7 +245,7 @@ fileprivate extension LedgerContentsReactor {
   func deleteDocumentImages() async throws {
       let id = currentState.currentLedgerItem.id
       for imageInfo in currentState.currentLedgerItem.deletedDocumentImages {
-          try await ledgerRepo.receiptImageDelete(detailId: id, receiptId: Int(imageInfo.key) ?? 0)
+          try await ledgerRepo.documentImageDelete(detailId: id, documentId: Int(imageInfo.key) ?? 0)
       }
   }
 

@@ -112,6 +112,7 @@ final class LedgerContentsView: BaseV, View, UIScrollViewDelegate {
     super.setupUI()
     backgroundColor = .clear
     setupHideKeyboardGesture()
+    setupPopGesture()
   }
 
   func bind(reactor: LedgerContentsReactor) {
@@ -179,7 +180,7 @@ final class LedgerContentsView: BaseV, View, UIScrollViewDelegate {
       .observe(on: MainScheduler.instance)
       .bind(with: self) { owner, items in
         owner.receiptCollectionView.updateCollectionHeigh(items: items)
-        owner.setNeedsLayout()
+        owner.contentsView.layoutIfNeeded()
       }
       .disposed(by: disposeBag)
 
@@ -195,7 +196,7 @@ final class LedgerContentsView: BaseV, View, UIScrollViewDelegate {
       .observe(on: MainScheduler.instance)
       .bind(with: self) { owner, items in
         owner.documentCollentionView.updateCollectionHeigh(items: items)
-        owner.setNeedsLayout()
+        owner.contentsView.layoutIfNeeded()
       }
       .disposed(by: disposeBag)
 
@@ -250,7 +251,8 @@ final class LedgerContentsView: BaseV, View, UIScrollViewDelegate {
         }
         owner.isShowKeyboard = true
         ViewHeight.keyboardHeight = keyboardFrame.cgRectValue.height - 120
-        owner.keyboardSpaceView.flex.height(keyboardFrame.cgRectValue.height - 120)
+        owner.keyboardSpaceView.flex
+          .height(keyboardFrame.cgRectValue.height - 120)
           .markDirty()
         owner.setNeedsLayout()
       }
@@ -346,12 +348,6 @@ final class LedgerContentsView: BaseV, View, UIScrollViewDelegate {
       .map { _ in Reactor.Action.selectedImageSection(.document) }
       .bind(to: reactor.action)
       .disposed(by: disposeBag)
-
-//    NotificationCenter.default.rx.notification(.didTapLedgerDetailImageDeleteButton)
-//      .compactMap { $0.object as? LedgerImageInfo }
-//      .map { Reactor.Action.deleteImage($0) }
-//      .bind(to: reactor.action)
-//      .disposed(by: disposeBag)
   }
 
   private func setupRead() {
@@ -531,16 +527,33 @@ fileprivate extension LedgerContentsView {
   }
 }
 
+/// pop Gesture
+fileprivate extension LedgerContentsView {
+  func setupPopGesture() {
+    let panGesture = UIPanGestureRecognizer(target: self, action: #selector(pop))
+    panGesture.cancelsTouchesInView = false
+    addGestureRecognizer(panGesture)
+  }
+
+  @objc func pop() {
+    if reactor?.currentState.state == .read {
+      coordinator?.pop()
+    }
+  }
+}
+
 /// ImagePicker
 extension LedgerContentsView: UIImagePickerControllerDelegate, UINavigationControllerDelegate {
   func imagePickerController(
     _ picker: UIImagePickerController,
     didFinishPickingMediaWithInfo info: [UIImagePickerController.InfoKey : Any]
   ) {
-    guard let image = info[.originalImage] as? UIImage else { return }
-    let scale = (receiptCollectionView.frame.width * 0.28) / image.size.width
-    guard let data = image.jpegData(compressionQuality: scale) else { return }
-    reactor?.action.onNext(.selectedImage(data))
+    Task {
+      guard let image = info[.originalImage] as? UIImage else { return }
+      let scale = (receiptCollectionView.frame.width * 0.28) / image.size.width
+      guard let data = image.jpegData(compressionQuality: scale) else { return }
+      reactor?.action.onNext(.selectedImage(data))
+    }
     picker.dismiss(animated: true, completion: nil)
   }
 }

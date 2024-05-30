@@ -35,7 +35,6 @@ final class DefaultImageCell: UICollectionViewCell, ReusableView {
     super.init(frame: frame)
     setupView()
     setupConstraints()
-    bind()
   }
 
   @available(*, unavailable)
@@ -108,6 +107,9 @@ final class DefaultImageCell: UICollectionViewCell, ReusableView {
           cacheKey: item.url
         )
       )
+      imageView.flex.layout()
+      imageView.flex.markDirty()
+      layoutIfNeeded()
     }
   }
 }

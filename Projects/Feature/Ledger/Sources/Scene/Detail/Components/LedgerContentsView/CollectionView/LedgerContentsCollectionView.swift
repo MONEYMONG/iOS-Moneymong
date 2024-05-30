@@ -67,7 +67,7 @@ final class LedgerContentsCollectionView: UICollectionView {
     /// item이 description일 경우 Height
     if case .description = items.items[0] {
       flex.height(16 + 8 + 20).markDirty()
-      setNeedsLayout()
+      layoutIfNeeded()
       return
     }
 
@@ -83,7 +83,7 @@ final class LedgerContentsCollectionView: UICollectionView {
     flex.height(
       16 + 8 + ((lineCount - 1) * 9) + (cellSize.height * lineCount)
     ).markDirty()
-    setNeedsLayout()
+    layoutIfNeeded()
   }
 }
 

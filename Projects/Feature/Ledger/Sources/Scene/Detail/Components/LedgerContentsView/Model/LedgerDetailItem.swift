@@ -213,13 +213,7 @@ extension LedgerDetailItem {
         guard case .image(let info) = $0 else { return false }
         return info.key != imageInfo.key ? true : false
       }
-
-      if receiptImages.items.count == 12 {
-        receiptImages.items = [.imageAddButton] + filteredItems
-      } else {
-        receiptImages.items = filteredItems
-      }
-
+      receiptImages.items = [.imageAddButton] + filteredItems
 
     case .document:
       let matchedItem = addedDocumentImages.first(where: { $0 == imageInfo })
@@ -233,12 +227,7 @@ extension LedgerDetailItem {
         guard case .image(let info) = $0 else { return false }
         return info.key != imageInfo.key ? true : false
       }
-
-      if documentImages.items.count == 12 {
-        documentImages.items = [.imageAddButton] + filteredItems
-      } else {
-        documentImages.items = filteredItems
-      }
+      documentImages.items = [.imageAddButton] + filteredItems
     }
   }
 }
@@ -284,7 +273,7 @@ extension LedgerDetailItem: Equatable {
         && lhs.date == rhs.date
         && lhs.time == rhs.time
         && lhs.memo == rhs.memo
-        && lhsReceiptUrls == rhsDocumentUrls
+        && lhsReceiptUrls == rhsReceiptUrls
         && lhsDocumentUrls == rhsDocumentUrls {
       return true
     }
