@@ -136,22 +136,24 @@ final class CreateManualLedgerReactor: Reactor {
     case let .didTapImageDeleteAlertButton(item, section):
       guard case let .image(image) = item else { return .empty() }
       return .task {
-        var index: Int!
-        var imageURL: ImageInfo!
+        var index: Int?
+        let imageURL: ImageInfo
         switch section {
         case .receipt:
           index = currentState.content.receiptImages.firstIndex(where: {
             $0.id == image.id
           })
+          guard let index else { throw MoneyMongError.appError(errorMessage: "이미지 삭제가 정상적으로 이뤄지지 않았습니다") }
           imageURL = currentState.content.receiptImages[index]
         case .document:
           index = currentState.content.documentImages.firstIndex(where: {
             $0.id == image.id
           })
+          guard let index else { throw MoneyMongError.appError(errorMessage: "이미지 삭제가 정상적으로 이뤄지지 않았습니다") }
           imageURL = currentState.content.documentImages[index]
         }
         try await ledgerRepo.imageDelete(imageURL)
-        return index
+        return index!
       }
       .flatMap { Observable<Mutation>.concat([
         .just(.deleteImage(image.id, section)),
