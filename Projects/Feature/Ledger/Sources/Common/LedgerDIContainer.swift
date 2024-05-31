@@ -63,23 +63,34 @@ public final class LedgerDIContainer {
     return vc
   }
   
-  func manualCreater(with coordinator: Coordinator, agencyId: Int) -> UIViewController {
-    let nv = UINavigationController()
-    let manualInputCoordinator = LedgerManualCreaterCoordinator(
-      navigationController: nv,
-      diContainer: LedgerManualCreaterDIContainer(repo: ledgerRepo, ledgerService: ledgerService)
+  func createManualLedger(
+    with coordinator: Coordinator,
+    agencyId: Int,
+    type: CreateManualLedgerReactor.`Type`
+  ) -> UIViewController {
+    let vc = UINavigationController()
+    let manualCreaterCoordinator = CreateManualLedgerCoordinator(
+      navigationController: vc,
+      diContainer: CreateManualLedgerDIContainer(
+        ledgerRepo: ledgerRepo,
+        userRepo: userRepo,
+        ledgerService: ledgerService
+      )
     )
-    coordinator.childCoordinators.append(manualInputCoordinator)
-    manualInputCoordinator.parentCoordinator = coordinator
-    manualInputCoordinator.start(agencyId: agencyId, animated: false)
-    return nv
+    coordinator.childCoordinators.append(manualCreaterCoordinator)
+    manualCreaterCoordinator.parentCoordinator = coordinator
+    manualCreaterCoordinator.start(agencyId: agencyId, type: type, animated: false)
+    return vc
   }
-  
-  func scanCreater(agencyId: Int, with coordinator: Coordinator) -> UIViewController {
+  func createOCRLedger(agencyId: Int, with coordinator: Coordinator) -> UIViewController {
     let nv = UINavigationController()
-    let scanCreatercoordinator = LedgerScanCreaterCoordinator(
+    let scanCreatercoordinator = CreateOCRLedgerCoordinator(
       navigationController: nv,
-      diContainer: LedgerScanCreaterDIContainer(repo: ledgerRepo, ledgerService: ledgerService)
+      diContainer: CreateOCRLedgerDIContainer(
+        ledgerRepo: ledgerRepo,
+        userRepo: userRepo,
+        ledgerService: ledgerService
+      )
     )
     coordinator.childCoordinators.append(scanCreatercoordinator)
     scanCreatercoordinator.parentCoordinator = coordinator

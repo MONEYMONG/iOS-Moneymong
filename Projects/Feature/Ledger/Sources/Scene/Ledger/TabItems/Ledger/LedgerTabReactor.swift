@@ -37,8 +37,8 @@ final class LedgerTabReactor: Reactor {
     
     enum Destination {
       case datePicker(start: DateInfo, end: DateInfo)
-      case manualCreater(Int)
-      case scanCreater(Int)
+      case createManualLedger(Int)
+      case createOCRLedger(Int)
     }
   }
   
@@ -86,9 +86,9 @@ final class LedgerTabReactor: Reactor {
         requestLedgerList()
       ])
     case .didTapWriteButton:
-      return .just(.setDestination(.manualCreater(currentState.agencyID)))
+      return .just(.setDestination(.createManualLedger(currentState.agencyID)))
     case .didTapScanButton:
-      return .just(.setDestination(.scanCreater(currentState.agencyID)))
+      return .just(.setDestination(.createOCRLedger(currentState.agencyID)))
     }
   }
   

@@ -8,10 +8,10 @@ import FlexLayout
 import PinLayout
 import ReactorKit
 
-final class LedgerScanCreaterVC: UIViewController, View {
+final class CreateOCRLedgerVC: UIViewController, View {
   var disposeBag = DisposeBag()
   
-  weak var coordinator: LedgerScanCreaterCoordinator?
+  weak var coordinator: CreateOCRLedgerCoordinator?
   
   private let deviceHeight = UIScreen.main.bounds.height
   
@@ -79,6 +79,10 @@ final class LedgerScanCreaterVC: UIViewController, View {
   
   private let indicator = MMIndicator()
   
+  deinit {
+    coordinator?.remove()
+  }
+  
   override func viewDidLoad() {
     super.viewDidLoad()
     setupUI()
@@ -120,11 +124,6 @@ final class LedgerScanCreaterVC: UIViewController, View {
   }
 
   private func setupUI() {
-    let appearance = UINavigationBarAppearance()
-    appearance.configureWithTransparentBackground()
-    navigationController?.navigationBar.scrollEdgeAppearance = appearance
-    navigationController?.navigationBar.standardAppearance = appearance
-    
     do {
       cameraView.delegate = self
       try cameraView.setupCamera()
@@ -158,7 +157,7 @@ final class LedgerScanCreaterVC: UIViewController, View {
     }
   }
   
-  func bind(reactor: LedgerScanCreaterReactor) {
+  func bind(reactor: CreateOCRLedgerReactor) {
     setLeftItem(.warning)
     setRightItem(.closeWhite)
     
@@ -170,7 +169,7 @@ final class LedgerScanCreaterVC: UIViewController, View {
     
     navigationItem.rightBarButtonItem?.rx.tap
       .bind(with: self) { owner, _ in
-        owner.coordinator?.dismiss(animated: true)
+        owner.dismiss(animated: true)
       }
       .disposed(by: disposeBag)
     
@@ -231,7 +230,7 @@ final class LedgerScanCreaterVC: UIViewController, View {
   }
 }
 
-extension LedgerScanCreaterVC: AVCapturePhotoCaptureDelegate {
+extension CreateOCRLedgerVC: AVCapturePhotoCaptureDelegate {
   func photoOutput(_ output: AVCapturePhotoOutput, didFinishProcessingPhoto photo: AVCapturePhoto, error: Error?) {
     let imageData = photo.fileDataRepresentation()
     reactor?.action.onNext(.receiptShoot(imageData))

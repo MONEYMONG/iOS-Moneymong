@@ -3,11 +3,7 @@ import UIKit
 import DesignSystem
 import Utility
 
-import RxSwift
-
 final class ImageCell: UICollectionViewCell, ReusableView {
-  private let disposeBag = DisposeBag()
-  private var itme: ImageSectionModel.Item?
   private let rootContainer = UIView()
   private let deleteButton: UIButton = {
     let v = UIButton()
@@ -22,11 +18,12 @@ final class ImageCell: UICollectionViewCell, ReusableView {
     return v
   }()
   
+  private var buttonAction: () -> Void = {}
+  
   override init(frame: CGRect) {
     super.init(frame: frame)
-    setupView()
+    setupUI()
     setupConstraints()
-    bind()
   }
 
   @available(*, unavailable)
@@ -36,11 +33,17 @@ final class ImageCell: UICollectionViewCell, ReusableView {
   
   override func layoutSubviews() {
     super.layoutSubviews()
+    
     rootContainer.pin.all()
     rootContainer.flex.layout()
   }
-
-  private func setupView() {}
+  
+  private func setupUI() {
+    deleteButton.addAction { [weak self] in
+      guard let self else { return }
+      buttonAction()
+    }
+  }
   
   private func setupConstraints() {
     contentView.addSubview(rootContainer)
@@ -55,18 +58,14 @@ final class ImageCell: UICollectionViewCell, ReusableView {
           .right(-6)
     }
   }
-  
-  private func bind() {
-    deleteButton.rx.tap
-      .bind(with: self) { owner, _ in
-        NotificationCenter.default.post(name: .didTapImageDeleteButton, object: owner.itme)
-      }.disposed(by: disposeBag)
-  }
-  
-  func configure(with item: ImageSectionModel.Item) -> Self {
-    guard case let .image(image, _) = item else { return self }
-    self.itme = item
+
+  func configure(
+    with item: ImageData.Item,
+    action: @escaping () -> Void
+  ) -> Self {
+    guard case let .image(image) = item else { return self }
     imageView.image = UIImage(data: image.data)
+    self.buttonAction = action
     return self
   }
 }

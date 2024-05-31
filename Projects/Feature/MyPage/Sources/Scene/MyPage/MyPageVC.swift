@@ -59,7 +59,7 @@ public final class MyPageVC: BaseVC, ReactorKit.View {
   
   public func bind(reactor: MyPageReactor) {
     // Action Binding
-    rx.viewWillAppear
+    rx.viewDidLoad
       .map { Reactor.Action.onappear }
       .bind(to: reactor.action)
       .disposed(by: disposeBag)

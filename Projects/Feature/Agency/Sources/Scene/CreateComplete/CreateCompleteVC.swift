@@ -10,6 +10,8 @@ final class CreateCompleteVC: BaseVC {
   private let disposeBag = DisposeBag()
   weak var coordinator: AgencyCoordinator?
   
+  let agencyID: Int
+  
   private let completeImageView = UIImageView(image: Images.agencyCongrats)
   private let completeLabel: UILabel = {
     let v = UILabel()
@@ -21,6 +23,11 @@ final class CreateCompleteVC: BaseVC {
   
   private let ledgerButton = MMButton(title: "소속 장부 확인하러 가기", type: .secondary)
   private let registerLedgerButton = MMButton(title: "동아리 운영비 등록하러 가기", type: .primary)
+  
+  init(id: Int) {
+    self.agencyID = id
+    super.init()
+  }
   
   override func viewDidLoad() {
     super.viewDidLoad()
@@ -74,7 +81,7 @@ final class CreateCompleteVC: BaseVC {
       .throttle(.seconds(1), latest: false, scheduler: MainScheduler.instance)
       .bind(with: self) { owner, _ in
         owner.coordinator?.dismiss(animated: false)
-        owner.coordinator?.goCreateLedger()
+        owner.coordinator?.goManualCreater(agencyID: owner.agencyID)
       }
       .disposed(by: disposeBag)
   }

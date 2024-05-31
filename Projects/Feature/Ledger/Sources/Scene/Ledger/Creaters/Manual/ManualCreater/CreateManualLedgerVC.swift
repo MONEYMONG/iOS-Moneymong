@@ -6,9 +6,13 @@ import DesignSystem
 
 import ReactorKit
 import RxDataSources
+import PinLayout
+import FlexLayout
 
-final class LedgerManualCreaterVC: BaseVC, View {
-  weak var coordinator: LedgerManualCreaterCoordinator?
+// TODO: 각 텍스트 필드에 조건 넣어줘야함
+
+final class CreateManualLedgerVC: BaseVC, View {
+  weak var coordinator: CreateManualLedgerCoordinator?
   private struct ViewSize {
     static var cell: CGSize {
       let width = UIScreen.main.bounds.width * 0.28
@@ -18,11 +22,12 @@ final class LedgerManualCreaterVC: BaseVC, View {
     static var cellSpacing: Double = cell.width * 0.095
     static var receiptHeaderHeight: CGFloat =  31
     static var documentHeaderHeight: CGFloat = 16
-    static var collectionBaseHeight: CGFloat = receiptHeaderHeight + documentHeaderHeight + 24 + (ViewSize.cell.height + 8) * 2
+    static var collectionBaseHeight: CGFloat = ViewSize.cell.height + 8
   }
   
   var disposeBag = DisposeBag()
   private var cancelBag = Set<AnyCancellable>()
+  private var startingType: CreateManualLedgerReactor.`Type` = .createManual
   
   private let scrollView: UIScrollView = {
     let v = UIScrollView()
@@ -43,7 +48,12 @@ final class LedgerManualCreaterVC: BaseVC, View {
     return v
   }()
   private let keyboardSpaceView = UIView()
-  
+  private let recepitImageView: UIImageView = {
+    let v = UIImageView()
+    v.contentMode = .scaleAspectFill
+    v.clipsToBounds = true
+    return v
+  }()
   private let completeButton = MMButton(title: "작성하기", type: .primary)
 
   private let sourceTextField: MMTextField = {
@@ -96,47 +106,59 @@ final class LedgerManualCreaterVC: BaseVC, View {
     return v
   }()
   
-  private lazy var collectionView: UICollectionView = {
+  private let writerTitleLabel: UILabel = {
+    let v = UILabel()
+    v.textColor = Colors.Gray._6
+    v.font = Fonts.body._2
+    v.setTextWithLineHeight(text: "작성자", lineHeight: 18)
+    return v
+  }()
+  
+  private let writerNameLabel: UILabel = {
+    let v = UILabel()
+    v.textColor = Colors.Gray._10
+    v.font = Fonts.body._3
+    v.setTextWithLineHeight(text: "머니몽", lineHeight: 20)
+    return v
+  }()
+  
+  private lazy var receiptCollectionView: UICollectionView = {
     let layout = UICollectionViewFlowLayout()
     layout.itemSize = ViewSize.cell
     layout.minimumLineSpacing = ViewSize.cellSpacing
     layout.minimumInteritemSpacing = ViewSize.cellSpacing
-    layout.sectionInset = UIEdgeInsets(top: 8, left: 0, bottom: 24, right: 8)
+    layout.sectionInset = UIEdgeInsets(top: 8, left: 0, bottom: 0, right: 8)
     let v = UICollectionView(frame: .zero, collectionViewLayout: layout)
     v.register(AddImageCell.self)
     v.register(ImageCell.self)
-    v.registerHeader(ReceiptHeader.self)
-    v.registerHeader(DocumentHeader.self)
     v.isScrollEnabled = false
+    v.tag = 0
     return v
   }()
   
-  private let dataSource = RxCollectionViewSectionedReloadDataSource<ImageSectionModel.Model>(
-    configureCell: { dataSource, collectionView, indexPath, item in
-      switch item {
-      case .button:
-        return collectionView.dequeueCell(AddImageCell.self, for: indexPath)
-      case .image(_, _):
-        return collectionView.dequeueCell(ImageCell.self, for: indexPath).configure(with: item)
-      }
-    },
-    configureSupplementaryView: { dataSource, collectionView, kind, indexPath in
-      let section = dataSource[indexPath.section]
-      if section.model == .receipt {
-        let section = collectionView.dequeueHeader(ReceiptHeader.self, for: indexPath)
-        return section
-      } else {
-        let section = collectionView.dequeueHeader(DocumentHeader.self, for: indexPath)
-        return section
-      }
-    }
-  )
+  private lazy var documentCollectionView: UICollectionView = {
+    let layout = UICollectionViewFlowLayout()
+    layout.itemSize = ViewSize.cell
+    layout.minimumLineSpacing = ViewSize.cellSpacing
+    layout.minimumInteritemSpacing = ViewSize.cellSpacing
+    layout.sectionInset = UIEdgeInsets(top: 8, left: 0, bottom: 0, right: 8)
+    let v = UICollectionView(frame: .zero, collectionViewLayout: layout)
+    v.register(AddImageCell.self)
+    v.register(ImageCell.self)
+    v.isScrollEnabled = false
+    v.tag = 1
+    return v
+  }()
   
   private let memoTextView: MMTextView = {
     let v = MMTextView(charactorLimitCount: 300, title: "메모")
     v.setPlaceholder(to: "메모할 내용을 입력하세요")
     return v
   }()
+  
+  deinit {
+    coordinator?.remove()
+  }
 
   override func viewDidLayoutSubviews() {
     super.viewDidLayoutSubviews()
@@ -146,54 +168,111 @@ final class LedgerManualCreaterVC: BaseVC, View {
   
   override func setupUI() {
     super.setupUI()
-    setTitle("장부 작성")
+    switch startingType {
+    case .ocrResultEdit:
+      setTitle("상세내역")
+    default:
+      setTitle("장부작성")
+    }
   }
   
   override func setupConstraints() {
     super.setupConstraints()
     rootContainer.flex.define { flex in
       flex.addItem(scrollView).shrink(1).define { flex in
-        flex.addItem(content).marginTop(12).marginHorizontal(20).define { flex in
-          flex.addItem(sourceTextField).marginBottom(24)
-          flex.addItem(amountTextField).marginBottom(24)
-          flex.addItem().define { flex in
-            flex.addItem(selectionLabel).marginBottom(8)
-            flex.addItem(fundTypeSelection)
-          }.marginBottom(24)
-          flex.addItem(dateTextField).marginBottom(24)
-          flex.addItem(timeTextField).marginBottom(24)
-          flex.addItem().define { flex in
-            flex.addItem(collectionView).marginRight(-8)
-          }.marginBottom(24)
-          flex.addItem(memoTextView)
+        flex.addItem(content).define { flex in
+          switch startingType {
+          case .ocrResultEdit:
+            flex.addItem(recepitImageView).height(240).marginBottom(16)
+          default: break
+          }
+          flex.addItem().marginTop(12).marginHorizontal(20).define { flex in
+            flex.addItem(sourceTextField).marginBottom(24)
+            flex.addItem(amountTextField).marginBottom(24)
+            
+            flex.addItem().define { flex in
+              flex.addItem(selectionLabel).marginBottom(8)
+              flex.addItem(fundTypeSelection)
+            }.marginBottom(24)
+            
+            flex.addItem(dateTextField).marginBottom(24)
+            flex.addItem(timeTextField).marginBottom(24)
+            switch startingType {
+            case .ocrResultEdit:
+              flex.addItem(memoTextView).marginBottom(24)
+              flex.addItem(UILabel().text("증빙 자료 (최대 12장)", font: Fonts.body._2, color: Colors.Gray._6))
+              flex.addItem(documentCollectionView).marginBottom(24).marginRight(-8)
+            default:
+              flex.addItem(UILabel().text("영수증 (최대 12장)", font: Fonts.body._2, color: Colors.Gray._6))
+              flex.addItem(UILabel().text("*지출일 경우 영수증을 꼭 제출해주세요", font: Fonts.body._2, color: Colors.Blue._4))
+              flex.addItem(receiptCollectionView).marginBottom(24).marginRight(-8)
+              
+              flex.addItem(UILabel().text("증빙 자료 (최대 12장)", font: Fonts.body._2, color: Colors.Gray._6))
+              flex.addItem(documentCollectionView).marginBottom(24).marginRight(-8)
+              
+              flex.addItem(memoTextView).marginBottom(24)
+            }
+            flex.addItem().alignItems(.start).define { flex in
+              flex.addItem(writerTitleLabel).marginBottom(8)
+              flex.addItem(writerNameLabel)
+            }
+          }
         }.paddingBottom(50)
       }
+      
       flex.addItem(keyboardSpaceView).backgroundColor(.clear).height(60)
       flex.addItem(smogView).position(.absolute).bottom(0).horizontally(0).height(100)
     }
     view.addSubview(completeButton)
   }
   
-  func bind(reactor: LedgerManualCreaterReactor) {
-    setRightItem(.closeBlack)
+  func bind(reactor: CreateManualLedgerReactor) {
+    
+    startingType = reactor.initialState.type
+    switch reactor.initialState.type {
+    case .ocrResultEdit:
+      setLeftItem(.back)
+      setRightItem(.등록하기)
+    default:
+      setRightItem(.closeBlack)
+    }
     bindAction(reactor: reactor)
     bindState(reactor: reactor)
   }
   
-  private func bindAction(reactor: LedgerManualCreaterReactor) {
-    navigationItem.rightBarButtonItem?.rx.tap
-      .map { Reactor.Action.presentedAlert(.end) }
+  private func bindAction(reactor: CreateManualLedgerReactor) {
+    switch reactor.initialState.type {
+    case .ocrResultEdit:
+      navigationItem.leftBarButtonItem?.rx.tap
+        .bind(with: self, onNext: { owner, _ in
+          owner.navigationController?.popViewController(animated: true)
+        })
+        .disposed(by: disposeBag)
+      navigationItem.rightBarButtonItem?.rx.tap
+        .map { Reactor.Action.didTapCompleteButton }
+        .bind(to: reactor.action)
+        .disposed(by: disposeBag)
+    default:
+      navigationItem.rightBarButtonItem?.rx.tap
+        .map { Reactor.Action.presentedAlert(.end) }
+        .bind(to: reactor.action)
+        .disposed(by: disposeBag)
+    }
+    rx.viewDidLoad
+      .map { Reactor.Action.onAppear }
       .bind(to: reactor.action)
       .disposed(by: disposeBag)
     
-    collectionView.rx.setDelegate(self)
-      .disposed(by: disposeBag)
+    receiptCollectionView.rx.modelSelected(ImageData.Item.self)
+      .filter { $0 == .button }
+      .bind(with: self) { owner, _ in
+        reactor.action.onNext(.didTapImageAddButton(.receipt))
+    }.disposed(by: disposeBag)
     
-    collectionView.rx.modelSelected(ImageSectionModel.Item.self)
-      .filter { $0 == .button(.receipt) || $0 == .button(.document) }
-      .bind(with: self) { owner, value in
-        guard case let .button(section) = value else { return }
-        reactor.action.onNext(.didTapImageAddButton(section))
+    documentCollectionView.rx.modelSelected(ImageData.Item.self)
+      .filter { $0 == .button }
+      .bind(with: self) { owner, _ in
+        reactor.action.onNext(.didTapImageAddButton(.document))
     }.disposed(by: disposeBag)
     
     completeButton.rx.tap
@@ -235,9 +314,11 @@ final class LedgerManualCreaterVC: BaseVC, View {
       .disposed(by: disposeBag)
     
     fundTypeSelection.$selectedIndex
+      .removeDuplicates()
       .sink {
         reactor.action.onNext(.inputContent("\($0)", type: .fundType))
-    }.store(in: &cancelBag)
+      }
+      .store(in: &cancelBag)
     
     dateTextField.textField.rx.text
       .compactMap { $0 }
@@ -268,23 +349,67 @@ final class LedgerManualCreaterVC: BaseVC, View {
         owner.keyboardSpaceView.flex.height(60).markDirty()
         owner.rootContainer.flex.layout()
       }.disposed(by: disposeBag)
-    
-    NotificationCenter.default.rx.notification(.didTapImageDeleteButton)
-      .compactMap { $0.object as? ImageSectionModel.Item }
-      .map { Reactor.Action.presentedAlert(.deleteImage($0)) }
-      .bind(to: reactor.action)
-      .disposed(by: disposeBag)
   }
   
-  private func bindState(reactor: LedgerManualCreaterReactor) {
-    reactor.pulse(\.$images)
-      .bind(to: collectionView.rx.items(dataSource: dataSource))
+  private func bindState(reactor: CreateManualLedgerReactor) {
+    switch reactor.initialState.type {
+    case .ocrResultEdit:
+      reactor.pulse(\.$receiptImages)
+        .compactMap { item -> UIImage? in
+          guard case let .image(image) = item.last else { return UIImage() }
+          return UIImage(data: image.data)
+        }
+        .bind(to: recepitImageView.rx.image)
+        .disposed(by: disposeBag)
+    default:
+      reactor.pulse(\.$receiptImages)
+        .bind(to: receiptCollectionView.rx.items) { [weak self] view, row, element in
+          let indexPath = IndexPath(row: row, section: 0)
+          switch element {
+          case .button:
+            return view.dequeueCell(AddImageCell.self, for: indexPath)
+          case .image:
+            return view.dequeueCell(ImageCell.self, for: indexPath)
+              .configure(with: element) {
+                self?.reactor?.action.onNext(.presentedAlert(.deleteImage(element, .receipt)))
+              }
+          }
+        }
+        .disposed(by: disposeBag)
+      
+      reactor.pulse(\.$receiptImages)
+        .observe(on: MainScheduler.instance)
+        .bind(with: self) { owner, value in
+          owner.updateCollectionHeigh(
+            collectionView: owner.receiptCollectionView,
+            images: value
+          )
+        }
+        .disposed(by: disposeBag)
+    }
+    
+    reactor.pulse(\.$documentImages)
+      .bind(to: documentCollectionView.rx.items) { [weak self] view, row, element in
+        let indexPath = IndexPath(row: row, section: 0)
+        switch element {
+        case .button:
+          return view.dequeueCell(AddImageCell.self, for: indexPath)
+        case .image:
+          return view.dequeueCell(ImageCell.self, for: indexPath)
+            .configure(with: element) {
+              self?.reactor?.action.onNext(.presentedAlert(.deleteImage(element, .document)))
+            }
+        }
+      }
       .disposed(by: disposeBag)
     
-    reactor.pulse(\.$images)
+    reactor.pulse(\.$documentImages)
       .observe(on: MainScheduler.instance)
       .bind(with: self) { owner, value in
-        owner.updateCollectionHeigh(images: value)
+        owner.updateCollectionHeigh(
+          collectionView: owner.documentCollectionView,
+          images: value
+        )
       }
       .disposed(by: disposeBag)
     
@@ -292,6 +417,16 @@ final class LedgerManualCreaterVC: BaseVC, View {
       .compactMap { $0 }
       .bind(with: self) { owner, _ in
         owner.coordinator?.present(.imagePicker(delegate: owner))
+      }
+      .disposed(by: disposeBag)
+    
+    reactor.pulse(\.content.$source)
+      .bind(to: sourceTextField.textField.rx.text)
+      .disposed(by: disposeBag)
+      
+    reactor.pulse(\.content.$fundType)
+      .bind(with: self) { owner, value in
+        owner.fundTypeSelection.selectedIndex = value
       }
       .disposed(by: disposeBag)
     
@@ -307,11 +442,19 @@ final class LedgerManualCreaterVC: BaseVC, View {
       .bind(to: timeTextField.textField.rx.text)
       .disposed(by: disposeBag)
     
+    reactor.pulse(\.$userName)
+      .filter { $0.isEmpty == false }
+      .observe(on: MainScheduler.instance)
+      .bind(with: self) { owner, name in
+        owner.writerNameLabel.setTextWithLineHeight(text: name, lineHeight: 20)
+      }
+      .disposed(by: disposeBag)
+    
     reactor.pulse(\.$destination)
       .filter { $0 == .ledger }
       .observe(on: MainScheduler.instance)
       .bind(with: self) { owner, _ in
-        owner.coordinator?.dismiss(animated: true)
+        owner.dismiss(animated: true)
       }
       .disposed(by: disposeBag)
     
@@ -324,13 +467,13 @@ final class LedgerManualCreaterVC: BaseVC, View {
         switch type {
         case .error(_):
           alert = .onlyOkButton()
-        case .deleteImage(let item):
+        case let .deleteImage(item, section):
           alert = .default(okAction: { [weak reactor] in
-            reactor?.action.onNext(.didTapImageDeleteAlertButton(item))
+            reactor?.action.onNext(.didTapImageDeleteAlertButton(item, section))
           })
         case .end:
           alert = .default(okAction: { [weak owner] in
-            owner?.coordinator?.dismiss(animated: true)
+            owner?.dismiss(animated: true)
           })
         }
         owner.coordinator?.present(
@@ -343,49 +486,30 @@ final class LedgerManualCreaterVC: BaseVC, View {
         )
       }
       .disposed(by: disposeBag)
-//
-//    reactor.pulse(\.$isValids)
-//      .compactMap { $0[.amount] }
-//      .distinctUntilChanged()
-//      .filter { $0 == false }
-//      .bind(with: self, onNext: { owner, isValid in
-//        owner.amountTextField.setError(message: "999,999,999원 이내로 입력해주세요")
-//        owner.amountTextField.flex.markDirty()
-//        owner.view.setNeedsLayout()
-//      })
-//      .disposed(by: disposeBag)
+    
+    reactor.pulse(\.$isButtonEnabled)
+      .observe(on: MainScheduler.instance)
+      .bind(with: self) { owner, isEnabled in
+        owner.completeButton.setState(isEnabled ? .primary : .disable)
+      }
+      .disposed(by: disposeBag)
   }
   
-  private func updateCollectionHeigh(images: [ImageSectionModel.Model]) {
-    let receiptImageCount = images[0].items.count
-    let supportingImageCount = images[1].items.count
-    let receiptLineCount = ceil(Double(receiptImageCount) / 3)
-    let supportingLineCount = ceil(Double(supportingImageCount) / 3)
+  private func updateCollectionHeigh(
+    collectionView: UICollectionView,
+    images: [ImageData.Item]
+  ) {
+    let imageCount = images.count
+    let lineCount = ceil(Double(imageCount) / 3)
     let baseH = ViewSize.collectionBaseHeight
     collectionView.flex.height(
-      baseH + (ViewSize.cell.height + ViewSize.cellSpacing) * (receiptLineCount + supportingLineCount - 2)
+      baseH + (ViewSize.cell.height + ViewSize.cellSpacing) * (lineCount - 1)
     ).markDirty()
     view.setNeedsLayout()
   }
 }
 
-extension LedgerManualCreaterVC: UICollectionViewDelegateFlowLayout {
-  func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, referenceSizeForHeaderInSection section: Int) -> CGSize {
-    if section == 0 {
-      return CGSize(
-        width: collectionView.frame.width,
-        height: ViewSize.receiptHeaderHeight
-      )
-    } else {
-      return CGSize(
-        width: collectionView.frame.width,
-        height: ViewSize.documentHeaderHeight
-      )
-    }
-  }
-}
-
-extension LedgerManualCreaterVC: UIImagePickerControllerDelegate, UINavigationControllerDelegate {
+extension CreateManualLedgerVC: UIImagePickerControllerDelegate, UINavigationControllerDelegate {
   func imagePickerController(_ picker: UIImagePickerController, didFinishPickingMediaWithInfo info: [UIImagePickerController.InfoKey : Any]) {
     if let image = info[.originalImage] as? UIImage {
       Task {
@@ -394,13 +518,15 @@ extension LedgerManualCreaterVC: UIImagePickerControllerDelegate, UINavigationCo
         if reactor?.currentState.selectedSection == .receipt {
           reactor?.action.onNext(
             .selectedImage(
-              .image(.init(id: .init(), data: data), .receipt)
+              ImageData.Item.image(.init(id: .init(), data: data)),
+              .receipt
             )
           )
         } else {
           reactor?.action.onNext(
             .selectedImage(
-              .image(.init(id: .init(), data: data), .document)
+              ImageData.Item.image(.init(id: .init(), data: data)),
+              .document
             )
           )
         }

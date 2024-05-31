@@ -21,7 +21,7 @@ public final class AgencyCoordinator: Coordinator {
     case joinAgency(id: Int, name: String)
     case joinComplete
     case createAgency
-    case createComplete
+    case createComplete(id: Int)
   }
 
   public func start(animated: Bool) {
@@ -30,7 +30,7 @@ public final class AgencyCoordinator: Coordinator {
   
   func push(_ scene: Scene, animated: Bool = true) {
     switch scene {
-    case .createComplete: createComplete(animated: animated)
+    case let .createComplete(id): createComplete(agencyID: id, animated: animated)
     case .joinComplete: joinComplete(animated: animated)
     default: break
     }
@@ -40,9 +40,14 @@ public final class AgencyCoordinator: Coordinator {
     switch scene {
     case let .alert(title, subTitle, okAction):
       AlertsManager.show(title: title, subTitle: subTitle, type: .onlyOkButton(okAction))
-    case let .joinAgency(id, name): joinAgency(id: id, name: name, animated: animated)
-    case .createAgency: createAgency(animated: animated)
-    default: break
+    case let .joinAgency(id, name): 
+      joinAgency(id: id, name: name, animated: animated)
+    case .joinComplete:
+      joinComplete(animated: animated)
+    case .createAgency: 
+      createAgency(animated: animated)
+    case let .createComplete(id):
+      createComplete(agencyID: id, animated: animated)
     }
   }
   
@@ -54,9 +59,8 @@ public final class AgencyCoordinator: Coordinator {
     parentCoordinator?.move(to: .agency)
   }
   
-  func goCreateLedger() {
-    // TODO: 동아리 운영비 등록하러 가기 화면이 떠야함..!
-    parentCoordinator?.move(to: .agency)
+  func goManualCreater(agencyID: Int) {
+    parentCoordinator?.move(to: .createManualLedger(agencyID))
   }
 }
 
@@ -73,8 +77,8 @@ extension AgencyCoordinator {
     navigationController.topViewController?.present(vc, animated: animated)
   }
   
-  private func createComplete(animated: Bool) {
-    let vc = diContainer.createComplete(with: self)
+  private func createComplete(agencyID: Int, animated: Bool) {
+    let vc = diContainer.createComplete(with: self, id: agencyID)
     secondFlowNavigationController?.pushViewController(vc, animated: animated)
   }
   

@@ -68,11 +68,10 @@ final class MemberTabReactor: Reactor {
     case .onappear:
       return .concat(
         .just(.setLoading(true)),
-        
           .merge(
             requestMyProfile(),
-            requestInvitationCode(),
-            requestMembers()
+            requestInvitationCode(agencyID: currentState.agencyID),
+            requestMembers(agencyID: currentState.agencyID)
           ),
         
           .just(.setLoading(false))
@@ -186,10 +185,21 @@ final class MemberTabReactor: Reactor {
       }
     }
     
-    let agencyStream = ledgerService.agency.event.flatMap { event -> Observable<Mutation> in
+    let agencyStream = ledgerService.agency.event.flatMap { [weak self] event -> Observable<Mutation> in
+      guard let self else { return .empty() }
       switch event {
       case let .update(agency):
-        return .just(.setAgencyID(agency.id))
+        if currentState.agencyID == agency.id {
+          return .empty()
+        } else {
+          return .concat(
+            .just(.setAgencyID(agency.id)),
+            .just(.setLoading(true)),
+            requestInvitationCode(agencyID: agency.id),
+            requestMembers(agencyID: agency.id),
+            .just(.setLoading(false))
+          )
+        }
       }
     }
     
@@ -202,21 +212,21 @@ final class MemberTabReactor: Reactor {
       .catch { .just(.setError($0.toMMError)) }
   }
   
-  private func requestInvitationCode() -> Observable<Mutation> {
-    guard let agencyID = currentState.agencyID else {
-      fatalError("agencyID가 없을 수 없음")
+  private func requestInvitationCode(agencyID: Int?) -> Observable<Mutation> {
+    guard let agencyID else {
+      debugPrint("agencyID가 없을 수 없음")
+      return .empty()
     }
-    
     return .task { try await agencyRepo.fetchCode(id: agencyID) }
       .map { .setInvitationCode($0) }
       .catch { return .just(.setError($0.toMMError)) }
   }
   
-  private func requestMembers() -> Observable<Mutation> {
-    guard let agencyID = currentState.agencyID else {
-      fatalError("agencyID가 없을 수 없음")
+  private func requestMembers(agencyID: Int?) -> Observable<Mutation> {
+    guard let agencyID else {
+      debugPrint("agencyID가 없을 수 없음")
+      return .empty()
     }
-    
     return .task { try await agencyRepo.fetchMemberList(id: agencyID) }
       .flatMap { [weak self] members -> Observable<Mutation> in
         guard let role = members.first(where: { $0.userID == self?.currentState.userID })?.role

@@ -3,9 +3,9 @@ import UIKit
 import BaseFeature
 import DesignSystem
 
-final class LedgerManualCreaterCoordinator: Coordinator {
-  var navigationController: UINavigationController
-  private let diContainer: LedgerManualCreaterDIContainer
+final class CreateManualLedgerCoordinator: Coordinator {
+  unowned var navigationController: UINavigationController
+  private let diContainer: CreateManualLedgerDIContainer
   weak var parentCoordinator: Coordinator?
   var childCoordinators: [Coordinator] = []
   
@@ -14,19 +14,13 @@ final class LedgerManualCreaterCoordinator: Coordinator {
     case alert(title: String, subTitle: String?, type: MMAlerts.`Type`)
   }
 
-  init(navigationController: UINavigationController, diContainer: LedgerManualCreaterDIContainer) {
+  init(navigationController: UINavigationController, diContainer: CreateManualLedgerDIContainer) {
     self.navigationController = navigationController
     self.diContainer = diContainer
   }
 
-  func start(agencyId: Int, animated: Bool) {
-    manualCreater(agencyId: agencyId, animated: animated)
-  }
-  
-  func dismiss(animated: Bool) {
-    navigationController.dismiss(animated: animated) { [weak self] in
-      self?.remove()
-    }
+  func start(agencyId: Int, type: CreateManualLedgerReactor.`Type`, animated: Bool) {
+    createManualLedger(agencyId: agencyId, type: type, animated: animated)
   }
   
   func present(_ scene: Scene, animated: Bool = true) {
@@ -37,10 +31,10 @@ final class LedgerManualCreaterCoordinator: Coordinator {
   }
 }
 
-extension LedgerManualCreaterCoordinator {
-  private func manualCreater(agencyId: Int, animated: Bool) {
-    let vc = diContainer.manualCreater(with: self, agencyId: agencyId)
-    navigationController.viewControllers = [vc]
+extension CreateManualLedgerCoordinator {
+  private func createManualLedger(agencyId: Int, type: CreateManualLedgerReactor.`Type`, animated: Bool) {
+    let vc = diContainer.createManualLedger(with: self, type: type, agencyId: agencyId)
+    navigationController.pushViewController(vc, animated: animated)
   }
   
   private func imagePicker(animated: Bool, delegate: UIImagePickerControllerDelegate & UINavigationControllerDelegate) {

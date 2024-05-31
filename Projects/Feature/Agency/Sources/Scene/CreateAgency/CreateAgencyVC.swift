@@ -68,8 +68,8 @@ final class CreateAgencyVC: BaseVC, View {
         owner.coordinator?.present(.alert(
           title: "정말 나가시겠습니까?",
           subTitle: "입력하신 내용은 저장되지 않습니다.",
-          okAction: {
-            owner.coordinator?.dismiss()
+          okAction: { [weak owner] in
+            owner?.coordinator?.dismiss()
           })
         )
       }
@@ -110,8 +110,8 @@ final class CreateAgencyVC: BaseVC, View {
       .observe(on: MainScheduler.instance)
       .bind(with: self) { owner, value in
         switch value {
-        case .complete:
-          owner.coordinator?.push(.createComplete)
+        case let .complete(id):
+          owner.coordinator?.present(.createComplete(id: id))
         }
       }
       .disposed(by: disposeBag)
