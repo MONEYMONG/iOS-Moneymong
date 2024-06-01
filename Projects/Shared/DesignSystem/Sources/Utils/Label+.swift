@@ -15,4 +15,11 @@ public extension UILabel {
       self.attributedText = NSAttributedString(string: text,attributes: attributes)
     }
   }
+  
+  func text(_ text: String, font: UIFont, color: UIColor) -> Self {
+    self.text = text
+    self.font = font
+    self.textColor = color
+    return self
+  }
 }

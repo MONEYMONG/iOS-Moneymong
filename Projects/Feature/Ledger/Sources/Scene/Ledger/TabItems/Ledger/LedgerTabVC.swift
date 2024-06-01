@@ -51,7 +51,10 @@ final class LedgerTabVC: BaseVC, View {
   private let ledgerList: UICollectionView = {
     let flowLayout = UICollectionViewFlowLayout()
     flowLayout.minimumLineSpacing = 20
-    flowLayout.estimatedItemSize.width = UIScreen.main.bounds.width - 40
+    flowLayout.itemSize = CGSize(
+      width: UIScreen.main.bounds.width - 40,
+      height: 44
+    )
 
     let v = UICollectionView(frame: .zero, collectionViewLayout: flowLayout)
     v.showsVerticalScrollIndicator = false
@@ -60,19 +63,14 @@ final class LedgerTabVC: BaseVC, View {
   }()
   private let emptyView = LedgerListEmptyView()
   
-  private lazy var dataSource = RxCollectionViewSectionedAnimatedDataSource<LedgerSectionModel> { dataSource, collectionView, indexPath, item in
-    return collectionView.dequeueCell(LedgerCell.self, for: indexPath)
-      .configure(with: item)
-  }
-  
   override func setupUI() {
     super.setupUI()
     
     floatingButton.addWriteAction { [weak self] in
-      guard let self else { return }
-      if let id = reactor?.currentState.agencyID {
-        self.coordinator?.present(.inputManual(id, false))
-      }
+      self?.reactor?.action.onNext(.didTapWriteButton)
+    }
+    floatingButton.addScanAction { [weak self] in
+      self?.reactor?.action.onNext(.didTapScanButton)
     }
     
     ledgerList.backgroundView = emptyView
@@ -107,12 +105,12 @@ final class LedgerTabVC: BaseVC, View {
   }
   
   func bind(reactor: LedgerTabReactor) {
-    NotificationCenter.default.rx.notification(.presentManualInput)
+    NotificationCenter.default.rx.notification(.presentManualCreater)
       .compactMap { $0.userInfo?["id"] as? Int }
       .delay(.seconds(1), scheduler: MainScheduler.instance)
       .observe(on: MainScheduler.instance)
       .bind(with: self) { owner, id in
-        owner.coordinator?.present(.inputManual(id, true))
+        owner.coordinator?.present(.createManualLedger(id, .operatingCost))
       }
       .disposed(by: disposeBag)
       
@@ -156,11 +154,15 @@ final class LedgerTabVC: BaseVC, View {
       .disposed(by: disposeBag)
     
     reactor.pulse(\.$ledgers)
-      .bind(to: ledgerList.rx.items(dataSource: dataSource))
+      .bind(to: ledgerList.rx.items) { view, row, element in
+        let indexPath = IndexPath(row: row, section: 0)
+        let cell = view.dequeueCell(LedgerCell.self, for: indexPath)
+        return cell.configure(with: element)
+      }
       .disposed(by: disposeBag)
     
     reactor.pulse(\.$ledgers)
-      .map { !$0[0].items.isEmpty }
+      .map { !$0.isEmpty }
       .bind(to: emptyView.rx.isHidden)
       .disposed(by: disposeBag)
     
@@ -178,6 +180,10 @@ final class LedgerTabVC: BaseVC, View {
         switch destination {
         case let .datePicker(start, end):
           owner.coordinator?.present(.datePicker(start: start, end: end))
+        case let .createManualLedger(id):
+          owner.coordinator?.present(.createManualLedger(id, .createManual))
+        case let .createOCRLedger(id):
+          owner.coordinator?.present(.createOCRLedger(id))
         }
       }
       .disposed(by: disposeBag)

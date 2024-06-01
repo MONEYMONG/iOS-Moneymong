@@ -7,6 +7,8 @@ final class LedgerTabReactor: Reactor {
   enum Action {
     case didTapDateRangeView
     case selectedFilter(Int)
+    case didTapWriteButton
+    case didTapScanButton
   }
 
   enum Mutation {
@@ -25,7 +27,7 @@ final class LedgerTabReactor: Reactor {
     @Pulse var role: Member.Role?
     @Pulse var totalBalance: String = "0"
     @Pulse var filterType: FundType? = nil
-    @Pulse var ledgers: [LedgerSectionModel] = [.init(items: [])]
+    @Pulse var ledgers: [Ledger] = []
     @Pulse var dateRange: (start: DateInfo, end: DateInfo) = (
       DateInfo(year: 2023, month: 12),
       DateInfo(year: 2024, month: 5)
@@ -35,6 +37,8 @@ final class LedgerTabReactor: Reactor {
     
     enum Destination {
       case datePicker(start: DateInfo, end: DateInfo)
+      case createManualLedger(Int)
+      case createOCRLedger(Int)
     }
   }
   
@@ -83,6 +87,12 @@ final class LedgerTabReactor: Reactor {
         requestLedgerList(agencyID: currentState.agencyID),
         .just(.setLoading(false))
       ])
+    case .didTapWriteButton:
+      guard let agencyID = currentState.agencyID else { return .empty() }
+      return .just(.setDestination(.createManualLedger(agencyID)))
+    case .didTapScanButton:
+      guard let agencyID = currentState.agencyID else { return .empty() }
+      return .just(.setDestination(.createOCRLedger(agencyID)))
     }
   }
   
@@ -97,7 +107,7 @@ final class LedgerTabReactor: Reactor {
     case let .setLedgerInfo(ledgerList):
       let balance = formatter.convertToAmount(with: ledgerList.totalBalance) ?? "0"
       newState.totalBalance = balance
-      newState.ledgers[0].items = ledgerList.ledgers
+      newState.ledgers = ledgerList.ledgers
     case let .setAgencyID(id):
       newState.agencyID = id
     case let .setLoading(value):

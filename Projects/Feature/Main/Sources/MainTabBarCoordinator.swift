@@ -29,9 +29,9 @@ public final class MainTabBarCoordinator: Coordinator {
       remove()
     case .ledger: // 장부로 이동
       tabBarController?.selectedIndex = 1
-    case let .manualInput(agencyID): // 장부 이동 &
+    case let .createManualLedger(agencyID): // 장부 이동 &
       tabBarController?.selectedIndex = 1
-      NotificationCenter.default.post(name: .presentManualInput, object: nil, userInfo: ["id": agencyID])
+      NotificationCenter.default.post(name: .presentManualCreater, object: nil, userInfo: ["id": agencyID])
     case .agency: // 소속으로 이동
       tabBarController?.selectedIndex = 0
     }

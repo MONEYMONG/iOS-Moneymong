@@ -4,20 +4,20 @@ import BaseFeature
 import MainFeature
 import SignFeature
 
-final class AppCoordinator: Coordinator {  
+final class AppCoordinator: Coordinator {
   var navigationController: UINavigationController
   var diContainer: AppDIContainer = AppDIContainer()
   weak var parentCoordinator: Coordinator?
   var childCoordinators: [Coordinator] = []
-
+  
   init(navigationController: UINavigationController) {
     self.navigationController = navigationController
   }
-
+  
   func start(animated: Bool) {
     sign(animated: animated)
   }
-
+  
   func move(to scene: Scene) {
     switch scene {
     case .main:
@@ -27,7 +27,6 @@ final class AppCoordinator: Coordinator {
     default: break
     }
   }
-  
   deinit {
     print(#function)
   }
@@ -43,7 +42,7 @@ extension AppCoordinator {
     signCoordinator.parentCoordinator = self
     childCoordinators.append(signCoordinator)
   }
-
+  
   func main(animated: Bool) {
     let mainTabCoordinator = MainTabBarCoordinator(
       navigationController: navigationController,

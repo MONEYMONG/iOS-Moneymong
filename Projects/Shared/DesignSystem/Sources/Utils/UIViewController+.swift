@@ -4,10 +4,13 @@ import UIKit
 public extension UIViewController {
   enum BarItem {
     case back
+    case backWhite
     case closeBlack
     case closeWhite
     case trash
     case 수정완료
+    case 등록하기
+    case warning
     case none
 
     var button: UIBarButtonItem {
@@ -17,6 +20,9 @@ public extension UIViewController {
       case .back:
         button.image = Images.chevronLeft?.withRenderingMode(.alwaysTemplate)
         button.tintColor = Colors.Gray._7
+      case .backWhite:
+        button.image = Images.chevronLeft?.withRenderingMode(.alwaysTemplate)
+        button.tintColor = Colors.White._1
       case .closeBlack:
         button.image = Images.close?.withRenderingMode(.alwaysTemplate)
         button.tintColor = Colors.Gray._7
@@ -33,6 +39,13 @@ public extension UIViewController {
         button.tintColor = Colors.Blue._4
       case .none:
         button.image = UIImage()
+      case .warning:
+        button.image = Images.warning?.withRenderingMode(.alwaysTemplate)
+        button.tintColor = .white
+      case .등록하기:
+        button.title = "등록하기"
+        button.setTitleTextAttributes([.font: Fonts.body._3], for: .normal)
+        button.tintColor = Colors.Blue._4
       }
       
       return button

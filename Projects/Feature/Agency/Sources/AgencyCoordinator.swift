@@ -52,7 +52,7 @@ public final class AgencyCoordinator: Coordinator {
   }
   
   func goManualInput(agencyID: Int) {
-    parentCoordinator?.move(to: .manualInput(agencyID))
+    parentCoordinator?.move(to: .createManualLedger(agencyID))
   }
 }
 

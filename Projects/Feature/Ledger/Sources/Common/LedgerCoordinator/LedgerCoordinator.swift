@@ -13,7 +13,8 @@ public final class LedgerCoordinator: Coordinator {
   enum Scene {
     case editMember(Int, Member)
     case alert(title: String, subTitle: String?, type: MMAlerts.`Type`)
-    case inputManual(Int, Bool)
+    case createManualLedger(Int, CreateManualLedgerReactor.`Type`)
+    case createOCRLedger(Int)
     case datePicker(start: DateInfo, end: DateInfo)
     case imagePicker(delegate: UIImagePickerControllerDelegate & UINavigationControllerDelegate)
     case detail(Ledger, Member.Role)
@@ -31,8 +32,8 @@ public final class LedgerCoordinator: Coordinator {
   
   func present(_ scene: Scene, animated: Bool = true) {
     switch scene {
-    case let .inputManual(agencyId, isClubBudget):
-      manualInput(agencyId: agencyId, isClubBudget: isClubBudget, animated: animated)
+    case let .createManualLedger(agencyId, type):
+      createManualLedger(agencyId: agencyId, type: type, animated: animated)
     case let .datePicker(start, end):
       datePicker(start: start, end: end)
     case let .imagePicker(delegate):
@@ -43,6 +44,8 @@ public final class LedgerCoordinator: Coordinator {
       editMember(agencyID: id, member: member)
     case let .alert(title, subTitle, type):
       AlertsManager.show(title: title, subTitle: subTitle, type: type)
+    case let .createOCRLedger(id):
+      createOCRLedger(agencyId: id, animated: animated)
     case let .detail(ledger, role):
       detail(ledgerID: ledger.id, role: role)
     }
@@ -64,8 +67,18 @@ extension LedgerCoordinator {
     navigationController.viewControllers = [vc]
   }
   
-  private func manualInput(agencyId: Int, isClubBudget: Bool, animated: Bool) {
-    let vc = diContainer.manualInput(with: self, agencyId: agencyId, isClubBudget: isClubBudget)
+  private func createManualLedger(
+    agencyId: Int,
+    type: CreateManualLedgerReactor.`Type`,
+    animated: Bool
+  ) {
+    let vc = diContainer.createManualLedger(with: self, agencyId: agencyId, type: type)
+    vc.modalPresentationStyle = .fullScreen
+    navigationController.present(vc, animated: animated)
+  }
+  
+  private func createOCRLedger(agencyId: Int, animated: Bool) {
+    let vc = diContainer.createOCRLedger(agencyId: agencyId, with: self)
     vc.modalPresentationStyle = .fullScreen
     navigationController.present(vc, animated: animated)
   }

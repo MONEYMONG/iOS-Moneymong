@@ -68,7 +68,6 @@ final class MemberTabReactor: Reactor {
     case .onappear:
       return .concat(
         .just(.setLoading(true)),
-        
           .merge(
             requestMyProfile(),
             requestInvitationCode(agencyID: currentState.agencyID),
@@ -212,7 +211,6 @@ final class MemberTabReactor: Reactor {
       debugPrint("agencyID가 없을 수 없음")
       return .empty()
     }
-    
     return .task { try await agencyRepo.fetchCode(id: agencyID) }
       .map { .setInvitationCode($0) }
       .catch { return .just(.setError($0.toMMError)) }
@@ -224,7 +222,6 @@ final class MemberTabReactor: Reactor {
       debugPrint("agencyID가 없을 수 없음")
       return .empty()
     }
-    
     return .task { try await agencyRepo.fetchMemberList(id: agencyID) }
       .flatMap { [weak self] members -> Observable<Mutation> in
         guard let role = members.first(where: { $0.userID == self?.currentState.userID })?.role

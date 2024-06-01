@@ -63,20 +63,39 @@ public final class LedgerDIContainer {
     return vc
   }
   
-  func manualInput(with coordinator: Coordinator, agencyId: Int, isClubBudget: Bool) -> UIViewController {
+  func createManualLedger(
+    with coordinator: Coordinator,
+    agencyId: Int,
+    type: CreateManualLedgerReactor.`Type`
+  ) -> UIViewController {
     let vc = UINavigationController()
-    let manualInputCoordinator = ManualInputCoordinator(
+    let manualCreaterCoordinator = CreateManualLedgerCoordinator(
       navigationController: vc,
-      diContainer: ManualInputDIContainer(
+      diContainer: CreateManualLedgerDIContainer(
         ledgerRepo: ledgerRepo,
         userRepo: userRepo,
         ledgerService: ledgerService
       )
     )
-    coordinator.childCoordinators.append(manualInputCoordinator)
-    manualInputCoordinator.parentCoordinator = coordinator
-    manualInputCoordinator.start(agencyId: agencyId, isClubBudget: isClubBudget, animated: false)
+    coordinator.childCoordinators.append(manualCreaterCoordinator)
+    manualCreaterCoordinator.parentCoordinator = coordinator
+    manualCreaterCoordinator.start(agencyId: agencyId, type: type, animated: false)
     return vc
+  }
+  func createOCRLedger(agencyId: Int, with coordinator: Coordinator) -> UIViewController {
+    let nv = UINavigationController()
+    let scanCreatercoordinator = CreateOCRLedgerCoordinator(
+      navigationController: nv,
+      diContainer: CreateOCRLedgerDIContainer(
+        ledgerRepo: ledgerRepo,
+        userRepo: userRepo,
+        ledgerService: ledgerService
+      )
+    )
+    coordinator.childCoordinators.append(scanCreatercoordinator)
+    scanCreatercoordinator.parentCoordinator = coordinator
+    scanCreatercoordinator.start(agencyId: agencyId, animated: false)
+    return nv
   }
   
   func editMember(agencyID: Int, member: Member, with coordinator: LedgerCoordinator) -> EditMemberSheetVC {

@@ -27,7 +27,7 @@ public protocol LedgerRepositoryInterface {
     limit: Int,
     fundType: FundType?
   ) async throws -> LedgerList
-
+  func fetchOCR(_ data: Data) async throws -> OCRResult
   func receiptImagesUpload(detailId: Int, receiptImageUrls: [String]) async throws
   func receiptImageDelete(detailId: Int, receiptId: Int) async throws
   func documentImagesUpload(detailId: Int, documentImageUrls: [String]) async throws
@@ -134,6 +134,16 @@ public final class LedgerRepository: LedgerRepositoryInterface {
   public func fetchLedgerDetail(id: Int) async throws -> LedgerDetail {
     let targetType = LedgerAPI.ledgerDetail(id: id)
     return try await networkManager.request(target: targetType, of: LedgerDetailResponseDTO.self).toEntity
+  }
+  
+  public func fetchOCR(_ data: Data) async throws -> OCRResult {
+    let dto = OCRRequestDTO(
+      requestId: UUID().uuidString,
+      images: [
+        .init(format: "jpeg", name: "receipt")
+      ])
+    let targetType = LedgerAPI.receiptOCR(param: dto, data: data)
+    return try await networkManager.request(target: targetType, of: OCRResponseDTO.self).toEntity
   }
 
   public func receiptImagesUpload(detailId: Int, receiptImageUrls: [String]) async throws {
