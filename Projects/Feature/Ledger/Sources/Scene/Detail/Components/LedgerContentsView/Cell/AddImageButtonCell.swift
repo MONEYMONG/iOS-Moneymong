@@ -4,6 +4,8 @@ import DesignSystem
 import Utility
 
 import RxSwift
+import FlexLayout
+import PinLayout
 
 final class AddImageButtonCell: UICollectionViewCell, ReusableView {
   private let rootContainer = UIView()
@@ -54,6 +56,8 @@ final class AddImageButtonCell: UICollectionViewCell, ReusableView {
       .alignItems(.center)
       .define { flex in
         flex.addItem(imageView)
+          .width(100%)
+          .height(100%)
       }
   }
 }

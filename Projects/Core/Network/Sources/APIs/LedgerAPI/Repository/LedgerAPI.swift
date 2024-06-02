@@ -40,7 +40,7 @@ extension LedgerAPI: TargetType {
     case .ledgerDetail(let id): return "v1/ledger-detail/\(id)"
     case .receiptOCR: return "document/receipt"
     case .receiptImagesUpload(let detailId, _): return "v1/ledger-detail/\(detailId)/ledger-receipt"
-    case .receiptImageDelete(let detailId, let receiptId): return "v1/ledger-detail/\(detailId)/ledger-receipt/\(receiptId)}"
+    case .receiptImageDelete(let detailId, let receiptId): return "v1/ledger-detail/\(detailId)/ledger-receipt/\(receiptId)"
     case .documentImagesUpload(let detailId, _): return "v1/ledger-detail/\(detailId)/ledger-document"
     case .documentImageDelete(let detailId, let documentId): return "v1/ledger-detail/\(detailId)/ledger-document/\(documentId)"
     }

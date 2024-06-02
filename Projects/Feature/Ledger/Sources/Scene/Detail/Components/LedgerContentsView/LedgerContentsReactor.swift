@@ -103,7 +103,10 @@ final class LedgerContentsReactor: Reactor {
               return ledger
             }
             .map { .setLedger(.init(ledger: $0)) }
-            .catch { .just(.setError($0.toMMError)) },
+              .catch { [weak self] error in
+                self?.ledgerContentsService.setIsLoading(false)
+                return .just(.setError(error.toMMError))
+              },
 
           .just(.setState(state))
         ])
@@ -136,19 +139,18 @@ final class LedgerContentsReactor: Reactor {
             )
           }
         }
-        .catch { .just(.setError($0.toMMError)) }
+        .catch { [weak self] error in
+          self?.ledgerContentsService.setIsLoading(false)
+          return .just(.setError(error.toMMError))
+        }
 
     case .deleteImage(let item):
-      return .task { try await ledgerRepo.imageDelete(item.toEntity) }
-        .map {
-          switch item.imageSection {
-          case .receipt:
-            return .setValueChanged(.receiptImage(item, false))
-          case .document:
-            return .setValueChanged(.documentImage(item, false))
-          }
-        }
-        .catch { .just(.setError($0.toMMError)) }
+      switch item.imageSection {
+      case .receipt:
+        return .just(.setValueChanged(.receiptImage(item, false)))
+      case .document:
+        return .just(.setValueChanged(.documentImage(item, false)))
+      }
     }
   }
 
@@ -237,14 +239,20 @@ fileprivate extension LedgerContentsReactor {
   func deleteReceiptImages() async throws {
       let id = currentState.currentLedgerItem.id
       for imageInfo in currentState.currentLedgerItem.deletedReceiptImages {
-          try await ledgerRepo.receiptImageDelete(detailId: id, receiptId: Int(imageInfo.key) ?? 0)
+          try await ledgerRepo.receiptImageDelete(
+            detailId: id,
+            receiptId: Int(imageInfo.key) ?? 0
+          )
       }
   }
 
   func deleteDocumentImages() async throws {
       let id = currentState.currentLedgerItem.id
       for imageInfo in currentState.currentLedgerItem.deletedDocumentImages {
-          try await ledgerRepo.documentImageDelete(detailId: id, documentId: Int(imageInfo.key) ?? 0)
+          try await ledgerRepo.documentImageDelete(
+            detailId: id,
+            documentId: Int(imageInfo.key) ?? 0
+          )
       }
   }
 

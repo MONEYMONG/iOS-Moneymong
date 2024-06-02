@@ -6,6 +6,8 @@ import NetworkService
 
 import Kingfisher
 import ReactorKit
+import FlexLayout
+import PinLayout
 
 final class DefaultImageCell: UICollectionViewCell, ReusableView {
   private let rootContainer = UIView()
@@ -67,6 +69,8 @@ final class DefaultImageCell: UICollectionViewCell, ReusableView {
       .define { flex in
         flex.addItem(imageView)
           .border(1, Colors.Blue._1)
+          .width(100%)
+          .height(100%)
 
         flex.addItem(deleteButton)
           .position(.absolute)
@@ -109,7 +113,7 @@ final class DefaultImageCell: UICollectionViewCell, ReusableView {
       )
       imageView.flex.layout()
       imageView.flex.markDirty()
-      layoutIfNeeded()
+      setNeedsLayout()
     }
   }
 }

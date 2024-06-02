@@ -194,19 +194,25 @@ final class LedgerContentsView: BaseView, View, UIScrollViewDelegate {
       .disposed(by: disposeBag)
 
     reactor.pulse(\.$currentLedgerItem)
+      .map { [$0.receiptImages] }
+      .distinctUntilChanged()
+      .bind(to: receiptCollectionView.rx.items(dataSource: receiptCollectionView.dataSources))
+      .disposed(by: disposeBag)
+
+    reactor.pulse(\.$currentLedgerItem)
       .map { $0.receiptImages }
       .distinctUntilChanged()
       .observe(on: MainScheduler.instance)
       .bind(with: self) { owner, items in
         owner.receiptCollectionView.updateCollectionHeigh(items: items)
-        owner.contentsView.layoutIfNeeded()
+        owner.setNeedsLayout()
       }
       .disposed(by: disposeBag)
 
     reactor.pulse(\.$currentLedgerItem)
-      .map { [$0.receiptImages] }
+      .map { [$0.documentImages] }
       .distinctUntilChanged()
-      .bind(to: receiptCollectionView.rx.items(dataSource: receiptCollectionView.dataSources))
+      .bind(to: documentCollentionView.rx.items(dataSource: documentCollentionView.dataSources))
       .disposed(by: disposeBag)
 
     reactor.pulse(\.$currentLedgerItem)
@@ -215,14 +221,8 @@ final class LedgerContentsView: BaseView, View, UIScrollViewDelegate {
       .observe(on: MainScheduler.instance)
       .bind(with: self) { owner, items in
         owner.documentCollentionView.updateCollectionHeigh(items: items)
-        owner.contentsView.layoutIfNeeded()
+        owner.setNeedsLayout()
       }
-      .disposed(by: disposeBag)
-
-    reactor.pulse(\.$currentLedgerItem)
-      .map { [$0.documentImages] }
-      .distinctUntilChanged()
-      .bind(to: documentCollentionView.rx.items(dataSource: documentCollentionView.dataSources))
       .disposed(by: disposeBag)
 
     reactor.pulse(\.$currentLedgerItem)
@@ -282,7 +282,6 @@ final class LedgerContentsView: BaseView, View, UIScrollViewDelegate {
         owner.isShowKeyboard = false
         ViewHeight.keyboardHeight = 0
         owner.keyboardSpaceView.flex.height(0).markDirty()
-        owner.setNeedsLayout()
       }
       .disposed(by: disposeBag)
 
@@ -340,7 +339,6 @@ final class LedgerContentsView: BaseView, View, UIScrollViewDelegate {
       .bind(with: self) { owner, value in
         owner.memoTextField.setText(to: value.isEmpty ? Const.emptyDescription : value)
         reactor.action.onNext(.didValueChanged(.memo(value)))
-        owner.setNeedsLayout()
       }
       .disposed(by: disposeBag)
 

@@ -174,6 +174,7 @@ final class SignUpVC: BaseVC, View {
     .bind(with: self) { owner, event in
       let (item, indexPath) = (event.0, event.1)
       owner.tableView.deselectRow(at: indexPath, animated: true)
+      owner.searchBar.textField.resignFirstResponder()
       reactor.action.onNext(.selectUniversity(item))
     }
     .disposed(by: disposeBag)
