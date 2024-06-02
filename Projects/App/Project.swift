@@ -14,6 +14,9 @@ let project = Project(
       bundleId: "com.yapp.moneymong",
       deploymentTarget: .iOS(targetVersion: "15.0", devices: .iphone),
       infoPlist: .extendingDefault(with: [
+        "UISupportedInterfaceOrientations": [
+          "UIInterfaceOrientationPortrait"
+        ],
         "NSCameraUsageDescription": "머니몽의 장부 내역 등록을 위해 카메라 및 사진에 접근하도록 허용합니다.",
         "NSPhotoLibraryUsageDescription": "머니몽의 장부 내역 등록을 위해 카메라 및 사진에 접근하도록 허용합니다.",
         "LSApplicationQueriesSchemes": ["kakaokompassauth", "kakaolink"],
