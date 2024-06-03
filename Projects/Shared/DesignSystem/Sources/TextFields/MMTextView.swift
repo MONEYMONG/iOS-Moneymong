@@ -121,14 +121,15 @@ public class MMTextView: UIView {
 extension MMTextView: UITextViewDelegate {
   public func textViewDidChange(_ textView: UITextView) {
     guard let inputText = textView.text else { return }
-    
+
     // 글자수 제한이 있을 경우, 애초에 글자수를 넘어가지 않도록 조정
     if charactorLimitCount != 0 && inputText.count >= charactorLimitCount {
       textView.text = String(inputText.prefix(charactorLimitCount))
     }
     
     charactorLimitView.setState(.default(characterCount: textView.text.count))
-    
+    placeholderLabel.isHidden = !textView.text.isEmpty
+
     textView.flex.height(textView.intrinsicContentSize.height)
     textView.flex.markDirty()
     setNeedsLayout()

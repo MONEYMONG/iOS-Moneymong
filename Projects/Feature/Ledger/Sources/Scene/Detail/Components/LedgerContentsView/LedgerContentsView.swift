@@ -339,6 +339,7 @@ final class LedgerContentsView: BaseView, View, UIScrollViewDelegate {
       .bind(with: self) { owner, value in
         owner.memoTextField.setText(to: value.isEmpty ? Const.emptyDescription : value)
         reactor.action.onNext(.didValueChanged(.memo(value)))
+        owner.setNeedsLayout()
       }
       .disposed(by: disposeBag)
 
