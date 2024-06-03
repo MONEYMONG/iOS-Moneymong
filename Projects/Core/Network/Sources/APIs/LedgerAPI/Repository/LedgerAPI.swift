@@ -31,7 +31,7 @@ extension LedgerAPI: TargetType {
   var path: String {
     switch self {
     case .create(let id, _): return "v1/ledger/\(id)"
-    case .update(let id, _): return "v1/ledger/ledger-detail/\(id)"
+    case .update(let id, _): return "v2/ledger/ledger-detail/\(id)"
     case .delete(let id): return "v1/ledger-detail/\(id)"
     case .uploadImage: return "v1/images"
     case .deleteImage: return "v1/images"

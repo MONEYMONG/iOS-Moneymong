@@ -91,13 +91,6 @@ final class LedgerContentsReactor: Reactor {
         return .concat([
             .task {
               ledgerContentsService.setIsLoading(true)
-
-              try await registrationReceiptImages() // 영수증 이미지 업로드된게 있을경우 해당 장부에 이미지 등록
-              try await registrationDocumentImages() // 증빙자료 이미지 업로드된게 있을경우 해당 장부에 이미지 등록
-              try await deleteReceiptImages() // 영수증 이미지 제거해야할게 있을경우 해당 장부에서 제거
-              try await deleteDocumentImages() // 증빙자료 이미지 제거해야할게 있을경우 해당 장부에서 제거
-
-              // 이미지를 제외한 내용 수정
               let ledger = try await ledgerRepo.update(ledger: currentState.currentLedgerItem.toEntity)
               ledgerContentsService.setIsLoading(false)
               return ledger
