@@ -272,9 +272,16 @@ final class CreateManualLedgerVC: BaseVC, View {
         .bind(to: reactor.action)
         .disposed(by: disposeBag)
     }
+    
     rx.viewDidLoad
       .map { Reactor.Action.onAppear }
       .bind(to: reactor.action)
+      .disposed(by: disposeBag)
+    
+    view.rx.tapGesture
+      .bind(with: self) { owner, _ in
+        owner.view.endEditing(true)
+      }
       .disposed(by: disposeBag)
     
     receiptCollectionView.rx.modelSelected(ImageData.Item.self)
