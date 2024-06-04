@@ -81,6 +81,18 @@ public final class WithdrawalVC: BaseVC, View {
     setLeftItem(.back)
     
     // Action Binding
+    rx.viewWillAppear
+      .bind { _ in
+        NotificationCenter.default.post(name: .tabBarHidden, object: true)
+      }
+      .disposed(by: disposeBag)
+    
+    rx.viewWillDisappear
+      .bind { _ in
+        NotificationCenter.default.post(name: .tabBarHidden, object: false)
+      }
+      .disposed(by: disposeBag)
+    
     navigationItem.leftBarButtonItem?.rx.tap
       .bind(with: self) { owner, _ in
         owner.coordinator?.pop()
