@@ -14,6 +14,7 @@ let project = Project(
       bundleId: "com.yapp.moneymong",
       deploymentTarget: .iOS(targetVersion: "15.0", devices: .iphone),
       infoPlist: .extendingDefault(with: [
+        "CFBundleDisplayName": "머니몽",
         "UISupportedInterfaceOrientations": [
           "UIInterfaceOrientationPortrait"
         ],
