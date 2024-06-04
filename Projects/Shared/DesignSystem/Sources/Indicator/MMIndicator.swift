@@ -73,9 +73,9 @@ public class MMIndicator: UIView {
   }
 
   public func stopAnimating() {
-//    if hidesWhenStopped {
-//      self.isHidden = true
-//    }
-//    pause(highlightCircleView.layer)
+    if hidesWhenStopped {
+      self.isHidden = true
+    }
+    pause(highlightCircleView.layer)
   }
 }
