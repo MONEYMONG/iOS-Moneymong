@@ -118,8 +118,7 @@ final class CreateManualLedgerReactor: Reactor {
         return .task { try await userRepo.user().nickname }
           .map { .setName($0) }
       case let .ocrResultEdit(model, imageData):
-        let resizeImageData = UIImage(data: imageData)?.jpegData(compressionQuality: 0.33)
-        let image = ImageData(id: .init(), data: resizeImageData!)
+        let image = ImageData(id: .init(), data: imageData)
         return .merge([
           .task { try await userRepo.user().nickname }.map { .setName($0) },
           uploadImage(image: image, section: .receipt),
@@ -176,7 +175,6 @@ final class CreateManualLedgerReactor: Reactor {
   
   func reduce(state: State, mutation: Mutation) -> State {
     var newState = state
-    newState.selectedSection = nil
     newState.alertMessage = nil
     switch mutation {
     case .setOperatingCostValues:
@@ -356,14 +354,20 @@ private extension CreateManualLedgerReactor {
   }
   
   func uploadImage(image: ImageData, section: Section) -> Observable<Mutation> {
-     return .task {
-      var entity = try await ledgerRepo.imageUpload(image.data)
+    return .task {
+      guard let resizeImateData = UIImage(data: image.data)?.jpegData(compressionQuality: 0.027) else {
+        throw MoneyMongError.appError(errorMessage: "첨부 이미지를 확인해 주세요")
+      }
+      var entity = try await ledgerRepo.imageUpload(resizeImateData)
       entity.id = image.id
       return entity
-     }
-     .flatMap { Observable<Mutation>.merge([
+    }
+    .flatMap { Observable<Mutation>.merge([
       .just(.addImage(.image(image), section)),
       .just(.addImageURL($0, section))
-     ]) }
+    ])}
+    .catch {
+      return .just(.setAlertContent(.error($0.toMMError)))
+    }
   }
 }
