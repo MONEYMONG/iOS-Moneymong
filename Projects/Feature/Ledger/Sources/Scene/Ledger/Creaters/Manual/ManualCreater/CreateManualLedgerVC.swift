@@ -247,6 +247,7 @@ final class CreateManualLedgerVC: BaseVC, View {
     case .ocrResultEdit:
       setLeftItem(.back)
       setRightItem(.등록하기)
+      completeButton.setTitle(to: "등록하기")
     default:
       setRightItem(.closeBlack)
     }
