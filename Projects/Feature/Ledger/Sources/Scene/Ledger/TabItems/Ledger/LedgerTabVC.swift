@@ -121,8 +121,9 @@ final class LedgerTabVC: BaseVC, View {
       .disposed(by: disposeBag)
     
     filterControl.$selectedIndex
-      .sink {
+      .sink { [weak self] in
         reactor.action.onNext(.selectedFilter($0))
+        self?.emptyView.configure($0)
       }
       .store(in: &cancellableBag)
 
