@@ -80,7 +80,7 @@ public final class MyPageVC: BaseVC, ReactorKit.View {
       case .setting(.service):
         owner.coordinator?.present(.web(urlString: "https://www.notion.so/moneymong/8a382c0e511448838d2d350e16df3a95?pvs=4"))
       case .setting(.privacy):
-        owner.coordinator?.present(.web(urlString: "https://www.notion.so/moneymong/7f4338eda8564c1ca4177caecf5aedc8?pvs=4"))
+        owner.coordinator?.present(.web(urlString: "https://moneymong.notion.site/6e55b920fa3c47f6aeea84b4f1008563?pvs=4"))
       case .setting(.withdrawal):
         owner.coordinator?.present(.withrawal)
       case .setting(.logout):
