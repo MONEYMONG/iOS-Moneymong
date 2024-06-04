@@ -56,8 +56,6 @@ final class AddImageButtonCell: UICollectionViewCell, ReusableView {
       .alignItems(.center)
       .define { flex in
         flex.addItem(imageView)
-          .width(100%)
-          .height(100%)
       }
   }
 }

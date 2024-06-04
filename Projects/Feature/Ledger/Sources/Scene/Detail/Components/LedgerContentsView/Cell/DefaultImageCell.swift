@@ -102,18 +102,19 @@ final class DefaultImageCell: UICollectionViewCell, ReusableView {
   }
   
   func configure(with item: LedgerImageInfo) {
+    guard let url = URL(string: item.url) else { return }
+
     self.item = item
 
-    if let url = URL(string: item.url) {
-      imageView.kf.setImage(
-        with: KF.ImageResource(
-          downloadURL: url,
-          cacheKey: item.url
-        )
+    imageView.kf.setImage(
+      with: KF.ImageResource(
+        downloadURL: url,
+        cacheKey: item.url
       )
-      imageView.flex.layout()
-      imageView.flex.markDirty()
-      setNeedsLayout()
-    }
+    )
+
+    imageView.flex.layout()
+    imageView.flex.markDirty()
+    setNeedsLayout()
   }
 }
