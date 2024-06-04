@@ -42,6 +42,7 @@ public final class AgencyListVC: BaseVC, View {
   public override func setupUI() {
     super.setupUI()
     setTitle("소속찾기")
+    view.backgroundColor = Colors.Gray._1
     collectionView.backgroundView = emptyView
   }
   
@@ -55,7 +56,7 @@ public final class AgencyListVC: BaseVC, View {
   public override func viewDidLayoutSubviews() {
     super.viewDidLayoutSubviews()
     
-    collectionView.pin.top().bottom(view.pin.safeArea).horizontally()
+    collectionView.pin.all(view.pin.safeArea)
     createAgencyButton.pin.size(70).bottom(view.pin.safeArea + 10).right(view.pin.safeArea + 10)
   }
 
