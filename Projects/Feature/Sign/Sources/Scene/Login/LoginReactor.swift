@@ -40,7 +40,8 @@ final class LoginReactor: Reactor {
     switch action {
 
     case .onAppear:
-      return .just(.setRecentLoginType(signRepository.recentLoginType()))
+      let loginType = signRepository.recentLoginType()
+      return .just(.setRecentLoginType(loginType))
 
     case .login(let loginType):
       return .task {

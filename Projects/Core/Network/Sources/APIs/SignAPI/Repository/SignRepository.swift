@@ -37,7 +37,7 @@ public final class SignRepository: SignRepositoryInterface {
 
   public func recentLoginType() -> LoginType? {
     guard let loginType = localStorage.recentLoginType else { return nil }
-    return LoginType(rawValue: loginType)
+    return LoginType(rawValue: loginType.lowercased())
   }
 
   public func kakaoSign() async throws -> KakaoAuthInfo {
