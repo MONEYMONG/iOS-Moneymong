@@ -20,6 +20,7 @@ public enum Colors {
     public static var _3: UIColor = UIColor(hexString: "D9E1ED")
     public static var _2: UIColor = UIColor(hexString: "E7EDF7")
     public static var _1: UIColor = UIColor(hexString: "F6F8FC")
+    public static var _300: UIColor = UIColor(hexString: "CDD2D9")
   }
   
   public enum Blue {

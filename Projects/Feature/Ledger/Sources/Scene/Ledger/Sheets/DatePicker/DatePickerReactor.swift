@@ -4,7 +4,7 @@ import ReactorKit
 
 final class DatePickerReactor: Reactor {
   enum Action {
-    case viewWillAppear
+    case onAppear
     case selectDateLabel(PickerState)
     case selectDate(row: Int, component: Int)
     case didTapCompleteButton
@@ -25,15 +25,14 @@ final class DatePickerReactor: Reactor {
     @Pulse var endDate: DateInfo
     @Pulse var isWarning = false
     @Pulse var destination: Destination?
+    @Pulse var yearList: [Int]
+    @Pulse var monthList: [Int]
     
     enum Destination {
       case ledger
       case showSnackBar
     }
   }
-  
-  let yearList: [Int]
-  let monthList: [Int]
   
   enum PickerState {
     case start
@@ -52,16 +51,16 @@ final class DatePickerReactor: Reactor {
     let currentYear = formatter.convertToDate(date: .now).split(separator: "/").map({ Int($0)! })[0]
     self.initialState = State(
       startDate: startDate,
-      endDate: endDate
+      endDate: endDate,
+      yearList: Array((currentYear - 15)...currentYear).reversed(),
+      monthList: Array(1...12).reversed()
     )
     self.service = ledgerService
-    self.yearList = Array((currentYear - 15)...currentYear).reversed()
-    self.monthList = Array(1...12).reversed()
   }
   
   func mutate(action: Action) -> Observable<Mutation> {
     switch action {
-    case .viewWillAppear:
+    case .onAppear:
       return .just(.setPickerRow)
     case .selectDateLabel(let type):
       return .concat([
@@ -70,8 +69,8 @@ final class DatePickerReactor: Reactor {
       ])
     case .selectDate(let row, let component):
       switch component {
-      case 0: return .just(.setYear(yearList[row]))
-      case 1: return .just(.setMonth(monthList[row]))
+      case 0: return .just(.setYear(currentState.yearList[row]))
+      case 1: return .just(.setMonth(currentState.monthList[row]))
       default: return .empty()
       }
     case .didTapCompleteButton:
@@ -102,12 +101,12 @@ final class DatePickerReactor: Reactor {
     case .setPickerRow:
       switch state.selectedDateType {
       case .start:
-        let yearRow = yearList.firstIndex(of: state.startDate.year)
-        let monthRow = monthList.firstIndex(of: state.startDate.month)
+        let yearRow = state.yearList.firstIndex(of: state.startDate.year)
+        let monthRow = state.monthList.firstIndex(of: state.startDate.month)
         newState.pickerRow = (yearRow!, monthRow!)
       case .end:
-        let yearRow = yearList.firstIndex(of: state.endDate.year)
-        let monthRow = monthList.firstIndex(of: state.endDate.month)
+        let yearRow = state.yearList.firstIndex(of: state.endDate.year)
+        let monthRow = state.monthList.firstIndex(of: state.endDate.month)
         newState.pickerRow = (yearRow!, monthRow!)
       }
     case .setYear(let year):

@@ -23,16 +23,10 @@ final class DatePickerSheetVC: BottomSheetVC, View {
     v.setHeaderType(type: .end)
     return v
   }()
-  private let datePicker = UIPickerView()
+  private let datePicker = DatePicker()
   private let completeButton = MMButton(title: "완료", type: .primary)
   
   var disposeBag = DisposeBag()
-  
-  override func setupUI() {
-    super.setupUI()
-    datePicker.delegate = self
-    datePicker.dataSource = self
-  }
   
   override func setupConstraints() {
     super.setupConstraints()
@@ -44,14 +38,16 @@ final class DatePickerSheetVC: BottomSheetVC, View {
         flex.addItem(endDateLabel)
       }
       flex.addItem().height(1).backgroundColor(Colors.Gray._2).marginVertical(16)
-      flex.addItem(datePicker).grow(1)
+      flex.addItem(datePicker).grow(1).marginBottom(20)
       flex.addItem(completeButton).height(56).marginBottom(12)
     }.padding(20)
   }
   
   func bind(reactor: DatePickerReactor) {
-    rx.viewWillAppear
-      .map { Reactor.Action.viewWillAppear }
+    datePicker.reactor = reactor
+    
+    rx.viewDidAppear
+      .map { Reactor.Action.onAppear }
       .bind(to: reactor.action)
       .disposed(by: disposeBag)
     
@@ -105,14 +101,6 @@ final class DatePickerSheetVC: BottomSheetVC, View {
       .bind(to: endDateLabel.warning)
       .disposed(by: disposeBag)
     
-    reactor.pulse(\.$pickerRow)
-      .compactMap { $0 }
-      .bind(with: self) { owner, value in
-        owner.datePicker.selectRow(value.0, inComponent: 0, animated: false)
-        owner.datePicker.selectRow(value.1, inComponent: 1, animated: false)
-      }
-      .disposed(by: disposeBag)
-    
     reactor.pulse(\.$destination)
       .compactMap { $0 }
       .bind(with: self) { owner, destination in
@@ -124,37 +112,5 @@ final class DatePickerSheetVC: BottomSheetVC, View {
         }
       }
       .disposed(by: disposeBag)
-  }
-}
-
-extension DatePickerSheetVC: UIPickerViewDataSource, UIPickerViewDelegate{
-    func numberOfComponents(in pickerView: UIPickerView) -> Int {
-        return 2
-    }
-    
-    func pickerView(_ pickerView: UIPickerView, numberOfRowsInComponent component: Int) -> Int {
-      switch component {
-      case 0: return reactor!.yearList.count
-      case 1: return reactor!.monthList.count
-      default: return 0
-      }
-    }
-    
-    func pickerView(_ pickerView: UIPickerView, titleForRow row: Int, forComponent component: Int) -> String? {
-      switch component {
-      case 0: return "\(reactor!.yearList[row])년"
-      case 1:
-        let month = reactor!.monthList[row]
-        if (1...9).contains(month) {
-          return "0\(month)월"
-        } else {
-          return "\(month)월"
-        }
-      default: return nil
-      }
-    }
-  
-  func pickerView(_ pickerView: UIPickerView, didSelectRow row: Int, inComponent component: Int) {
-    reactor?.action.onNext(.selectDate(row: row, component: component))
   }
 }
