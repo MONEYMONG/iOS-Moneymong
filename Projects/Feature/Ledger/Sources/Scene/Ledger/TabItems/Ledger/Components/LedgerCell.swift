@@ -8,7 +8,6 @@ import FlexLayout
 import PinLayout
 
 final class LedgerCell: UICollectionViewCell, ReusableView {
-  private let formatter = ContentFormatter()
   private let numberLabel: UILabel = {
     let v = UILabel()
     v.font = Fonts.body._3
@@ -80,19 +79,19 @@ final class LedgerCell: UICollectionViewCell, ReusableView {
       flex.addItem().define { flex in
         flex.addItem(titleLabel).marginBottom(2)
         flex.addItem(dateLabel)
-      }.marginLeft(10)
+      }.marginLeft(10).maxWidth(55%)
       flex.addItem().grow(1)
       flex.addItem().define { flex in
-        flex.addItem(amountLabel).marginBottom(2).alignSelf(.end)
-        flex.addItem(balanceLabel).alignSelf(.end)
-      }
+        flex.addItem(amountLabel).marginBottom(2)
+        flex.addItem(balanceLabel)
+      }.alignItems(.end)
     }
   }
 
-  func configure(with item: Ledger) -> Self {
+  func configure(with item: Ledger, formatter: ContentFormatter) -> Self {
     numberLabel.text = "\(item.order)"
     titleLabel.text = item.storeInfo
-    let balance = formatter.convertToAmount(with: String(item.balance)) ?? "0"
+    let balance = formatter.convertToAmount(with: item.balance) ?? "0"
     balanceLabel.text = "잔액 \(balance)원"
     let (date, time) = formatter.splitToDateTime(with: item.paymentDate)
     dateLabel.text = date + " " + time
