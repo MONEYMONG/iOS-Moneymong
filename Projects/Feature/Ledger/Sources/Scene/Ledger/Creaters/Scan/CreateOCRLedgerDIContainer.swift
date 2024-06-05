@@ -7,11 +7,18 @@ final class CreateOCRLedgerDIContainer {
   private let ledgerRepo: LedgerRepositoryInterface
   private let userRepo: UserRepositoryInterface
   private let ledgerService: LedgerServiceInterface
+  private let contentFormatter: ContentFormatter
   
-  init(ledgerRepo: LedgerRepositoryInterface, userRepo: UserRepositoryInterface, ledgerService: LedgerServiceInterface) {
+  init(
+    ledgerRepo: LedgerRepositoryInterface,
+    userRepo: UserRepositoryInterface,
+    ledgerService: LedgerServiceInterface,
+    formatter: ContentFormatter
+  ) {
     self.ledgerRepo = ledgerRepo
     self.userRepo = userRepo
     self.ledgerService = ledgerService
+    self.contentFormatter = formatter
   }
   
   func scanCreater(agencyId: Int, with coordinator: CreateOCRLedgerCoordinator) -> CreateOCRLedgerVC {
@@ -39,7 +46,8 @@ final class CreateOCRLedgerDIContainer {
       model: model,
       imageData: imageData,
       repo: ledgerRepo,
-      ledgerService: ledgerService
+      ledgerService: ledgerService,
+      formatter: contentFormatter
     )
     vc.coordinator = coordinator
     return vc
@@ -51,7 +59,8 @@ final class CreateOCRLedgerDIContainer {
       diContainer: CreateManualLedgerDIContainer(
         ledgerRepo: ledgerRepo,
         userRepo: userRepo,
-        ledgerService: ledgerService
+        ledgerService: ledgerService,
+        formatter: contentFormatter
       )
     )
     coordinator.childCoordinators.append(manualCreaterCoordinator)

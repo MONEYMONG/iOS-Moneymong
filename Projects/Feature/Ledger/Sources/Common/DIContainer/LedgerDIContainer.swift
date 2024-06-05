@@ -7,6 +7,7 @@ import BaseFeature
 public final class LedgerDIContainer {
 
   private let ledgerService: LedgerServiceInterface = LedgerService()
+  private let contentFormetter = ContentFormatter()
   
   private let ledgerRepo: LedgerRepositoryInterface
   private let agencyRepo: AgencyRepositoryInterface
@@ -45,7 +46,8 @@ public final class LedgerDIContainer {
       ledgerService: ledgerService,
       ledgerRepo: ledgerRepo,
       userRepo: userRepo,
-      agencyRepo: agencyRepo
+      agencyRepo: agencyRepo,
+      formatter: contentFormetter
     )
     vc.coordinator = coordinator
     return vc
@@ -74,7 +76,8 @@ public final class LedgerDIContainer {
       diContainer: CreateManualLedgerDIContainer(
         ledgerRepo: ledgerRepo,
         userRepo: userRepo,
-        ledgerService: ledgerService
+        ledgerService: ledgerService,
+        formatter: contentFormetter
       )
     )
     coordinator.childCoordinators.append(manualCreaterCoordinator)
@@ -89,7 +92,8 @@ public final class LedgerDIContainer {
       diContainer: CreateOCRLedgerDIContainer(
         ledgerRepo: ledgerRepo,
         userRepo: userRepo,
-        ledgerService: ledgerService
+        ledgerService: ledgerService,
+        formatter: contentFormetter
       )
     )
     coordinator.childCoordinators.append(scanCreatercoordinator)
@@ -115,7 +119,8 @@ public final class LedgerDIContainer {
     vc.reactor = DatePickerReactor(
       startDate: start,
       endDate: end,
-      ledgerService: ledgerService
+      ledgerService: ledgerService,
+      formatter: contentFormetter
     )
     return vc
   }
@@ -142,7 +147,8 @@ public final class LedgerDIContainer {
       coordinator: coordinator,
       reactor: .init(
         ledgerContentsService: service,
-        ledgerRepo: ledgerRepo
+        ledgerRepo: ledgerRepo,
+        formatter: contentFormetter
       )
     )
 

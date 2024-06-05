@@ -51,16 +51,18 @@ final class LedgerContentsReactor: Reactor {
   }
 
   var initialState = State()
-  private let formatter = ContentFormatter()
+  private let formatter: ContentFormatter
   private let ledgerContentsService: LedgerDetailContentsServiceInterface
   private let ledgerRepo: LedgerRepositoryInterface
 
   init(
     ledgerContentsService: LedgerDetailContentsServiceInterface,
-    ledgerRepo: LedgerRepositoryInterface
+    ledgerRepo: LedgerRepositoryInterface,
+    formatter: ContentFormatter
   ) {
     self.ledgerContentsService = ledgerContentsService
     self.ledgerRepo = ledgerRepo
+    self.formatter = formatter
   }
 
   func transform(action: Observable<Action>) -> Observable<Action> {

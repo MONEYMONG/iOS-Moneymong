@@ -158,7 +158,7 @@ final class LedgerTabVC: BaseVC, View {
       .bind(to: ledgerList.rx.items) { view, row, element in
         let indexPath = IndexPath(row: row, section: 0)
         let cell = view.dequeueCell(LedgerCell.self, for: indexPath)
-        return cell.configure(with: element)
+        return cell.configure(with: element, formatter: reactor.formatter)
       }
       .disposed(by: disposeBag)
     

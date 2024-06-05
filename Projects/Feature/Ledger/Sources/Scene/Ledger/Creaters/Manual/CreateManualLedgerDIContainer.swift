@@ -6,11 +6,18 @@ final class CreateManualLedgerDIContainer {
   private let ledgerRepo: LedgerRepositoryInterface
   private let userRepo: UserRepositoryInterface
   private let ledgerService: LedgerServiceInterface
+  private let contentFormatter: ContentFormatter
   
-  init(ledgerRepo: LedgerRepositoryInterface, userRepo: UserRepositoryInterface, ledgerService: LedgerServiceInterface) {
+  init(
+    ledgerRepo: LedgerRepositoryInterface,
+    userRepo: UserRepositoryInterface,
+    ledgerService: LedgerServiceInterface,
+    formatter: ContentFormatter
+  ) {
     self.ledgerRepo = ledgerRepo
     self.userRepo = userRepo
     self.ledgerService = ledgerService
+    self.contentFormatter = formatter
   }
   
   func createManualLedger(
@@ -24,7 +31,8 @@ final class CreateManualLedgerDIContainer {
       type: type,
       ledgerRepo: ledgerRepo,
       userRepo: userRepo,
-      ledgerService: ledgerService
+      ledgerService: ledgerService,
+      formatter: contentFormatter
     )
     vc.coordinator = coordinator
     return vc

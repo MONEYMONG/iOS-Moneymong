@@ -32,8 +32,8 @@ final class DatePickerReactor: Reactor {
     }
   }
   
-  var yearList: [Int] = Array(2010...2024).reversed()
-  var monthList: [Int] = Array(1...12).reversed()
+  let yearList: [Int]
+  let monthList: [Int]
   
   enum PickerState {
     case start
@@ -46,13 +46,17 @@ final class DatePickerReactor: Reactor {
   init(
     startDate: DateInfo,
     endDate: DateInfo,
-    ledgerService: LedgerServiceInterface
+    ledgerService: LedgerServiceInterface,
+    formatter: ContentFormatter
   ) {
+    let currentYear = formatter.convertToDate(date: .now).split(separator: "/").map({ Int($0)! })[0]
     self.initialState = State(
       startDate: startDate,
       endDate: endDate
     )
     self.service = ledgerService
+    self.yearList = Array((currentYear - 15)...currentYear).reversed()
+    self.monthList = Array(1...12).reversed()
   }
   
   func mutate(action: Action) -> Observable<Mutation> {
