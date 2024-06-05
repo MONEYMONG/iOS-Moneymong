@@ -100,7 +100,7 @@ final class LedgerTabVC: BaseVC, View {
     floatingButton.translatesAutoresizingMaskIntoConstraints = false
     NSLayoutConstraint.activate([
       floatingButton.bottomAnchor.constraint(equalTo: rootContainer.bottomAnchor, constant: -20),
-      floatingButton.rightAnchor.constraint(equalTo: rootContainer.rightAnchor)
+      floatingButton.rightAnchor.constraint(equalTo: rootContainer.rightAnchor, constant: 10)
     ])
   }
   
