@@ -79,7 +79,7 @@ final class LedgerCell: UICollectionViewCell, ReusableView {
       flex.addItem().define { flex in
         flex.addItem(titleLabel).marginBottom(2)
         flex.addItem(dateLabel)
-      }.marginLeft(10).maxWidth(55%)
+      }.marginLeft(10).maxWidth(50%)
       flex.addItem().grow(1)
       flex.addItem().define { flex in
         flex.addItem(amountLabel).marginBottom(2)
