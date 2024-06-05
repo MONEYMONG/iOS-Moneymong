@@ -73,13 +73,6 @@ final class CreateAgencyVC: BaseVC, View {
           },
           cancelAction: { }
         ))
-//        owner.coordinator?.present(.alert(
-//          title: "정말 나가시겠습니까?",
-//          subTitle: "입력하신 내용은 저장되지 않습니다.",
-//          okAction: { [weak owner] in
-//            owner?.coordinator?.dismiss()
-//          })
-//        )
       }
       .disposed(by: disposeBag)
     
