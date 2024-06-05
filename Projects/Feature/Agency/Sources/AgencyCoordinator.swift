@@ -17,7 +17,7 @@ public final class AgencyCoordinator: Coordinator {
   }
   
   enum Scene {
-    case alert(title: String, subTitle: String?, okAction: () -> Void)
+    case alert(title: String, subTitle: String?, okAction: () -> Void, cancelAction: (() -> Void)? = nil)
     case joinAgency(id: Int, name: String)
     case joinComplete
     case createAgency
@@ -30,8 +30,12 @@ public final class AgencyCoordinator: Coordinator {
   
   func present(_ scene: Scene, animated: Bool = true) {
     switch scene {
-    case let .alert(title, subTitle, okAction):
-      AlertsManager.show(title: title, subTitle: subTitle, type: .onlyOkButton(okAction))
+    case let .alert(title, subTitle, okAction, cancelAction):
+      if let cancelAction {
+        AlertsManager.show(title: title, subTitle: subTitle, type: .default(okAction: okAction, cancelAction: cancelAction))
+      } else {
+        AlertsManager.show(title: title, subTitle: subTitle, type: .onlyOkButton(okAction))
+      }
     case let .joinAgency(id, name): 
       joinAgency(id: id, name: name, animated: animated)
     case .joinComplete:
