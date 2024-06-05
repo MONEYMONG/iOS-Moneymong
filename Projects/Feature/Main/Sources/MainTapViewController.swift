@@ -34,11 +34,12 @@ public final class MainTapViewController: UITabBarController {
     
     tabBar.items?.enumerated().forEach { (index, item) in
       item.title = titles[index]
-      item.image = images[index]
-      item.selectedImage = images[index]?.withRenderingMode(.alwaysTemplate).withTintColor(Colors.Blue._4)
+      item.image = images[index]?.withRenderingMode(.alwaysTemplate)
+      item.selectedImage = images[index]?.withRenderingMode(.alwaysTemplate)
     }
     
     tabBar.tintColor = Colors.Blue._4
+    tabBar.unselectedItemTintColor = Colors.Gray._4
   }
 
   private func bind() {
