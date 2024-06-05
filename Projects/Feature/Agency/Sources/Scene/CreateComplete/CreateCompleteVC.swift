@@ -14,7 +14,7 @@ final class CreateCompleteVC: BaseVC, View {
   private let completeImageView = UIImageView(image: Images.agencyCongrats)
   private let completeLabel: UILabel = {
     let v = UILabel()
-    v.setTextWithLineHeight(text: "등록해주셔서감사합니다", lineHeight: 28)
+    v.setTextWithLineHeight(text: "등록해주셔서 감사합니다", lineHeight: 28)
     v.textColor = Colors.White._1
     v.font = Fonts.heading._1
     return v

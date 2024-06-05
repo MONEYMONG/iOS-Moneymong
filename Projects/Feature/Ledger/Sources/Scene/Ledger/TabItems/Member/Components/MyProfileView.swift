@@ -123,7 +123,7 @@ final class MyProfileView: UIView {
       )
     case .member:
       tagView.configure(
-        title: "일반맴버",
+        title: "일반멤버",
         titleColor: Colors.White._1,
         backgroundColor: Colors.Mint._3
       )

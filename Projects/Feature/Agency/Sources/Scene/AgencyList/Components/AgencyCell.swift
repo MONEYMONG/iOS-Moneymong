@@ -78,7 +78,7 @@ final class AgencyCell: UICollectionViewCell, ReusableView {
   
   func configure(with item: Agency) -> Self {
     titleLabel.setTextWithLineHeight(text: "\(item.name)", lineHeight: 20)
-    countLabel.setTextWithLineHeight(text: "맴버수 \(item.count)", lineHeight: 18)
+    countLabel.setTextWithLineHeight(text: "멤버수 \(item.count)", lineHeight: 18)
     tagView.configure(title: "동아리", titleColor: Colors.Blue._4, backgroundColor: Colors.Blue._1)
     
     titleLabel.flex.markDirty()

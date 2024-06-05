@@ -6,7 +6,7 @@ import FlexLayout
 public class TagView: UIView {
   private let titleLabel: UILabel = {
     let v = UILabel()
-    v.font = Fonts.body._3
+    v.font = Fonts.body._2
     v.text = "기본"
     return v
   }()

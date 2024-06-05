@@ -100,7 +100,7 @@ final class LedgerTabVC: BaseVC, View {
     floatingButton.translatesAutoresizingMaskIntoConstraints = false
     NSLayoutConstraint.activate([
       floatingButton.bottomAnchor.constraint(equalTo: rootContainer.bottomAnchor, constant: -20),
-      floatingButton.rightAnchor.constraint(equalTo: rootContainer.rightAnchor)
+      floatingButton.rightAnchor.constraint(equalTo: rootContainer.rightAnchor, constant: 10)
     ])
   }
   
@@ -113,7 +113,12 @@ final class LedgerTabVC: BaseVC, View {
         owner.coordinator?.present(.createManualLedger(id, .operatingCost))
       }
       .disposed(by: disposeBag)
-      
+    
+    view.rx.tapGesture
+      .bind(with: self) { owner, _ in
+        owner.floatingButton.closeAllButtons()
+      }
+      .disposed(by: disposeBag)
     
     dateRangeView.rx.tapGesture
       .map { _ in Reactor.Action.didTapDateRangeView }

@@ -80,7 +80,7 @@ final class AgencyCell: UITableViewCell, ReusableView {
   
   func configure(with item: Agency, selectedID: Int) -> Self {
     titleLabel.setTextWithLineHeight(text: "\(item.name)", lineHeight: 20)
-    countLabel.setTextWithLineHeight(text: "맴버수 \(item.count)", lineHeight: 18)
+    countLabel.setTextWithLineHeight(text: "멤버수 \(item.count)", lineHeight: 18)
     
     titleLabel.flex.markDirty()
     countLabel.flex.markDirty()

@@ -160,7 +160,7 @@ final class MemberTabReactor: Reactor {
   }
   
   private var serviceMutation: Observable<Mutation> {
-    // 맴버 정보 변경됬을때 업데이트
+    // 멤버 정보 변경됬을때 업데이트
     let memberStream = ledgerService.member.event.flatMap { [weak self] event -> Observable<Mutation> in
       guard let self else { return .empty() }
       
@@ -216,7 +216,7 @@ final class MemberTabReactor: Reactor {
       .catch { return .just(.setError($0.toMMError)) }
   }
   
-  /// 소속에 속한 맴버리스트 조회
+  /// 소속에 속한 멤버리스트 조회
   private func requestMembers(agencyID: Int?) -> Observable<Mutation> {
     guard let agencyID else {
       debugPrint("agencyID가 없을 수 없음")

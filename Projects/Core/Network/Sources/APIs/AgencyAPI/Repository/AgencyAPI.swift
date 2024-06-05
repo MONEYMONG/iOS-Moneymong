@@ -3,9 +3,9 @@ import Foundation
 enum AgencyAPI {
   case list // 소속목록조회
   case create(param: AgencyCreateRequestDTO) // 소속생성
-  case memberList(id: Int) // 맴버목록조회
-  case changeRole(id: Int, param: ChangeMemberRoleRequestDTO) // 맴버권한변경
-  case kickout(id: Int, param: KickoutMemberRequestDTO) // 맴버 강제퇴장
+  case memberList(id: Int) // 멤버목록조회
+  case changeRole(id: Int, param: ChangeMemberRoleRequestDTO) // 멤버권한변경
+  case kickout(id: Int, param: KickoutMemberRequestDTO) // 멤버 강제퇴장
   case myAgency // 내가 속한 소속 목록 조회
   case code(id: Int) // 초대코드 조회
   case certificateCode(id: Int, param: InvitationCodeCertificationRequestDTO) // 초대코드 인증

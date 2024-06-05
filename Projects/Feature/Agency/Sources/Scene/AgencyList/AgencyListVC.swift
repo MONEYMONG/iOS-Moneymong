@@ -57,7 +57,7 @@ public final class AgencyListVC: BaseVC, View {
     super.viewDidLayoutSubviews()
     
     collectionView.pin.all(view.pin.safeArea)
-    createAgencyButton.pin.size(70).bottom(view.pin.safeArea + 10).right(view.pin.safeArea + 10)
+    createAgencyButton.pin.size(70).bottom(view.pin.safeArea + 20).right(view.pin.safeArea + 10)
   }
 
   public func bind(reactor: AgencyListReactor) {

@@ -28,7 +28,7 @@ final class TagVC: UIViewController {
     tag1.configure(title: "동아리", titleColor: Colors.White._1, backgroundColor: Colors.Blue._4)
     tag2.configure(title: "감사위원회", titleColor: Colors.White._1, backgroundColor: Colors.Mint._3)
     tag3.configure(title: "학생회", titleColor: Colors.White._1, backgroundColor: Colors.Red._3)
-    tag4.configure(title: "일반맴버", titleColor: Colors.White._1, backgroundColor: Colors.Gray._7)
+    tag4.configure(title: "일반멤버", titleColor: Colors.White._1, backgroundColor: Colors.Gray._7)
     tag5.configure(title: "운영진", titleColor: Colors.Blue._4, backgroundColor: Colors.Blue._1)
     tag6.configure(title: "dudu", titleColor: Colors.Mint._3, backgroundColor: Colors.Mint._1)
     tag7.configure(title: "safari", titleColor: Colors.Red._3, backgroundColor: Colors.Red._1)
