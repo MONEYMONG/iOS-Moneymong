@@ -8,10 +8,10 @@ public enum Images {
   public static var chevronRight = UIImage(named: "chevron.right", in: Bundle.module, with: nil)
   
   public static var mongClubFill = UIImage(named: "mong.club.fill", in: Bundle.module, with: nil)
+  public static var mongClub = UIImage(named: "mong.club", in: Bundle.module, with: nil)
   public static var mongCongrats = UIImage(named: "mong.congrats", in: Bundle.module, with: nil)
   public static var mongEditorFill = UIImage(named: "mong.editor.fill", in: Bundle.module, with: nil)
   public static var mongEditor = UIImage(named: "mong.editor", in: Bundle.module, with: nil)
-  public static var mongGroup = UIImage(named: "mong.group", in: Bundle.module, with: nil)
   public static var mongLedger = UIImage(named: "mong.ledger", in: Bundle.module, with: nil)
   public static var mong = UIImage(named: "mong", in: Bundle.module, with: nil)
   public static var mongPass = UIImage(named: "mong.pass", in: Bundle.module, with: nil)

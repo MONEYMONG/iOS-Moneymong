@@ -8,7 +8,7 @@ import PinLayout
 final class MemberEmptyView: UIView {
   
   private let rootContainer = UIView()
-  private let iconImageView = UIImageView(image: Images.mongCongrats)
+  private let iconImageView = UIImageView(image: Images.mongClub)
   private let contentLabel: UILabel = {
     let v = UILabel()
     v.setTextWithLineHeight(text: "아직 멤버가 없습니다", lineHeight: 20)
