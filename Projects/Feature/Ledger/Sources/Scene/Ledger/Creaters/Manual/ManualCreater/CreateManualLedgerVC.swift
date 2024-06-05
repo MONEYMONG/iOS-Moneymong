@@ -31,6 +31,7 @@ final class CreateManualLedgerVC: BaseVC, View {
   
   private let scrollView: UIScrollView = {
     let v = UIScrollView()
+    v.contentInset.bottom = 100
     v.keyboardDismissMode = .interactive
     return v
   }()
@@ -47,7 +48,6 @@ final class CreateManualLedgerVC: BaseVC, View {
 
     return v
   }()
-  private let keyboardSpaceView = UIView()
   private let recepitImageView: UIImageView = {
     let v = UIImageView()
     v.contentMode = .scaleAspectFill
@@ -230,11 +230,11 @@ final class CreateManualLedgerVC: BaseVC, View {
               flex.addItem(writerTitleLabel).marginBottom(8)
               flex.addItem(writerNameLabel)
             }
+            .marginBottom(25)
           }
-        }.paddingBottom(50)
+        }
       }
       
-      flex.addItem(keyboardSpaceView).backgroundColor(.clear).height(60)
       flex.addItem(smogView).position(.absolute).bottom(0).horizontally(0).height(100)
     }
     view.addSubview(completeButton)
@@ -359,16 +359,12 @@ final class CreateManualLedgerVC: BaseVC, View {
       .bind(with: self) { owner, noti in
         guard let keyboardFrame = noti.userInfo?[UIResponder.keyboardFrameEndUserInfoKey] as? NSValue else { return }
         let keyboardHeight = keyboardFrame.cgRectValue.height
-        owner.keyboardSpaceView.flex.height(
-          keyboardHeight - owner.view.safeAreaInsets.bottom
-        ).markDirty()
-        owner.rootContainer.flex.layout()
+        owner.scrollView.contentInset.bottom = keyboardHeight
       }.disposed(by: disposeBag)
     
     NotificationCenter.default.rx.notification(UIResponder.keyboardWillHideNotification)
       .bind(with: self) { owner, _ in
-        owner.keyboardSpaceView.flex.height(60).markDirty()
-        owner.rootContainer.flex.layout()
+        owner.scrollView.contentInset.bottom = 100
       }.disposed(by: disposeBag)
   }
   
