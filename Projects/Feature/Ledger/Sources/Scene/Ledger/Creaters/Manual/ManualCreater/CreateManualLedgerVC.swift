@@ -247,6 +247,7 @@ final class CreateManualLedgerVC: BaseVC, View {
     case .ocrResultEdit:
       setLeftItem(.back)
       setRightItem(.등록하기)
+      completeButton.setTitle(to: "등록하기")
     default:
       setRightItem(.closeBlack)
     }
@@ -532,8 +533,7 @@ extension CreateManualLedgerVC: UIImagePickerControllerDelegate, UINavigationCon
   func imagePickerController(_ picker: UIImagePickerController, didFinishPickingMediaWithInfo info: [UIImagePickerController.InfoKey : Any]) {
     if let image = info[.originalImage] as? UIImage {
       Task {
-        let scale = ViewSize.cell.width / image.size.width
-        guard let data = image.jpegData(compressionQuality: scale) else { return }
+        guard let data = image.jpegData(compressionQuality: 1.0) else { return }
         if reactor?.currentState.selectedSection == .receipt {
           reactor?.action.onNext(
             .selectedImage(

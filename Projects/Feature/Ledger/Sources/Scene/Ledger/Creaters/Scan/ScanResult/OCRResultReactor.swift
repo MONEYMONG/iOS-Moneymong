@@ -111,7 +111,7 @@ private extension OCRResultReactor {
       else {
         throw MoneyMongError.appError(errorMessage: "날짜 및 시간을 확인해 주세요")
       }
-      guard let resizeImageData = UIImage(data: currentState.receiptImageData)?.jpegData(compressionQuality: 0.33) else {
+      guard let resizeImageData = UIImage(data: currentState.receiptImageData)?.jpegData(compressionQuality: 0.027) else {
         throw MoneyMongError.appError(errorMessage: "영수증 이미지를 확인해 주세요")
       }
       let imageURL = try await repo.imageUpload(resizeImageData).url
