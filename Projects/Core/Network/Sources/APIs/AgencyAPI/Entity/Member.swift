@@ -1,6 +1,6 @@
 import Foundation
 
-/// 맴버
+/// 멤버
 public struct Member {
   public let agencyID: Int
   public let userID: Int

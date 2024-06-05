@@ -25,7 +25,7 @@ final class MemberTabVC: BaseVC, View {
     let v = UILabel()
     v.font = Fonts.body._3
     v.textColor = Colors.Gray._10
-    v.setTextWithLineHeight(text: "맴버 목록", lineHeight: 20)
+    v.setTextWithLineHeight(text: "멤버 목록", lineHeight: 20)
     return v
   }()
   

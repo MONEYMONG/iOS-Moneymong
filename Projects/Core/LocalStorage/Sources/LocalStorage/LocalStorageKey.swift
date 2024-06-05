@@ -12,7 +12,7 @@ public enum LocalStorageKey {
   
   public enum UD: String {
     case recentLoginType // 최근 로그인 타입
-    case selectedAgency // 현재 선택된 소속 (맴버화면)
+    case selectedAgency // 현재 선택된 소속 (멤버화면)
     case userID // 유저정보
   }
   
