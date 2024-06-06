@@ -65,6 +65,7 @@ final class MMSnackBar: UIView {
       }
       rightButton.setImage(nil, for: .normal)
       rightButton.setTitle("다시입력", for: .normal)
+      rightButton.titleLabel?.font = Fonts.body._3
       rightButton.flex.marginRight(20)
     }
     // close 일떄
