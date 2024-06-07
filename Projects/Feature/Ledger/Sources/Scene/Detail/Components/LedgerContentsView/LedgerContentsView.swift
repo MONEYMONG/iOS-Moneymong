@@ -262,16 +262,15 @@ final class LedgerContentsView: BaseView, View, UIScrollViewDelegate {
 
   private func bindAction(reactor: LedgerContentsReactor) {
     rx.tapGesture
-      .bind(with: self) { owner, _ in
-        owner.endEditing(true)
-      }
+      .bind { $0.endEditing(true) }
       .disposed(by: disposeBag)
 
     rx.swipeRightGesture
       .map { _ in reactor.currentState.state }
       .bind(with: self) { owner, state in
-        guard state == .read else { return }
-        owner.coordinator?.pop()
+        if state == .read {
+          owner.coordinator?.pop()
+        }
       }
       .disposed(by: disposeBag)
 

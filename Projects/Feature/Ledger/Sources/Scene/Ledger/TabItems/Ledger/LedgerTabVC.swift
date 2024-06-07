@@ -118,6 +118,7 @@ final class LedgerTabVC: BaseVC, View {
       }
       .disposed(by: disposeBag)
     
+    // TODO: gesture 조건 변경 필요성있음
 //    view.rx.tapGesture
 //      .bind(with: self) { owner, _ in
 //        owner.floatingButton.closeAllButtons()
