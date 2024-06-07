@@ -29,6 +29,10 @@ public final class MainTapViewController: UITabBarController {
   }
 
   private func setupTabBar() {
+    tabBar.layer.borderWidth = 1
+    tabBar.layer.borderColor = Colors.Gray._2.cgColor
+    tabBar.backgroundColor = .white
+    tabBar.setShadow(location: .center, opacity: 0.15, radius: 6.0)
     let appearance = UITabBarItem.appearance()
     let attributes = [NSAttributedString.Key.font: Fonts.body._2]
     appearance.setTitleTextAttributes(attributes as [NSAttributedString.Key : Any], for: .normal)
