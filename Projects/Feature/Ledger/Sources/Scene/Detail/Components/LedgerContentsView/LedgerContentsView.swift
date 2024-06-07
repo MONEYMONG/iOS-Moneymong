@@ -267,7 +267,7 @@ final class LedgerContentsView: BaseView, View, UIScrollViewDelegate {
       }
       .disposed(by: disposeBag)
 
-    rx.swipeLeftGesture
+    rx.swipeRightGesture
       .map { _ in reactor.currentState.state }
       .bind(with: self) { owner, state in
         guard state == .read else { return }

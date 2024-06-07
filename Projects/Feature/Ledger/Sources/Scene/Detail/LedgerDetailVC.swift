@@ -126,7 +126,7 @@ final class LedgerDetailVC: BaseVC, View {
       .bind(with: self) { owner, info in
         let (isEdit, role) = info
         owner.editButton.setTitle(to: isEdit ? Const.editCompleted : Const.edit)
-        owner.setNavigationBarRightButton(isEdit: role == .staff && isEdit)
+        owner.setNavigationBarRightButton(role:  role, isEdit: isEdit)
       }
       .disposed(by: disposeBag)
 
@@ -149,7 +149,10 @@ final class LedgerDetailVC: BaseVC, View {
       .disposed(by: disposeBag)
   }
 
-  private func setNavigationBarRightButton(isEdit: Bool) {
+  private func setNavigationBarRightButton(role: Member.Role,  isEdit: Bool) {
+    
+    guard role == .staff else { return }
+
     isEdit ? setRightItem(.수정완료) : setRightItem(.trash)
     navigationItem.rightBarButtonItem?.rx.tap
       .bind(with: self, onNext: { owner, _ in
