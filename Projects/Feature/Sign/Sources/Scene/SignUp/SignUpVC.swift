@@ -153,10 +153,15 @@ final class SignUpVC: BaseVC, View {
     // Action Binding
 
     setLeftItem(.back)
+    
     navigationItem.leftBarButtonItem?.rx.tap
       .bind(with: self) { owner, _ in
         owner.coordinator?.pop()
       }
+      .disposed(by: disposeBag)
+    
+    view.rx.tapGesture
+      .bind { $0.endEditing(true) }
       .disposed(by: disposeBag)
 
     searchBar.textField.rx.text

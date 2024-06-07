@@ -79,9 +79,7 @@ final class JoinAgencyVC: BaseVC, ReactorKit.View {
       .disposed(by: disposeBag)
     
     view.rx.tapGesture
-      .bind(with: self) { owner, _ in
-        owner.view.endEditing(true)
-      }
+      .bind { $0.endEditing(true) }
       .disposed(by: disposeBag)
     
     codeviews.enumerated().forEach { index, codeView in
