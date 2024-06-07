@@ -111,7 +111,6 @@ final class LedgerTabVC: BaseVC, View {
   func bind(reactor: LedgerTabReactor) {
     NotificationCenter.default.rx.notification(.presentManualCreater)
       .compactMap { $0.userInfo?["id"] as? Int }
-      .delay(.seconds(1), scheduler: MainScheduler.instance)
       .observe(on: MainScheduler.instance)
       .bind(with: self) { owner, id in
         owner.coordinator?.present(.createManualLedger(id, .operatingCost))
