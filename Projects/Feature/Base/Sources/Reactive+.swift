@@ -36,4 +36,16 @@ public extension Reactive where Base: UIView {
       }
     return ControlEvent(events: event)
   }
+
+  var swipeRightGesture: ControlEvent<Base> {
+    let swiftGesture = UISwipeGestureRecognizer()
+    swiftGesture.direction = .right
+    base.addGestureRecognizer(swiftGesture)
+    let event = swiftGesture.rx.event
+      .withUnretained(base)
+      .flatMap { (base, _) in
+        Observable.just(base)
+      }
+    return ControlEvent(events: event)
+  }
 }

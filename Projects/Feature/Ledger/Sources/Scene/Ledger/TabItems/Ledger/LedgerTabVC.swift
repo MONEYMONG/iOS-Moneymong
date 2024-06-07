@@ -61,8 +61,12 @@ final class LedgerTabVC: BaseVC, View {
     v.register(LedgerCell.self)
     return v
   }()
-  private let emptyView = LedgerListEmptyView()
-  
+  private let emptyView: LedgerListEmptyView = {
+    let v = LedgerListEmptyView()
+    v.isHidden = true
+    return v
+  }()
+
   override func setupUI() {
     super.setupUI()
     
@@ -114,11 +118,12 @@ final class LedgerTabVC: BaseVC, View {
       }
       .disposed(by: disposeBag)
     
-    view.rx.tapGesture
-      .bind(with: self) { owner, _ in
-        owner.floatingButton.closeAllButtons()
-      }
-      .disposed(by: disposeBag)
+    // TODO: gesture 조건 변경 필요성있음
+//    view.rx.tapGesture
+//      .bind(with: self) { owner, _ in
+//        owner.floatingButton.closeAllButtons()
+//      }
+//      .disposed(by: disposeBag)
     
     dateRangeView.rx.tapGesture
       .map { _ in Reactor.Action.didTapDateRangeView }

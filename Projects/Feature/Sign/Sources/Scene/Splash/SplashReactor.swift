@@ -38,10 +38,11 @@ final class SplashReactor: Reactor {
         _ = try await userRepo.user()
         return result
       }
-      .map { .setDestination($0.loginSuccess ? .main : .login) }
+      .map { .setDestination($0.schoolInfoExist ? .main : .login) }
       .catch { _ in .just(.setDestination(.login)) }
     }
   }
+
 
   func reduce(state: State, mutation: Mutation) -> State {
     var newState = state
