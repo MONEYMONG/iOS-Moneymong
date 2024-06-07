@@ -61,7 +61,8 @@ final class CreateAgencyVC: BaseVC, View {
   
   func bind(reactor: CreateAgencyReactor) {
     setRightItem(.closeBlack)
-    // Action
+    
+    // Action Binding
     navigationItem.rightBarButtonItem?.rx.tap
       .throttle(.seconds(1), latest: false, scheduler: MainScheduler.instance)
       .bind(with: self) { owner, _ in
@@ -99,7 +100,7 @@ final class CreateAgencyVC: BaseVC, View {
       .bind(to: reactor.action)
       .disposed(by: disposeBag)
     
-    // State
+    // State Binding
     reactor.pulse(\.$isButtonEnabled)
       .bind(with: self) { owner, value in
         owner.createButton.setState(value ? .primary : .disable)

@@ -87,7 +87,7 @@ final class SignUpVC: BaseVC, View {
 
   func bind(reactor: SignUpReactor) {
     // State Binding
-
+    
     reactor.pulse(\.$errorMessage)
       .compactMap { $0 }
       .observe(on: MainScheduler.instance)
@@ -215,6 +215,7 @@ final class SignUpVC: BaseVC, View {
       gradeInputView.flex.layout()
       gradeInputView.setNeedsLayout()
     }
+    
     rootContainer.flex.markDirty()
     rootContainer.flex.layout()
     rootContainer.setNeedsLayout()
