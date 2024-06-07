@@ -188,7 +188,7 @@ final class SignUpVC: BaseVC, View {
     gradeInputView.didTapSelectGrade
       .compactMap { $0 }
       .sink {
-        reactor.action.onNext(.selectGrade($0))
+        reactor.action.onNext(.selectGrade($0+1))
       }
       .store(in: &anyCancellable)
 

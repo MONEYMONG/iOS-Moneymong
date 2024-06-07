@@ -85,6 +85,7 @@ final class GradeInputView: UIView {
 
   @discardableResult
   func configure(university: University) -> Self {
+    gradeSelections.selectedIndex = -1
     nameLabel.text = university.schoolName
     nameLabel.flex.markDirty()
     nameLabel.setNeedsLayout()
@@ -94,6 +95,6 @@ final class GradeInputView: UIView {
 
 
 fileprivate enum Const {
-  static var gradeItems: [String] { ["1학년", "2학년", "3학년", "4학년", "5학년"] }
+  static var gradeItems: [String] { ["1학년", "2학년", "3학년", "4학년", "5학년이상"] }
   static var gradeDescription: String { "학년을 선택해주세요" }
 }
