@@ -130,8 +130,6 @@ final class LedgerContentsView: BaseView, View, UIScrollViewDelegate {
   override func setupUI() {
     super.setupUI()
     backgroundColor = .clear
-    setupHideKeyboardGesture()
-    setupPopGesture()
   }
 
   func bind(reactor: LedgerContentsReactor) {
@@ -263,6 +261,20 @@ final class LedgerContentsView: BaseView, View, UIScrollViewDelegate {
   }
 
   private func bindAction(reactor: LedgerContentsReactor) {
+    rx.tapGesture
+      .bind(with: self) { owner, _ in
+        owner.endEditing(true)
+      }
+      .disposed(by: disposeBag)
+
+    rx.swipeLeftGesture
+      .map { _ in reactor.currentState.state }
+      .bind(with: self) { owner, state in
+        guard state == .read else { return }
+        owner.coordinator?.pop()
+      }
+      .disposed(by: disposeBag)
+
     NotificationCenter.default.rx.notification(UIResponder.keyboardWillShowNotification)
       .bind(with: self) { owner, noti in
         guard let keyboardFrame = noti.userInfo?[UIResponder.keyboardFrameEndUserInfoKey] as? NSValue else {
@@ -529,34 +541,6 @@ final class LedgerContentsView: BaseView, View, UIScrollViewDelegate {
     storeInfoTextField.textField.becomeFirstResponder()
 
     setNeedsLayout()
-  }
-}
-
-/// Hide Keyboard Action
-fileprivate extension LedgerContentsView {
-  func setupHideKeyboardGesture() {
-    let tapGesture = UITapGestureRecognizer(target: self, action: #selector(rootViewTabAction))
-    tapGesture.cancelsTouchesInView = false
-    addGestureRecognizer(tapGesture)
-  }
-
-  @objc func rootViewTabAction() {
-    endEditing(true)
-  }
-}
-
-/// pop Gesture
-fileprivate extension LedgerContentsView {
-  func setupPopGesture() {
-    let panGesture = UIPanGestureRecognizer(target: self, action: #selector(pop))
-    panGesture.cancelsTouchesInView = false
-    addGestureRecognizer(panGesture)
-  }
-
-  @objc func pop() {
-    if reactor?.currentState.state == .read {
-      coordinator?.pop()
-    }
   }
 }
 

@@ -61,8 +61,12 @@ final class LedgerTabVC: BaseVC, View {
     v.register(LedgerCell.self)
     return v
   }()
-  private let emptyView = LedgerListEmptyView()
-  
+  private let emptyView: LedgerListEmptyView = {
+    let v = LedgerListEmptyView()
+    v.isHidden = true
+    return v
+  }()
+
   override func setupUI() {
     super.setupUI()
     
