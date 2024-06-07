@@ -23,7 +23,7 @@ final class DatePickerSheetVC: BottomSheetVC, View {
     v.setHeaderType(type: .end)
     return v
   }()
-  private let datePicker = DatePicker()
+  private let datePicker = MMDatePicker()
   private let completeButton = MMButton(title: "완료", type: .primary)
   
   var disposeBag = DisposeBag()
