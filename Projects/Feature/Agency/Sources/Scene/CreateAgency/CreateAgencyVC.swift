@@ -77,6 +77,10 @@ final class CreateAgencyVC: BaseVC, View {
       }
       .disposed(by: disposeBag)
     
+    view.rx.tapGesture
+      .bind { $0.endEditing(true) }
+      .disposed(by: disposeBag)
+    
     agencyTextField.textField.rx.text
       .compactMap { $0 }
       .map { Reactor.Action.textFieldDidChange($0) }
