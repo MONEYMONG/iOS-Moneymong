@@ -4,7 +4,7 @@ import ReactorKit
 
 final class DatePickerReactor: Reactor {
   enum Action {
-    case viewWillAppear
+    case onAppear
     case selectDateLabel(PickerState)
     case selectDate(row: Int, component: Int)
     case didTapCompleteButton
@@ -25,6 +25,7 @@ final class DatePickerReactor: Reactor {
     @Pulse var endDate: DateInfo
     @Pulse var isWarning = false
     @Pulse var destination: Destination?
+    @Pulse var dateList: DateList
     
     enum Destination {
       case ledger
@@ -32,12 +33,14 @@ final class DatePickerReactor: Reactor {
     }
   }
   
-  var yearList: [Int] = Array(2010...2024).reversed()
-  var monthList: [Int] = Array(1...12).reversed()
-  
   enum PickerState {
     case start
     case end
+  }
+  
+  struct DateList {
+    let year: [Int]
+    let month: [Int]
   }
 
   let initialState: State
@@ -46,18 +49,24 @@ final class DatePickerReactor: Reactor {
   init(
     startDate: DateInfo,
     endDate: DateInfo,
-    ledgerService: LedgerServiceInterface
+    ledgerService: LedgerServiceInterface,
+    formatter: ContentFormatter
   ) {
+    let currentYear = formatter.convertToDate(date: .now).split(separator: "/").map({ Int($0)! })[0]
     self.initialState = State(
       startDate: startDate,
-      endDate: endDate
+      endDate: endDate,
+      dateList: DateList(
+        year: Array((currentYear - 15)...currentYear).reversed(),
+        month: Array(1...12).reversed()
+      )
     )
     self.service = ledgerService
   }
   
   func mutate(action: Action) -> Observable<Mutation> {
     switch action {
-    case .viewWillAppear:
+    case .onAppear:
       return .just(.setPickerRow)
     case .selectDateLabel(let type):
       return .concat([
@@ -66,8 +75,8 @@ final class DatePickerReactor: Reactor {
       ])
     case .selectDate(let row, let component):
       switch component {
-      case 0: return .just(.setYear(yearList[row]))
-      case 1: return .just(.setMonth(monthList[row]))
+      case 0: return .just(.setYear(currentState.dateList.year[row]))
+      case 1: return .just(.setMonth(currentState.dateList.month[row]))
       default: return .empty()
       }
     case .didTapCompleteButton:
@@ -98,12 +107,12 @@ final class DatePickerReactor: Reactor {
     case .setPickerRow:
       switch state.selectedDateType {
       case .start:
-        let yearRow = yearList.firstIndex(of: state.startDate.year)
-        let monthRow = monthList.firstIndex(of: state.startDate.month)
+        let yearRow = state.dateList.year.firstIndex(of: state.startDate.year)
+        let monthRow = state.dateList.month.firstIndex(of: state.startDate.month)
         newState.pickerRow = (yearRow!, monthRow!)
       case .end:
-        let yearRow = yearList.firstIndex(of: state.endDate.year)
-        let monthRow = monthList.firstIndex(of: state.endDate.month)
+        let yearRow = state.dateList.year.firstIndex(of: state.endDate.year)
+        let monthRow = state.dateList.month.firstIndex(of: state.endDate.month)
         newState.pickerRow = (yearRow!, monthRow!)
       }
     case .setYear(let year):

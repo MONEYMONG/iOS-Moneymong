@@ -28,10 +28,7 @@ final class LedgerTabReactor: Reactor {
     @Pulse var totalBalance: String = "0"
     @Pulse var filterType: FundType? = nil
     @Pulse var ledgers: [Ledger] = []
-    @Pulse var dateRange: (start: DateInfo, end: DateInfo) = (
-      DateInfo(year: 2023, month: 12),
-      DateInfo(year: 2024, month: 5)
-    )
+    @Pulse var dateRange: (start: DateInfo, end: DateInfo)
     @Pulse var isLoading = false
     @Pulse var destination: Destination?
     
@@ -47,19 +44,33 @@ final class LedgerTabReactor: Reactor {
   private let ledgerRepo: LedgerRepositoryInterface
   private let userRepo: UserRepositoryInterface
   private let agencyRepo: AgencyRepositoryInterface
-  private let formatter = ContentFormatter()
+  let formatter: ContentFormatter
 
   init(
     ledgerService: LedgerServiceInterface,
     ledgerRepo: LedgerRepositoryInterface,
     userRepo: UserRepositoryInterface,
-    agencyRepo: AgencyRepositoryInterface
+    agencyRepo: AgencyRepositoryInterface,
+    formatter: ContentFormatter
   ) {
     self.service = ledgerService
     self.ledgerRepo = ledgerRepo
     self.userRepo = userRepo
     self.agencyRepo = agencyRepo
-    self.initialState = State(userID: userRepo.fetchUserID())
+    self.formatter = formatter
+    
+    let currentDate = formatter.convertToDate(date: .now).split(separator: "/").map { Int($0)! }
+    let endYear = currentDate[0]
+    let endMonth = currentDate[1]
+    let endDate = DateInfo(year: endYear, month: endMonth)
+    let startYear = endMonth - 5 > 0 ? endYear : endYear - 1
+    let startMonth = endMonth - 5 > 0 ? endMonth - 5 : endMonth + 7
+    let startDate = DateInfo(year: startYear, month: startMonth)
+    
+    self.initialState = State(
+      userID: userRepo.fetchUserID(),
+      dateRange: (startDate, endDate)
+    )
   }
   
   func mutate(action: Action) -> Observable<Mutation> {

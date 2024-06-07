@@ -39,18 +39,20 @@ final class OCRResultReactor: Reactor {
   private let service: LedgerServiceInterface
   private let repo: LedgerRepositoryInterface
   private let ocrModel: OCRResult
-  private let formatter = ContentFormatter()
+  private let formatter: ContentFormatter
   
   init(
     agencyId: Int,
     model: OCRResult,
     imageData: Data,
     repo: LedgerRepositoryInterface,
-    ledgerService: LedgerServiceInterface
+    ledgerService: LedgerServiceInterface,
+    formatter: ContentFormatter
   ) {
     self.repo = repo
     self.service = ledgerService
     self.ocrModel = model
+    self.formatter = formatter
     self.initialState = State(
       agencyId: agencyId,
       receiptImageData: imageData,

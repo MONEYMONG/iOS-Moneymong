@@ -89,18 +89,20 @@ final class CreateManualLedgerReactor: Reactor {
   private let service: LedgerServiceInterface
   private let ledgerRepo: LedgerRepositoryInterface
   private let userRepo: UserRepositoryInterface
-  private let formatter = ContentFormatter()
+  private let formatter: ContentFormatter
   
   init(
     agencyId: Int,
     type: `Type`,
     ledgerRepo: LedgerRepositoryInterface,
     userRepo: UserRepositoryInterface,
-    ledgerService: LedgerServiceInterface
+    ledgerService: LedgerServiceInterface,
+    formatter: ContentFormatter
   ) {
     self.ledgerRepo = ledgerRepo
     self.userRepo = userRepo
     self.service = ledgerService
+    self.formatter = formatter
     self.initialState = State(agencyId: agencyId, type: type)
   }
   
