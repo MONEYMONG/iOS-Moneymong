@@ -57,7 +57,7 @@ final class JoinAgencyVC: BaseVC, ReactorKit.View {
     rootContainer.flex.justifyContent(.center).marginHorizontal(20).define { flex in
       flex.addItem(titleLabel).position(.absolute).top(8)
       
-      flex.addItem().define { flex in
+      flex.addItem().paddingBottom(100).define { flex in
         flex.addItem(inviteCodeLabel).width(width).marginBottom(8)
         flex.addItem().direction(.row).justifyContent(.spaceBetween).define { flex in
           codeviews.forEach {
@@ -76,6 +76,10 @@ final class JoinAgencyVC: BaseVC, ReactorKit.View {
       .bind(with: self) { owner, _ in
         owner.coordinator?.dismiss()
       }
+      .disposed(by: disposeBag)
+    
+    view.rx.tapGesture
+      .bind { $0.endEditing(true) }
       .disposed(by: disposeBag)
     
     codeviews.enumerated().forEach { index, codeView in

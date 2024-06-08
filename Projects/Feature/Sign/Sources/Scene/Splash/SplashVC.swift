@@ -6,7 +6,7 @@ import ReactorKit
 
 final class SplashVC: BaseVC, View {
 
-  var coordinator: SignCoordinator?
+  weak var coordinator: SignCoordinator?
   var disposeBag = DisposeBag()
 
   private let logoImageView: UIImageView = {
@@ -32,7 +32,6 @@ final class SplashVC: BaseVC, View {
       .justifyContent(.center)
       .alignItems(.center)
       .define { flex in
-
         flex.addItem(logoImageView).size(12)
       }
   }
@@ -53,6 +52,7 @@ final class SplashVC: BaseVC, View {
       .disposed(by: disposeBag)
 
     rx.viewDidAppear
+      .delay(.milliseconds(500), scheduler: MainScheduler.instance)
       .bind(with: self) { owner, _ in
         reactor.action.onNext(.onAppear)
         owner.onAnimation()

@@ -280,9 +280,7 @@ final class CreateManualLedgerVC: BaseVC, View {
       .disposed(by: disposeBag)
     
     view.rx.tapGesture
-      .bind(with: self) { owner, _ in
-        owner.view.endEditing(true)
-      }
+      .bind { $0.endEditing(true) }
       .disposed(by: disposeBag)
     
     receiptCollectionView.rx.modelSelected(ImageData.Item.self)
