@@ -24,6 +24,8 @@ public final class MMSegmentControl: UIView {
     didSet {
       if allButtons.indices.contains(selectedIndex) {
         selection(with: allButtons[selectedIndex])
+      } else {
+        allButtons.forEach { unselection(with: $0) }
       }
     }
   }
