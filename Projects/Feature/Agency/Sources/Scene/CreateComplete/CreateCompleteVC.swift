@@ -32,17 +32,16 @@ final class CreateCompleteVC: BaseVC, View {
   
   override func setupConstraints() {
     super.setupConstraints()
-    
-    rootContainer.flex.justifyContent(.center).backgroundColor(Colors.Gray._7).define { flex in
+    rootContainer.flex.backgroundColor(Colors.Gray._7).define { flex in
       flex.addItem().alignItems(.center).define { flex in
         flex.addItem(completeImageView).width(188).height(100)
         flex.addItem(completeLabel)
-      }
+      }.grow(1).justifyContent(.center)
 
-      flex.addItem().position(.absolute).horizontally(20).bottom(12).define { flex in
+      flex.addItem().define { flex in
         flex.addItem(ledgerButton).height(56).marginBottom(12)
         flex.addItem(registerLedgerButton).height(56).marginBottom(12)
-      }
+      }.marginHorizontal(20)
     }
   }
   

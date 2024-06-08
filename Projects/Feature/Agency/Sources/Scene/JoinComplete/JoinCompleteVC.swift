@@ -34,13 +34,14 @@ final class JoinCompleteVC: BaseVC, View {
   override func setupConstraints() {
     super.setupConstraints()
     
-    rootContainer.flex.justifyContent(.center).alignItems(.center).define { flex in
-      flex.addItem(iconImageView).size(100).marginBottom(8)
-      flex.addItem(titleLabel).marginBottom(4)
-      flex.addItem(descriptionLabel)
-      
-      flex.addItem(confirmButton).position(.absolute).height(56).horizontally(20).bottom(12)
-    }
+    rootContainer.flex.define { flex in
+      flex.addItem().justifyContent(.center).alignItems(.center).define { flex in
+        flex.addItem(iconImageView).size(100).marginBottom(8)
+        flex.addItem(titleLabel).marginBottom(4)
+        flex.addItem(descriptionLabel)
+      }.grow(1)
+      flex.addItem(confirmButton).height(56)
+    }.marginHorizontal(20)
   }
   
   func bind(reactor: JoinCompleteReactor) {

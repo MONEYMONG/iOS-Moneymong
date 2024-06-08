@@ -279,7 +279,7 @@ final class CreateManualLedgerVC: BaseVC, View {
       .bind(to: reactor.action)
       .disposed(by: disposeBag)
     
-    view.rx.tapGesture
+    content.rx.tapGesture
       .bind { $0.endEditing(true) }
       .disposed(by: disposeBag)
     

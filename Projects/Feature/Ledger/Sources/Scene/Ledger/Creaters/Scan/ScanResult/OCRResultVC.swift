@@ -1,15 +1,15 @@
 import UIKit
 
 import DesignSystem
+import BaseFeature
 
 import ReactorKit
 import PinLayout
 import FlexLayout
 
-final class OCRResultVC: UIViewController, View {
+final class OCRResultVC: BaseVC, View {
   var disposeBag = DisposeBag()
   weak var coordinator: CreateOCRLedgerCoordinator?
-  private let rootContainer = UIView()
   
   private let receiptImageView: UIImageView = {
     let v = UIImageView()
@@ -64,12 +64,6 @@ final class OCRResultVC: UIViewController, View {
   private let editButton = MMButton(title: "수정하기", type: .secondary)
   private let completeButton = MMButton(title: "등록하기", type: .primary)
   
-  override func viewDidLoad() {
-    super.viewDidLoad()
-    setupUI()
-    setupContainer()
-  }
-  
   override func viewDidLayoutSubviews() {
     super.viewDidLayoutSubviews()
     receiptImageView.pin.all()
@@ -77,13 +71,14 @@ final class OCRResultVC: UIViewController, View {
     rootContainer.flex.layout()
   }
   
-  private func setupUI() {
+  override func setupUI() {
+    super.setupUI()
     setTitle("스캔결과", color: .white)
   }
   
-  private func setupContainer() {
+  override func setupConstraints() {
     view.addSubview(receiptImageView)
-    view.addSubview(rootContainer)
+    super.setupConstraints()
     
     rootContainer.flex.define { flex in
       flex.addItem(gradationView).height(100)

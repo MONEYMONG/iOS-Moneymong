@@ -91,12 +91,8 @@ public class MMTextView: UIView {
   private func setupConstraints() {
     rootContainer.flex.backgroundColor(.white).define { flex in
       flex.addItem(titleLabel)
-      
-      flex.addItem().direction(.row).define { flex in
-        flex.addItem(textView).backgroundColor(.white).minHeight(150).grow(1)
-        flex.addItem(placeholderLabel).position(.absolute).top(8).left(3)
-      }
-      
+      flex.addItem(textView).backgroundColor(.white).minHeight(150)
+      flex.addItem(placeholderLabel).position(.absolute).top(23).left(6)
       flex.addItem().height(10)
       flex.addItem(colorLineView).height(1).backgroundColor(state.color)
       flex.addItem().height(2)
@@ -130,7 +126,6 @@ extension MMTextView: UITextViewDelegate {
     charactorLimitView.setState(.default(characterCount: textView.text.count))
     placeholderLabel.isHidden = !textView.text.isEmpty
 
-    textView.flex.height(textView.intrinsicContentSize.height)
     textView.flex.markDirty()
     setNeedsLayout()
   }

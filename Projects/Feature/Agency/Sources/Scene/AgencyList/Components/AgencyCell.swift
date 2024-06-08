@@ -56,10 +56,10 @@ final class AgencyCell: UICollectionViewCell, ReusableView {
   
   private func setupConstraints() {
     contentView.addSubview(rootContainer)
-    
     rootContainer.flex.direction(.row).define { flex in
       flex.addItem().direction(.row).padding(16)
         .backgroundColor(Colors.White._1).cornerRadius(16)
+        .border(1, Colors.Gray._2)
         .define { flex in
           flex.addItem(iconImageView).size(48).marginRight(12)
           
