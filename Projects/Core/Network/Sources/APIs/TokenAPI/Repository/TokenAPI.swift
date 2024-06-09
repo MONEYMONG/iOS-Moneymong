@@ -2,7 +2,7 @@ import Foundation
 import Alamofire
 
 enum TokenAPI {
-  case token(refreshToken: String)
+  case token(RefreshTokenRequestDTO)
 }
 
 extension TokenAPI: TargetType {

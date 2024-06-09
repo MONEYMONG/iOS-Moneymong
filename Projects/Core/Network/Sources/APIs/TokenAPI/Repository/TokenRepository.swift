@@ -20,8 +20,8 @@ public final class TokenRepository: TokenRepositoryInterface {
 
   // 저장된 refreshToken 없을 경우 처리해줘야함
   public func token() async throws -> Token {
-    let refreshToken = localStorage.refreshToken ?? ""
-    let targetType = TokenAPI.token(refreshToken: refreshToken)
+    let request = RefreshTokenRequestDTO(refreshToken: localStorage.refreshToken ?? "")
+    let targetType = TokenAPI.token(request)
     let dto = try await networkManager.request(target: targetType, of: TokenResponseDTO.self)
     return dto.toEntity
   }
