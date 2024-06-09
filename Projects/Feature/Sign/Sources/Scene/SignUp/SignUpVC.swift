@@ -44,6 +44,7 @@ final class SignUpVC: BaseVC, View {
   private let tableView: UITableView = {
     let tableView = UITableView()
     tableView.register(UniversityCell.self)
+    tableView.keyboardDismissMode = .interactive
     tableView.separatorStyle = .none
     tableView.showsVerticalScrollIndicator = false
     return tableView
@@ -59,6 +60,10 @@ final class SignUpVC: BaseVC, View {
     let button = MMButton(title: Const.confirmTitle, type: .disable)
     return button
   }()
+
+  override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
+    self.view.endEditing(true)
+  }
 
   override func setupConstraints() {
     super.setupConstraints()
@@ -158,10 +163,6 @@ final class SignUpVC: BaseVC, View {
       .bind(with: self) { owner, _ in
         owner.coordinator?.pop()
       }
-      .disposed(by: disposeBag)
-    
-    view.rx.tapGesture
-      .bind { $0.endEditing(true) }
       .disposed(by: disposeBag)
 
     searchBar.textField.rx.text

@@ -61,11 +61,17 @@ final class LedgerTabVC: BaseVC, View {
     v.register(LedgerCell.self)
     return v
   }()
+
   private let emptyView: LedgerListEmptyView = {
     let v = LedgerListEmptyView()
     v.isHidden = true
     return v
   }()
+
+  override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
+    self.view.endEditing(true)
+    floatingButton.closeAllButtons()
+  }
 
   override func setupUI() {
     super.setupUI()
@@ -116,13 +122,6 @@ final class LedgerTabVC: BaseVC, View {
         owner.coordinator?.present(.createManualLedger(id, .operatingCost))
       }
       .disposed(by: disposeBag)
-    
-    // TODO: gesture 조건 변경 필요성있음
-//    view.rx.tapGesture
-//      .bind(with: self) { owner, _ in
-//        owner.floatingButton.closeAllButtons()
-//      }
-//      .disposed(by: disposeBag)
     
     dateRangeView.rx.tapGesture
       .map { _ in Reactor.Action.didTapDateRangeView }
