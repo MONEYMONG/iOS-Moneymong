@@ -72,7 +72,7 @@ final class LedgerCell: UICollectionViewCell, ReusableView {
     contentView.addSubview(rootContainer)
 
     rootContainer.flex.direction(.row).define { flex in
-      flex.addItem(UIImageView(image: Images.shape)).define { flex in
+      flex.addItem(UIImageView(image: Images.hexagon)).define { flex in
         flex.addItem(numberLabel)
       }
       .justifyContent(.center).alignItems(.center).size(38)

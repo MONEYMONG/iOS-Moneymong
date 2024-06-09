@@ -54,7 +54,7 @@ public enum Images {
   public static var schoolBlue = UIImage(named: "school.blue", in: Bundle.module, with: nil)
   public static var school = UIImage(named: "school", in: Bundle.module, with: nil)
   public static var search = UIImage(named: "search", in: Bundle.module, with: nil)
-  public static var shape = UIImage(named: "shape", in: Bundle.module, with: nil)
+  public static var hexagon = UIImage(named: "hexagon", in: Bundle.module, with: nil)
   public static var time = UIImage(named: "time", in: Bundle.module, with: nil)
   public static var trash = UIImage(named: "trash", in: Bundle.module, with: nil)
   public static var university = UIImage(named: "university", in: Bundle.module, with: nil)
@@ -77,13 +77,12 @@ public enum Images {
   public static var kakaoLogo = UIImage(named: "kakaoLogo", in: Bundle.module, with: nil)
   public static var appleLogo = UIImage(named: "appleLogo", in: Bundle.module, with: nil)
 
-  public static var indicator = UIImage(named: "indicator", in: Bundle.module, with: nil)
   public static var cameraShutter = UIImage(named: "camera.shutter", in: Bundle.module, with: nil)
   public static var scanGuide = UIImage(named: "scan.guide", in: Bundle.module, with: nil)
   
-  public static var agencyLine = UIImage(named: "agency.line", in: Bundle.module, with: nil)
-  public static var moneyLine = UIImage(named: "money.line", in: Bundle.module, with: nil)
-  public static var planLine = UIImage(named: "plan.line", in: Bundle.module, with: nil)
-  public static var timeLine = UIImage(named: "time.line", in: Bundle.module, with: nil)
+  public static var agencyLineBlue = UIImage(named: "agency.line.blue", in: Bundle.module, with: nil)
+  public static var moneyLineBlue = UIImage(named: "money.line.blue", in: Bundle.module, with: nil)
+  public static var planLineBlue = UIImage(named: "plan.line.blue", in: Bundle.module, with: nil)
+  public static var timeLineBlue = UIImage(named: "time.line.blue", in: Bundle.module, with: nil)
 }
 

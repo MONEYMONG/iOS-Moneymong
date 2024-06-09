@@ -92,7 +92,7 @@ final class OCRResultVC: BaseVC, View {
       flex.addItem().define { flex in
         flex.addItem().define { flex in
           flex.addItem().direction(.row).define { flex in
-            flex.addItem(UIImageView(image: Images.agencyLine))
+            flex.addItem(UIImageView(image: Images.agencyLineBlue))
               .marginRight(8)
             flex.addItem(
               UILabel().text("수입·지출 출처: ", font: Fonts.body._3, color: Colors.Gray._6)
@@ -100,7 +100,7 @@ final class OCRResultVC: BaseVC, View {
             flex.addItem(sourceLabel)
           }.marginBottom(14)
           flex.addItem().direction(.row).define { flex in
-            flex.addItem(UIImageView(image: Images.moneyLine))
+            flex.addItem(UIImageView(image: Images.moneyLineBlue))
               .marginRight(8)
             flex.addItem(
               UILabel().text("금액: ", font: Fonts.body._3, color: Colors.Gray._6)
@@ -108,7 +108,7 @@ final class OCRResultVC: BaseVC, View {
             flex.addItem(moneyLabel)
           }.marginBottom(14)
           flex.addItem().direction(.row).define { flex in
-            flex.addItem(UIImageView(image: Images.planLine))
+            flex.addItem(UIImageView(image: Images.planLineBlue))
               .marginRight(8)
             flex.addItem(
               UILabel().text("날짜: ", font: Fonts.body._3, color: Colors.Gray._6)
@@ -116,7 +116,7 @@ final class OCRResultVC: BaseVC, View {
             flex.addItem(dateLabel)
           }.marginBottom(14)
           flex.addItem().direction(.row).define { flex in
-            flex.addItem(UIImageView(image: Images.timeLine))
+            flex.addItem(UIImageView(image: Images.timeLineBlue))
               .marginRight(8)
             flex.addItem(
               UILabel().text("시간: ", font: Fonts.body._3, color: Colors.Gray._6)
