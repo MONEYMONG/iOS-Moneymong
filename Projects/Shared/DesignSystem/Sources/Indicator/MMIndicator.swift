@@ -1,8 +1,6 @@
 import UIKit
 import QuartzCore
 
-import Kingfisher
-
 public class MMIndicator: UIView {
 
   private let highlightCircleView: HighlightCircleView

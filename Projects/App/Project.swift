@@ -29,7 +29,7 @@ let project = Project(
         ],
         "UIUserInterfaceStyle": "Light",
         "CFBundleShortVersionString": "1.0",
-        "CFBundleVersion": "1",
+        "CFBundleVersion": "2",
         "UILaunchStoryboardName": "LaunchScreen",
         "UIApplicationSceneManifest" : [
           "UIApplicationSupportsMultipleScenes":true,
