@@ -26,9 +26,9 @@ public final class LedgerVC: BaseVC, View {
     config.image = Images.chevronDown?.withTintColor(Colors.Gray._10)
     config.imagePadding = 4
     config.imagePlacement = .trailing
+    config.titleLineBreakMode = .byTruncatingTail
     
     let v = UIButton(configuration: config)
-    v.frame = .init(x: 0, y: 0, width: 200, height: 0)
     
     return v
   }()
@@ -44,6 +44,12 @@ public final class LedgerVC: BaseVC, View {
     super.viewDidLayoutSubviews()
     
     emptyView.pin.all()
+    agencyButton.frame = .init(
+      x: 0,
+      y: 0,
+      width: 350,
+      height: 0
+    )
   }
   
   public override func setupUI() {

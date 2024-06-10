@@ -4,6 +4,9 @@ import Utility
 import DesignSystem
 import NetworkService
 
+import FlexLayout
+import PinLayout
+
 final class AgencyCell: UICollectionViewCell, ReusableView {
   
   private let iconImageView: UIImageView = {
@@ -57,27 +60,24 @@ final class AgencyCell: UICollectionViewCell, ReusableView {
   private func setupConstraints() {
     contentView.addSubview(rootContainer)
     rootContainer.flex.direction(.row).define { flex in
-      flex.addItem().direction(.row).padding(16)
-        .backgroundColor(Colors.White._1).cornerRadius(16)
-        .border(1, Colors.Gray._2)
-        .define { flex in
-          flex.addItem(iconImageView).size(48).marginRight(12)
-          
-          flex.addItem().define { flex in
-            flex.addItem().direction(.row).define { flex in
-              flex.addItem(titleLabel).marginRight(6)
-              flex.addItem(tagView)
-            }.marginBottom(4)
-            
-            flex.addItem(countLabel)
-          }
-        }
-        .grow(1)
+      flex.addItem(iconImageView).size(48).marginRight(12)
+      
+      flex.addItem().define { flex in
+        flex.addItem().direction(.row).define { flex in
+          flex.addItem(titleLabel).marginRight(6).shrink(1)
+          flex.addItem(tagView).shrink(0)
+        }.marginBottom(4)
+        
+        flex.addItem(countLabel)
+      }.grow(1).shrink(1)
     }
+    .backgroundColor(Colors.White._1).cornerRadius(16)
+    .border(1, Colors.Gray._2)
+    .padding(16)
   }
   
   func configure(with item: Agency) -> Self {
-    titleLabel.setTextWithLineHeight(text: "\(item.name)", lineHeight: 20)
+    titleLabel.text = "\(item.name)"
     countLabel.setTextWithLineHeight(text: "멤버수 \(item.count)", lineHeight: 18)
     tagView.configure(title: "동아리", titleColor: Colors.Blue._4, backgroundColor: Colors.Blue._1)
     
