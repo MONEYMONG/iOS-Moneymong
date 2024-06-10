@@ -28,7 +28,7 @@ final class SelectAgencySheetVC: BottomSheetVC, View {
     
     contentView.flex.define { flex in
       flex.addItem(tableView).height(3 * (80 + 12) + 12)
-        .margin(20, 20, 0, 20)
+        .margin(20, 20, 20, 20)
     }
   }
   
@@ -37,7 +37,6 @@ final class SelectAgencySheetVC: BottomSheetVC, View {
       .map { Reactor.Action.onAppear }
       .bind(to: reactor.action)
       .disposed(by: disposeBag)
-    
     
     tableView.rx.modelSelected(Agency.self)
       .throttle(.seconds(1), latest: false, scheduler: MainScheduler.instance)
