@@ -32,8 +32,8 @@ final class AssignRoleView: UIView {
     return v
   }()
   
-  private let checkImageView = UIImageView(image: Images.check?.withTintColor(Colors.Gray._3))
-  private let checkImageView2 = UIImageView(image: Images.check?.withTintColor(Colors.Blue._4))
+  private let staffCheckImageView = UIImageView(image: Images.check?.withTintColor(Colors.Gray._3))
+  private let memberCheckImageView = UIImageView(image: Images.check?.withTintColor(Colors.Blue._4))
   
   private let saveButton = MMButton(title: "저장", type: .primary)
   
@@ -42,7 +42,6 @@ final class AssignRoleView: UIView {
   init() {
     super.init(frame: .zero)
     setupConstraints()
-    bind()
   }
   
   required init?(coder: NSCoder) {
@@ -62,26 +61,41 @@ final class AssignRoleView: UIView {
       flex.addItem(staffView).direction(.row).alignItems(.center).define { flex in
         flex.addItem(staffLabel)
         flex.addItem().grow(1)
-        flex.addItem(checkImageView).size(24)
+        flex.addItem(staffCheckImageView).size(24)
       }.marginBottom(20)
       
       flex.addItem(memberView).direction(.row).alignItems(.center).define { flex in
         flex.addItem(memberLabel)
         flex.addItem().grow(1)
-        flex.addItem(checkImageView2).size(24)
+        flex.addItem(memberCheckImageView).size(24)
       }.marginBottom(20)
       
       flex.addItem(saveButton).height(52)
     }
   }
   
-  private func bind() {
+  func bind(role: Member.Role) {
+    switch role {
+    case .staff:
+      staffLabel.textColor = Colors.Blue._4
+      staffCheckImageView.image = Images.check?.withTintColor(Colors.Blue._4)
+      memberLabel.textColor = Colors.Gray._5
+      memberCheckImageView.image = Images.check?.withTintColor(Colors.Gray._3)
+    case .member:
+      staffLabel.textColor = Colors.Gray._5
+      staffCheckImageView.image = Images.check?.withTintColor(Colors.Gray._3)
+      memberLabel.textColor = Colors.Blue._4
+      memberCheckImageView.image = Images.check?.withTintColor(Colors.Blue._4)
+    }
+    
+    selectedRole = role
+    
     staffView.rx.tapGesture
       .bind(with: self) { owner, _ in
         owner.staffLabel.textColor = Colors.Blue._4
-        owner.checkImageView.image = Images.check?.withTintColor(Colors.Blue._4)
+        owner.staffCheckImageView.image = Images.check?.withTintColor(Colors.Blue._4)
         owner.memberLabel.textColor = Colors.Gray._5
-        owner.checkImageView2.image = Images.check?.withTintColor(Colors.Gray._3)
+        owner.memberCheckImageView.image = Images.check?.withTintColor(Colors.Gray._3)
         
         owner.selectedRole = .staff
       }
@@ -90,9 +104,9 @@ final class AssignRoleView: UIView {
     memberView.rx.tapGesture
       .bind(with: self) { owner, _ in
         owner.staffLabel.textColor = Colors.Gray._5
-        owner.checkImageView.image = Images.check?.withTintColor(Colors.Gray._3)
+        owner.staffCheckImageView.image = Images.check?.withTintColor(Colors.Gray._3)
         owner.memberLabel.textColor = Colors.Blue._4
-        owner.checkImageView2.image = Images.check?.withTintColor(Colors.Blue._4)
+        owner.memberCheckImageView.image = Images.check?.withTintColor(Colors.Blue._4)
         
         owner.selectedRole = .member
       }
