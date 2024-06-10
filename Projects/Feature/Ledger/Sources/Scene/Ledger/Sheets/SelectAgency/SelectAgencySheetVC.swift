@@ -23,12 +23,19 @@ final class SelectAgencySheetVC: BottomSheetVC, View {
     return v
   }()
   
+  private let footerView: UIView = {
+    let v = UIView()
+    v.backgroundColor = Colors.White._1
+    return v
+  }()
+  
   override func setupConstraints() {
     super.setupConstraints()
     
     contentView.flex.define { flex in
       flex.addItem(tableView).height(3 * (80 + 12) + 12)
         .margin(20, 20, 0, 20)
+      flex.addItem(footerView).height(20)
     }
   }
   
@@ -37,7 +44,6 @@ final class SelectAgencySheetVC: BottomSheetVC, View {
       .map { Reactor.Action.onAppear }
       .bind(to: reactor.action)
       .disposed(by: disposeBag)
-    
     
     tableView.rx.modelSelected(Agency.self)
       .throttle(.seconds(1), latest: false, scheduler: MainScheduler.instance)
