@@ -61,7 +61,7 @@ public final class NetworkManager: NetworkManagerInterfacae {
     guard let statusCode = dataResponse.response?.statusCode else {
       throw MoneyMongError.serverError(errorMessage: "Empty StatusCode")
     }
-    
+
     switch dataResponse.result {
     case let .success(data):
       // DTO로 디코딩
