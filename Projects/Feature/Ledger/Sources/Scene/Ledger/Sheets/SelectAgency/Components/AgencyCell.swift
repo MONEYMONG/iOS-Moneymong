@@ -70,16 +70,15 @@ final class AgencyCell: UITableViewCell, ReusableView {
         flex.addItem().define { flex in
           flex.addItem(titleLabel).marginBottom(4)
           flex.addItem(countLabel)
-        }
+        }.grow(1).shrink(1)
         
-        flex.addItem().grow(1)
         flex.addItem(checkMarkImageView).size(24)
     }
       .marginBottom(12)
   }
   
   func configure(with item: Agency, selectedID: Int) -> Self {
-    titleLabel.setTextWithLineHeight(text: "\(item.name)", lineHeight: 20)
+    titleLabel.text = "\(item.name)"
     countLabel.setTextWithLineHeight(text: "멤버수 \(item.count)", lineHeight: 18)
     
     titleLabel.flex.markDirty()
