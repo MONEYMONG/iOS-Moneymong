@@ -47,7 +47,7 @@ final class LedgerListEmptyView: UIView {
     switch index {
     case 0:
       iconImageView.image = Images.scanPhone
-      contentLabel.font = Fonts.body._4
+      contentLabel.font = Fonts.body._3
       contentLabel.setTextWithLineHeight(text: "카메라로 영수증을 스캔해서\n  손쉽게 장부를 기록하세요", lineHeight: 24)
     case 1:
       iconImageView.image = Images.mongLedgerEmpty

@@ -210,6 +210,7 @@ final class CreateOCRLedgerVC: UIViewController, View {
     
     reactor.pulse(\.$error)
       .compactMap { $0?.errorDescription }
+      .observe(on: MainScheduler.instance)
       .bind(with: self) { owner, message in
         owner.coordinator?.present(
           .alert(title: "오류", subTitle: message, type: .onlyOkButton())

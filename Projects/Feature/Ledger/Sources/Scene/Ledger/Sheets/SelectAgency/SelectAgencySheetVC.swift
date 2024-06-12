@@ -86,6 +86,7 @@ final class SelectAgencySheetVC: BottomSheetVC, View {
     
     reactor.pulse(\.$error)
       .compactMap { $0 }
+      .observe(on: MainScheduler.instance)
       .bind(with: self) { owner, error in
         owner.coordinator?.present(.alert(
           title: "네트워크 에러",

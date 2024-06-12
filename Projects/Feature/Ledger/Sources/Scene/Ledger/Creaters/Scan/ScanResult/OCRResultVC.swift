@@ -195,8 +195,8 @@ final class OCRResultVC: BaseVC, View {
       .disposed(by: disposeBag)
     
     reactor.pulse(\.$error)
-      .observe(on: MainScheduler.instance)
       .compactMap { $0 }
+      .observe(on: MainScheduler.instance)
       .bind(with: self) { owner, error in
         owner.coordinator?.present(.alert(title: "오류", subTitle: error.errorDescription, type: .onlyOkButton()))
       }
