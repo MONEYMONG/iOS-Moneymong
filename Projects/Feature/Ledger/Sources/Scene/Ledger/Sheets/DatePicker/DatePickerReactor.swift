@@ -75,8 +75,16 @@ final class DatePickerReactor: Reactor {
       ])
     case .selectDate(let row, let component):
       switch component {
-      case 0: return .just(.setYear(currentState.dateList.year[row]))
-      case 1: return .just(.setMonth(currentState.dateList.month[row]))
+      case 0: return 
+          .concat([
+            .just(.setYear(currentState.dateList.year[row])),
+            .just(.setPickerRow)
+          ])
+      case 1: return 
+          .concat([
+            .just(.setMonth(currentState.dateList.month[row])),
+            .just(.setPickerRow)
+          ])
       default: return .empty()
       }
     case .didTapCompleteButton:

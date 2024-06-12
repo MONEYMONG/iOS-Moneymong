@@ -92,8 +92,11 @@ final class SignUpReactor: Reactor {
     case .selectGrade(let grade):
       return Observable.create { [unowned self] observer in
         observer.onNext(.setSelectedGrade(grade))
-
-        if currentState.selectedUniversity != nil, currentState.selectedGrade != nil {
+        
+        if currentState.selectedUniversity != nil,
+           let grade = currentState.selectedGrade,
+           (1...5) ~= grade
+        {
           observer.onNext(.setIsConfirm(true))
         } else {
           observer.onNext(.setIsConfirm(false))

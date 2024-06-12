@@ -48,6 +48,11 @@ final class GradeInputView: UIView {
   var didTapSelectGrade: Published<Int>.Publisher {
     gradeSelections.$selectedIndex
   }
+  
+  var selectedIndex: Int {
+    get { gradeSelections.selectedIndex }
+    set { gradeSelections.selectedIndex = newValue }
+  }
 
   init() {
     super.init(frame: .zero)

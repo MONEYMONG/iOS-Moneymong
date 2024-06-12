@@ -44,6 +44,8 @@ final class EditMemberSheetVC: BottomSheetVC, View {
       .bind(to: reactor.action)
       .disposed(by: disposeBag)
     
+    assignRoleView.bind(role: reactor.currentState.member.role)
+    
     assignRoleView.tapSave
       .throttle(.seconds(1), latest: false, scheduler: MainScheduler.instance)
       .map { Reactor.Action.tapSaveButton($0) }

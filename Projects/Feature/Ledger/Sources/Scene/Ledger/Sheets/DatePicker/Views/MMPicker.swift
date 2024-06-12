@@ -170,15 +170,6 @@ extension MMPicker: UICollectionViewDelegate {
       )
     }
   
-  func collectionView(
-    _ collectionView: UICollectionView,
-    didEndDisplaying cell: UICollectionViewCell,
-    forItemAt indexPath: IndexPath
-  ) {
-    guard let cell = collectionView.cellForItem(at: indexPath) as? DateCell else { return }
-    cell.setTitleColor(Colors.Gray._300)
-  }
-  
   private func selectDateCell(_ collectionView: UICollectionView) {
     let centerPoint = CGPoint(
       x: 0,
