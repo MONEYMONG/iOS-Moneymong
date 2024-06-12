@@ -6,7 +6,7 @@ import DesignSystem
 final class UniversityCell: UITableViewCell, ReusableView {
   private let titleLabel: UILabel = {
     let v = UILabel()
-    v.textColor = Colors.Black._1
+    v.textColor = Colors.Gray._7
     v.font = Fonts.body._3
     v.setTextWithLineHeight(text: "학교정보", lineHeight: 20)
     return v
