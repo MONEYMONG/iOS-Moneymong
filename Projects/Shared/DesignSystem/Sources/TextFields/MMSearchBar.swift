@@ -51,12 +51,8 @@ public class MMSearchBar: UIView {
       Images.search?.withRenderingMode(.alwaysTemplate),
       for: .normal
     )
-    button.setImage(
-      Images.search?.withRenderingMode(.alwaysTemplate),
-      for: .highlighted
-    )
-    button.imageEdgeInsets = UIEdgeInsets(top: 2, left: 2, bottom: 2, right: 2)
     button.tintColor = Colors.Gray._4
+    button.imageEdgeInsets = UIEdgeInsets(top: 2, left: 2, bottom: 2, right: 2)
     return button
   }()
 
@@ -113,6 +109,7 @@ public class MMSearchBar: UIView {
   private func updateState() {
     titleLabel.textColor = state.color
     colorLineView.backgroundColor = state == .unActive ? Colors.Gray._2 : state.color
+    searchButton.tintColor = state == .unActive ? Colors.Gray._4 : Colors.Blue._4
     textField.tintColor = state.color
   }
 
