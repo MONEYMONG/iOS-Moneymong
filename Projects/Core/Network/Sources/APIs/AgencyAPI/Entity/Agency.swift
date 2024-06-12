@@ -8,7 +8,15 @@ public struct Agency: Equatable {
   public let type: `Type`
   
   public enum `Type`: String {
-    case student = "STUDENT_COUNCIL"
+    case council = "STUDENT_COUNCIL"
+    case club = "IN_SCHOOL_CLUB"
+    
+    public var name: String {
+      switch self {
+      case .council: "학생회"
+      case .club: "동아리"
+      }
+    }
   }
   
   public init(id: Int, name: String, count: Int, type: Type) {
