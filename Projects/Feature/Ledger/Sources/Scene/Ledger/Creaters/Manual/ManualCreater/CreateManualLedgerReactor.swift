@@ -27,7 +27,7 @@ final class CreateManualLedgerReactor: Reactor {
     case deleteImage(ImageData.Item, Section)
     case end
   }
-
+  
   enum Section: Int, Equatable {
     case receipt
     case document
@@ -36,7 +36,8 @@ final class CreateManualLedgerReactor: Reactor {
   enum Action {
     case onAppear
     case didTapCompleteButton
-    case presentedAlert(AlertType)
+    case didTapCancelButton
+    case didTapImageDeleteButton(ImageData.Item, Section)
     case didTapImageDeleteAlertButton(ImageData.Item, Section)
     case didTapImageAddButton(Section)
     case selectedImage(ImageData.Item, Section)
@@ -131,9 +132,15 @@ final class CreateManualLedgerReactor: Reactor {
     case let .selectedImage(item, section):
       guard case let .image(image) = item else { return .empty() }
       return uploadImage(image: image, section: section)
-      .catch { .just(.setAlertContent(.error($0.toMMError))) }
-    case .presentedAlert(let type):
-        return .just(.setAlertContent(type))
+        .catch { .just(.setAlertContent(.error($0.toMMError))) }
+    case let .didTapImageDeleteButton(item, section):
+      return .just(.setAlertContent(.deleteImage(item, section)))
+    case .didTapCancelButton:
+      if isEmptyContent() {
+        return .just(.setDestination)
+      } else {
+        return .just(.setAlertContent(.end))
+      }
     case let .didTapImageDeleteAlertButton(item, section):
       guard case let .image(image) = item else { return .empty() }
       return .task {
@@ -292,7 +299,7 @@ private extension CreateManualLedgerReactor {
     else {
       return false
     }
-
+    
     // fund
     guard content.fundType == 1 || content.fundType == 0 else {
       return false
@@ -316,7 +323,7 @@ private extension CreateManualLedgerReactor {
     regex = try! NSRegularExpression(pattern: pattern)
     result = regex.firstMatch(in: value, range: NSRange(location: 0, length: value.count))
     guard result != nil else { return false }
-
+    
     // memo
     guard content.memo.count <= 300
     else {
@@ -349,10 +356,10 @@ private extension CreateManualLedgerReactor {
         receiptImageUrls: currentState.content.receiptImages.map(\.url),
         documentImageUrls: currentState.content.documentImages.map(\.url)
       )}
-      .map { .setDestination }
-      .catch {
-        return .just(.setAlertContent(.error($0.toMMError)))
-      }
+    .map { .setDestination }
+    .catch {
+      return .just(.setAlertContent(.error($0.toMMError)))
+    }
   }
   
   func uploadImage(image: ImageData, section: Section) -> Observable<Mutation> {
@@ -371,5 +378,17 @@ private extension CreateManualLedgerReactor {
     .catch {
       return .just(.setAlertContent(.error($0.toMMError)))
     }
+  }
+  
+  func isEmptyContent() -> Bool {
+    let content = currentState.content
+    return content.source == ""
+    && content.amount == ""
+    && content.date == ""
+    && content.time == ""
+    && content.memo == ""
+    && content.fundType == -1
+    && content.documentImages.isEmpty
+    && content.receiptImages.isEmpty
   }
 }

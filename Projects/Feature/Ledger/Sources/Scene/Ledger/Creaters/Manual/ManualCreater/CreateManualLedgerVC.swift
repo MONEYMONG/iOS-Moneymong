@@ -269,7 +269,7 @@ final class CreateManualLedgerVC: BaseVC, View {
         .disposed(by: disposeBag)
     default:
       navigationItem.rightBarButtonItem?.rx.tap
-        .map { Reactor.Action.presentedAlert(.end) }
+        .map { Reactor.Action.didTapCancelButton }
         .bind(to: reactor.action)
         .disposed(by: disposeBag)
     }
@@ -387,7 +387,9 @@ final class CreateManualLedgerVC: BaseVC, View {
           case .image:
             return view.dequeueCell(ImageCell.self, for: indexPath)
               .configure(with: element) {
-                self?.reactor?.action.onNext(.presentedAlert(.deleteImage(element, .receipt)))
+                self?.reactor?.action.onNext(
+                  .didTapImageDeleteButton(element, .receipt)
+                )
               }
           }
         }
@@ -413,7 +415,9 @@ final class CreateManualLedgerVC: BaseVC, View {
         case .image:
           return view.dequeueCell(ImageCell.self, for: indexPath)
             .configure(with: element) {
-              self?.reactor?.action.onNext(.presentedAlert(.deleteImage(element, .document)))
+              self?.reactor?.action.onNext(
+                .didTapImageDeleteButton(element, .document)
+              )
             }
         }
       }
