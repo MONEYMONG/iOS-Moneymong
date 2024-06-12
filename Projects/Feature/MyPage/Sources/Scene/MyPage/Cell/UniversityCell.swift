@@ -75,7 +75,7 @@ final class UniversityCell: UITableViewCell, ReusableView {
     switch item {
     case let .university(userInfo):
       universityLabel.setTextWithLineHeight(
-        text: "\(userInfo.universityName) \(userInfo.grade)학년",
+        text: "\(userInfo.universityName) \(userInfo.grade)학년 \(userInfo.grade == 5 ? "이상" : "")",
         lineHeight: 24
       )
       universityLabel.flex.markDirty()
