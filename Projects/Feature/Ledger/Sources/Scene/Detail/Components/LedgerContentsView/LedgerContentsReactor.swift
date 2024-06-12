@@ -51,7 +51,7 @@ final class LedgerContentsReactor: Reactor {
   }
 
   var initialState = State()
-  private let formatter: ContentFormatter
+  let formatter: ContentFormatter
   private let ledgerContentsService: LedgerDetailContentsServiceInterface
   private let ledgerRepo: LedgerRepositoryInterface
 

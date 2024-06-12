@@ -90,7 +90,7 @@ final class CreateManualLedgerReactor: Reactor {
   private let service: LedgerServiceInterface
   private let ledgerRepo: LedgerRepositoryInterface
   private let userRepo: UserRepositoryInterface
-  private let formatter: ContentFormatter
+  let formatter: ContentFormatter
   
   init(
     agencyId: Int,
