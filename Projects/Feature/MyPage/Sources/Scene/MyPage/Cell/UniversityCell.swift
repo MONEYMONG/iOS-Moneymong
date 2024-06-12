@@ -21,8 +21,8 @@ final class UniversityCell: UITableViewCell, ReusableView {
   
   private let universityLabel: UILabel = {
     let v = UILabel()
-    v.textColor = Colors.Black._1
-    v.font = Fonts.body._3
+    v.textColor = Colors.Gray._8
+    v.font = Fonts.body._4
     return v
   }()
   
