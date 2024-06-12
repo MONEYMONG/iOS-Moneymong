@@ -21,8 +21,9 @@ final class UniversityCell: UITableViewCell, ReusableView {
 
   private let checkButton: UIButton = {
     let button = UIButton()
-    button.setImage(Images.check?.withTintColor(Colors.Gray._3), for: .normal)
-    button.setImage(Images.check?.withTintColor(Colors.Blue._4), for: .selected)
+    button.setImage(Images.check?.withRenderingMode(.alwaysTemplate), for: .normal)
+    button.tintColor = Colors.Gray._3
+    button.isUserInteractionEnabled = false
     return button
   }()
 
@@ -70,16 +71,17 @@ final class UniversityCell: UITableViewCell, ReusableView {
     rootContainer.pin.all()
     rootContainer.flex.layout()
   }
-
-  override func prepareForReuse() {
-    super.prepareForReuse()
-    checkButton.isSelected = false
+  
+  override func setSelected(_ selected: Bool, animated: Bool) {
+    super.setSelected(selected, animated: animated)
+    
+    checkButton.tintColor = selected ? Colors.Blue._4 : Colors.Gray._3
+    nameLabel.textColor = selected ? Colors.Blue._4 : Colors.Gray._10
   }
 
   @discardableResult
   func configure(with item: University) -> Self {
     nameLabel.text = item.schoolName
-    checkButton.isSelected = item.isSelected
     return self
   }
 }

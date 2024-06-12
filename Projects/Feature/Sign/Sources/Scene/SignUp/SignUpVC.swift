@@ -52,7 +52,7 @@ final class SignUpVC: BaseVC, View {
 
   private let gradeInputView: GradeInputView = {
     let view = GradeInputView()
-    view.isHidden = true
+//    view.isHidden = true
     return view
   }()
 
@@ -64,6 +64,14 @@ final class SignUpVC: BaseVC, View {
   override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
     self.view.endEditing(true)
   }
+  
+  override func setupUI() {
+    super.setupUI()
+    
+    tableView.backgroundView = emptyListView
+  }
+  
+  private let searchContentView = UIView()
 
   override func setupConstraints() {
     super.setupConstraints()
@@ -72,21 +80,16 @@ final class SignUpVC: BaseVC, View {
       .paddingHorizontal(20)
       .define { flex in
         flex.addItem().height(12)
-        flex.addItem(titleLabel)
-        flex.addItem().height(8)
-        flex.addItem(descriptionLabel)
-        flex.addItem().height(40)
-
-        flex.addItem().grow(1).define { flex in
+        flex.addItem(titleLabel).marginBottom(8)
+        flex.addItem(descriptionLabel).marginBottom(40)
+        
+        flex.addItem(searchContentView).grow(1).define { flex in
           flex.addItem(searchBar).marginBottom(4)
           flex.addItem(tableView).grow(1)
-          flex.addItem(emptyListView).grow(1)
-          flex.addItem(gradeInputView).grow(1)
         }
-
-        flex.addItem().height(12)
-        flex.addItem(confirmButton).height(56)
-        flex.addItem().height(12)
+        
+        flex.addItem(gradeInputView).grow(1)
+        flex.addItem(confirmButton).height(56).marginVertical(12)
       }
   }
 
@@ -118,11 +121,9 @@ final class SignUpVC: BaseVC, View {
       .disposed(by: disposeBag)
 
     reactor.pulse(\.$isEmptyList)
-      .compactMap { $0 }
+      .compactMap { $0 }.map { !$0 }
       .observe(on: MainScheduler.instance)
-      .bind(with: self) { owner, value in
-        owner.setIsNoSearchResults(to: value)
-      }
+      .bind(to: emptyListView.rx.isHidden)
       .disposed(by: disposeBag)
 
     reactor.pulse(\.$inputType)
@@ -177,6 +178,7 @@ final class SignUpVC: BaseVC, View {
       tableView.rx.modelSelected(University.self),
       tableView.rx.itemSelected
     )
+    .delay(.milliseconds(500), scheduler: MainScheduler.instance)
     .bind(with: self) { owner, event in
       let (item, indexPath) = (event.0, event.1)
       owner.tableView.deselectRow(at: indexPath, animated: true)
@@ -199,67 +201,28 @@ final class SignUpVC: BaseVC, View {
       .store(in: &anyCancellable)
 
     confirmButton.rx.tap
-      .throttle(.milliseconds(505), scheduler: MainScheduler.instance)
+      .throttle(.milliseconds(500), scheduler: MainScheduler.instance)
       .map { Reactor.Action.confirm }
       .bind(to: reactor.action)
       .disposed(by: disposeBag)
   }
 
   private func setGradeInput(to university: University) {
-    UIView.animate(withDuration: 0.3) { [weak self] in
-      guard let self else { return }
-      gradeInputView.isHidden = false
-      searchBar.isHidden = true
-      tableView.isHidden = true
-
-      searchBar.flex.display(.none)
-      tableView.flex.display(.none)
-      gradeInputView.flex.display(.flex)
-
-      gradeInputView.configure(university: university)
-      gradeInputView.flex.markDirty()
-      gradeInputView.flex.layout()
-      gradeInputView.setNeedsLayout()
-    }
+    searchContentView.flex.isIncludedInLayout(false).markDirty()
+    searchContentView.isHidden = true
     
-    rootContainer.flex.markDirty()
-    rootContainer.flex.layout()
-    rootContainer.setNeedsLayout()
+    gradeInputView.configure(university: university)
+    gradeInputView.flex.isIncludedInLayout(true).markDirty()
+    gradeInputView.isHidden = false
+    view.setNeedsLayout()
   }
 
   private func setUniversityInput() {
-    UIView.animate(withDuration: 0.3) { [weak self] in
-      guard let self else { return }
-      gradeInputView.isHidden = true
-      searchBar.isHidden = false
-      tableView.isHidden = false
-
-      searchBar.flex.display(.flex)
-      tableView.flex.display(.flex)
-      gradeInputView.flex.display(.none)
-
-      searchBar.flex.markDirty()
-      tableView.flex.markDirty()
-      searchBar.flex.layout()
-      tableView.flex.layout()
-      searchBar.setNeedsLayout()
-      tableView.setNeedsLayout()
-
-      rootContainer.flex.markDirty()
-      rootContainer.flex.layout()
-      rootContainer.setNeedsLayout()
-    }
-  }
-
-  private func setIsNoSearchResults(to value: Bool) {
-    tableView.isHidden = value
-    tableView.flex.display(value ? .none : .flex)
-    emptyListView.isHidden = !value
-    emptyListView.flex.display(value ? .flex : .none)
-
-    rootContainer.flex.markDirty()
-    rootContainer.flex.layout()
-    rootContainer.setNeedsLayout()
+    searchContentView.flex.isIncludedInLayout(true).markDirty()
+    searchContentView.isHidden = false
+    gradeInputView.flex.isIncludedInLayout(false).markDirty()
+    gradeInputView.isHidden = true
+    view.setNeedsLayout()
   }
 }
 
