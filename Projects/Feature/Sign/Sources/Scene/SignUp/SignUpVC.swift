@@ -169,7 +169,7 @@ final class SignUpVC: BaseVC, View {
     searchBar.textField.rx.text
       .orEmpty
       .distinctUntilChanged()
-      .debounce(.milliseconds(500), scheduler: MainScheduler.instance)
+      .debounce(.milliseconds(1500), scheduler: MainScheduler.instance)
       .map { Reactor.Action.searchKeyword($0) }
       .bind(to: reactor.action)
       .disposed(by: disposeBag)
@@ -194,7 +194,6 @@ final class SignUpVC: BaseVC, View {
       .disposed(by: disposeBag)
 
     gradeInputView.didTapSelectGrade
-      .compactMap { $0 }
       .sink {
         reactor.action.onNext(.selectGrade($0+1))
       }
@@ -220,8 +219,11 @@ final class SignUpVC: BaseVC, View {
   private func setUniversityInput() {
     searchContentView.flex.isIncludedInLayout(true).markDirty()
     searchContentView.isHidden = false
+    
     gradeInputView.flex.isIncludedInLayout(false).markDirty()
     gradeInputView.isHidden = true
+    gradeInputView.selectedIndex = -1
+    
     view.setNeedsLayout()
   }
 }
