@@ -13,7 +13,7 @@ final class JoinAgencyVC: BaseVC, ReactorKit.View {
   
   private let titleLabel: UILabel = {
     let v = UILabel()
-    v.numberOfLines = 2
+    v.numberOfLines = 0
     v.textColor = Colors.Gray._10
     v.textAlignment = .left
     v.font = Fonts.heading._3
