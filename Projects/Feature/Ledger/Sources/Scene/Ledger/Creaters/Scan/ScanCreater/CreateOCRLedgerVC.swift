@@ -55,7 +55,7 @@ final class CreateOCRLedgerVC: UIViewController, View {
     let v = UILabel()
     v.font = Fonts.heading._1
     v.numberOfLines = 2
-    v.setTextWithLineHeight(text: "영수증의 처음과 끝이\n모두 포함되게 촬용해주세요", lineHeight: 28)
+    v.setTextWithLineHeight(text: "영수증의 처음과 끝이\n모두 포함되게 촬영해주세요", lineHeight: 28)
     v.setShadow(location: .center)
     v.textColor = .white
     v.textAlignment = .center
