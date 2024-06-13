@@ -24,8 +24,9 @@ public class MMTextField: UIView {
   }
   
   private let charactorLimitCount: Int
-  private var condition: ((String) -> Bool)?
-  private var errorMessage: String?
+  private var condition: ((String) -> (Bool, message: String?)) = { _ in
+    return (true, nil)
+  }
   
   private let rootContainer = UIView()
   
@@ -152,9 +153,10 @@ public class MMTextField: UIView {
     guard let text = textField.text else { return }
     
     // 유효성에 문제가 있다면 에러처리
-    if condition?(text) == false {
+    let (isSuccess, message) = condition(text)
+    if !isSuccess {
       state = .error
-      charactorLimitView.setState(.error(characterCount: text.count, errorMessage: errorMessage ?? ""))
+      charactorLimitView.setState(.error(characterCount: text.count, errorMessage: message ?? ""))
     } else {
       state = .active
       charactorLimitView.setState(.default(characterCount: text.count))
@@ -168,9 +170,10 @@ extension MMTextField: UITextFieldDelegate {
     guard let text = textField.text else { return }
     
     // 유효성에 문제가 있다면 에러처리
-    if condition?(text) == false && text.isEmpty == false {
+    let (isSuccess, message) = condition(text)
+    if !isSuccess && text.isEmpty == false {
       state = .error
-      charactorLimitView.setState(.error(characterCount: text.count, errorMessage: self.errorMessage ?? ""))
+      charactorLimitView.setState(.error(characterCount: text.count, errorMessage: message ?? ""))
     } else {
       state = .active
       charactorLimitView.setState(.default(characterCount: text.count))
@@ -181,9 +184,10 @@ extension MMTextField: UITextFieldDelegate {
     guard let text = textField.text else { return }
     
     // 유효성에 문제가 있다면 에러처리
-    if condition?(text) == false && text.isEmpty == false {
+    let (isSuccess, message) = condition(text)
+    if !isSuccess && text.isEmpty == false {
       state = .error
-      charactorLimitView.setState(.error(characterCount: text.count, errorMessage: self.errorMessage ?? ""))
+      charactorLimitView.setState(.error(characterCount: text.count, errorMessage: message ?? ""))
     } else {
       state = .unActive
       charactorLimitView.setState(.default(characterCount: text.count))
@@ -194,9 +198,10 @@ extension MMTextField: UITextFieldDelegate {
     guard let text = textField.text else { return true }
     
     // 유효성에 문제가 있다면 에러처리
-    if condition?(text) == false && text.isEmpty == false {
+    let (isSuccess, message) = condition(text)
+    if !isSuccess && text.isEmpty == false {
       state = .error
-      charactorLimitView.setState(.error(characterCount: text.count, errorMessage: self.errorMessage ?? ""))
+      charactorLimitView.setState(.error(characterCount: text.count, errorMessage: message ?? ""))
     } else {
       state = .unActive
       charactorLimitView.setState(.default(characterCount: text.count))
@@ -221,8 +226,7 @@ extension MMTextField {
   }
 
   @discardableResult
-  public func setError(message: String, condition: @escaping (String) -> Bool) -> Self {
-    self.errorMessage = message
+  public func setError(condition: @escaping (String) -> (Bool, String?)) -> Self {
     self.condition = condition
     return self
   }

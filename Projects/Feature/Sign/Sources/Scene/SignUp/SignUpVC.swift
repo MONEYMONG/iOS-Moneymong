@@ -52,7 +52,6 @@ final class SignUpVC: BaseVC, View {
 
   private let gradeInputView: GradeInputView = {
     let view = GradeInputView()
-//    view.isHidden = true
     return view
   }()
 
@@ -61,10 +60,6 @@ final class SignUpVC: BaseVC, View {
     return button
   }()
 
-  override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
-    self.view.endEditing(true)
-  }
-  
   override func setupUI() {
     super.setupUI()
     
@@ -72,7 +67,6 @@ final class SignUpVC: BaseVC, View {
   }
   
   private let searchContentView = UIView()
-
   override func setupConstraints() {
     super.setupConstraints()
     rootContainer.flex
@@ -164,6 +158,10 @@ final class SignUpVC: BaseVC, View {
       .bind(with: self) { owner, _ in
         owner.coordinator?.pop()
       }
+      .disposed(by: disposeBag)
+    
+    view.rx.tapGesture
+      .bind { $0.endEditing(true) }
       .disposed(by: disposeBag)
 
     searchBar.textField.rx.text

@@ -67,12 +67,12 @@ final class CreateManualLedgerVC: BaseVC, View {
       .setPlaceholder(to: "거래 금액을 입력해주세요")
       .setRequireMark()
       .setKeyboardType(to: .numberPad)
-      .setError(message: "999,999,999원 이내로 입력해주세요") { text in
+      .setError() { text in
         guard let value = Int(text.replacingOccurrences(of: ",", with: "")) else {
-          return false
+          return (false, "999,999,999원 이내로 입력해주세요")
         }
         
-        return value <= 999_999_999
+        return (value <= 999_999_999, "999,999,999원 이내로 입력해주세요")
       }
   }()
   
@@ -100,12 +100,6 @@ final class CreateManualLedgerVC: BaseVC, View {
       .setPlaceholder(to: "YYYY/MM/DD")
       .setRequireMark()
       .setKeyboardType(to: .numberPad)
-      .setError(message: "올바른 날짜를 입력해 주세요") { text in
-        let pattern = "^\\d{4}/(0[1-9]|1[012])/(0[1-9]|[12]\\d|3[01])$"
-        let regex = try! NSRegularExpression(pattern: pattern)
-        
-        return regex.firstMatch(in: text, range: NSRange(location: 0, length: text.count)) != nil
-      }
   }()
   
   private let timeTextField: MMTextField = {
@@ -113,11 +107,11 @@ final class CreateManualLedgerVC: BaseVC, View {
       .setPlaceholder(to: "00:00:00(24시 단위)")
       .setRequireMark()
       .setKeyboardType(to: .numberPad)
-      .setError(message: "올바른 시간을 입력해 주세요") { text in
+      .setError() { text in
         let pattern = "^([01]?[0-9]|2[0-3]):[0-5][0-9]:[0-5][0-9]$"
         let regex = try! NSRegularExpression(pattern: pattern)
         
-        return regex.firstMatch(in: text, range: NSRange(location: 0, length: text.count)) != nil
+        return (regex.firstMatch(in: text, range: NSRange(location: 0, length: text.count)) != nil, "올바른 시간을 입력해 주세요")
       }
   }()
   
@@ -187,6 +181,34 @@ final class CreateManualLedgerVC: BaseVC, View {
       setTitle("상세내역")
     default:
       setTitle("장부작성")
+    }
+    
+    dateTextField.setError() { [weak self] text in
+      let pattern = "^\\d{4}/(0[1-9]|1[012])/(0[1-9]|[12]\\d|3[01])$"
+      let regex = try! NSRegularExpression(pattern: pattern)
+      
+      if !(regex.firstMatch(in: text, range: NSRange(location: 0, length: text.count)) != nil) {
+        return (false, "올바른 날짜를 입력해 주세요")
+      }
+      
+      if let year = Int(text.prefix(4)), year < 2015 {
+        return (false, "2015년 이후 날짜를 입력해주세요")
+      }
+      
+      if let currentDate = self?.reactor?.formatter.convertToDate(date: .now) {
+        let currentDateList = currentDate.split(separator: "/")
+        let inputDateList = text.split(separator: "/")
+        for i in 0..<3 {
+          if Int(inputDateList[i])! > Int(currentDateList[i])! {
+            return (false, "올바른 날짜를 입력해 주세요")
+          } else if Int(inputDateList[i])! == Int(currentDateList[i])! {
+            continue
+          } else {
+            break
+          }
+        }
+      }
+      return (true, nil)
     }
   }
   
@@ -269,7 +291,7 @@ final class CreateManualLedgerVC: BaseVC, View {
         .disposed(by: disposeBag)
     default:
       navigationItem.rightBarButtonItem?.rx.tap
-        .map { Reactor.Action.presentedAlert(.end) }
+        .map { Reactor.Action.didTapCancelButton }
         .bind(to: reactor.action)
         .disposed(by: disposeBag)
     }
@@ -387,7 +409,9 @@ final class CreateManualLedgerVC: BaseVC, View {
           case .image:
             return view.dequeueCell(ImageCell.self, for: indexPath)
               .configure(with: element) {
-                self?.reactor?.action.onNext(.presentedAlert(.deleteImage(element, .receipt)))
+                self?.reactor?.action.onNext(
+                  .didTapImageDeleteButton(element, .receipt)
+                )
               }
           }
         }
@@ -413,7 +437,9 @@ final class CreateManualLedgerVC: BaseVC, View {
         case .image:
           return view.dequeueCell(ImageCell.self, for: indexPath)
             .configure(with: element) {
-              self?.reactor?.action.onNext(.presentedAlert(.deleteImage(element, .document)))
+              self?.reactor?.action.onNext(
+                .didTapImageDeleteButton(element, .document)
+              )
             }
         }
       }

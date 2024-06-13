@@ -28,6 +28,8 @@ public extension Reactive where Base: UIViewController {
 public extension Reactive where Base: UIView {
   var tapGesture: ControlEvent<Base> {
     let tapGesture = UITapGestureRecognizer()
+    tapGesture.cancelsTouchesInView = false
+
     base.addGestureRecognizer(tapGesture)
     let event = tapGesture.rx.event
       .withUnretained(base)

@@ -68,11 +68,6 @@ final class LedgerTabVC: BaseVC, View {
     return v
   }()
 
-  override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
-    self.view.endEditing(true)
-    floatingButton.closeAllButtons()
-  }
-
   override func setupUI() {
     super.setupUI()
     
@@ -120,6 +115,12 @@ final class LedgerTabVC: BaseVC, View {
       .observe(on: MainScheduler.instance)
       .bind(with: self) { owner, id in
         owner.coordinator?.present(.createManualLedger(id, .operatingCost))
+      }
+      .disposed(by: disposeBag)
+    
+    view.rx.tapGesture
+      .bind(with: self) { owner, _ in
+        owner.floatingButton.closeAllButtons()
       }
       .disposed(by: disposeBag)
     
