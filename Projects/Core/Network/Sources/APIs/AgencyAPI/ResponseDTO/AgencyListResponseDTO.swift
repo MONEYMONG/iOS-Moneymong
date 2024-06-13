@@ -22,7 +22,7 @@ struct AgencyResponseDTO: Responsable {
       id: self.id,
       name: self.name,
       count: self.headCount,
-      type: .init(rawValue: self.type) ?? .student
+      type: .init(rawValue: self.type) ?? .council
     )
   }
 }

@@ -67,6 +67,13 @@ final class GradeInputView: UIView {
   private func setupUI() {
     addSubview(rootContainer)
   }
+  
+  override func layoutSubviews() {
+    super.layoutSubviews()
+    
+    rootContainer.pin.all()
+    rootContainer.flex.layout()
+  }
 
   private func setupConstraints() {
     rootContainer.flex.define { flex in

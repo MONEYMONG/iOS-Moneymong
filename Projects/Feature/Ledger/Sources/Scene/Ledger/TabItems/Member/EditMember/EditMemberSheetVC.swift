@@ -53,8 +53,8 @@ final class EditMemberSheetVC: BottomSheetVC, View {
       .disposed(by: disposeBag)
     
     reactor.pulse(\.$error)
-      .observe(on: MainScheduler.instance)
       .compactMap { $0 }
+      .observe(on: MainScheduler.instance)
       .bind(with: self) { owner, error in
         owner.coordinator?.present(.alert(
           title: "네트워크 에러",

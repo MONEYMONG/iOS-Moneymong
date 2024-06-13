@@ -42,7 +42,6 @@ public final class AgencyListVC: BaseVC, View {
   public override func setupUI() {
     super.setupUI()
     setTitle("소속찾기")
-    view.backgroundColor = Colors.Gray._1
     collectionView.backgroundView = emptyView
   }
   
@@ -90,7 +89,11 @@ public final class AgencyListVC: BaseVC, View {
     
     reactor.pulse(\.$items)
       .map { $0.isEmpty == false }
-      .bind(to: emptyView.rx.isHidden)
+      .observe(on: MainScheduler.instance)
+      .bind(with: self) { owner, isHidden in
+        owner.emptyView.isHidden = isHidden
+        owner.view.backgroundColor = isHidden ? Colors.Gray._1: Colors.White._1
+      }
       .disposed(by: disposeBag)
     
     reactor.pulse(\.$isLoading)
