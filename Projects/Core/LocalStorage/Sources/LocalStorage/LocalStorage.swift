@@ -13,7 +13,7 @@ public protocol LocalStorageInterface: AnyObject {
 }
 
 public final class LocalStorage: LocalStorageInterface {
-  
+
   public init() {
     
   }
@@ -37,9 +37,12 @@ public final class LocalStorage: LocalStorageInterface {
   public var socialAccessToken: String?
   
   public func removeAll() {
+    selectedAgency = nil
+    userID = nil
+
     recentLoginType = nil
     selectedAgency = nil
-    
+
     accessToken = nil
     refreshToken = nil
   }
