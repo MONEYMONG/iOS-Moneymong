@@ -45,14 +45,14 @@ final class CameraView: UIView {
     // 사용 가능한 카메라 중 후면 카메라를 선택
     guard let backCamera = AVCaptureDevice.default(for: .video),
           let input = try? AVCaptureDeviceInput(device: backCamera) else {
-      throw MoneyMongError.appError(errorMessage: "후면 카메라를 사용할 수 없습니다.")
+      throw MoneyMongError.appError(.camera, errorMessage: "설정에서 카메라 접근을 허용해주세요!")
     }
     
     // 세션에 입력 추가
     if captureSession.canAddInput(input) {
       captureSession.addInput(input)
     } else {
-      throw MoneyMongError.appError(errorMessage: "입력을 세션에 추가할 수 없습니다.")
+      throw MoneyMongError.appError(.camera, errorMessage: "입력을 세션에 추가할 수 없습니다.")
     }
     
     // 사진 출력 설정

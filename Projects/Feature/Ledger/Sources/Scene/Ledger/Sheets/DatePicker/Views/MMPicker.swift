@@ -10,12 +10,12 @@ import ReactorKit
 final class MMPicker: UIView, View {
   var disposeBag = DisposeBag()
   
-  public enum `Type` {
+  enum `Type` {
     case year
     case month
   }
   
-  public let type: `Type`
+  let type: `Type`
   
   private struct ViewSize {
     static let cellSize = CGSize(width: 67, height: 44)
@@ -31,7 +31,7 @@ final class MMPicker: UIView, View {
     }
   }
     
-  public let collectionView: UICollectionView = {
+  let collectionView: UICollectionView = {
     let flowLayout = UICollectionViewFlowLayout()
     flowLayout.minimumLineSpacing = ViewSize.cellSpacing
     flowLayout.itemSize = ViewSize.cellSize
@@ -75,14 +75,14 @@ final class MMPicker: UIView, View {
     rootContainer.flex.layout()
     
     pickerTopLine.frame = .init(
-      x: 0,
+      x: collectionView.contentInset.left,
       y: (collectionView.bounds.height - ViewSize.cellSize.height) / 2,
       width: ViewSize.cellSize.width,
       height: 2
     )
     
     pickerBottomLine.frame = .init(
-      x: 0,
+      x: collectionView.contentInset.left,
       y: (collectionView.bounds.height + ViewSize.cellSize.height) / 2,
       width: ViewSize.cellSize.width,
       height: 2
@@ -98,7 +98,6 @@ final class MMPicker: UIView, View {
     
     rootContainer.flex.define { flex in
       flex.addItem(collectionView)
-        .width(ViewSize.cellSize.width)
         .height(ViewSize.collectionViewHeight)
     }
     

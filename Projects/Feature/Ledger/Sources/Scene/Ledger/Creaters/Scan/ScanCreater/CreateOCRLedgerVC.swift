@@ -55,7 +55,7 @@ final class CreateOCRLedgerVC: UIViewController, View {
     let v = UILabel()
     v.font = Fonts.heading._1
     v.numberOfLines = 2
-    v.setTextWithLineHeight(text: "영수증의 처음과 끝이\n모두 포함되게 촬용해주세요", lineHeight: 28)
+    v.setTextWithLineHeight(text: "영수증의 처음과 끝이\n모두 포함되게 촬영해주세요", lineHeight: 28)
     v.setShadow(location: .center)
     v.textColor = .white
     v.textAlignment = .center
@@ -209,11 +209,15 @@ final class CreateOCRLedgerVC: UIViewController, View {
       .disposed(by: disposeBag)
     
     reactor.pulse(\.$error)
-      .compactMap { $0?.errorDescription }
+      .compactMap { $0 }
       .observe(on: MainScheduler.instance)
-      .bind(with: self) { owner, message in
+      .bind(with: self) { owner, error in
         owner.coordinator?.present(
-          .alert(title: "오류", subTitle: message, type: .onlyOkButton())
+          .alert(
+            title: error.errorTitle,
+            subTitle: error.errorDescription,
+            type: .onlyOkButton()
+          )
         )
       }
       .disposed(by: disposeBag)
