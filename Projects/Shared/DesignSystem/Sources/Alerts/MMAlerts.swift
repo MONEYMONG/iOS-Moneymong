@@ -19,6 +19,8 @@ public final class MMAlerts: UIViewController {
     v.textColor = Colors.Gray._10
     v.font = Fonts.heading._1
     v.text = "메인 타이틀"
+    v.textAlignment = .center
+    v.numberOfLines = 0
     return v
   }()
   
@@ -28,7 +30,7 @@ public final class MMAlerts: UIViewController {
     v.font = Fonts.body._4
     v.text = "서브 타이틀"
     v.textAlignment = .center
-    v.numberOfLines = 2
+    v.numberOfLines = 0
     return v
   }()
   

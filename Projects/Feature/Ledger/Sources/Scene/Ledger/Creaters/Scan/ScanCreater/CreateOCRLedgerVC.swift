@@ -212,8 +212,16 @@ final class CreateOCRLedgerVC: UIViewController, View {
       .compactMap { $0?.errorDescription }
       .observe(on: MainScheduler.instance)
       .bind(with: self) { owner, message in
+        var title: String? = nil
+        if message == "설정에서 카메라 접근을 허용해주세요!" {
+          title = "현재 머니몽이\n카메라에 접근할 수 없어요"
+        }
         owner.coordinator?.present(
-          .alert(title: "오류", subTitle: message, type: .onlyOkButton())
+          .alert(
+            title: title ?? "오류",
+            subTitle: message,
+            type: .onlyOkButton()
+          )
         )
       }
       .disposed(by: disposeBag)
