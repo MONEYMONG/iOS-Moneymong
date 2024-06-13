@@ -15,6 +15,7 @@ public final class MyPageVC: BaseVC, ReactorKit.View {
   
   private let tableView: UITableView = {
     let v = UITableView(frame: .zero, style: .insetGrouped)
+    v.separatorInset = .init(top: 0, left: 16, bottom: 0, right: 20)
     v.register(UniversityCell.self)
     v.register(SettingCell.self)
     v.registerHeaderFooter(SettingHeader.self)
