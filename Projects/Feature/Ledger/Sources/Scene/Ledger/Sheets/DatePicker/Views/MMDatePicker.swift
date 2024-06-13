@@ -28,6 +28,11 @@ final class MMDatePicker: UIView, View {
     super.layoutSubviews()
     rootContainer.pin.all()
     rootContainer.flex.layout()
+    let sideInset = rootContainer.bounds.width / 2 - 87
+    yearPicker.flex.width(rootContainer.bounds.width / 2 - 20).markDirty()
+    monthPicker.flex.width(rootContainer.bounds.width / 2 - 20).markDirty()
+    yearPicker.collectionView.contentInset.left = sideInset
+    monthPicker.collectionView.contentInset.right = sideInset
   }
   
   private func setupConstraints() {
@@ -36,7 +41,6 @@ final class MMDatePicker: UIView, View {
       flex.addItem(yearPicker).marginRight(40)
       flex.addItem(monthPicker)
     }
-    .alignItems(.center).justifyContent(.center)
   }
   
   func bind(reactor: DatePickerReactor) {    
