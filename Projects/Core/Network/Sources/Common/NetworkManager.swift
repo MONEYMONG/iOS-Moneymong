@@ -17,6 +17,7 @@ public final class NetworkManager: NetworkManagerInterfacae {
   public func request(target: TargetType) async throws {
 
     let dataResponse = await AF.request(target, interceptor: tokenIntercepter)
+      .validateTokenExpire()
       .serializingData()
       .response
     
@@ -51,9 +52,19 @@ public final class NetworkManager: NetworkManagerInterfacae {
     let dataRequest: DataRequest
     switch target.task {
     case .upload(let multipartFormData):
-      dataRequest = AF.upload(multipartFormData: multipartFormData, with: target, interceptor: tokenIntercepter)
+      dataRequest = AF.upload(
+        multipartFormData: multipartFormData,
+        with: target,
+        interceptor: tokenIntercepter
+      )
+      .validateTokenExpire()
+
     default:
-      dataRequest = AF.request(target, interceptor: tokenIntercepter)
+      dataRequest = AF.request(
+        target,
+        interceptor: tokenIntercepter
+      )
+      .validateTokenExpire()
     }
     
     let dataResponse = await dataRequest.serializingData().response
@@ -61,7 +72,7 @@ public final class NetworkManager: NetworkManagerInterfacae {
     guard let statusCode = dataResponse.response?.statusCode else {
       throw MoneyMongError.serverError(errorMessage: "Empty StatusCode")
     }
-    
+
     switch dataResponse.result {
     case let .success(data):
       // DTO로 디코딩
@@ -86,9 +97,23 @@ public final class NetworkManager: NetworkManagerInterfacae {
       assertionFailure("dto디코딩, error디코딩 모두 실패 이러면 안되요 디버깅 해주세요")
       
       throw MoneyMongError.appError(errorMessage: "디코딩 실패")
+
     case let .failure(error):
       assertionFailure("서버동작 에러! 적절한 처리 필요 \(error.localizedDescription)")
       throw error
+    }
+  }
+}
+
+extension DataRequest {
+  public func validateTokenExpire() -> Self {
+    return validate { request,response,data in
+      if response.statusCode == 401 {
+        let reason: AFError.ResponseValidationFailureReason = .unacceptableStatusCode(code: 401)
+        return .failure(AFError.responseValidationFailed(reason: reason))
+      } else {
+        return .success(())
+      }
     }
   }
 }

@@ -60,22 +60,23 @@ public final class TokenRequestIntercepter: RequestInterceptor {
     for session: Session,
     dueTo error: Error,
     completion: @escaping (RetryResult) -> Void
-  ) async {
+  ) {
     guard let response = request.task?.response as? HTTPURLResponse,
-          response.statusCode == 403 else {
+          response.statusCode == 401 else {
       completion(.doNotRetryWithError(error))
       return
     }
-
-    do {
-      let token = try await tokenRepository.token()
-      localStorage.accessToken = token.accessToken
-      localStorage.refreshToken = token.refreshToken
-      completion(.retry)
-    } catch {
-      localStorage.accessToken = nil
-      localStorage.refreshToken = nil
-      completion(.doNotRetryWithError(error))
+    Task {
+      do {
+        let token = try await tokenRepository.token()
+        localStorage.accessToken = token.accessToken
+        localStorage.refreshToken = token.refreshToken
+        completion(.retry)
+      } catch {
+        localStorage.accessToken = nil
+        localStorage.refreshToken = nil
+        completion(.doNotRetryWithError(error))
+      }
     }
   }
 }
