@@ -9,13 +9,13 @@ public protocol NetworkManagerInterfacae {
 }
 
 public final class NetworkManager: NetworkManagerInterfacae {
-
+  
   public var tokenIntercepter: TokenRequestIntercepter?
-
+  
   public init() {}
   
   public func request(target: TargetType) async throws {
-
+    
     let dataResponse = await AF.request(target, interceptor: tokenIntercepter)
       .validateTokenExpire()
       .serializingData()
@@ -46,9 +46,9 @@ public final class NetworkManager: NetworkManagerInterfacae {
     
     assertionFailure("잘못됬거나, 서버에러!")
   }
-
+  
   public func request<DTO: Responsable>(target: TargetType, of type: DTO.Type) async throws -> DTO {
-
+    
     let dataRequest: DataRequest
     switch target.task {
     case .upload(let multipartFormData):
@@ -58,7 +58,7 @@ public final class NetworkManager: NetworkManagerInterfacae {
         interceptor: tokenIntercepter
       )
       .validateTokenExpire()
-
+      
     default:
       dataRequest = AF.request(
         target,
@@ -66,13 +66,13 @@ public final class NetworkManager: NetworkManagerInterfacae {
       )
       .validateTokenExpire()
     }
-    
+
     let dataResponse = await dataRequest.serializingData().response
     
     guard let statusCode = dataResponse.response?.statusCode else {
       throw MoneyMongError.serverError(errorMessage: "Empty StatusCode")
     }
-
+    
     switch dataResponse.result {
     case let .success(data):
       // DTO로 디코딩

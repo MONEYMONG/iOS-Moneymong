@@ -1,4 +1,4 @@
-import Foundation
+import UIKit
 
 import LocalStorage
 import Alamofire
@@ -73,9 +73,14 @@ public final class TokenRequestIntercepter: RequestInterceptor {
         localStorage.refreshToken = token.refreshToken
         completion(.retry)
       } catch {
-        localStorage.accessToken = nil
-        localStorage.refreshToken = nil
+        localStorage.removeAll()
         completion(.doNotRetryWithError(error))
+        
+        NotificationCenter.default.post(
+          name: Notification.Name("appRestart"),
+          object: self,
+          userInfo: ["message": "로그인이 필요합니다."]
+        )
       }
     }
   }
