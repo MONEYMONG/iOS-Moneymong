@@ -79,7 +79,7 @@ public final class TokenRequestIntercepter: RequestInterceptor {
         NotificationCenter.default.post(
           name: Notification.Name("appRestart"),
           object: self,
-          userInfo: ["message": "인증이 만료 되었습니다."]
+          userInfo: ["message": "로그인이 필요합니다."]
         )
       }
     }

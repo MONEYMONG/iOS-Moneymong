@@ -70,6 +70,7 @@ extension AppCoordinator {
       AlertsManager.show(
         title: message ?? "앱을 재실행 합니다.",
         type: .onlyOkButton { [weak self] in
+          self?.childCoordinators.forEach { $0.remove() }
           self?.start(animated: false)
         })
     }
