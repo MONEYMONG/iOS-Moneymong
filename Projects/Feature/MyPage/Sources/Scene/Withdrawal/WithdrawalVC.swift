@@ -3,6 +3,7 @@ import UIKit
 import BaseFeature
 import Utility
 import DesignSystem
+import NetworkService
 
 import ReactorKit
 import PinLayout
@@ -50,6 +51,7 @@ public final class WithdrawalVC: BaseVC, View {
     super.setupUI()
     
     setTitle("회원탈퇴")
+    FirebaseManager.shared.logEvent(name: "회원탈퇴")
   }
   
   public override func setupConstraints() {

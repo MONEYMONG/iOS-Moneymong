@@ -9,7 +9,7 @@ let project = Project(
   packages: [
     .remote(
       url: "https://github.com/layoutBox/FlexLayout",
-      requirement: .upToNextMajor(from: "2.0.07")
+      requirement: .upToNextMajor(from: "2.0.9")
     ),
     .remote(
       url: "https://github.com/layoutBox/PinLayout",
@@ -31,10 +31,7 @@ let project = Project(
       dependencies: [
         .package(product: "FlexLayout"),
         .package(product: "PinLayout")
-      ],
-      settings: .settings(
-        base: ["ASSETCATALOG_COMPILER_GENERATE_ASSET_SYMBOLS":"NO"]
-      )
+      ]
     ),
     Target(
       name: "DesignSystemDemo",

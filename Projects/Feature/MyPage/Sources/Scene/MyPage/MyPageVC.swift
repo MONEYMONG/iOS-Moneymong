@@ -4,6 +4,7 @@ import SwiftUI
 import BaseFeature
 import Utility
 import DesignSystem
+import NetworkService
 
 import ReactorKit
 import RxDataSources
@@ -41,6 +42,7 @@ public final class MyPageVC: BaseVC, ReactorKit.View {
     super.setupUI()
     
     setTitle("마이몽")
+    FirebaseManager.shared.logEvent(name: "MyPage")
   }
   
   public override func setupConstraints() {
@@ -50,7 +52,7 @@ public final class MyPageVC: BaseVC, ReactorKit.View {
       flex.addItem(tableView).width(100%).height(100%)
     }
   }
-  
+
   public override func viewDidLayoutSubviews() {
     super.viewDidLayoutSubviews()
     

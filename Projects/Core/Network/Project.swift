@@ -6,6 +6,12 @@ let project = Project(
     disableBundleAccessors: true,
     disableSynthesizedResourceAccessors: true
   ),
+  packages: [
+    .remote(
+      url: "https://github.com/firebase/firebase-ios-sdk",
+      requirement: .upToNextMajor(from: "10.28.0")
+    )
+  ],
   targets: [
     Target(
       name: "NetworkService",
@@ -14,9 +20,19 @@ let project = Project(
       bundleId: "com.framework.moneymong.NetworkService",
       deploymentTarget: .iOS(targetVersion: "15.0", devices: .iphone),
       sources: ["Sources/**"],
+      resources: ["Resources/**"],
       dependencies: [
         .project(target: "ThirdPartyLips", path: .relativeToRoot("Projects/Shared/ThirdPartyLips")),
+        .package(product: "FirebaseMessaging"),
+        .package(product: "FirebaseAnalytics")
+      ],
+      launchArguments: [
+        LaunchArgument(name: "IDEPreferLogStreaming=YES", isEnabled: true),
+        LaunchArgument(name: "-FIRDebugEnabled", isEnabled: true),
       ]
     )
   ]
 )
+//  .external(name: "FirebaseDynamicLinks"),
+//  .external(name: "FirebaseMessaging"),
+//  .external(name: "FirebaseAnalytics")
