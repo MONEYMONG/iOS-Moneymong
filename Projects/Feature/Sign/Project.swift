@@ -36,6 +36,10 @@ let project = Project(
       sources: ["Tests/**"],
       dependencies: [
         .target(name: "SignFeature")
+      ],
+      launchArguments: [
+        LaunchArgument(name: "IDEPreferLogStreaming=YES", isEnabled: true),
+        LaunchArgument(name: "-FIRDebugEnabled", isEnabled: true),
       ]
     ),
     Target(

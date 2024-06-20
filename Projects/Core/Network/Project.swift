@@ -23,6 +23,7 @@ let project = Project(
       resources: ["Resources/**"],
       dependencies: [
         .project(target: "ThirdPartyLips", path: .relativeToRoot("Projects/Shared/ThirdPartyLips")),
+        .package(product: "FirebaseDynamicLinks"),
         .package(product: "FirebaseMessaging"),
         .package(product: "FirebaseAnalytics")
       ],
@@ -33,6 +34,3 @@ let project = Project(
     )
   ]
 )
-//  .external(name: "FirebaseDynamicLinks"),
-//  .external(name: "FirebaseMessaging"),
-//  .external(name: "FirebaseAnalytics")

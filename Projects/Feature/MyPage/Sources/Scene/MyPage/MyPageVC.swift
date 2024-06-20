@@ -42,7 +42,6 @@ public final class MyPageVC: BaseVC, ReactorKit.View {
     super.setupUI()
     
     setTitle("마이몽")
-    FirebaseManager.shared.logEvent(name: "MyPage")
   }
   
   public override func setupConstraints() {

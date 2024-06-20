@@ -57,8 +57,8 @@ let project = Project(
         "OTHER_LDFLAGS": "-ObjC"
       ]),
       launchArguments: [
-        LaunchArgument(name: "IDEPreferLogStreaming=YES", isEnabled: true)
-//        -FIRDebugEnabled
+        LaunchArgument(name: "IDEPreferLogStreaming=YES", isEnabled: true),
+        LaunchArgument(name: "-FIRDebugEnabled", isEnabled: true)
       ]
     )
   ]

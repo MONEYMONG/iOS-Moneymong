@@ -8,28 +8,13 @@ public class FirebaseManager: NSObject {
 
   public func initSDK() {
     FirebaseApp.configure()
-//    Messaging.messaging().delegate = self
+  }
+
+  public func setUser(id: String) {
+    Analytics.setUserID(id)
   }
 
   public func logEvent(name: String) {
     Analytics.logEvent(name, parameters: nil)
   }
 }
-
-//extension FirebaseManager: MessagingDelegate {
-//  public func messaging(
-//    _ messaging: Messaging,
-//    didReceiveRegistrationToken fcmToken: String?
-//  ) {
-//    if let fcmToken = fcmToken {
-//      KeychainService.shared.setItem(key: .fcmToken, value: fcmToken)
-//    }
-//
-//    let dataDict: [String: String] = ["token": fcmToken ?? ""]
-//    NotificationCenter.default.post(
-//      name: Notification.Name("FCMToken"),
-//      object: nil,
-//      userInfo: dataDict
-//    )
-//  }
-//}

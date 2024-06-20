@@ -27,10 +27,12 @@ public final class UserRepository: UserRepositoryInterface {
   public func user() async throws -> UserInfo {
     let targetType = UserAPI.user
     let dto = try await networkManager.request(target: targetType, of: UserResponseDTO.self)
-    
-    localStorage.userID = dto.id
-    
-    return dto.toEntity
+    let entity = dto.toEntity
+
+    localStorage.userID = entity.id
+    FirebaseManager.shared.setUser(id: "\(entity.id)")
+
+    return entity
   }
   
   public func fetchUserID() -> Int {
