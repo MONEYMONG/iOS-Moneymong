@@ -25,14 +25,17 @@ public class TagView: UIView {
   }
   
   private func setupView() {
-    layer.cornerRadius = 11
+    layer.cornerRadius = 10
     clipsToBounds = true
   }
   
   private func setupConstraints() {
     addSubview(rootContainer)
     rootContainer.flex.define { flex in
-      flex.addItem(titleLabel).marginHorizontal(8).marginVertical(1)
+      flex.addItem(titleLabel)
+        .marginHorizontal(8)
+        .marginTop(1)
+        .marginBottom(2)
     }
   }
   
@@ -44,7 +47,7 @@ public class TagView: UIView {
   }
   
   public func configure(title: String, titleColor: UIColor, backgroundColor: UIColor) {
-    titleLabel.setTextWithLineHeight(text: title, lineHeight: 20)
+    titleLabel.setTextWithLineHeight(text: title, lineHeight: 17)
     titleLabel.textColor = titleColor
     self.backgroundColor = backgroundColor
     
