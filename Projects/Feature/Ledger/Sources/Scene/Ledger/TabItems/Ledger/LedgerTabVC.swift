@@ -118,12 +118,6 @@ final class LedgerTabVC: BaseVC, View {
       }
       .disposed(by: disposeBag)
     
-    view.rx.tapGesture
-      .bind(with: self) { owner, _ in
-        owner.floatingButton.closeAllButtons()
-      }
-      .disposed(by: disposeBag)
-    
     dateRangeView.rx.tapGesture
       .map { _ in Reactor.Action.didTapDateRangeView }
       .bind(to: reactor.action)
