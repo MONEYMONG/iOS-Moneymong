@@ -75,6 +75,15 @@ final class MemberTabVC: BaseVC, View {
       .bind(to: reactor.action)
       .disposed(by: disposeBag)
     
+    
+    tableView.rx.modelSelected(Member.self)
+      .bind(with: self) { owner, member in
+        guard let id = reactor.currentState.agencyID else { return }
+        
+        owner.coordinator?.present(.editMember(id, member))
+      }
+      .disposed(by: disposeBag)
+    
     reactor.pulse(\.$members)
       .bind(to: tableView.rx.items) { [weak self] tableview, index, item in
         guard let role = reactor.currentState.role,
@@ -82,14 +91,11 @@ final class MemberTabVC: BaseVC, View {
         else { return UITableViewCell() }
         
         let cell = tableview.dequeue(MemberCell.self, for: IndexPath(item: index, section: 0))
-          
-        cell.configure(member: item, role: role) { member in
-          self?.coordinator?.present(.editMember(agencyID, member))
-        }
-        
+        cell.configure(member: item, role: role)
         return cell
       }
       .disposed(by: disposeBag)
+      
     
     reactor.pulse(\.$members)
       .map { $0.isEmpty == false }

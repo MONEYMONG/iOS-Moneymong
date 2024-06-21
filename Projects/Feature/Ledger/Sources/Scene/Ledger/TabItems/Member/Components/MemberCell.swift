@@ -24,6 +24,7 @@ final class MemberCell: UITableViewCell, ReusableView {
   
   private let moreButton: UIButton = {
     let v = UIButton()
+    v.isUserInteractionEnabled = false
     v.setImage(Images.more?.withTintColor(Colors.Gray._5), for: .normal)
     return v
   }()
@@ -67,7 +68,7 @@ final class MemberCell: UITableViewCell, ReusableView {
     }
   }
   
-  func configure(member: Member, role: Member.Role, tapAction: @escaping (Member) -> Void) {
+  func configure(member: Member, role: Member.Role) {
     nameLabel.setTextWithLineHeight(text: member.nickname, lineHeight: 24)
     moreButton.flex.display(role == .staff ? .flex : .none)
     
@@ -77,8 +78,6 @@ final class MemberCell: UITableViewCell, ReusableView {
     case .staff:
       roleView.configure(title: "운영진", titleColor: Colors.White._1, backgroundColor: Colors.Blue._4)
     }
-    
-    moreButton.addAction { tapAction(member) }
       
     nameLabel.flex.markDirty()
     roleView.flex.markDirty()

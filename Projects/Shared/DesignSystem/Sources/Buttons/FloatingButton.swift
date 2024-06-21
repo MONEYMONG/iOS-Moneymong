@@ -105,12 +105,6 @@ public final class FloatingButton: UIView {
 }
 
 public extension FloatingButton {
-  func closeAllButtons() {
-    if isFold == false {
-      toggleBottomButton()
-      toggleFloatingButton()
-    }
-  }
   
   func addScanAction(_ action: @escaping () -> Void) {
     topButton.addAction { [weak self] in

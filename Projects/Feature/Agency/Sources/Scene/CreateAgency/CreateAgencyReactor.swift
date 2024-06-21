@@ -59,7 +59,7 @@ final class CreateAgencyReactor: Reactor {
         .task {
           try await agencyRepo.create(
             name: currentState.text,
-            type: currentState.index == 0 ? "STUDENT_COUNCIL" : "IN_SCHOOL_CLUB"
+            type: currentState.index == 0 ? "IN_SCHOOL_CLUB" : "STUDENT_COUNCIL"
           )
         }
         .map { .setDestination(.complete($0)) }
