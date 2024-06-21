@@ -24,16 +24,16 @@ let project = Project(
         "CFBundleURLTypes": [
           [
             "CFBundleURLSchemes": ["kakao5412cf7a0e53089ab63f4e04b10622c5"],
-            "CFBundleURLName": "com.salmal.app"
+            "CFBundleURLName": "com.yapp.moneymong"
           ]
         ],
         "UIUserInterfaceStyle": "Light",
         "CFBundleShortVersionString": "1.0",
         "CFBundleVersion": "2",
         "UILaunchStoryboardName": "LaunchScreen",
-        "UIApplicationSceneManifest" : [
-          "UIApplicationSupportsMultipleScenes":true,
-          "UISceneConfigurations":[
+        "UIApplicationSceneManifest": [
+          "UIApplicationSupportsMultipleScenes": true,
+          "UISceneConfigurations": [
             "UIWindowSceneSessionRoleApplication":[
               [
                 "UISceneConfigurationName":"Default Configuration",
@@ -50,10 +50,15 @@ let project = Project(
       entitlements: "Resources/App.entitlements",
       dependencies: [
         .project(target: "SignFeature", path: .relativeToRoot("Projects/Feature/Sign")),
-        .project(target: "MainFeature", path: .relativeToRoot("Projects/Feature/Main"))
+        .project(target: "MainFeature", path: .relativeToRoot("Projects/Feature/Main")),
       ],
+      settings: .settings(base: [
+        "DEBUG_INFORMATION_FORMAT": "dwarf-with-dsym",
+        "OTHER_LDFLAGS": "-ObjC"
+      ]),
       launchArguments: [
-        LaunchArgument(name: "IDEPreferLogStreaming=YES", isEnabled: true)
+        LaunchArgument(name: "IDEPreferLogStreaming=YES", isEnabled: true),
+        LaunchArgument(name: "-FIRDebugEnabled", isEnabled: true)
       ]
     )
   ]

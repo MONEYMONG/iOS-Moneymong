@@ -2,6 +2,7 @@ import UIKit
 
 import NetworkService
 import DesignSystem
+import SignFeature
 
 class SceneDelegate: UIResponder, UIWindowSceneDelegate {
   private var appCoordinator: AppCoordinator?
@@ -9,6 +10,7 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
   
   func scene(_ scene: UIScene, willConnectTo session: UISceneSession, options connectionOptions: UIScene.ConnectionOptions) {
     Fonts.registerFont()
+
     let navigationController = UINavigationController()
     
     guard let windowScene = (scene as? UIWindowScene) else { return }

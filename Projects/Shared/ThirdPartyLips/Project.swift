@@ -23,7 +23,7 @@ let project = Project(
         .external(name: "KakaoSDKAuth"),
         .external(name: "KakaoSDKUser"),
         .external(name: "Pulse"),
-        .external(name: "PulseUI"),
+        .external(name: "PulseUI")
       ]
     )
   ]
