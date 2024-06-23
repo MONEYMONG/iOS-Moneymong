@@ -151,13 +151,13 @@ final class CreateManualLedgerReactor: Reactor {
           index = currentState.content.receiptImages.firstIndex(where: {
             $0.id == image.id
           })
-          guard let index else { throw MoneyMongError.appError(.normal, errorMessage: "이미지 삭제가 정상적으로 이뤄지지 않았습니다") }
+          guard let index else { throw MoneyMongError.appError(.default, errorMessage: "이미지 삭제가 정상적으로 이뤄지지 않았습니다") }
           imageURL = currentState.content.receiptImages[index]
         case .document:
           index = currentState.content.documentImages.firstIndex(where: {
             $0.id == image.id
           })
-          guard let index else { throw MoneyMongError.appError(.normal, errorMessage: "이미지 삭제가 정상적으로 이뤄지지 않았습니다") }
+          guard let index else { throw MoneyMongError.appError(.default, errorMessage: "이미지 삭제가 정상적으로 이뤄지지 않았습니다") }
           imageURL = currentState.content.documentImages[index]
         }
         try await ledgerRepo.imageDelete(imageURL)
@@ -232,7 +232,7 @@ final class CreateManualLedgerReactor: Reactor {
     case .setAlertContent(let type):
       switch type {
       case .error(let moneyMongError):
-        newState.alertMessage = (moneyMongError.errorDescription!, nil, type)
+        newState.alertMessage = (moneyMongError.errorTitle, moneyMongError.errorDescription!, type)
       case .deleteImage:
         newState.alertMessage = ("사진을 삭제하시겠습니까?", "삭제된 사진은 되돌릴 수 없습니다", type)
       case .end:
@@ -336,14 +336,14 @@ private extension CreateManualLedgerReactor {
   func requestCreateLedgerRecord() -> Observable<Mutation> {
     return .task {
       guard let amount = Int(currentState.content.amount.filter { $0.isNumber }) else {
-        throw MoneyMongError.appError(.normal, errorMessage: "금액을 확인해 주세요")
+        throw MoneyMongError.appError(.default, errorMessage: "금액을 확인해 주세요")
       }
       guard let date = formatter.mergeWithISO8601(
         date: currentState.content.date,
         time: currentState.content.time
       )
       else {
-        throw MoneyMongError.appError(.normal, errorMessage: "날짜 및 시간을 확인해 주세요")
+        throw MoneyMongError.appError(.default, errorMessage: "날짜 및 시간을 확인해 주세요")
       }
       let memo = currentState.content.memo.isEmpty ? "내용없음" : currentState.content.memo
       return try await ledgerRepo.create(
@@ -365,7 +365,7 @@ private extension CreateManualLedgerReactor {
   func uploadImage(image: ImageData, section: Section) -> Observable<Mutation> {
     return .task {
       guard let resizeImateData = UIImage(data: image.data)?.jpegData(compressionQuality: 0.027) else {
-        throw MoneyMongError.appError(.normal, errorMessage: "첨부 이미지를 확인해 주세요")
+        throw MoneyMongError.appError(.default, errorMessage: "첨부 이미지를 확인해 주세요")
       }
       var entity = try await ledgerRepo.imageUpload(resizeImateData)
       entity.id = image.id

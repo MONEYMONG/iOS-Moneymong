@@ -104,17 +104,17 @@ private extension OCRResultReactor {
   func requestCreateLedgerRecord() -> Observable<Mutation> {
     return .task {
       guard let amount = Int(currentState.money.filter { $0.isNumber }) else {
-        throw MoneyMongError.appError(.normal, errorMessage: "금액을 확인해 주세요")
+        throw MoneyMongError.appError(.default, errorMessage: "금액을 확인해 주세요")
       }
       guard let date = formatter.mergeWithISO8601(
         date: currentState.date.joined(separator: "/"),
         time: currentState.time.joined(separator: ":")
       )
       else {
-        throw MoneyMongError.appError(.normal, errorMessage: "날짜 및 시간을 확인해 주세요")
+        throw MoneyMongError.appError(.default, errorMessage: "날짜 및 시간을 확인해 주세요")
       }
       guard let resizeImageData = UIImage(data: currentState.receiptImageData)?.jpegData(compressionQuality: 0.027) else {
-        throw MoneyMongError.appError(.normal, errorMessage: "영수증 이미지를 확인해 주세요")
+        throw MoneyMongError.appError(.default, errorMessage: "영수증 이미지를 확인해 주세요")
       }
       let imageURL = try await repo.imageUpload(resizeImageData).url
       return try await repo.create(

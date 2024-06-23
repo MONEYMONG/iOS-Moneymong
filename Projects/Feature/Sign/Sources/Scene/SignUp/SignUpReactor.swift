@@ -110,7 +110,7 @@ final class SignUpReactor: Reactor {
         .task { [unowned self] in
           guard let university = currentState.selectedUniversity,
                 let grade = currentState.selectedGrade else {
-            throw MoneyMongError.appError(.normal, errorMessage: "필수 입력값을 입력해주세요.")
+            throw MoneyMongError.appError(.default, errorMessage: "필수 입력값을 입력해주세요.")
           }
           return try await universityRepository.university(
             name: university.schoolName,

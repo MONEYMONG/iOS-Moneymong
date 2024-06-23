@@ -7,7 +7,7 @@ struct OCRResponseDTO: Responsable {
   let images: [Image]
   
   struct Image: Decodable {
-    let receipt: Receipt
+    let receipt: Receipt?
     let uid: String
     let name: String
     let inferResult: String
@@ -95,17 +95,18 @@ struct OCRResponseDTO: Responsable {
   
   var toEntity: OCRResult {
     return OCRResult(
-      source: images.first?.receipt.result.storeInfo?.name?.text ?? "",
-      amount: images.first?.receipt.result.totalPrice?.price?.text ?? "",
+      inferResult: images.first?.inferResult ?? "ERROR",
+      source: images.first?.receipt?.result.storeInfo?.name?.text ?? "",
+      amount: images.first?.receipt?.result.totalPrice?.price?.text ?? "",
       date: [
-        images.first?.receipt.result.paymentInfo?.date?.formatted?.year ?? "",
-        images.first?.receipt.result.paymentInfo?.date?.formatted?.month ?? "",
-        images.first?.receipt.result.paymentInfo?.date?.formatted?.day ?? ""
+        images.first?.receipt?.result.paymentInfo?.date?.formatted?.year ?? "",
+        images.first?.receipt?.result.paymentInfo?.date?.formatted?.month ?? "",
+        images.first?.receipt?.result.paymentInfo?.date?.formatted?.day ?? ""
       ],
       time: [
-        images.first?.receipt.result.paymentInfo?.time?.formatted?.hour ?? "",
-        images.first?.receipt.result.paymentInfo?.time?.formatted?.minute ?? "",
-        images.first?.receipt.result.paymentInfo?.time?.formatted?.second ?? ""
+        images.first?.receipt?.result.paymentInfo?.time?.formatted?.hour ?? "",
+        images.first?.receipt?.result.paymentInfo?.time?.formatted?.minute ?? "",
+        images.first?.receipt?.result.paymentInfo?.time?.formatted?.second ?? ""
       ]
     )
   }
