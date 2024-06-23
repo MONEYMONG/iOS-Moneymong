@@ -3,26 +3,32 @@ import ReactorKit
 import NetworkService
 
 final class LedgerTabReactor: Reactor {
-
+  
   enum Action {
     case didTapDateRangeView
     case selectedFilter(Int)
     case didTapWriteButton
     case didTapScanButton
+    case didPrefech(Int)
   }
-
+  
   enum Mutation {
     case setDateRange(start: DateInfo, end: DateInfo)
     case setDestination(State.Destination)
     case setAgencyID(Int)
     case setLoading(Bool)
     case setFilterType(FundType?)
-    case setLedgerInfo(LedgerList)
+    case setLedgerList([Ledger])
+    case setTotalBalance(Int)
     case setRole(Member.Role?)
+    case setPage(Int)
+    case setTotalLedgerCount(Int)
   }
-
+  
   struct State {
     let userID: Int
+    var page: Int = 0
+    var totalLedgerCount: Int = 0
     @Pulse var agencyID: Int? = nil
     @Pulse var role: Member.Role?
     @Pulse var totalBalance: String = "0"
@@ -45,7 +51,8 @@ final class LedgerTabReactor: Reactor {
   private let userRepo: UserRepositoryInterface
   private let agencyRepo: AgencyRepositoryInterface
   let formatter: ContentFormatter
-
+  let listLimit = 20
+  
   init(
     ledgerService: LedgerServiceInterface,
     ledgerRepo: LedgerRepositoryInterface,
@@ -76,12 +83,12 @@ final class LedgerTabReactor: Reactor {
   func mutate(action: Action) -> Observable<Mutation> {
     switch action {
     case .didTapDateRangeView:
-        return .just(.setDestination(
-          .datePicker(
-            start: currentState.dateRange.start,
-            end: currentState.dateRange.end
-          )
-        ))
+      return .just(.setDestination(
+        .datePicker(
+          start: currentState.dateRange.start,
+          end: currentState.dateRange.end
+        )
+      ))
     case let .selectedFilter(index):
       var fundType: FundType? = nil
       switch index {
@@ -95,7 +102,7 @@ final class LedgerTabReactor: Reactor {
       return .concat([
         .just(.setFilterType(fundType)),
         .just(.setLoading(true)),
-        requestLedgerList(agencyID: currentState.agencyID),
+        requestLedgerListFirstPage(agencyID: currentState.agencyID),
         .just(.setLoading(false))
       ])
     case .didTapWriteButton:
@@ -104,6 +111,14 @@ final class LedgerTabReactor: Reactor {
     case .didTapScanButton:
       guard let agencyID = currentState.agencyID else { return .empty() }
       return .just(.setDestination(.createOCRLedger(agencyID)))
+    case let .didPrefech(row):
+      guard isPageable(row: row) else { return .empty() }
+      return .concat([
+        .just(.setLoading(true)),
+        .just(.setPage(currentState.page + 1)),
+        requestLedgerList(agencyID: currentState.agencyID),
+        .just(.setLoading(false))
+      ])
     }
   }
   
@@ -115,10 +130,18 @@ final class LedgerTabReactor: Reactor {
       newState.dateRange = (start, end)
     case let .setDestination(destination):
       newState.destination = destination
-    case let .setLedgerInfo(ledgerList):
-      let balance = formatter.convertToAmount(with: ledgerList.totalBalance) ?? "0"
-      newState.totalBalance = balance
-      newState.ledgers = ledgerList.ledgers
+    case let .setLedgerList(ledgerList):
+      if state.page == 0 {
+        newState.ledgers = []
+      }
+      let items = ledgerList.enumerated().map { i, item in
+        var newItem = item
+        newItem.order = state.totalLedgerCount - i - newState.ledgers.count
+        return newItem
+      }
+      newState.ledgers += items
+    case let .setTotalBalance(balance):
+      newState.totalBalance = formatter.convertToAmount(with: balance) ?? "0"
     case let .setAgencyID(id):
       newState.agencyID = id
     case let .setLoading(value):
@@ -127,6 +150,10 @@ final class LedgerTabReactor: Reactor {
       newState.filterType = fundType
     case let .setRole(role):
       newState.role = role
+    case let .setPage(page):
+      newState.page = page
+    case let .setTotalLedgerCount(count):
+      newState.totalLedgerCount = count
     }
     return newState
   }
@@ -144,40 +171,40 @@ final class LedgerTabReactor: Reactor {
           return .concat([
             .just(.setDateRange(start: start, end: end)),
             .just(.setLoading(true)),
-            owner.requestLedgerList(agencyID: owner.currentState.agencyID),
+            owner.requestLedgerListFirstPage(agencyID: owner.currentState.agencyID),
             .just(.setLoading(false))
           ])
         case .createLedgerRecord:
           return .concat([
             .just(.setLoading(true)),
-            owner.requestLedgerList(agencyID: owner.currentState.agencyID),
+            owner.requestLedgerListFirstPage(agencyID: owner.currentState.agencyID),
             .just(.setLoading(false))
           ])
         case .update:
           return .concat([
             .just(.setLoading(true)),
-            owner.requestLedgerList(agencyID: owner.currentState.agencyID),
+            owner.requestLedgerListFirstPage(agencyID: owner.currentState.agencyID),
             .just(.setLoading(false))
           ])
         }
-    }
+      }
     
     let agencyUpdate = service.agency.event
       .withUnretained(self)
       .flatMap { owner, event -> Observable<Mutation> in
-      switch event {
-      case let .update(agency):
-        return .concat([
-          .just(.setAgencyID(agency.id)),
-          .just(.setLoading(true)),
-          .merge([
-            owner.requestLedgerList(agencyID: agency.id),
-            owner.requestMembers(agencyID: agency.id)
-          ]),
-          .just(.setLoading(false))
-        ])
+        switch event {
+        case let .update(agency):
+          return .concat([
+            .just(.setAgencyID(agency.id)),
+            .just(.setLoading(true)),
+            .merge([
+              owner.requestLedgerListFirstPage(agencyID: agency.id),
+              owner.requestMembers(agencyID: agency.id)
+            ]),
+            .just(.setLoading(false))
+          ])
+        }
       }
-    }
     return .merge(ledgerListUpdate, agencyUpdate)
   }
   
@@ -188,13 +215,31 @@ final class LedgerTabReactor: Reactor {
         id: agencyID, // 소속 ID
         start: currentState.dateRange.start,
         end: currentState.dateRange.end,
-        page: 0, // 0부터
-        limit: 20, // 아이템 수
+        page: currentState.page, // 0부터
+        limit: listLimit, // 아이템 수
         fundType: currentState.filterType
       )
     }
-      .map { .setLedgerInfo($0) }
-      .catch { _ in .empty() }
+    .withUnretained(self)
+    .observe(on: MainScheduler.instance)
+    .flatMap { owner, item -> Observable<Mutation> in
+      return
+        .concat([
+          .just(.setTotalLedgerCount(item.totalCount)),
+          .merge([
+            .just(.setTotalBalance(item.totalBalance)),
+            .just(.setLedgerList(item.ledgers))
+          ])
+        ])
+    }
+    .catch { _ in .empty() }
+  }
+  
+  private func requestLedgerListFirstPage(agencyID: Int?) -> Observable<Mutation> {
+    return .concat([
+      .just(.setPage(0)),
+      requestLedgerList(agencyID: agencyID)
+    ])
   }
   
   private func requestMembers(agencyID: Int?) -> Observable<Mutation> {
@@ -205,5 +250,11 @@ final class LedgerTabReactor: Reactor {
     }
     .map { .setRole($0) }
     .catch { _ in .empty() }
+  }
+  
+  private func isPageable(row: Int) -> Bool {
+    let paginationRow: Int = Int(Double(currentState.page + 1) * Double(listLimit) * 0.9)
+    return !currentState.isLoading &&
+    paginationRow < row
   }
 }

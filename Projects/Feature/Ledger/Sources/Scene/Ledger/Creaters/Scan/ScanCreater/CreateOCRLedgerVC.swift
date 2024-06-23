@@ -216,7 +216,9 @@ final class CreateOCRLedgerVC: UIViewController, View {
           .alert(
             title: error.errorTitle,
             subTitle: error.errorDescription,
-            type: .onlyOkButton()
+            type: .onlyOkButton({ [weak self] in
+              self?.captureImageView.image = nil
+            })
           )
         )
       }

@@ -2,33 +2,27 @@ import Foundation
 import Alamofire
 
 public enum MoneyMongError: LocalizedError {
-  public enum `Type`: String {
-    case network
-    case camera
-    case normal
+  public enum Code: String {
+    case ledgerAmountOverflow = "LEDGER-005"
+    case ledgerAmountUnderflow = "LEDGER-008"
+    case cameraAccess
+    case `default`
   }
   case networkError(error: AFError)
   case serverError(errorMessage: String)
-  case appError(Type, errorMessage: String)
+  case appError(Code, errorMessage: String)
   case unknown(String? = nil)
   
   public var errorTitle: String {
     switch self {
-    case .networkError:
-      return "네트워크 에러"
-    case .serverError:
-      return "네트워크 에러"
-    case let .appError(type, _):
-      switch type {
-      case .network:
-        return "네트워크 에러"
-      case .camera:
-        return "현재 머니몽이\n카메라에 접근할 수 없어요"
-      case .normal:
-        return "에러"
+    case let .appError(code, _):
+      switch code {
+      case .ledgerAmountOverflow,
+          .ledgerAmountUnderflow: return "기록할 수 있는 총 잔액을 초과했습니다"
+      case .cameraAccess: return "현재 머니몽이\n카메라에 접근할 수 없어요"
+      default: return "에러"
       }
-    case .unknown:
-      return "에러"
+    default: return "에러"
     }
   }
 

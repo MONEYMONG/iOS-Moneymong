@@ -9,7 +9,6 @@ import NetworkService
 import ReactorKit
 import PinLayout
 import FlexLayout
-import RxDataSources
 
 final class LedgerTabVC: BaseVC, View {
   var disposeBag = DisposeBag()
@@ -136,6 +135,12 @@ final class LedgerTabVC: BaseVC, View {
         let (ledger, role) = info
         owner.coordinator?.present(.detail(ledger, role ?? .staff))
       }
+      .disposed(by: disposeBag)
+    
+    ledgerList.rx.prefetchItems
+      .compactMap { $0.last?.row }
+      .map { Reactor.Action.didPrefech($0) }
+      .bind(to: reactor.action)
       .disposed(by: disposeBag)
 
     reactor.pulse(\.$role)

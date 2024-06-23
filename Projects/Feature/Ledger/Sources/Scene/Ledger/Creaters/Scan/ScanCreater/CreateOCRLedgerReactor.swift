@@ -78,7 +78,12 @@ final class CreateOCRLedgerReactor: Reactor {
     guard let data else { return .empty() }
     let agencyId = currentState.agencyId
     return .task {
-      return try await ledgerRepo.fetchOCR(data)
+      let model = try await ledgerRepo.fetchOCR(data)
+      if model.inferResult == "ERROR" {
+        throw MoneyMongError.appError(.default, errorMessage: "영수증이 보이도록 정확하게 촬영해주세요")
+      } else {
+        return model
+      }
     }
     .map { .setDestination(.scanResult(agencyId, model: $0, imageData: data)) }
     .catch {

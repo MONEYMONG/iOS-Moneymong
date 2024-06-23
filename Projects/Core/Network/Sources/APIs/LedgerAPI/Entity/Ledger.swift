@@ -9,6 +9,6 @@ public struct Ledger: Equatable {
   public let fundType: FundType
   public let amount: Int
   public let balance: Int
-  public let order: Int
+  public var order: Int
   public let paymentDate: String
 }

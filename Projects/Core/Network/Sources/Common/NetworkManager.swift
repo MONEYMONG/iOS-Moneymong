@@ -31,11 +31,17 @@ public final class NetworkManager: NetworkManagerInterfacae {
        let errorResponse = try? JSONDecoder().decode(ErrorResponse.self, from: data)
     {
       if let message = errorResponse.message {
-        throw MoneyMongError.appError(.network, errorMessage: message)
+        throw MoneyMongError.appError(
+          MoneyMongError.Code(rawValue: errorResponse.code) ?? .default,
+          errorMessage: message
+        )
       }
       
       if let messages = errorResponse.messages {
-        throw MoneyMongError.appError(.network, errorMessage: messages.joined(separator: "\n"))
+        throw MoneyMongError.appError(
+          MoneyMongError.Code(rawValue: errorResponse.code) ?? .default,
+          errorMessage: messages.joined(separator: "\n")
+        )
       }
     }
     
@@ -86,17 +92,23 @@ public final class NetworkManager: NetworkManagerInterfacae {
          (400..<500) ~= statusCode
       {
         if let message = errorResponse.message {
-          throw MoneyMongError.appError(.network, errorMessage: message)
+          throw MoneyMongError.appError(
+            MoneyMongError.Code(rawValue: errorResponse.code) ?? .default,
+            errorMessage: message
+          )
         }
         
         if let messages = errorResponse.messages {
-          throw MoneyMongError.appError(.network, errorMessage: messages.joined(separator: "\n"))
+          throw MoneyMongError.appError(
+            MoneyMongError.Code(rawValue: errorResponse.code) ?? .default,
+            errorMessage: messages.joined(separator: "\n")
+          )
         }
       }
       
       assertionFailure("dto디코딩, error디코딩 모두 실패 이러면 안되요 디버깅 해주세요")
       
-      throw MoneyMongError.appError(.network, errorMessage: "디코딩 실패")
+      throw MoneyMongError.appError(.default, errorMessage: "디코딩 실패")
     case let .failure(error):
       assertionFailure("서버동작 에러! 적절한 처리 필요 \(error.localizedDescription)")
       throw error
