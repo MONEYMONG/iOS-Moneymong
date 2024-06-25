@@ -20,11 +20,23 @@ public final class TokenRequestIntercepter: RequestInterceptor {
     for session: Session,
     completion: @escaping (Result<URLRequest, Error>) -> Void
   ) {
+    
+    #if DEBUG
     guard urlRequest.url?.absoluteString.hasPrefix("https://dev.moneymong.site/") == true,
-          let accessToken = localStorage.accessToken else {
+          let accessToken = localStorage.accessToken
+    else {
       completion(.success(urlRequest))
       return
     }
+    #else
+    guard urlRequest.url?.absoluteString.hasPrefix("https://prod.moneymong.site/") == true,
+          let accessToken = localStorage.accessToken
+    else {
+      completion(.success(urlRequest))
+      return
+    }
+    
+    #endif
     
     // 로그인
     if urlRequest.url?.absoluteString.hasSuffix("/users") == true {

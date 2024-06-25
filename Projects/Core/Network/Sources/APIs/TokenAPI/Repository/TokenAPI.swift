@@ -7,12 +7,12 @@ enum TokenAPI {
 
 extension TokenAPI: TargetType {
   var baseURL: URL? {
-    return try? "https://dev.moneymong.site/".asURL()
+    return try? Config.base.asURL()
   }
 
   var path: String {
     switch self {
-    case .token: return "api/v1/tokens"
+    case .token: return "v1/tokens"
     }
   }
 

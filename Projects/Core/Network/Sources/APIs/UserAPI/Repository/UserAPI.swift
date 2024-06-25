@@ -8,14 +8,14 @@ enum UserAPI {
 
 extension UserAPI: TargetType {
   var baseURL: URL? {
-    return try? "https://dev.moneymong.site/api/v1".asURL()
+    return try? Config.base.asURL()
   }
   
   var path: String {
     switch self {
-    case .user: return "/users/me"
-    case .logout: return "/tokens"
-    case .withdrawl: return "/users/me"
+    case .user: return "v1/users/me"
+    case .logout: return "v1/tokens"
+    case .withdrawl: return "v1/users/me"
     }
   }
   

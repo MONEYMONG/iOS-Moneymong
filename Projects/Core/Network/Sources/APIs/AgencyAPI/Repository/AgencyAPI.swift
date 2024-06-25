@@ -14,20 +14,20 @@ enum AgencyAPI {
 
 extension AgencyAPI: TargetType {
   var baseURL: URL? {
-    return try? "https://dev.moneymong.site/api/v1/".asURL()
+    return try? Config.base.asURL()
   }
 
   var path: String {
     switch self {
-    case .list: return "agencies?size=40"
-    case .create: return "agencies"
-    case let .memberList(id): return "agencies/\(id)/agency-users"
-    case let .changeRole(id, _): return "agencies/\(id)/agency-users/roles"
-    case let .kickout(id, _): return "agencies/\(id)/agency-users/roles/block"
-    case .myAgency: return "agencies/me"
-    case let .code(id): return "agencies/\(id)/invitation-code"
-    case let .certificateCode(id, _): return "agencies/\(id)/invitation-code"
-    case let .reissueCode(id): return "agencies/\(id)/invitation-code"
+    case .list: return "v1/agencies?size=40"
+    case .create: return "v1/agencies"
+    case let .memberList(id): return "v1/agencies/\(id)/agency-users"
+    case let .changeRole(id, _): return "v1/agencies/\(id)/agency-users/roles"
+    case let .kickout(id, _): return "v1/agencies/\(id)/agency-users/roles/block"
+    case .myAgency: return "v1/agencies/me"
+    case let .code(id): return "v1/agencies/\(id)/invitation-code"
+    case let .certificateCode(id, _): return "v1/agencies/\(id)/invitation-code"
+    case let .reissueCode(id): return "v1/agencies/\(id)/invitation-code"
     }
   }
 

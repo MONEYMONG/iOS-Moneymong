@@ -8,13 +8,13 @@ enum UniversityAPI {
 
 extension UniversityAPI: TargetType {
   var baseURL: URL? {
-    return try? "https://dev.moneymong.site/".asURL()
+    return try? Config.base.asURL()
   }
 
   var path: String {
     switch self {
-    case .universities(let keyword): return "api/v1/universities?keyword=\(keyword)"
-    case .university: return "api/v1/user-university"
+    case .universities(let keyword): return "v1/universities?keyword=\(keyword)"
+    case .university: return "v1/user-university"
     }
   }
 

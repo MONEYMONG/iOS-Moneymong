@@ -6,12 +6,12 @@ enum SignAPI {
 
 extension SignAPI: TargetType {
   var baseURL: URL? {
-    return try? "https://dev.moneymong.site/".asURL()
+    return try? Config.base.asURL()
   }
 
   var path: String {
     switch self {
-    case .sign: return "api/v1/users"
+    case .sign: return "v1/users"
     }
   }
 

@@ -24,7 +24,7 @@ extension LedgerAPI: TargetType {
     case .receiptOCR:
       return try? "https://rgec3uf4w8.apigw.ntruss.com/custom/v1/27247/c8164e59014063109889b541dc736eeae7690fc5dd305dd0189e6e6ff95cd659/".asURL()
     default:
-      return try? "https://dev.moneymong.site/api/".asURL()
+      return try? Config.base.asURL()
     }
   }
   
