@@ -1,8 +1,6 @@
 import Foundation
 import Alamofire
 
-import LocalStorage
-
 public protocol SignRepositoryInterface {
   func autoSign() async throws -> SignInfo
   func kakaoSign() async throws -> KakaoAuthInfo

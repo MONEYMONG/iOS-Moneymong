@@ -1,6 +1,5 @@
 import ReactorKit
-import NetworkService
-import LocalStorage
+import Core
 
 final class LoginReactor: Reactor {
   enum Action {

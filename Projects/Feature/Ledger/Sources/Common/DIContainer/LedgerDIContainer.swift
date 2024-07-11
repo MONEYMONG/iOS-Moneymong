@@ -1,7 +1,6 @@
 import UIKit
 
-import LocalStorage
-import NetworkService
+import Core
 import BaseFeature
 
 public final class LedgerDIContainer {

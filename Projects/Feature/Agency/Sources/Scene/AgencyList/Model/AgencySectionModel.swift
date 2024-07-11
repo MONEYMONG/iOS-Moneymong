@@ -1,6 +1,6 @@
 import Foundation
 
-import NetworkService
+import Core
 
 import RxDataSources
 

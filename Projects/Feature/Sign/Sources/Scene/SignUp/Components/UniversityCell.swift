@@ -2,7 +2,7 @@ import UIKit
 
 import Utility
 import DesignSystem
-import NetworkService
+import Core
 
 final class UniversityCell: UITableViewCell, ReusableView {
   private let schoolImageView: UIImageView = {

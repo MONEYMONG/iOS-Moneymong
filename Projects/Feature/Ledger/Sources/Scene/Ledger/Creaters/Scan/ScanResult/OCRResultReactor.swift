@@ -1,7 +1,7 @@
 import Foundation
 import UIKit
 
-import NetworkService
+import Core
 
 import ReactorKit
 

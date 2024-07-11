@@ -1,7 +1,7 @@
 import UIKit
 
 import DesignSystem
-import NetworkService
+import Core
 import Utility
 
 import PinLayout

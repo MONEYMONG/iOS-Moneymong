@@ -1,7 +1,7 @@
 import UIKit
 import AVFoundation
 
-import NetworkService
+import Core
 
 import RxSwift
 

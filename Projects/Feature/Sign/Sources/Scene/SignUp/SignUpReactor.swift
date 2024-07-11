@@ -1,5 +1,4 @@
-import NetworkService
-import LocalStorage
+import Core
 
 import ReactorKit
 

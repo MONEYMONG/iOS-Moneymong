@@ -2,7 +2,7 @@ import UIKit
 
 import DesignSystem
 import Utility
-import NetworkService
+import Core
 
 import Kingfisher
 import ReactorKit

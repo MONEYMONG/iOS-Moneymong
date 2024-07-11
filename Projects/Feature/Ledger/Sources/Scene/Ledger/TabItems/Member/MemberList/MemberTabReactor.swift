@@ -1,7 +1,7 @@
 import ReactorKit
 
 import DesignSystem
-import NetworkService
+import Core
 
 final class MemberTabReactor: Reactor {
   

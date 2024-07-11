@@ -1,6 +1,6 @@
 import UIKit
 
-import NetworkService
+import Core
 
 import Pulse
 

@@ -1,7 +1,5 @@
 import Foundation
 
-import LocalStorage 
-
 public protocol UserRepositoryInterface {
   func user() async throws -> UserInfo
   func fetchUserID() -> Int

@@ -3,7 +3,7 @@ import UIKit
 import BaseFeature
 import DesignSystem
 import Utility
-import NetworkService
+import Core
 
 import ReactorKit
 import RxDataSources

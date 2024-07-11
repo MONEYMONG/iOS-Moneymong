@@ -1,7 +1,7 @@
 import UIKit
 
 import BaseFeature
-import NetworkService
+import Core
 
 final class CreateOCRLedgerDIContainer {
   private let ledgerRepo: LedgerRepositoryInterface

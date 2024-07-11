@@ -2,8 +2,7 @@ import UIKit
 
 import LedgerFeature
 import DesignSystem
-import LocalStorage
-import NetworkService
+import Core
 
 class SceneDelegate: UIResponder, UIWindowSceneDelegate {
   var coordinator: LedgerCoordinator?

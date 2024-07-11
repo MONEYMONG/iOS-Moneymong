@@ -1,6 +1,6 @@
 import UIKit
 
-import NetworkService
+import Core
 
 final class CreateManualLedgerDIContainer {
   private let ledgerRepo: LedgerRepositoryInterface

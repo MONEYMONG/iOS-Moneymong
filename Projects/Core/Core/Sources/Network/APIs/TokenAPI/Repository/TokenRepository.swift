@@ -1,6 +1,5 @@
 import Foundation
 import Alamofire
-import LocalStorage
 
 public protocol TokenRepositoryInterface {
   func token() async throws -> Token

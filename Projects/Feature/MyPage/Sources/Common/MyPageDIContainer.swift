@@ -1,5 +1,4 @@
-import NetworkService
-import LocalStorage
+import Core
 
 public final class MyPageDIContainer {
   private let localStorage: LocalStorageInterface

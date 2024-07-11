@@ -1,7 +1,6 @@
 import UIKit
 
-import LocalStorage
-import NetworkService
+import Core
 
 public final class AgencyDIContainer {
   

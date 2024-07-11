@@ -1,4 +1,4 @@
-import NetworkService
+import Core
 
 struct LedgerImageInfo: Equatable {
   let imageSection: LedgerContentsReactor.ImageSection

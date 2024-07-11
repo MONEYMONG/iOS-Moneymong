@@ -1,6 +1,6 @@
 import ReactorKit
 
-import NetworkService
+import Core
 
 public final class AgencyListReactor: Reactor {
   

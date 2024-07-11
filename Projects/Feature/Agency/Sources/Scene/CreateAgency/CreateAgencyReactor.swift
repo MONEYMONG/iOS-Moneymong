@@ -1,4 +1,4 @@
-import NetworkService
+import Core
 
 import ReactorKit
 

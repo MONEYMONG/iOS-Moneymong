@@ -4,8 +4,7 @@ import AgencyFeature
 import LedgerFeature
 import MyPageFeature
 
-import NetworkService
-import LocalStorage
+import Core
 
 final class AppDIContainer {
 

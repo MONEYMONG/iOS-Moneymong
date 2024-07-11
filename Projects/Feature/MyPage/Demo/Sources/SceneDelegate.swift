@@ -1,7 +1,6 @@
 import UIKit
 
-import NetworkService
-import LocalStorage
+import Core
 import MyPageFeature
 import DesignSystem
 

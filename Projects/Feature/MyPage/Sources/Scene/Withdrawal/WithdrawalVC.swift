@@ -3,7 +3,7 @@ import UIKit
 import BaseFeature
 import Utility
 import DesignSystem
-import NetworkService
+import Core
 
 import ReactorKit
 import PinLayout

@@ -1,6 +1,6 @@
 import ReactorKit
 
-import NetworkService
+import Core
 
 final class JoinAgencyReactor: Reactor {
   struct State {

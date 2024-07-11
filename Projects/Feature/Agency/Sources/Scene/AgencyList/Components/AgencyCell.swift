@@ -2,7 +2,7 @@ import UIKit
 
 import Utility
 import DesignSystem
-import NetworkService
+import Core
 
 import FlexLayout
 import PinLayout

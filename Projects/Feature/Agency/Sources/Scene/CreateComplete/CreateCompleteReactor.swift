@@ -1,6 +1,6 @@
 import BaseFeature
 
-import NetworkService
+import Core
 
 import ReactorKit
 

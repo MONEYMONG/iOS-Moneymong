@@ -1,5 +1,4 @@
-import NetworkService
-import LocalStorage
+import Core
 
 public final class SignDIContainer {
   private let localStorage: LocalStorageInterface

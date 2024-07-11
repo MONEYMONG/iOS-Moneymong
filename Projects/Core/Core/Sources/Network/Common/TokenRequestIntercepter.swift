@@ -1,6 +1,5 @@
 import UIKit
 
-import LocalStorage
 import Alamofire
 
 public final class TokenRequestIntercepter: RequestInterceptor {

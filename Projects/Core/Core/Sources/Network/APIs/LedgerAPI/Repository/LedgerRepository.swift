@@ -1,7 +1,5 @@
 import Foundation
 
-import LocalStorage
-
 public protocol LedgerRepositoryInterface {
   
   func imageUpload(_ data: Data) async throws -> ImageInfo

@@ -4,8 +4,7 @@ import BaseFeature
 import AgencyFeature
 import LedgerFeature
 import MyPageFeature
-import NetworkService
-import LocalStorage
+import Core
 
 public final class MainDIContainer {
   private let localStorage: LocalStorageInterface

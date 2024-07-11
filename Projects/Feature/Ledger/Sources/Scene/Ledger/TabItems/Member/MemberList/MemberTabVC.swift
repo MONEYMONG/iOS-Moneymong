@@ -2,7 +2,7 @@ import UIKit
 
 import DesignSystem
 import BaseFeature
-import NetworkService
+import Core
 
 import ReactorKit
 

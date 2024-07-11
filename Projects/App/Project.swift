@@ -50,7 +50,7 @@ let project = Project(
       entitlements: "Resources/App.entitlements",
       dependencies: [
         .project(target: "SignFeature", path: .relativeToRoot("Projects/Feature/Sign")),
-        .project(target: "MainFeature", path: .relativeToRoot("Projects/Feature/Main")),
+        .project(target: "MainFeature", path: .relativeToRoot("Projects/Feature/Main"))
       ],
       settings: .settings(base: [
         "DEBUG_INFORMATION_FORMAT": "dwarf-with-dsym",

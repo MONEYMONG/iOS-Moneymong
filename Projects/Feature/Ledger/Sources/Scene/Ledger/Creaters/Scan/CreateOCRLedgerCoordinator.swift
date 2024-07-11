@@ -2,7 +2,7 @@ import UIKit
 
 import BaseFeature
 import DesignSystem
-import NetworkService
+import Core
 
 final class CreateOCRLedgerCoordinator: Coordinator {
   unowned var navigationController: UINavigationController

@@ -1,6 +1,6 @@
 import Foundation
 
-import NetworkService
+import Core
 import ReactorKit
 
 final class SelectAgencySheetReactor: Reactor {

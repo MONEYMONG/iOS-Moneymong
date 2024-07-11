@@ -1,4 +1,4 @@
-import NetworkService
+import Core
 
 /// Ledger에서 사용하는 전역서비스 모음
 protocol LedgerServiceInterface {
