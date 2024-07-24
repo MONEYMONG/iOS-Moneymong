@@ -10,6 +10,7 @@ final class SignUpReactor: Reactor {
     case unSelectUniversity
     case selectGrade(Int)
     case confirm
+    case notUnivercityInfo
   }
 
   enum Mutation {
@@ -104,6 +105,25 @@ final class SignUpReactor: Reactor {
       }
 
     case .confirm:
+      return Observable.concat([
+        .just(.setIsLoading(true)),
+        .task { [unowned self] in
+          guard let university = currentState.selectedUniversity,
+                let grade = currentState.selectedGrade else {
+            throw MoneyMongError.appError(.default, errorMessage: "필수 입력값을 입력해주세요.")
+          }
+          return try await universityRepository.university(
+            name: university.schoolName,
+            grade: grade
+          )
+        }
+          .map {.setDestination(.congratulations) }
+          .catch { error in .just(.setErrorMessage(error.localizedDescription)) },
+
+          .just(.setIsLoading(false))
+      ])
+
+    case .notUnivercityInfo:
       return Observable.concat([
         .just(.setIsLoading(true)),
         .task { [unowned self] in

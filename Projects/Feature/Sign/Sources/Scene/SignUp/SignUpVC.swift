@@ -60,6 +60,14 @@ final class SignUpVC: BaseVC, View {
     return button
   }()
 
+  private let notUniversityInfoButton: UIButton = {
+    let button = UIButton()
+    button.setTitle(Const.universityInfoEmpty, for: .normal)
+    button.setTitleColor(Colors.Blue._4, for: .normal)
+    button.titleLabel?.font = Fonts.body._3
+    return button
+  }()
+
   override func setupUI() {
     super.setupUI()
     
@@ -83,7 +91,8 @@ final class SignUpVC: BaseVC, View {
         }
         
         flex.addItem(gradeInputView).grow(1)
-        flex.addItem(confirmButton).height(56).marginVertical(12)
+        flex.addItem(confirmButton).height(56).marginBottom(16)
+        flex.addItem(notUniversityInfoButton).marginBottom(12)
       }
   }
 
@@ -202,6 +211,12 @@ final class SignUpVC: BaseVC, View {
       .map { Reactor.Action.confirm }
       .bind(to: reactor.action)
       .disposed(by: disposeBag)
+
+    notUniversityInfoButton.rx.tap
+      .throttle(.milliseconds(500), scheduler: MainScheduler.instance)
+      .map { Reactor.Action.notUnivercityInfo }
+      .bind(to: reactor.action)
+      .disposed(by: disposeBag)
   }
 
   private func setGradeInput(to university: University) {
@@ -227,9 +242,10 @@ final class SignUpVC: BaseVC, View {
 }
 
 fileprivate enum Const {
-  static var title: String { "회원가입을 진행해주세요" }
-  static var description: String { "아래 항목들을 정확히 채워주세요." }
+  static var title: String { "대학 정보를 알려주세요!" }
+  static var description: String { "학교 이름과 학년을 선택해주세요." }
   static var confirmTitle: String { "가입하기" }
   static var university: String { "대학교" }
   static var searchBarPlaceholder: String { "ex)머니대학교" }
+  static var universityInfoEmpty: String { "입력할 대학 정보가 없어요" }
 }
