@@ -67,6 +67,19 @@ final class MyProfileView: UIView {
     return UIButton(configuration: config)
   }()
   
+  private let agencyDeleteButton: UIButton = {
+    var title = AttributedString("소속삭제")
+    title.font = Fonts.body._3
+    title.foregroundColor = Colors.Red._3
+    
+    var config = UIButton.Configuration.plain()
+    config.attributedTitle = title
+    config.image = Images.trash?.withTintColor(Colors.Red._3)
+    config.imagePadding = 2
+    config.imagePlacement = .trailing
+    return UIButton(configuration: config)
+  }()
+  
   init() {
     super.init(frame: .zero)
     setupConstraints()
@@ -93,6 +106,8 @@ final class MyProfileView: UIView {
         flex.addItem(profileImageView).size(44).marginRight(4)
         flex.addItem(nameLabel).marginRight(6)
         flex.addItem(tagView)
+        flex.addItem().grow(1)
+        flex.addItem(agencyDeleteButton)
       }
       
       flex.addItem(separatorView).height(1)
@@ -141,6 +156,9 @@ final class MyProfileView: UIView {
     reissueCodeButton.isHidden = role == .member
     reissueCodeButton.flex.isIncludedInLayout(role == .staff).markDirty()
     
+    agencyDeleteButton.isHidden = role == .member
+    agencyDeleteButton.flex.isIncludedInLayout(role == .staff).markDirty()
+    
     nameLabel.flex.markDirty()
     tagView.flex.markDirty()
     
@@ -155,5 +173,9 @@ extension MyProfileView {
   
   var tapReissue: ControlEvent<Void> {
     return reissueCodeButton.rx.tap
+  }
+  
+  var tapAgencyDelete: ControlEvent<Void> {
+    return agencyDeleteButton.rx.tap
   }
 }
