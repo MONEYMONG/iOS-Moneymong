@@ -10,6 +10,7 @@ enum AgencyAPI {
   case code(id: Int) // 초대코드 조회
   case certificateCode(id: Int, param: InvitationCodeCertificationRequestDTO) // 초대코드 인증
   case reissueCode(id: Int) // 초대코드 재발급
+  case delete(id: Int) // 소속삭제
 }
 
 extension AgencyAPI: TargetType {
@@ -28,6 +29,7 @@ extension AgencyAPI: TargetType {
     case let .code(id): return "v1/agencies/\(id)/invitation-code"
     case let .certificateCode(id, _): return "v1/agencies/\(id)/invitation-code"
     case let .reissueCode(id): return "v1/agencies/\(id)/invitation-code"
+    case let .delete(id): return "v1/agencies/\(id)"
     }
   }
 
@@ -42,6 +44,7 @@ extension AgencyAPI: TargetType {
     case .code: return .get
     case .certificateCode: return .post
     case .reissueCode: return .patch
+    case .delete: return .delete
     }
   }
 
@@ -56,6 +59,7 @@ extension AgencyAPI: TargetType {
     case .code: return .plain
     case let .certificateCode(_, param): return .requestJSONEncodable(params: param)
     case .reissueCode: return .plain
+    case .delete: return .plain
     }
   }
 
