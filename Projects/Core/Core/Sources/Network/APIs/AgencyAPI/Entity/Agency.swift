@@ -10,11 +10,13 @@ public struct Agency: Equatable {
   public enum `Type`: String {
     case council = "STUDENT_COUNCIL"
     case club = "IN_SCHOOL_CLUB"
+    case general = "GENERAL"
     
     public var name: String {
       switch self {
       case .council: "학생회"
       case .club: "동아리"
+      case .general: "기타"
       }
     }
   }
