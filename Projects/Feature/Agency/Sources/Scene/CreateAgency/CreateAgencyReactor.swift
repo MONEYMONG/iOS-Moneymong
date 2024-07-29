@@ -5,6 +5,7 @@ import ReactorKit
 final class CreateAgencyReactor: Reactor {
   
   struct State {
+    @Pulse var userInfo: UserInfo?
     @Pulse var index = 0 // 소속 종류: 동아리 or 학생회
     @Pulse var text = "" // 소속 이름
     @Pulse var isButtonEnabled = false
@@ -20,6 +21,7 @@ final class CreateAgencyReactor: Reactor {
   }
   
   enum Action {
+    case onAppear
     case textFieldDidChange(String)
     case selectedIndexDidChange(Int)
     case tapCreateButton
@@ -32,17 +34,30 @@ final class CreateAgencyReactor: Reactor {
     case setSelectedIndex(Int)
     case setButtonEnabled(Bool)
     case setDestination(State.Destination)
+    case setUserInfo(UserInfo)
   }
   
   public let initialState: State = State()
   private let agencyRepo: AgencyRepositoryInterface
+  private let userRepo: UserRepositoryInterface
   
-  init(agencyRepo: AgencyRepositoryInterface) {
+  init(
+    agencyRepo: AgencyRepositoryInterface,
+    userRepo: UserRepositoryInterface
+  ) {
     self.agencyRepo = agencyRepo
+    self.userRepo = userRepo
   }
   
   func mutate(action: Action) -> Observable<Mutation> {
     switch action {
+    case .onAppear:
+      return .task {
+        try await userRepo.user()
+      }
+      .map { .setUserInfo($0) }
+      .catch { return .just(.setError($0.toMMError)) }
+      
     case let .textFieldDidChange(text):
       return .concat(
         .just(.setText(text)),
@@ -55,11 +70,23 @@ final class CreateAgencyReactor: Reactor {
     case .tapCreateButton:
       return .concat(
         .just(.setLoading(true)),
-        
         .task {
-          try await agencyRepo.create(
+          let type: String
+          
+          switch currentState.index {
+          case 0:
+            type = "IN_SCHOOL_CLUB"
+          case 1:
+            type = "STUDENT_COUNCIL"
+          case 2:
+            type = "GENERAL"
+          default:
+            fatalError("Invalid type")
+          }
+          
+          return try await agencyRepo.create(
             name: currentState.text,
-            type: currentState.index == 0 ? "IN_SCHOOL_CLUB" : "STUDENT_COUNCIL"
+            type: type
           )
         }
         .map { .setDestination(.complete($0)) }
@@ -86,6 +113,8 @@ final class CreateAgencyReactor: Reactor {
       newState.error = value
     case let .setLoading(value):
       newState.isLoading = value
+    case let .setUserInfo(value):
+      newState.userInfo = value
     }
     
     return newState

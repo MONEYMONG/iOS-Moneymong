@@ -17,7 +17,7 @@ final class CreateAgencyVC: BaseVC, View {
   
   private let titleLabel: UILabel = {
     let v = UILabel()
-    v.setTextWithLineHeight(text: "동아리 or 학생회 등록에\n필요한 항목들을 채워주세요.", lineHeight: 28)
+    v.setTextWithLineHeight(text: "회비 관리가 필요한\n소속 정보를 알려주세요!", lineHeight: 28)
     v.numberOfLines = 2
     v.textColor = Colors.Gray._10
     v.font = Fonts.heading._2
@@ -33,7 +33,7 @@ final class CreateAgencyVC: BaseVC, View {
   }()
   
   private let agencySegmentControl: MMSegmentControl = {
-    let v = MMSegmentControl(titles: ["동아리", "학생회"], type: .round)
+    let v = MMSegmentControl(titles: ["동아리", "학생회", "기타모임"], type: .round)
     v.selectedIndex = 0
     return v
   }()
@@ -81,6 +81,11 @@ final class CreateAgencyVC: BaseVC, View {
       .bind { $0.endEditing(true) }
       .disposed(by: disposeBag)
     
+    rx.viewWillAppear
+      .map { Reactor.Action.onAppear }
+      .bind(to: reactor.action)
+      .disposed(by: disposeBag)
+    
     agencyTextField.textField.rx.text
       .compactMap { $0 }
       .map { Reactor.Action.textFieldDidChange($0) }
@@ -105,6 +110,14 @@ final class CreateAgencyVC: BaseVC, View {
       .disposed(by: disposeBag)
     
     // State Binding
+    reactor.pulse(\.$userInfo)
+      .filter { $0?.universityName == "정보 없음"}
+      .bind(with: self) { owner, _ in
+        owner.agencySegmentControl.selectedIndex = 2
+        owner.agencySegmentControl.disableButtons(with: 0,1)
+      }
+      .disposed(by: disposeBag)
+    
     reactor.pulse(\.$isButtonEnabled)
       .bind(with: self) { owner, value in
         owner.createButton.setState(value ? .primary : .disable)

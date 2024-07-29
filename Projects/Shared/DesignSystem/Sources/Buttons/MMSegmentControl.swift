@@ -99,11 +99,11 @@ public final class MMSegmentControl: UIView {
           flex.addItem(button2).width(50).height(24).marginRight(8)
           flex.addItem(button3).width(50).height(24)
         case .round:
-          flex.addItem(button1).height(40).grow(1).marginRight(10)
-          flex.addItem(button2).height(40).grow(1).marginRight(10)
+          flex.addItem(button1).height(40).grow(1).basis(0).marginRight(10)
+          flex.addItem(button2).height(40).grow(1).basis(0).marginRight(10)
           
           if titles.count >= 3 {
-            flex.addItem(button3).height(40).grow(1)
+            flex.addItem(button3).height(40).grow(1).basis(0)
           }
         }
       }
@@ -129,5 +129,11 @@ public final class MMSegmentControl: UIView {
     button.configuration?.baseBackgroundColor = Colors.White._1
     button.configuration?.baseForegroundColor = Colors.Gray._5
     button.layer.borderColor = Colors.Gray._3.cgColor
+  }
+  
+  public func disableButtons(with indices: Int...) {
+    for index in indices {
+      allButtons[index].isUserInteractionEnabled = false
+    }
   }
 }
