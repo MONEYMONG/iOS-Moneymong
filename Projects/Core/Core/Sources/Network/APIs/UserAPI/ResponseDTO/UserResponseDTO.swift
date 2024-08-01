@@ -15,7 +15,7 @@ public struct UserResponseDTO: Responsable {
       id: id ?? -1,
       nickname: nickname ?? "닉네임 정보 없음",
       email: email ?? "이메일 정보 없음",
-      universityName: universityName ?? "대학정보없음",
+      universityName: universityName ?? "정보없음",
       grade: grade ?? 0,
       provider: self.provider ?? "KAKAO"
     )

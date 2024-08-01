@@ -30,7 +30,7 @@ public final class AgencyDIContainer {
   func createAgency(with coordinator: AgencyCoordinator) -> UIViewController {
     let vc = CreateAgencyVC()
     let rootVC = UINavigationController(rootViewController: vc)
-    vc.reactor = CreateAgencyReactor(agencyRepo: agencyRepo)
+    vc.reactor = CreateAgencyReactor(agencyRepo: agencyRepo, userRepo: userRepo)
     vc.coordinator = coordinator
     return rootVC
   }
