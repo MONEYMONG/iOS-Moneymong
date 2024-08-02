@@ -4,7 +4,7 @@ public protocol UserRepositoryInterface {
   func user() async throws -> UserInfo
   func fetchUserID() -> Int
   func fetchSelectedAgency() -> Int?
-  func updateSelectedAgency(id: Int)
+  func updateSelectedAgency(id: Int?)
   func logout() async throws
   func withdrawl() async throws
 }
@@ -43,7 +43,7 @@ public final class UserRepository: UserRepositoryInterface {
   }
   
   /// Local: 선택된 소속 id 저장하기
-  public func updateSelectedAgency(id: Int) {
+  public func updateSelectedAgency(id: Int?) {
     localStorage.selectedAgency = id
   }
   
