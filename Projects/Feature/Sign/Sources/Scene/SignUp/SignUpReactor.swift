@@ -10,6 +10,7 @@ final class SignUpReactor: Reactor {
     case unSelectUniversity
     case selectGrade(Int)
     case confirm
+    case notUnivercityInfo
   }
 
   enum Mutation {
@@ -115,6 +116,18 @@ final class SignUpReactor: Reactor {
             name: university.schoolName,
             grade: grade
           )
+        }
+          .map {.setDestination(.congratulations) }
+          .catch { error in .just(.setErrorMessage(error.localizedDescription)) },
+
+          .just(.setIsLoading(false))
+      ])
+
+    case .notUnivercityInfo:
+      return Observable.concat([
+        .just(.setIsLoading(true)),
+        .task { [unowned self] in
+          return try await universityRepository.university(name: nil, grade: nil)
         }
           .map {.setDestination(.congratulations) }
           .catch { error in .just(.setErrorMessage(error.localizedDescription)) },

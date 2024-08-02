@@ -24,7 +24,7 @@ public final class NetworkManager: NetworkManagerInterfacae {
     guard let statusCode = dataResponse.response?.statusCode else {
       throw MoneyMongError.serverError(errorMessage: "Empty StatusCode")
     }
-    
+
     // CommonError로 디코딩
     if let data = dataResponse.data,
        (400..<500) ~= statusCode,
@@ -74,7 +74,7 @@ public final class NetworkManager: NetworkManagerInterfacae {
     }
 
     let dataResponse = await dataRequest.serializingData().response
-    
+
     guard let statusCode = dataResponse.response?.statusCode else {
       throw MoneyMongError.serverError(errorMessage: "Empty StatusCode")
     }
@@ -126,5 +126,15 @@ extension DataRequest {
         return .success(())
       }
     }
+  }
+}
+
+fileprivate extension Data {
+  var prettyPrintedJSONString: NSString? {
+    guard let object = try? JSONSerialization.jsonObject(with: self, options: []),
+          let data = try? JSONSerialization.data(withJSONObject: object, options: [.prettyPrinted]),
+          let prettyPrintedString = NSString(data: data, encoding: String.Encoding.utf8.rawValue) else { return nil }
+
+    return prettyPrintedString
   }
 }
