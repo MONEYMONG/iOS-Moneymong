@@ -21,6 +21,8 @@ final class MemberTabReactor: Reactor {
     
     enum Destination {
       case kickOffAlert(memberID: Int)
+      case agencyDeleteAlert
+      case ledgerTab
     }
   }
   
@@ -29,6 +31,8 @@ final class MemberTabReactor: Reactor {
     case requestKickOffMember(Int)
     case reissueInvitationCode // 초대코드 재발급
     case tapCodeCopyButton // 초대코드 복사
+    case tapAgencyDeleteButton // 소속삭제 얼럿 present
+    case tapAgnecyDeleteAlertButton // 소속삭제 얼럿 -> 소속삭제
   }
   
   enum Mutation {
@@ -118,6 +122,20 @@ final class MemberTabReactor: Reactor {
         
         .just(.setLoading(false))
       )
+    case .tapAgencyDeleteButton:
+      return .just(.setDestination(.agencyDeleteAlert))
+    case .tapAgnecyDeleteAlertButton:
+      return .task {
+        guard let id = currentState.agencyID else {
+          throw MoneyMongError.appError(.default, errorMessage: "소속을 삭제할 수 없습니다\n잠시 후 다시 시도해 주세요")
+        }
+        try await agencyRepo.deleteAgency(id: id)
+        let selectedAgency = try await agencyRepo.fetchMyAgency().first
+        userRepo.updateSelectedAgency(id: selectedAgency?.id)
+        ledgerService.agency.updateAgency(selectedAgency)
+        return .setDestination(.ledgerTab)
+      }
+      .catch { return .just(.setError($0.toMMError)) }
     }
   }
   

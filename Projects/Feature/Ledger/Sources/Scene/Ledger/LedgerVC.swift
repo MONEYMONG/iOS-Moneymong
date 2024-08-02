@@ -33,7 +33,7 @@ public final class LedgerVC: BaseVC, View {
     return v
   }()
   
-  let lineTab: LineTabViewController
+  private let lineTab: LineTabViewController
   
   init(_ childVC: [UIViewController]) {
     self.lineTab = LineTabViewController(childVC)
@@ -72,6 +72,12 @@ public final class LedgerVC: BaseVC, View {
     rx.viewWillAppear
       .map { Reactor.Action.requestMyAgencies }
       .bind(to: reactor.action)
+      .disposed(by: disposeBag)
+    
+    rx.viewDidLoad
+      .bind(with: self, onNext: { owner, _ in
+        owner.coordinator?.moveTab = { owner.lineTab.currentPage = $0 }
+      })
       .disposed(by: disposeBag)
     
     emptyView.tapAgency

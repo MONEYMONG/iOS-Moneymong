@@ -9,6 +9,7 @@ public final class LedgerCoordinator: Coordinator {
   private let diContainer: LedgerDIContainer
   public weak var parentCoordinator: Coordinator?
   public var childCoordinators: [Coordinator] = []
+  var moveTab: ((Int) -> Void)?
   
   enum Scene {
     case editMember(Int, Member)
