@@ -75,6 +75,11 @@ final class MemberTabVC: BaseVC, View {
       .bind(to: reactor.action)
       .disposed(by: disposeBag)
     
+    profileView.tapAgencyDelete
+      .throttle(.seconds(1), latest: false, scheduler: MainScheduler.instance)
+      .map { Reactor.Action.tapAgencyDeleteButton }
+      .bind(to: reactor.action)
+      .disposed(by: disposeBag)
     
     tableView.rx.modelSelected(Member.self)
       .bind(with: self) { owner, member in
@@ -85,9 +90,9 @@ final class MemberTabVC: BaseVC, View {
       .disposed(by: disposeBag)
     
     reactor.pulse(\.$members)
-      .bind(to: tableView.rx.items) { [weak self] tableview, index, item in
+      .bind(to: tableView.rx.items) { tableview, index, item in
         guard let role = reactor.currentState.role,
-              let agencyID = reactor.currentState.agencyID
+              let _ = reactor.currentState.agencyID
         else { return UITableViewCell() }
         
         let cell = tableview.dequeue(MemberCell.self, for: IndexPath(item: index, section: 0))
@@ -140,9 +145,17 @@ final class MemberTabVC: BaseVC, View {
             subTitle: nil,
             type: .default(okAction: {
               reactor.action.onNext(.requestKickOffMember(memberID))
-            }, cancelAction: {
-              
-            })
+            }, cancelAction: {})
+          ))
+        case .ledgerTab:
+          owner.coordinator?.moveTab?(0)
+        case .agencyDeleteAlert:
+          owner.coordinator?.present(.alert(
+            title: "사진을 삭제하시겠습니까?",
+            subTitle: "삭제된 사진은 되돌릴 수 없습니다",
+            type: .default(okAction: {
+              reactor.action.onNext(.tapAgnecyDeleteAlertButton)
+            }, cancelAction: {})
           ))
         }
       }

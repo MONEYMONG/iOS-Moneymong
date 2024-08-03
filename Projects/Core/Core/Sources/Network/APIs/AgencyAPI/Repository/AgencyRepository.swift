@@ -10,6 +10,7 @@ public protocol AgencyRepositoryInterface {
   func fetchCode(id: Int) async throws -> String
   func certificateCode(id: Int, code: String) async throws -> Bool
   func reissueCode(id: Int) async throws -> String
+  func deleteAgency(id: Int) async throws
 }
 
 public final class AgencyRepository: AgencyRepositoryInterface {
@@ -68,5 +69,10 @@ public final class AgencyRepository: AgencyRepositoryInterface {
     let targetType = AgencyAPI.reissueCode(id: id)
     let dto = try await networkManager.request(target: targetType, of: InvitationCodeResponseDTO.self)
     return dto.toEntity
+  }
+  
+  public func deleteAgency(id: Int) async throws {
+    let targetType = AgencyAPI.delete(id: id)
+    try await networkManager.request(target: targetType)
   }
 }

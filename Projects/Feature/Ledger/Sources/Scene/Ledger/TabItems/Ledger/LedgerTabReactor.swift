@@ -194,12 +194,13 @@ final class LedgerTabReactor: Reactor {
       .flatMap { owner, event -> Observable<Mutation> in
         switch event {
         case let .update(agency):
+          guard let id = agency?.id else { return .empty() }
           return .concat([
-            .just(.setAgencyID(agency.id)),
+            .just(.setAgencyID(id)),
             .just(.setLoading(true)),
             .merge([
-              owner.requestLedgerListFirstPage(agencyID: agency.id),
-              owner.requestMembers(agencyID: agency.id)
+              owner.requestLedgerListFirstPage(agencyID: id),
+              owner.requestMembers(agencyID: id)
             ]),
             .just(.setLoading(false))
           ])
