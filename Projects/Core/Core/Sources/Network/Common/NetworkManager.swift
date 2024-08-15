@@ -8,6 +8,22 @@ public protocol NetworkManagerInterfacae {
   func request(target: TargetType) async throws
 }
 
+#if DEBUG
+public final class MockNetworkManager<DTO: Responsable>: NetworkManagerInterfacae {
+  
+  public init() {}
+  
+  public func request<DTO: Responsable>(target: TargetType, of type: DTO.Type) async throws -> DTO {
+    return type.mock!
+  }
+  
+  public func request(target: any TargetType) async throws {
+    // empty
+  }
+}
+#endif
+
+
 public final class NetworkManager: NetworkManagerInterfacae {
   
   public var tokenIntercepter: TokenRequestIntercepter?

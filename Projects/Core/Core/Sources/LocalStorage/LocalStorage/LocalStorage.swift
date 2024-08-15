@@ -12,12 +12,37 @@ public protocol LocalStorageInterface: AnyObject {
   func removeAll()
 }
 
+#if DEBUG
+public final class MockLocalStorage: LocalStorageInterface {
+  public var recentLoginType: String?
+  
+  public var selectedAgency: Int?
+  
+  public var userID: Int?
+  
+  public var accessToken: String?
+  
+  public var refreshToken: String?
+  
+  public var socialAccessToken: String?
+  
+  public init() {}
+  
+  public func removeAll() {
+    selectedAgency = nil
+    userID = nil
+
+    recentLoginType = nil
+    selectedAgency = nil
+
+    accessToken = nil
+    refreshToken = nil
+  }
+}
+#endif
+
 public final class LocalStorage: LocalStorageInterface {
 
-  public init() {
-    
-  }
-  
   @UD(key: .recentLoginType)
   public var recentLoginType: String?
   
@@ -35,6 +60,8 @@ public final class LocalStorage: LocalStorageInterface {
   
   @Keychain(key: .socialAccessToken)
   public var socialAccessToken: String?
+  
+  public init() { }
   
   public func removeAll() {
     selectedAgency = nil

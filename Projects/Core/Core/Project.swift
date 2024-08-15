@@ -36,6 +36,17 @@ let project = Project(
         LaunchArgument(name: "IDEPreferLogStreaming=YES", isEnabled: true),
         LaunchArgument(name: "-FIRDebugEnabled", isEnabled: true)
       ]
-    )
+    ),
+    Target(
+        name: "CoreTests",
+        platform: .iOS,
+        product: .unitTests,
+        bundleId: "com.framework.moneymong.CoreTests",
+        deploymentTarget: .iOS(targetVersion: "15.0", devices: .iphone),
+        sources: ["Tests/**"],
+        dependencies: [
+            .target(name: "Core")
+        ]
+    ),
   ]
 )
