@@ -16,7 +16,7 @@ public struct Agency: Equatable {
       switch self {
       case .council: "학생회"
       case .club: "동아리"
-      case .general: "기타"
+      case .general: "기타 모임"
       }
     }
   }

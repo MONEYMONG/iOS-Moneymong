@@ -28,7 +28,7 @@ final class SettingCell: UITableViewCell, ReusableView {
   
   private let versionLabel: UILabel = {
     let v = UILabel()
-    v.setTextWithLineHeight(text: "1.0.0", lineHeight: 24)
+    v.setTextWithLineHeight(text: "1.0.2", lineHeight: 24)
     v.textColor = Colors.Blue._4
     v.font = Fonts.body._4
     return v

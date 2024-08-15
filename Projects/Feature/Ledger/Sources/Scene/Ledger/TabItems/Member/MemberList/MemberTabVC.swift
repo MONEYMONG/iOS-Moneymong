@@ -151,8 +151,8 @@ final class MemberTabVC: BaseVC, View {
           owner.coordinator?.moveTab?(0)
         case .agencyDeleteAlert:
           owner.coordinator?.present(.alert(
-            title: "사진을 삭제하시겠습니까?",
-            subTitle: "삭제된 사진은 되돌릴 수 없습니다",
+            title: "소속을 정말 삭제하시겠어요?",
+            subTitle: "등록된 회비 내역이 모두 사라져요",
             type: .default(okAction: {
               reactor.action.onNext(.tapAgnecyDeleteAlertButton)
             }, cancelAction: {})

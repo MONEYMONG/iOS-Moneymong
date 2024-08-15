@@ -28,7 +28,7 @@ let project = Project(
           ]
         ],
         "UIUserInterfaceStyle": "Light",
-        "CFBundleShortVersionString": "1.0.2",
+        "CFBundleShortVersionString": "1.2.0",
         "CFBundleVersion": "1",
         "UILaunchStoryboardName": "LaunchScreen",
         "UIApplicationSceneManifest": [

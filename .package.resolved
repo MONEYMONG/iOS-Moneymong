@@ -33,8 +33,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/layoutBox/FlexLayout",
       "state" : {
-        "revision" : "e71c04fa45360c161f57850769e44a6139b329aa",
-        "version" : "2.0.9"
+        "revision" : "9b46c098c0471b847e6feee49692ae239633bae3",
+        "version" : "2.0.10"
       }
     },
     {

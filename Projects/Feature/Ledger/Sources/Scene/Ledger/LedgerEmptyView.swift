@@ -18,7 +18,7 @@ final class LedgerEmptyView: UIView {
     let v = UILabel()
     v.textColor = Colors.Gray._8
     v.font = Fonts.body._4
-    v.setTextWithLineHeight(text: "소속에 가입후 장부를 사용할 수 있습니다.", lineHeight: 24)
+    v.setTextWithLineHeight(text: "소속에 가입후 장부를 사용할 수 있습니다", lineHeight: 24)
     return v
   }()
   
