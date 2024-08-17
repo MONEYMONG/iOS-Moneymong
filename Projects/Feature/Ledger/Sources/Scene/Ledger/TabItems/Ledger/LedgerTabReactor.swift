@@ -51,7 +51,7 @@ final class LedgerTabReactor: Reactor {
   private let userRepo: UserRepositoryInterface
   private let agencyRepo: AgencyRepositoryInterface
   let formatter: ContentFormatter
-  let listLimit = 20
+  private let listLimit = 20
   
   init(
     ledgerService: LedgerServiceInterface,
@@ -254,7 +254,7 @@ final class LedgerTabReactor: Reactor {
   }
   
   private func isPageable(row: Int) -> Bool {
-    let paginationRow: Int = Int(Double(currentState.page + 1) * Double(listLimit) * 0.9)
+    let paginationRow: Int = Int(Double(currentState.page + 1) * Double(listLimit) * 0.8)
     return !currentState.isLoading &&
     paginationRow < row
   }

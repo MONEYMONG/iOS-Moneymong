@@ -19,8 +19,12 @@ public final class AgencyListVC: BaseVC, View {
   private let collectionView: UICollectionView = {
     let flowLayout = UICollectionViewFlowLayout()
     flowLayout.scrollDirection = .vertical
-    flowLayout.minimumInteritemSpacing = 10
-    flowLayout.estimatedItemSize.width = UIScreen.main.bounds.width - 40
+    flowLayout.minimumLineSpacing = 12
+
+    flowLayout.itemSize = CGSize(
+      width: UIScreen.main.bounds.width - 40,
+      height: 80
+    )
     
     let v = UICollectionView(frame: .zero, collectionViewLayout: flowLayout)
     v.register(AgencyCell.self)
@@ -33,11 +37,6 @@ public final class AgencyListVC: BaseVC, View {
     v.setBackgroundImage(Images.plusCircleFillRed, for: .normal)
     return v
   }()
-  
-  private lazy var dataSource = RxCollectionViewSectionedAnimatedDataSource<AgencySectionModel> { dataSource, collectionView, indexPath, item in
-    return collectionView.dequeueCell(AgencyCell.self, for: indexPath)
-      .configure(with: item)
-  }
   
   public override func setupUI() {
     super.setupUI()
@@ -82,9 +81,19 @@ public final class AgencyListVC: BaseVC, View {
       }
       .disposed(by: disposeBag)
     
+    collectionView.rx.prefetchItems
+      .compactMap { $0.last?.row }
+      .map { Reactor.Action.didPrefech($0) }
+      .bind(to: reactor.action)
+      .disposed(by: disposeBag)
+    
     // Data Binding
     reactor.pulse(\.$items)
-      .bind(to: collectionView.rx.items(dataSource: dataSource))
+      .bind(to: collectionView.rx.items) { view, row, element in
+        let indexPath = IndexPath(row: row, section: 0)
+        return view.dequeueCell(AgencyCell.self, for: indexPath)
+          .configure(with: element)
+      }
       .disposed(by: disposeBag)
     
     reactor.pulse(\.$items)

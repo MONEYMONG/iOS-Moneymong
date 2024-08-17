@@ -8,6 +8,7 @@ public final class AgencyListReactor: Reactor {
     case requestAgencyList
     case requestMyAgency
     case tap(Agency)
+    case didPrefech(Int)
   }
   
   public enum Mutation {
@@ -16,11 +17,13 @@ public final class AgencyListReactor: Reactor {
     case setLoading(Bool)
     case setDestination(State.Destination)
     case setAlert(title: String, subTitle: String)
+    case setPage(Int)
   }
   
   public struct State {
+    var page: Int = 0
     @Pulse var myAgency: [Agency] = []
-    @Pulse var items: [AgencySectionModel] = []
+    @Pulse var items: [Agency] = []
     
     @Pulse var error: MoneyMongError?
     @Pulse var isLoading = false
@@ -34,6 +37,7 @@ public final class AgencyListReactor: Reactor {
   
   public let initialState: State = State()
   private let agencyRepo: AgencyRepositoryInterface
+  private let listLimit = 20
   
   init(agencyRepo: AgencyRepositoryInterface) {
     self.agencyRepo = agencyRepo
@@ -43,12 +47,11 @@ public final class AgencyListReactor: Reactor {
     switch action {
     case .requestAgencyList:
       return .concat(
+        .just(.setPage(0)),
         .just(.setLoading(true)),
-        
-        .task { try await agencyRepo.fetchList() }
-        .map { .agencyResponse(.success($0)) }
-        .catch { return .just(.agencyResponse(.failure($0.toMMError))) },
-        
+        .task { try await agencyRepo.fetchList(page: currentState.page, size: listLimit) }
+          .map { .agencyResponse(.success($0)) }
+          .catch { return .just(.agencyResponse(.failure($0.toMMError))) },
         .just(.setLoading(false))
       )
       
@@ -56,11 +59,11 @@ public final class AgencyListReactor: Reactor {
       return .concat(
         .just(.setLoading(true)),
         
-        .task { try await agencyRepo.fetchMyAgency() }
-        .map { .myAgencyResponse(.success($0))}
-        .catchAndReturn(.myAgencyResponse(.success([]))),
+          .task { try await agencyRepo.fetchMyAgency() }
+          .map { .myAgencyResponse(.success($0))}
+          .catchAndReturn(.myAgencyResponse(.success([]))),
         
-        .just(.setLoading(false))
+          .just(.setLoading(false))
       )
       
     case let .tap(agency):
@@ -72,6 +75,16 @@ public final class AgencyListReactor: Reactor {
       } else {
         return .just(.setDestination(.joinAgency(agency)))
       }
+    case let .didPrefech(row):
+      guard isPageable(row: row) else { return .empty() }
+      return .concat([
+        .just(.setLoading(true)),
+        .just(.setPage(currentState.page + 1)),
+        .task { try await agencyRepo.fetchList(page: currentState.page, size: listLimit) }
+          .map { .agencyResponse(.success($0)) }
+          .catch { return .just(.agencyResponse(.failure($0.toMMError))) },
+        .just(.setLoading(false))
+      ])
     }
   }
   
@@ -80,9 +93,10 @@ public final class AgencyListReactor: Reactor {
     
     switch mutation {
     case let .agencyResponse(.success(items)):
-      if items.isEmpty == false {
-        newState.items = [.init(items: items)]
+      if state.page == 0 {
+        newState.items = []
       }
+      newState.items += items
     case let .agencyResponse(.failure(error)):
       newState.error = error
       
@@ -100,8 +114,16 @@ public final class AgencyListReactor: Reactor {
       
     case let .setAlert(title, subTitle):
       newState.alert = (title, subTitle)
+    case let .setPage(page):
+      newState.page = page
     }
     
     return newState
+  }
+  
+  private func isPageable(row: Int) -> Bool {
+    let paginationRow: Int = Int(Double(currentState.page + 1) * Double(listLimit) * 0.8)
+    return !currentState.isLoading &&
+    paginationRow < row
   }
 }
