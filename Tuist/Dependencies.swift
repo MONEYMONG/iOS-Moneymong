@@ -24,7 +24,7 @@ let dependencies = Dependencies(
     ),
     .remote(
       url: "https://github.com/RxSwiftCommunity/RxDataSources",
-      requirement: .upToNextMajor(from: "5.0.2")
+      requirement: .upToNextMajor(from: "5.0.0")
     ),
     .remote(
       url: "https://github.com/kakao/kakao-ios-sdk",
