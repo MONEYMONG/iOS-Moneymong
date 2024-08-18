@@ -1,7 +1,7 @@
 import Foundation
 
 enum AgencyAPI {
-  case list // 소속목록조회
+  case list(param: AgencyListRequestDTO) // 소속목록조회
   case create(param: AgencyCreateRequestDTO) // 소속생성
   case memberList(id: Int) // 멤버목록조회
   case changeRole(id: Int, param: ChangeMemberRoleRequestDTO) // 멤버권한변경
@@ -20,7 +20,7 @@ extension AgencyAPI: TargetType {
 
   var path: String {
     switch self {
-    case .list: return "v1/agencies?size=40"
+    case .list: return "v1/agencies"
     case .create: return "v1/agencies"
     case let .memberList(id): return "v1/agencies/\(id)/agency-users"
     case let .changeRole(id, _): return "v1/agencies/\(id)/agency-users/roles"
@@ -50,7 +50,7 @@ extension AgencyAPI: TargetType {
 
   var task: HTTPTask {
     switch self {
-    case .list: return .plain
+    case let .list(param): return .requestJSONEncodable(query: param)
     case let .create(param): return .requestJSONEncodable(params: param)
     case .memberList: return .plain
     case let .changeRole(_, param): return .requestJSONEncodable(params: param)
@@ -65,8 +65,6 @@ extension AgencyAPI: TargetType {
 
   public var headers: [String: String]? {
     return [
-      "Content-Type": "application/json;charset=UTF-8",
-      "Authorization": "Bearer eyJhbGciOiJIUzI1NiJ9.eyJyb2xlIjoiUk9MRV9VU0VSIiwidXNlcklkIjozLCJpYXQiOjE3MDQ3MTU0NTEsImV4cCI6MTczNjI3MzA1MX0.2yYEy71Gz4YIz0DYzlx0glYMgZA0JAZs05jsVRvvQx4"
-    ]
+      "Content-Type": "application/json;charset=UTF-8"]
   }
 }

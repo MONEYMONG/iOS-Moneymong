@@ -1,7 +1,7 @@
 import Foundation
 
 public protocol AgencyRepositoryInterface {
-  func fetchList() async throws -> [Agency]
+  func fetchList(page: Int, size: Int) async throws -> [Agency]
   func create(name: String, type: String) async throws -> Int
   func fetchMemberList(id: Int) async throws -> [Member]
   func changeMemberRole(id: Int, userId: Int, role: String) async throws
@@ -20,8 +20,8 @@ public final class AgencyRepository: AgencyRepositoryInterface {
     self.networkManager = networkManager
   }
   
-  public func fetchList() async throws -> [Agency] {
-    let targetType = AgencyAPI.list
+  public func fetchList(page: Int, size: Int) async throws -> [Agency] {
+    let targetType = AgencyAPI.list(param: .init(page: page, size: size, sort: nil))
     let dto = try await networkManager.request(target: targetType, of: AgencyListResponseDTO.self)
     return dto.toEntity
   }
