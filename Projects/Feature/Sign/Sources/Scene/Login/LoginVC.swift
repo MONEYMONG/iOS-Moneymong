@@ -156,10 +156,19 @@ final class LoginVC: BaseVC, View {
       .disposed(by: disposeBag)
 
     // Action Binding
-
+    
     rx.viewDidAppear
+      .do(onNext: { [weak self] _ in
+        self?.navigationController?.interactivePopGestureRecognizer?.isEnabled = false
+      })
       .map { Reactor.Action.onAppear }
       .bind(to: reactor.action)
+      .disposed(by: disposeBag)
+    
+    rx.viewDidDisappear
+      .bind(with: self) { owner, _ in
+        owner.navigationController?.interactivePopGestureRecognizer?.isEnabled = true
+      }
       .disposed(by: disposeBag)
 
     appleLoginButton.rx.tap
