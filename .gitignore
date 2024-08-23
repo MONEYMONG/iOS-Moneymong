@@ -69,3 +69,6 @@ Derived/
 ### Tuist managed dependencies ###
 Tuist/Dependencies
 .mise.toml
+
+Signing/
+master.key
