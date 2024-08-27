@@ -1,0 +1,56 @@
+APP_NAME = "Moneymong"
+SCHEME = "Moneymong"
+BUNDLE_ID = "com.yapp.moneymong"
+
+KEYCHAIN_NAME = ENV["KEYCHAIN_NAME"]
+KEYCHAIN_PASSWORD = ENV["KEYCHAIN_PASSWORD"]
+
+default_platform(:ios)
+
+platform :ios do
+  # 인증서를 키체인에 저장
+  desc "Save To Keychain"
+  lane :set_keychain do |options|
+    create_keychain(
+      name: "#{KEYCHAIN_NAME}",
+      password: "#{KEYCHAIN_PASSWORD}",
+      default_keychain: true,
+      unlock: true,
+      timeout: 3600,
+      lock_when_sleeps: true
+    )
+
+    import_certificate(
+      certificate_path: "Tuist/Signing/release.cer",
+      keychain_name: "#{KEYCHAIN_NAME}",
+      keychain_password: "#{KEYCHAIN_PASSWORD}"
+    )
+
+    import_certificate(
+      certificate_path: "Tuist/Signing/release.p12",
+      keychain_name: "#{KEYCHAIN_NAME}",
+      keychain_password: "#{KEYCHAIN_PASSWORD}"
+    )
+
+    install_provisioning_profile(path: "Tuist/Signing/#{APP_NAME}.Release.mobileprovision")
+  end
+
+  # 테스트 플라이트 업로드
+  desc "Push to TestFlight"
+  lane :tf do |options|
+    # 앱스토어 커넥트 키 연결
+    app_store_connect_api_key(is_key_content_base64: true, in_house: false)
+
+    # 빌드 넘버 증가
+    increment_build_number({ build_number: latest_testflight_build_number() + 1 })
+
+    # ✅ 빌드
+    build_app(
+      workspace: "#{APP_NAME}.xcworkspace",
+      scheme: "#{SCHEME}",
+      export_method: "app-store"
+    )
+
+    # ✅ 테스트 플라이트 업로드
+    upload_to_testflight(skip_waiting_for_build_processing: true)
+  end
