@@ -1,5 +1,7 @@
-# app_identifier("[[APP_IDENTIFIER]]") # The bundle identifier of your app
-# apple_id("[[APPLE_ID]]") # Your Apple Developer Portal username
+BUNDLE_ID = "com.yapp.moneymong"
+
+app_identifier("#{BUNDLE_ID}")
+# apple_id("[[APPLE_ID]]")
 
 
 # For more information about the Appfile, see:
