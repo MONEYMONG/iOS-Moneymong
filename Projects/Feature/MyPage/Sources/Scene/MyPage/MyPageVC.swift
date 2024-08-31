@@ -17,7 +17,9 @@ public final class MyPageVC: BaseVC, ReactorKit.View {
   private let tableView: UITableView = {
     let v = UITableView(frame: .zero, style: .insetGrouped)
     v.separatorInset = .init(top: 0, left: 16, bottom: 0, right: 20)
+    v.sectionFooterHeight = 0
     v.register(UniversityCell.self)
+    v.register(InquiryCell.self)
     v.register(SettingCell.self)
     v.registerHeaderFooter(SettingHeader.self)
     v.registerHeaderFooter(UniversityHeader.self)
@@ -30,6 +32,9 @@ public final class MyPageVC: BaseVC, ReactorKit.View {
     case let .university(model):
       return tableView.dequeue(UniversityCell.self, for: indexPath)
         .configure(with: .university(model))
+      
+    case .kakaoInquiry:
+      return tableView.dequeue(InquiryCell.self, for: indexPath)
       
     case let .setting(model):
       return tableView.dequeue(SettingCell.self, for: indexPath)
@@ -151,8 +156,8 @@ extension MyPageVC: UITableViewDelegate {
       return tableView.dequeueHeaderFooter(UniversityHeader.self)
         .configure(with: sectionModel)
       
-    case 1:
-      return tableView.dequeueHeaderFooter(SettingHeader.self)
+      //    case 1:
+      //      return tableView.dequeueHeaderFooter(SettingHeader.self)
       
     default: return nil
     }
