@@ -51,7 +51,7 @@ public enum Colors {
   }
 }
 
-fileprivate extension UIColor {
+public extension UIColor {
   convenience init(hexString: String, opacity: Double = 1.0) {
     let hex: Int = Int(hexString, radix: 16) ?? 0
     let red = Double((hex >> 16) & 0xff) / 255
