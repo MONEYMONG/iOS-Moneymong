@@ -19,15 +19,10 @@ public final class AgencyListVC: BaseVC, View {
   private let collectionView: UICollectionView = {
     let flowLayout = UICollectionViewFlowLayout()
     flowLayout.scrollDirection = .vertical
-    flowLayout.minimumLineSpacing = 12
-
-    flowLayout.itemSize = CGSize(
-      width: UIScreen.main.bounds.width - 40,
-      height: 80
-    )
-    
+    flowLayout.minimumLineSpacing = 12    
     let v = UICollectionView(frame: .zero, collectionViewLayout: flowLayout)
     v.register(AgencyCell.self)
+    v.register(FeedbackCell.self)
     v.backgroundColor = Colors.Gray._1
     return v
   }()
@@ -68,9 +63,16 @@ public final class AgencyListVC: BaseVC, View {
       }
       .disposed(by: disposeBag)
     
-    collectionView.rx.modelSelected(Agency.self)
+    collectionView.rx.modelSelected(AgencyListReactor.Item.self)
       .throttle(.seconds(1), latest: false, scheduler: MainScheduler.instance)
-      .map { Reactor.Action.tap($0) }
+      .map {
+        switch $0 {
+        case .feedback:
+          return Reactor.Action.feedBack
+        case let .agency(agency):
+          return Reactor.Action.tap(agency)
+        }
+      }
       .bind(to: reactor.action)
       .disposed(by: disposeBag)
     
@@ -86,18 +88,34 @@ public final class AgencyListVC: BaseVC, View {
       .map { Reactor.Action.didPrefech($0) }
       .bind(to: reactor.action)
       .disposed(by: disposeBag)
+
+    collectionView.rx.setDelegate(self)
+      .disposed(by: disposeBag)
     
     // Data Binding
     reactor.pulse(\.$items)
-      .bind(to: collectionView.rx.items) { view, row, element in
+      .bind(to: collectionView.rx.items) { view, row, item in
         let indexPath = IndexPath(row: row, section: 0)
-        return view.dequeueCell(AgencyCell.self, for: indexPath)
-          .configure(with: element)
+        switch item {
+        case .feedback:
+          return view.dequeueCell(FeedbackCell.self, for: indexPath)
+        case let .agency(agency):
+          return view.dequeueCell(AgencyCell.self, for: indexPath)
+            .configure(with: agency)
+        }
       }
       .disposed(by: disposeBag)
     
     reactor.pulse(\.$items)
-      .map { $0.isEmpty == false }
+      .map { items in
+        items.filter {
+          switch $0 {
+          case .feedback: false
+          case .agency: true
+          }
+        }
+        .isEmpty == false
+      }
       .observe(on: MainScheduler.instance)
       .bind(with: self) { owner, isHidden in
         owner.emptyView.isHidden = isHidden
@@ -126,6 +144,8 @@ public final class AgencyListVC: BaseVC, View {
         switch destination {
         case let .joinAgency(agency):
           owner.coordinator?.present(.joinAgency(id: agency.id, name: agency.name))
+        case let .web(url):
+          owner.coordinator?.present(.web(url))
         }
       }
       .disposed(by: disposeBag)
@@ -141,5 +161,25 @@ public final class AgencyListVC: BaseVC, View {
         ))
       }
       .disposed(by: disposeBag)
+  }
+}
+
+extension AgencyListVC: UICollectionViewDelegateFlowLayout {
+  public func collectionView(
+    _ collectionView: UICollectionView,
+    layout collectionViewLayout: UICollectionViewLayout,
+    sizeForItemAt indexPath: IndexPath
+  ) -> CGSize {
+    if indexPath.row == 0 {
+      return CGSize(
+        width: UIScreen.main.bounds.width - 40,
+        height: 68
+      )
+    } else {
+      return CGSize(
+        width: UIScreen.main.bounds.width - 40,
+        height: 80
+      )
+    }
   }
 }

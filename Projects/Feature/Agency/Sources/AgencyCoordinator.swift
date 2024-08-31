@@ -22,6 +22,7 @@ public final class AgencyCoordinator: Coordinator {
     case joinComplete
     case createAgency
     case createComplete(id: Int)
+    case web(String)
   }
 
   public func start(animated: Bool) {
@@ -44,6 +45,8 @@ public final class AgencyCoordinator: Coordinator {
       createAgency(animated: animated)
     case let .createComplete(id):
       createComplete(agencyID: id, animated: animated)
+    case let .web(url):
+      web(urlString: url)
     }
   }
   
