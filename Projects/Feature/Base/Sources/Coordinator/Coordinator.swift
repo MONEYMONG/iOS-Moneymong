@@ -1,4 +1,5 @@
 import UIKit
+import SafariServices
 
 public enum Scene {
   case main // 메인화면
@@ -24,5 +25,14 @@ public extension Coordinator {
 
   func move(to scene: Scene) {
     // empty
+  }
+  
+  func web(urlString: String, animated: Bool = true) {
+    guard let url = URL(string: urlString) else {
+      return debugPrint("Invalid URL", #function)
+    }
+    
+    let vc = SFSafariViewController(url: url)
+    navigationController.topViewController?.present(vc, animated: animated)
   }
 }
