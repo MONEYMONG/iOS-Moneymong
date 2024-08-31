@@ -35,6 +35,9 @@ public final class MyPageVC: BaseVC, ReactorKit.View {
       
     case .kakaoInquiry:
       return tableView.dequeue(InquiryCell.self, for: indexPath)
+        .configure { [weak self] in
+          self?.coordinator?.present(.web(urlString: "http://pf.kakao.com/_zDsyG"))
+        }
       
     case let .setting(model):
       return tableView.dequeue(SettingCell.self, for: indexPath)
@@ -155,10 +158,6 @@ extension MyPageVC: UITableViewDelegate {
       guard let sectionModel = dataSource.sectionModels.first?.model else { return nil }
       return tableView.dequeueHeaderFooter(UniversityHeader.self)
         .configure(with: sectionModel)
-      
-      //    case 1:
-      //      return tableView.dequeueHeaderFooter(SettingHeader.self)
-      
     default: return nil
     }
   }

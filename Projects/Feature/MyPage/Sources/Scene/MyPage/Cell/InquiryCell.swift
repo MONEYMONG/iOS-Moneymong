@@ -1,9 +1,12 @@
 import UIKit
 
+import RxSwift
 import Utility
 import DesignSystem
 
 final class InquiryCell: UITableViewCell, ReusableView {
+  private let disposed = DisposeBag()
+  
   private let titleLabel: UILabel = {
     let v = UILabel()
     v.textColor = Colors.Gray._8
@@ -61,5 +64,14 @@ final class InquiryCell: UITableViewCell, ReusableView {
     
     rootContainer.pin.all()
     rootContainer.flex.layout()
+  }
+  
+  func configure(action: @escaping () -> Void) -> Self {
+    inquiryButton.rx.tap
+      .bind { _ in
+        action()
+      }
+      .disposed(by: disposed)
+    return self
   }
 }
