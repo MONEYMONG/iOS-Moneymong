@@ -85,5 +85,7 @@ public enum Images {
   public static var moneyLineBlue = UIImage(named: "money.line.blue", in: Bundle.module, with: nil)
   public static var planLineBlue = UIImage(named: "plan.line.blue", in: Bundle.module, with: nil)
   public static var timeLineBlue = UIImage(named: "time.line.blue", in: Bundle.module, with: nil)
+  
+  public static var feedback = UIImage(named: "feedback", in: Bundle.module, with: nil)
 }
 
