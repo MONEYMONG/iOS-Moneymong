@@ -69,3 +69,11 @@ Derived/
 ### Tuist managed dependencies ###
 Tuist/Dependencies
 .mise.toml
+
+master.key
+fastlane/.env
+
+Moneymong.app.dSYM.zip
+*.ipa
+fastlane/report.xml
+fastlane/README.md

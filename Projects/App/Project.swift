@@ -28,8 +28,8 @@ let project = Project(
           ]
         ],
         "UIUserInterfaceStyle": "Light",
-        "CFBundleShortVersionString": "1.2.0",
-        "CFBundleVersion": "1",
+        "CFBundleShortVersionString": "$(MARKETING_VERSION)",
+        "CFBundleVersion": "$(CURRENT_PROJECT_VERSION)",
         "UILaunchStoryboardName": "LaunchScreen",
         "UIApplicationSceneManifest": [
           "UIApplicationSupportsMultipleScenes": true,
@@ -43,7 +43,8 @@ let project = Project(
           ]
         ],
         "NSLocalNetworkUsageDescription": "Network usage required for debugging purposes",
-        "NSBonjourServices": ["_pulse._tcp"]
+        "NSBonjourServices": ["_pulse._tcp"],
+        "ITSAppUsesNonExemptEncryption": "NO"
       ]),
       sources: ["Sources/**"],
       resources: ["Resources/**"],
@@ -52,10 +53,13 @@ let project = Project(
         .project(target: "SignFeature", path: .relativeToRoot("Projects/Feature/Sign")),
         .project(target: "MainFeature", path: .relativeToRoot("Projects/Feature/Main"))
       ],
-      settings: .settings(base: [
-        "DEBUG_INFORMATION_FORMAT": "dwarf-with-dsym",
-        "OTHER_LDFLAGS": "-ObjC"
-      ]),
+      settings: .settings(
+        base: .init()
+          .appleGenericVersioningSystem()
+          .marketingVersion("1.2.1")
+          .currentProjectVersion("2")
+          .cutomSetting()
+      ),
       launchArguments: [
         LaunchArgument(name: "IDEPreferLogStreaming=YES", isEnabled: true),
         LaunchArgument(name: "-FIRDebugEnabled", isEnabled: true)
@@ -63,3 +67,12 @@ let project = Project(
     )
   ]
 )
+
+extension Dictionary where Key == String, Value == ProjectDescription.SettingValue {
+  func cutomSetting() -> SettingsDictionary {
+    return merging([
+      "DEBUG_INFORMATION_FORMAT": "dwarf-with-dsym",
+      "OTHER_LDFLAGS": "-ObjC"
+    ])
+  }
+}
