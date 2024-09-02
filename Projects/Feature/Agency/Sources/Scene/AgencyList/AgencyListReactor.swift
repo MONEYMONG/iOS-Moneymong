@@ -3,8 +3,8 @@ import ReactorKit
 import Core
 
 public final class AgencyListReactor: Reactor {
-  private enum WebUrls {
-    static let feedback = "https://asked.kr/moneymong"
+  private enum Const {
+    static let feedbackUrl = "https://asked.kr/moneymong"
   }
   
   enum Item: Equatable {
@@ -96,7 +96,7 @@ public final class AgencyListReactor: Reactor {
         .just(.setLoading(false))
       ])
     case .feedBack:
-      return .just(.setDestination(.web(WebUrls.feedback)))
+      return .just(.setDestination(.web(Const.feedbackUrl)))
     }
   }
   
