@@ -10,11 +10,13 @@ struct MyPageSectionItemModel {
   
   enum Section: Equatable {
     case account(UserInfo)
+    case inquiry
     case setting(String)
   }
   
   enum Item: Equatable {
     case university(UserInfo)
+    case kakaoInquiry
     case setting(SettingItem)
   }
   

@@ -93,6 +93,7 @@ final class UniversityCell: UITableViewCell, ReusableView {
       universityLabel.flex.markDirty()
       contentView.setNeedsLayout()
     case .setting: break
+    case .kakaoInquiry: break
     }
     
     return self

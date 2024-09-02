@@ -3,12 +3,21 @@ import ReactorKit
 import Core
 
 public final class AgencyListReactor: Reactor {
+  private enum Const {
+    static let feedbackUrl = "https://asked.kr/moneymong"
+  }
+  
+  enum Item: Equatable {
+    case feedback
+    case agency(Agency)
+  }
   
   public enum Action {
     case requestAgencyList
     case requestMyAgency
     case tap(Agency)
     case didPrefech(Int)
+    case feedBack
   }
   
   public enum Mutation {
@@ -23,7 +32,7 @@ public final class AgencyListReactor: Reactor {
   public struct State {
     var page: Int = 0
     @Pulse var myAgency: [Agency] = []
-    @Pulse var items: [Agency] = []
+    @Pulse var items: [Item] = [.feedback]
     
     @Pulse var error: MoneyMongError?
     @Pulse var isLoading = false
@@ -32,6 +41,7 @@ public final class AgencyListReactor: Reactor {
     
     public enum Destination {
       case joinAgency(Agency)
+      case web(String)
     }
   }
   
@@ -85,6 +95,8 @@ public final class AgencyListReactor: Reactor {
           .catch { return .just(.agencyResponse(.failure($0.toMMError))) },
         .just(.setLoading(false))
       ])
+    case .feedBack:
+      return .just(.setDestination(.web(Const.feedbackUrl)))
     }
   }
   
@@ -94,9 +106,9 @@ public final class AgencyListReactor: Reactor {
     switch mutation {
     case let .agencyResponse(.success(items)):
       if state.page == 0 {
-        newState.items = []
+        newState.items = initialState.items
       }
-      newState.items += items
+      newState.items += items.map { .agency($0) }
     case let .agencyResponse(.failure(error)):
       newState.error = error
       

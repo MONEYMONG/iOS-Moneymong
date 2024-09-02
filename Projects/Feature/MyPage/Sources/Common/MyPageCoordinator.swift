@@ -1,6 +1,5 @@
 import UIKit
 import SwiftUI
-import SafariServices
 
 import BaseFeature
 import DesignSystem
@@ -67,15 +66,6 @@ extension MyPageCoordinator {
   
   private func alert(title: String, subTitle: String, okAction: @escaping () -> Void) {
     AlertsManager.show(title: title, subTitle: subTitle, type: .default(okAction: okAction))
-  }
-  
-  private func web(urlString: String, animated: Bool = true) {
-    guard let url = URL(string: urlString) else {
-      return debugPrint("Invalid URL", #function)
-    }
-    
-    let vc = SFSafariViewController(url: url)
-    navigationController.topViewController?.present(vc, animated: animated)
   }
   
   private func debug(animated: Bool = true) {

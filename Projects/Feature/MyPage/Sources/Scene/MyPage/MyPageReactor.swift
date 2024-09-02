@@ -70,6 +70,7 @@ public final class MyPageReactor: Reactor {
     case let .setItem(userInfo):
       newState.item = [
         .init(model: .account(userInfo), items: [.university(userInfo)]),
+        .init(model: .inquiry, items: [.kakaoInquiry]),
         .init(model: .setting("내 설정"), items: [
           .setting(.service),
           .setting(.privacy),

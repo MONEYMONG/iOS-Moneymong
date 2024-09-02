@@ -51,6 +51,10 @@ public enum Fonts {
     return UIFont.custom(.regular, size: 10)
   }
   
+  public static var bold16: UIFont {
+    return UIFont.custom(.bold, size: 16)
+  }
+  
   public static func registerFont() {
     Fonts.Weight.allCases.forEach {
       guard let url = Bundle.module.url(forResource: "\($0.rawValue)", withExtension: ".otf") else {
