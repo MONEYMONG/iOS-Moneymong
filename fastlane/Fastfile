@@ -50,11 +50,13 @@ platform :ios do
       key_filepath: "fastlane/AuthKey.p8"
     )
     
-    # new_build_number = latest_testflight_build_number(version:"1.2.0") + 1
-
-    # increment_build_number(
+    new_build_number = latest_testflight_build_number + 1
+    #puts "New build number: #{new_build_number}"
+    # increment_build_number
+    
+    #increment_build_number(
     #  build_number: new_build_number
-    # )
+    #)
 
     # ✅ 빌드
     build_app(

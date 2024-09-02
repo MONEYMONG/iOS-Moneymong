@@ -70,10 +70,9 @@ Derived/
 Tuist/Dependencies
 .mise.toml
 
-Signing/
 master.key
 fastlane/.env
-*.p8
+
 Moneymong.app.dSYM.zip
 *.ipa
 fastlane/report.xml
