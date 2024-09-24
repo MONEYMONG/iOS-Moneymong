@@ -2,8 +2,8 @@ import UIKit
 
 import Utility
 import DesignSystem
+import Core
 
-import Kingfisher
 
 final class UniversityHeader: UITableViewHeaderFooterView, ReusableView {
 

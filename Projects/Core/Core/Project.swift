@@ -30,7 +30,8 @@ let project = Project(
       ],
       settings: .settings(base: [
         "DEBUG_INFORMATION_FORMAT": "dwarf-with-dsym",
-        "OTHER_LDFLAGS": "-ObjC"
+        "OTHER_LDFLAGS": "-ObjC",
+        "SWIFT_VERSION": "5.7"
       ]),
       launchArguments: [
         LaunchArgument(name: "IDEPreferLogStreaming=YES", isEnabled: true),

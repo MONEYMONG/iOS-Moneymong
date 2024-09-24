@@ -2,7 +2,8 @@ import UIKit
 
 import DesignSystem
 import Utility
-import Core
+import BaseFeature
+import ThirdPartyLips
 
 import Kingfisher
 import ReactorKit

@@ -19,7 +19,10 @@ let project = Project(
                 target: "BaseFeature",
                 path: .relativeToRoot("Projects/Feature/Base")
               )
-            ]
+            ],
+            settings: .settings(base: [
+              "SWIFT_VERSION": "5.7"
+            ])
         ),
         Target(
             name: "MyPageFeatureTests",

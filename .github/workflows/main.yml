@@ -6,7 +6,7 @@ on:
 
 jobs:
   upload_testflight:
-    runs-on: macos_latest
+    runs-on: macos-latest
     steps:
       - uses: actions/checkout@v2
       - name: Setup Xcode version
@@ -21,14 +21,16 @@ jobs:
           MASTER_KEY: ${{secrets.MASTER_KEY}}
 
       - name: Install Tuist
-        run: curl -Ls https://install.tuist.io|bash
+        run: brew tap tuist/tuist
+      - run: brew install --formula tuist@3.42.1
+      - run: tuist version
 
       - name: Install Fastlane
         run: brew install fastlane
           
-      - uses: actions/setup-ruby@v1
+      - uses: ruby/setup-ruby@v1
         with:
-            ruby-version: 2.7
+            ruby-version: 3.0
       
       - name: Tuist clean
         run: tuist clean
@@ -45,10 +47,13 @@ jobs:
             KEYCHAIN_NAME: ${{ secrets.KEYCHAIN_NAME }}
             KEYCHAIN_PASSWORD: ${{ secrets.KEYCHAIN_PASSWORD }}
 
+      - name: Tuist generate
+        run: tuist generate
+
       - run: fastlane tf
         env:
             KEYCHAIN_NAME: ${{ secrets.KEYCHAIN_NAME }}
             KEYCHAIN_PASSWORD: ${{ secrets.KEYCHAIN_PASSWORD }}
-            APP_STORE_CONNECT_API_KEY_KEY_ID: ${{ secrets.APP_STORE_CONNECT_API_KEY_KEY_ID }}
-            APP_STORE_CONNECT_API_KEY_ISSUER_ID: ${{ secrets.APP_STORE_CONNECT_API_KEY_ISSUER_ID }}
+            FASTLANE_API_KEY_ID: ${{ secrets.FASTLANE_API_KEY_ID }}
+            FASTLANE_API_KEY_ISSUER_ID: ${{ secrets.FASTLANE_API_KEY_ISSUER_ID }}
             SLACK_HOOK_URL: ${{ secrets.SLACK_HOOK_URL }}

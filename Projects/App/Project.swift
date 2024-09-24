@@ -6,6 +6,13 @@ let project = Project(
     disableBundleAccessors: true,
     disableSynthesizedResourceAccessors: true
   ),
+  settings: .settings(
+    base: .init()
+      .marketingVersion("1.2.1")
+      .swiftVersion("5.7")
+      .currentProjectVersion("10")
+      .appleGenericVersioningSystem()
+  ),
   targets: [
     Target(
       name: "Moneymong",
@@ -55,9 +62,6 @@ let project = Project(
       ],
       settings: .settings(
         base: .init()
-          .appleGenericVersioningSystem()
-          .marketingVersion("1.2.1")
-          .currentProjectVersion("2")
           .cutomSetting()
       ),
       launchArguments: [

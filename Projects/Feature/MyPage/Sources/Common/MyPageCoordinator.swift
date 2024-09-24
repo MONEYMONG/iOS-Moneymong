@@ -35,7 +35,8 @@ public final class MyPageCoordinator: Coordinator {
     case .withrawal:
       withdrawl()
     case .debug:
-      debug()
+      //debug()
+      break
     }
   }
   
@@ -68,7 +69,7 @@ extension MyPageCoordinator {
     AlertsManager.show(title: title, subTitle: subTitle, type: .default(okAction: okAction))
   }
   
-  private func debug(animated: Bool = true) {
-    navigationController.pushViewController(UIHostingController(rootView: PulseView()), animated: animated)
-  }
+//  private func debug(animated: Bool = true) {
+//    navigationController.pushViewController(UIHostingController(rootView: PulseView()), animated: animated)
+//  }
 }

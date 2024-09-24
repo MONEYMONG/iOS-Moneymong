@@ -1,14 +1,12 @@
 APP_NAME = "Moneymong"
 SCHEME = "Moneymong"
 
-
 KEYCHAIN_NAME = ENV["KEYCHAIN_NAME"]
 KEYCHAIN_PASSWORD = ENV["KEYCHAIN_PASSWORD"]
 SLACK_HOOK_URL = ENV["SLACK_HOOK_URL"]
 
 FASTLANE_API_KEY_ID = ENV["FASTLANE_API_KEY_ID"]
 FASTLANE_API_KEY_ISSUER_ID = ENV["FASTLANE_API_KEY_ISSUER_ID"]
-FASTLANE_API_KEY_CONTENT = ENV["FASTLANE_API_KEY_CONTENT"]
 
 default_platform(:ios)
 
@@ -51,12 +49,11 @@ platform :ios do
     )
     
     new_build_number = latest_testflight_build_number + 1
-    #puts "New build number: #{new_build_number}"
-    # increment_build_number
-    
-    #increment_build_number(
-    #  build_number: new_build_number
-    #)
+
+    increment_build_number(
+      build_number: new_build_number,
+      xcodeproj: "Projects/App/Moneymong.xcodeproj"
+    )
 
     # ✅ 빌드
     build_app(

@@ -17,7 +17,10 @@ let project = Project(
             dependencies: [
               .project(target: "DesignSystem", path: .relativeToRoot("Projects/Shared/DesignSystem")),
               .project(target: "Core", path: .relativeToRoot("Projects/Core/Core"))
-            ]
+            ],
+            settings: .settings(base: [
+              "SWIFT_VERSION": "5.7"
+            ])
         )
     ]
 )

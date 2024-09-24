@@ -31,7 +31,10 @@ let project = Project(
       dependencies: [
         .package(product: "FlexLayout"),
         .package(product: "PinLayout")
-      ]
+      ],
+      settings: .settings(base: [
+        "SWIFT_VERSION": "5.7"
+      ])
     ),
     Target(
       name: "DesignSystemDemo",

@@ -2,7 +2,7 @@ import UIKit
 
 import Core
 
-import Pulse
+// import Pulse
 
 @main
 class AppDelegate: UIResponder, UIApplicationDelegate {
@@ -11,7 +11,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     _ application: UIApplication,
     didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?
   ) -> Bool {
-    URLSessionProxyDelegate.enableAutomaticRegistration()
+    //URLSessionProxyDelegate.enableAutomaticRegistration()
     FirebaseManager.shared.initSDK()
     KakaoAuthManager.shared.initSDK()
     return true

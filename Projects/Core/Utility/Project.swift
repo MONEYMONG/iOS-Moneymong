@@ -15,7 +15,10 @@ let project = Project(
             deploymentTarget: .iOS(targetVersion: "15.0", devices: .iphone),
             sources: ["Sources/**"],
             dependencies: [
-            ]
+            ],
+            settings: .settings(base: [
+              "SWIFT_VERSION": "5.7"
+            ])
         )
     ]
 )
