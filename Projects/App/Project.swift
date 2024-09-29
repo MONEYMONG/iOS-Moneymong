@@ -11,7 +11,11 @@ let project = Project(
       .marketingVersion("1.2.1")
       .swiftVersion("5.7")
       .currentProjectVersion("10")
-      .appleGenericVersioningSystem()
+      .appleGenericVersioningSystem(),
+    configurations: [
+      .debug(name: .debug, xcconfig: "Resources/APIKey.xcconfig"),
+      .release(name: .release, xcconfig: "Resources/APIKey.xcconfig")
+    ]
   ),
   targets: [
     Target(
@@ -35,6 +39,7 @@ let project = Project(
           ]
         ],
         "UIUserInterfaceStyle": "Light",
+        "NAVER_OCR_KEY": "$(NAVER_OCR_KEY)",
         "CFBundleShortVersionString": "$(MARKETING_VERSION)",
         "CFBundleVersion": "$(CURRENT_PROJECT_VERSION)",
         "UILaunchStoryboardName": "LaunchScreen",

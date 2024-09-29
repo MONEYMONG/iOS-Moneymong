@@ -109,9 +109,10 @@ extension LedgerAPI: TargetType {
     case .uploadImage: return ["Content-Type": "multipart/form-data"]
     case .deleteImage: return ["Content-Type": "application/json"]
     case .receiptOCR:
+      let key = Bundle.main.infoDictionary?["NAVER_OCR_KEY"] as? String
       return [
         "Content-Type": "multipart/form-data",
-        "X-OCR-SECRET": "WUdRdW9Ld0FobXRIaVRnYmNBY3NYVVhDdkhDR1lRcHQ="
+        "X-OCR-SECRET": key ?? ""
       ]
     default: return ["Content-Type": "application/json;charset=UTF-8"]
     }
