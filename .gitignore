@@ -77,3 +77,4 @@ Moneymong.app.dSYM.zip
 *.ipa
 fastlane/report.xml
 fastlane/README.md
+Projects/App/Resources/APIKey.xcconfig

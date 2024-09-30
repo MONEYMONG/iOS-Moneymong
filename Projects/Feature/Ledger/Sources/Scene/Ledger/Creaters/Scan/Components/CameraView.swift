@@ -42,8 +42,18 @@ final class CameraView: UIView {
   }
   
   func setupCamera() throws {
-    // 사용 가능한 카메라 중 후면 카메라를 선택
-    guard let backCamera = AVCaptureDevice.default(for: .video),
+    let deviceTypes: [AVCaptureDevice.DeviceType] = [
+      .builtInTripleCamera,  // 최신 프로 모델의 트리플 카메라
+      .builtInDualCamera,    // 듀얼 카메라 (프로 및 일부 비프로 모델)
+      .builtInWideAngleCamera // 광각 카메라 (단일 렌즈 카메라)
+    ]
+    
+    // 사용 가능한 장치 중 후면 카메라와 일치하는 장치를 찾기
+    guard let backCamera = AVCaptureDevice.DiscoverySession(
+      deviceTypes: deviceTypes,
+      mediaType: .video,
+      position: .back
+    ).devices.first,
           let input = try? AVCaptureDeviceInput(device: backCamera) else {
       throw MoneyMongError.appError(.cameraAccess, errorMessage: "설정에서 카메라 접근을 허용해주세요!")
     }
@@ -63,10 +73,29 @@ final class CameraView: UIView {
     // 프리뷰 레이어 설정
     videoPreviewLayer.session = captureSession
     
+    // 자동 초점 조절
+    try configureCameraFocus(backCamera)
+    
     // 세션 시작
     DispatchQueue.main.async {
       self.captureSession.startRunning()
     }
+  }
+  
+  private func configureCameraFocus(_ camera: AVCaptureDevice) throws {
+    try camera.lockForConfiguration()
+    
+    // 연속 자동 초점 모드 설정
+    if camera.isFocusModeSupported(.continuousAutoFocus) {
+      camera.focusMode = .continuousAutoFocus
+    }
+    
+    // 연속 자동 노출 모드 설정
+    if camera.isExposureModeSupported(.continuousAutoExposure) {
+      camera.exposureMode = .continuousAutoExposure
+    }
+    
+    camera.unlockForConfiguration()
   }
   
   var takePhoto: Binder<Void> {

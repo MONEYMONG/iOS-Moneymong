@@ -22,7 +22,7 @@ extension LedgerAPI: TargetType {
   var baseURL: URL? {
     switch self {
     case .receiptOCR:
-      return try? "https://rgec3uf4w8.apigw.ntruss.com/custom/v1/27247/c8164e59014063109889b541dc736eeae7690fc5dd305dd0189e6e6ff95cd659/".asURL()
+      return try? "https://q527hvfohd.apigw.ntruss.com/custom/v1/34593/567a6406461afde2a1d5836d6df3ca9b71cbf451c76dc5df6d2a2bc3f16446f7/".asURL()
     default:
       return try? Config.base.asURL()
     }
@@ -109,9 +109,10 @@ extension LedgerAPI: TargetType {
     case .uploadImage: return ["Content-Type": "multipart/form-data"]
     case .deleteImage: return ["Content-Type": "application/json"]
     case .receiptOCR:
+      let key = Bundle.main.infoDictionary?["NAVER_OCR_KEY"] as? String
       return [
         "Content-Type": "multipart/form-data",
-        "X-OCR-SECRET": "WUdRdW9Ld0FobXRIaVRnYmNBY3NYVVhDdkhDR1lRcHQ="
+        "X-OCR-SECRET": key ?? ""
       ]
     default: return ["Content-Type": "application/json;charset=UTF-8"]
     }

@@ -46,6 +46,12 @@ jobs:
         env:
             KEYCHAIN_NAME: ${{ secrets.KEYCHAIN_NAME }}
             KEYCHAIN_PASSWORD: ${{ secrets.KEYCHAIN_PASSWORD }}
+            
+      - name: Setting Xcconfig
+        run: | 
+          echo "NAVER_OCR_KEY = $NAVER_OCR_KEY" > Projects/App/Resources/APIKey.xcconfig
+        env:
+          NAVER_OCR_KEY: ${{secrets.NAVER_OCR_KEY}}
 
       - name: Tuist generate
         run: tuist generate
