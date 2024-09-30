@@ -146,7 +146,8 @@ final class CreateOCRLedgerVC: UIViewController, View {
       .alignItems(.center)
       .justifyContent(.center)
       .height(deviceHeight * 0.175)
-    }
+    }.backgroundColor(.black)
+    
     cameraView.addSubview(captureImageView)
     view.addSubview(topContainer)
     topContainer.addSubview(topGuideLine)

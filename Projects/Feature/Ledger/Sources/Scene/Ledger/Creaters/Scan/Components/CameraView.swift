@@ -63,10 +63,29 @@ final class CameraView: UIView {
     // 프리뷰 레이어 설정
     videoPreviewLayer.session = captureSession
     
+    // 자동 초점 조절
+    try configureCameraFocus(backCamera)
+    
     // 세션 시작
     DispatchQueue.main.async {
       self.captureSession.startRunning()
     }
+  }
+  
+  private func configureCameraFocus(_ camera: AVCaptureDevice) throws {
+    try camera.lockForConfiguration()
+    
+    // 연속 자동 초점 모드 설정
+    if camera.isFocusModeSupported(.continuousAutoFocus) {
+      camera.focusMode = .continuousAutoFocus
+    }
+    
+    // 연속 자동 노출 모드 설정
+    if camera.isExposureModeSupported(.continuousAutoExposure) {
+      camera.exposureMode = .continuousAutoExposure
+    }
+    
+    camera.unlockForConfiguration()
   }
   
   var takePhoto: Binder<Void> {
