@@ -80,7 +80,61 @@ platform :ios do
         fields: [
           {
             title: "Scheme",
-            value: "Release",
+            value: "#{SCHEME}",
+          },
+          {
+            title: "Build Number",
+            value: "#{new_build_number.to_s}",
+          }
+        ]
+      },
+      success: true
+    )
+  end
+
+  # Dev 테스트 플라이트 업로드
+  desc "Push to TestFlight"
+  lane :tfd do |options|
+
+    ENV["FASTLANE_XCODEBUILD_SETTINGS_TIMEOUT"] = "120"
+
+    # 앱스토어 커넥트 키 연결
+    app_store_connect_api_key(
+      key_id: "#{FASTLANE_API_KEY_ID}",
+      issuer_id: "#{FASTLANE_API_KEY_ISSUER_ID}",
+      key_filepath: "fastlane/AuthKey.p8"
+    )
+    
+    new_build_number = latest_testflight_build_number + 1
+
+    increment_build_number(
+      build_number: new_build_number,
+      xcodeproj: "Projects/App/Moneymong.xcodeproj"
+    )
+
+    # ✅ 빌드
+    build_app(
+      workspace: "#{APP_NAME}.xcworkspace",
+      scheme: "Dev-#{SCHEME}",
+      export_method: "app-store"
+    )
+
+    # ✅ 테스트 플라이트 업로드
+    upload_to_testflight(skip_waiting_for_build_processing: true)
+    slack(
+      message: "⭐️ 테스트 플라이트 업로드 성공",
+      channel: "#알림-ios-배포",
+      slack_url: "#{SLACK_HOOK_URL}",
+      username: "대신 배포해주는 고양이",
+      icon_url: "https://avatars.githubusercontent.com/u/21079970?v=4",
+      payload: {
+        "Build Date" => Time.new.to_s,
+      },
+      attachment_properties: {
+        fields: [
+          {
+            title: "Scheme",
+            value: "Dev-#{SCHEME}",
           },
           {
             title: "Build Number",
