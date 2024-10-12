@@ -74,6 +74,24 @@ let project = Project(
         LaunchArgument(name: "-FIRDebugEnabled", isEnabled: true)
       ]
     )
+  ],
+  schemes: [
+    Scheme(
+      name: "Moneymong",
+      buildAction: BuildAction(targets: ["Moneymong"]),
+      runAction: .runAction(configuration: .debug),
+      archiveAction: .archiveAction(configuration: .release),
+      profileAction: .profileAction(configuration: .release),
+      analyzeAction: .analyzeAction(configuration: .debug)
+    ),
+    Scheme(
+      name: "Dev-Moneymong",
+      buildAction: BuildAction(targets: ["Moneymong"]),
+      runAction: .runAction(configuration: .debug),
+      archiveAction: .archiveAction(configuration: .debug),
+      profileAction: .profileAction(configuration: .debug),
+      analyzeAction: .analyzeAction(configuration: .debug)
+    )
   ]
 )
 
