@@ -23,9 +23,10 @@ public final class MMSegmentControl: UIView {
   @Published public var selectedIndex: Int = -1 {
     didSet {
       if allButtons.indices.contains(selectedIndex) {
+        allButtons.forEach {
+          unselection(with: $0)
+        }
         selection(with: allButtons[selectedIndex])
-      } else {
-        allButtons.forEach { unselection(with: $0) }
       }
     }
   }
@@ -134,6 +135,8 @@ public final class MMSegmentControl: UIView {
   public func disableButtons(with indices: Int...) {
     for index in indices {
       allButtons[index].isUserInteractionEnabled = false
+      allButtons[index].configuration?.baseBackgroundColor = Colors.Gray._3;
+      allButtons[index].configuration?.baseForegroundColor = Colors.Gray._4;
     }
   }
 }
