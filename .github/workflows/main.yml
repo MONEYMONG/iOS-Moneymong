@@ -2,7 +2,7 @@ name: UploadTestFlight
 
 on:
   push:
-    branches: [ develop ]
+    branches: [ develop, main ]
 
 jobs:
   upload_testflight:
@@ -56,7 +56,19 @@ jobs:
       - name: Tuist generate
         run: tuist generate
 
-      - run: fastlane tf
+      - name: upload TestFlight Prod
+        if: github.ref == 'refs/heads/main' 
+        run: fastlane tf
+        env:
+            KEYCHAIN_NAME: ${{ secrets.KEYCHAIN_NAME }}
+            KEYCHAIN_PASSWORD: ${{ secrets.KEYCHAIN_PASSWORD }}
+            FASTLANE_API_KEY_ID: ${{ secrets.FASTLANE_API_KEY_ID }}
+            FASTLANE_API_KEY_ISSUER_ID: ${{ secrets.FASTLANE_API_KEY_ISSUER_ID }}
+            SLACK_HOOK_URL: ${{ secrets.SLACK_HOOK_URL }}
+      
+      - name: upload TestFlight Dev
+        if: github.ref == 'refs/heads/develop' 
+        run: fastlane tfd
         env:
             KEYCHAIN_NAME: ${{ secrets.KEYCHAIN_NAME }}
             KEYCHAIN_PASSWORD: ${{ secrets.KEYCHAIN_PASSWORD }}
