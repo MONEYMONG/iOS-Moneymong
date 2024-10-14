@@ -14,6 +14,7 @@ public enum LocalStorageKey {
     case recentLoginType // 최근 로그인 타입
     case selectedAgency // 현재 선택된 소속 (멤버화면)
     case userID // 유저정보
+    case ledgerDateRange // 현재 설정된 장부 기간 범위
   }
   
   public var id: String {

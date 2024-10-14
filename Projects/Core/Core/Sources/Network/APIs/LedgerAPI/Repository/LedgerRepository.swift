@@ -30,6 +30,8 @@ public protocol LedgerRepositoryInterface {
   func receiptImageDelete(detailId: Int, receiptId: Int) async throws
   func documentImagesUpload(detailId: Int, documentImageUrls: [String]) async throws
   func documentImageDelete(detailId: Int, documentId: Int) async throws
+  func saveDateRange(_ dateRange: DateRange)
+  func fetchDateRange() -> DateRange?
 }
 
 public final class LedgerRepository: LedgerRepositoryInterface {
@@ -168,6 +170,27 @@ public final class LedgerRepository: LedgerRepositoryInterface {
   public func documentImageDelete(detailId: Int, documentId: Int) async throws {
     let targetType = LedgerAPI.documentImageDelete(detailId: detailId, documentId: documentId)
     return try await networkManager.request(target: targetType)
+  }
+  
+  public func saveDateRange(_ dateRange: DateRange) {
+    localStorage.ledgerDateRange = [
+      "startYear" : dateRange.start.year,
+      "startMonth" : dateRange.start.month,
+      "endYear" : dateRange.end.year,
+      "endMonth" : dateRange.end.month
+    ]
+  }
+  
+  public func fetchDateRange() -> DateRange? {
+    guard let dateRange = localStorage.ledgerDateRange,
+          let startYear = dateRange["startYear"],
+          let startMonth = dateRange["startMonth"],
+          let endYear = dateRange["endYear"],
+          let endMonth = dateRange["endMonth"] else { return nil }
+    return DateRange(
+      start: DateInfo(year: startYear, month: startMonth),
+      end: DateInfo(year: endYear, month: endMonth)
+    )
   }
 }
 

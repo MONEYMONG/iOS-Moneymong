@@ -34,7 +34,7 @@ final class LedgerTabReactor: Reactor {
     @Pulse var totalBalance: String = "0"
     @Pulse var filterType: FundType? = nil
     @Pulse var ledgers: [Ledger] = []
-    @Pulse var dateRange: (start: DateInfo, end: DateInfo)
+    @Pulse var dateRange: DateRange
     @Pulse var isLoading = false
     @Pulse var destination: Destination?
     
@@ -66,6 +66,15 @@ final class LedgerTabReactor: Reactor {
     self.agencyRepo = agencyRepo
     self.formatter = formatter
     
+    
+    if let fetchDateRange = ledgerRepo.fetchDateRange() {
+      self.initialState = State(
+        userID: userRepo.fetchUserID(),
+        dateRange: fetchDateRange
+      )
+      return
+    }
+    
     let currentDate = formatter.convertToDate(date: .now).split(separator: "/").map { Int($0)! }
     let endYear = currentDate[0]
     let endMonth = currentDate[1]
@@ -76,7 +85,7 @@ final class LedgerTabReactor: Reactor {
     
     self.initialState = State(
       userID: userRepo.fetchUserID(),
-      dateRange: (startDate, endDate)
+      dateRange: DateRange(start: startDate, end: endDate)
     )
   }
   
@@ -127,7 +136,9 @@ final class LedgerTabReactor: Reactor {
     newState.destination = nil
     switch mutation {
     case let .setDateRange(start, end):
-      newState.dateRange = (start, end)
+      let newDateRange = DateRange(start: start, end: end)
+      ledgerRepo.saveDateRange(newDateRange)
+      newState.dateRange = newDateRange
     case let .setDestination(destination):
       newState.destination = destination
     case let .setLedgerList(ledgerList):

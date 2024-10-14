@@ -4,6 +4,7 @@ public protocol LocalStorageInterface: AnyObject {
   var recentLoginType: String? { get set }
   var selectedAgency: Int? { get set }
   var userID: Int? { get set }
+  var ledgerDateRange: [String:Int]? { get set }
   
   var accessToken: String? { get set }
   var refreshToken: String? { get set }
@@ -26,6 +27,9 @@ public final class LocalStorage: LocalStorageInterface {
   
   @UD(key: .userID)
   public var userID: Int?
+  
+  @UD(key: .ledgerDateRange)
+  public var ledgerDateRange: [String:Int]?
   
   @Keychain(key: .accessToken)
   public var accessToken: String?
