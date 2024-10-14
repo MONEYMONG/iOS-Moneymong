@@ -66,6 +66,15 @@ final class LedgerTabReactor: Reactor {
     self.agencyRepo = agencyRepo
     self.formatter = formatter
     
+    
+    if let fetchDateRange = ledgerRepo.fetchDateRange() {
+      self.initialState = State(
+        userID: userRepo.fetchUserID(),
+        dateRange: fetchDateRange
+      )
+      return
+    }
+    
     let currentDate = formatter.convertToDate(date: .now).split(separator: "/").map { Int($0)! }
     let endYear = currentDate[0]
     let endMonth = currentDate[1]
@@ -128,6 +137,7 @@ final class LedgerTabReactor: Reactor {
     switch mutation {
     case let .setDateRange(start, end):
       let newDateRange = DateRange(start: start, end: end)
+      ledgerRepo.saveDateRange(newDateRange)
       newState.dateRange = newDateRange
     case let .setDestination(destination):
       newState.destination = destination
