@@ -126,16 +126,16 @@ final class DatePickerReactor: Reactor {
     case .setYear(let year):
       switch state.selectedDateType {
       case .start:
-        newState.startDate.year = year
+        newState.startDate = DateInfo(year: year, month: state.startDate.month)
       case .end:
-        newState.endDate.year = year
+        newState.endDate = DateInfo(year: year, month: state.endDate.month)
       }
     case .setMonth(let month):
       switch state.selectedDateType {
       case .start:
-        newState.startDate.month = month
+        newState.startDate = DateInfo(year: state.startDate.year, month: month)
       case .end:
-        newState.endDate.month = month
+        newState.endDate = DateInfo(year: state.endDate.year, month: month)
       }
     case let .setDestination(destination):
       newState.destination = destination
