@@ -233,6 +233,7 @@ final class CreateManualLedgerVC: BaseVC, View {
             
             flex.addItem(dateTextField).marginBottom(24)
             flex.addItem(timeTextField).marginBottom(24)
+            flex.addItem(memoTextView).marginBottom(24)
             switch startingType {
             case .ocrResultEdit:
               flex.addItem(memoTextView).marginBottom(24)
@@ -245,8 +246,6 @@ final class CreateManualLedgerVC: BaseVC, View {
               
               flex.addItem(UILabel().text("증빙 자료 (최대 12장)", font: Fonts.body._2, color: Colors.Gray._6))
               flex.addItem(documentCollectionView).marginBottom(24).marginRight(-8)
-              
-              flex.addItem(memoTextView).marginBottom(24)
             }
             flex.addItem().alignItems(.start).define { flex in
               flex.addItem(writerTitleLabel).marginBottom(8)
