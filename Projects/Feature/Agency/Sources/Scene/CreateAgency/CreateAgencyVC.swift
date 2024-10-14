@@ -111,10 +111,12 @@ final class CreateAgencyVC: BaseVC, View {
     
     // State Binding
     reactor.pulse(\.$userInfo)
-      .filter { $0?.universityName == "정보 없음"}
+      .filter { $0?.universityName == "정보없음"}
+      .observe(on: MainScheduler.instance)
       .bind(with: self) { owner, _ in
         owner.agencySegmentControl.selectedIndex = 2
         owner.agencySegmentControl.disableButtons(with: 0,1)
+        owner.agencySegmentControl.flex.layout()
       }
       .disposed(by: disposeBag)
     
