@@ -50,6 +50,27 @@ final class SplashVC: BaseVC, View {
         }
       }
       .disposed(by: disposeBag)
+    
+    reactor.pulse(\.$isUpdateAlert)
+      .observe(on: MainScheduler.instance)
+      .filter { $0 }
+      .bind(with: self) { owner, value in
+        owner.coordinator?.alert(title: "안정적인 머니몽 사용을 위해\n최신 버전으로 업데이트가 필요해요!") {
+          if let url = URL(string: "itms-apps://itunes.apple.com/app/id6503661220"),
+                       UIApplication.shared.canOpenURL(url)
+          {
+            UIApplication.shared.open(url) { result in
+              if result {
+                UIApplication.shared.perform(#selector(NSXPCConnection.suspend))
+                DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+                  exit(0)
+                }
+              }
+            }
+          }
+        }
+      }
+      .disposed(by: disposeBag)
 
     rx.viewDidAppear
       .delay(.milliseconds(500), scheduler: MainScheduler.instance)
