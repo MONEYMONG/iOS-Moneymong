@@ -20,9 +20,11 @@ public final class SignDIContainer {
       kakaoAuthManager: KakaoAuthManager(),
       appleAuthManager: AppleAuthManager()
     )
+    let versionRepository = VersionRepository(networkManager: networkManager)
     vc.reactor = SplashReactor(
       signRepository: signRepository,
-      userRepo: UserRepository(networkManager: networkManager, localStorage: localStorage)
+      userRepo: UserRepository(networkManager: networkManager, localStorage: localStorage),
+      versionRepo: versionRepository
     )
     vc.coordinator = coordinator
     return vc

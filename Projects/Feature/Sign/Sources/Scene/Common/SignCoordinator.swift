@@ -54,7 +54,11 @@ public extension SignCoordinator {
     navigationController.popViewController(animated: animated)
   }
 
-  func alert(title: String) {
-    AlertsManager.show(title: title)
+  func alert(title: String, okAction: (() -> Void)? = nil) {
+    if let okAction {
+      AlertsManager.show(title: title, type: .onlyOkButton(okAction))
+    } else {
+      AlertsManager.show(title: title)
+    }
   }
 }
