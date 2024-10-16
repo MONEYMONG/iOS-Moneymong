@@ -18,6 +18,21 @@ let project = Project(
     ]
   ),
   targets: [
+    .init(
+      name: "WidgetExtension",
+      platform: .iOS,
+      product: .appExtension,
+      bundleId: "com.yapp.moneymong.WidgetExtension",
+      infoPlist: .extendingDefault(with: [
+        "CFBundleDisplayName": "$(PRODUCT_NAME)",
+        "NSExtension": [
+          "NSExtensionPointIdentifier": "com.apple.widgetkit-extension",
+        ],
+      ]),
+      sources: "WidgetExtension/Sources/**",
+      resources: "WidgetExtension/Resources/**",
+      dependencies: []
+    ),
     Target(
       name: "Moneymong",
       platform: .iOS,
@@ -63,7 +78,8 @@ let project = Project(
       entitlements: "Resources/App.entitlements",
       dependencies: [
         .project(target: "SignFeature", path: .relativeToRoot("Projects/Feature/Sign")),
-        .project(target: "MainFeature", path: .relativeToRoot("Projects/Feature/Main"))
+        .project(target: "MainFeature", path: .relativeToRoot("Projects/Feature/Main")),
+        .target(name: "WidgetExtension")
       ],
       settings: .settings(
         base: .init()
