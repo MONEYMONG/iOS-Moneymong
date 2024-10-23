@@ -28,7 +28,8 @@ final class SettingCell: UITableViewCell, ReusableView {
   
   private let versionLabel: UILabel = {
     let v = UILabel()
-    v.setTextWithLineHeight(text: "1.2.1", lineHeight: 24)
+    let version = Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String ?? "버전 알 수 없음"
+    v.setTextWithLineHeight(text: version, lineHeight: 24)
     v.textColor = Colors.Blue._4
     v.font = Fonts.body._4
     return v
