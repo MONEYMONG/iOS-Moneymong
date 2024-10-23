@@ -32,6 +32,10 @@ public final class MainTabBarCoordinator: Coordinator {
     case let .createManualLedger(agencyID): // 장부 이동 &
       tabBarController?.selectedIndex = 1
       NotificationCenter.default.post(name: .presentManualCreater, object: nil, userInfo: ["id": agencyID])
+    case let .createOCRLedger(agencyID):
+      tabBarController?.selectedIndex = 1
+      NotificationCenter.default.post(name: .presentOCRCreater, object: nil, userInfo: ["id": agencyID])
+    
     case .agency: // 소속으로 이동
       tabBarController?.selectedIndex = 0
     }

@@ -23,7 +23,12 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
 
   func scene(_ scene: UIScene, openURLContexts URLContexts: Set<UIOpenURLContext>) {
     guard let url = URLContexts.first?.url else { return }
-    KakaoAuthManager.shared.openURL(url)
+    
+    if url.absoluteString.contains("widget://") {
+      DeepLinkManager.setDestination(url.absoluteString)
+    } else {
+      KakaoAuthManager.shared.openURL(url)
+    }
   }
 
   func sceneDidDisconnect(_ scene: UIScene) {}

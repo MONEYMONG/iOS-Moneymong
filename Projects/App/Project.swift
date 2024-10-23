@@ -31,7 +31,10 @@ let project = Project(
       ]),
       sources: "WidgetExtension/Sources/**",
       resources: "WidgetExtension/Resources/**",
-      dependencies: []
+      entitlements: "WidgetExtension/Resources/WidgetExtension.entitlements",
+      dependencies: [
+        .project(target: "DesignSystem", path: .relativeToRoot("Projects/Shared/DesignSystem"))
+      ]
     ),
     Target(
       name: "Moneymong",

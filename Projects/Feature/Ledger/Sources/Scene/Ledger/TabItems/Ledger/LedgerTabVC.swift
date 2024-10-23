@@ -117,6 +117,14 @@ final class LedgerTabVC: BaseVC, View {
       }
       .disposed(by: disposeBag)
     
+    NotificationCenter.default.rx.notification(.presentOCRCreater)
+      .compactMap { $0.userInfo?["id"] as? Int }
+      .observe(on: MainScheduler.instance)
+      .bind(with: self) { owner, id in
+        owner.coordinator?.present(.createOCRLedger(id))
+      }
+      .disposed(by: disposeBag)
+    
     dateRangeView.rx.tapGesture
       .map { _ in Reactor.Action.didTapDateRangeView }
       .bind(to: reactor.action)

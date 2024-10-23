@@ -1,4 +1,5 @@
 import Foundation
+import WidgetKit
 
 public protocol LedgerRepositoryInterface {
   
@@ -128,7 +129,17 @@ public final class LedgerRepository: LedgerRepositoryInterface {
     } else {
       targetType = LedgerAPI.ledgerFilterList(id: id, param: request)
     }
-    return try await networkManager.request(target: targetType, of: LedgerListResponseDTO.self).toEntity
+    
+    let result = try await networkManager.request(target: targetType, of: LedgerListResponseDTO.self)
+    
+    let dic:[String: Any] = [
+      "name" : "머니몽 소속",
+      "total" : result.totalBalance
+    ]
+    
+    UserDefaults(suiteName: "group.moneymong")?.set(dic, forKey: "test")
+    WidgetCenter.shared.reloadAllTimelines()
+    return result.toEntity
   }
   
   public func fetchLedgerDetail(id: Int) async throws -> LedgerDetail {
