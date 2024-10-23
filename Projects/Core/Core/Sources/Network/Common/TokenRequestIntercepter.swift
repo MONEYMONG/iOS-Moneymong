@@ -86,12 +86,6 @@ public final class TokenRequestIntercepter: RequestInterceptor {
       } catch {
         localStorage.removeAll()
         completion(.doNotRetryWithError(error))
-        
-        NotificationCenter.default.post(
-          name: Notification.Name("appRestart"),
-          object: self,
-          userInfo: ["message": "로그인이 필요합니다."]
-        )
       }
     }
   }
