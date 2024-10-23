@@ -15,14 +15,7 @@ struct OCRProvider: TimelineProvider {
   }
   
   func getTimeline(in context: Context, completion: @escaping (Timeline<OCREntry>) -> ()) {
-    var entries: [OCREntry] = []
-    let currentDate = Date()
-    for hourOffset in 0..<5 {
-      let entryDate = Calendar.current.date(byAdding: .hour, value: hourOffset, to: currentDate)!
-      let entry = OCREntry(date: entryDate)
-      entries.append(entry)
-    }
-    let timeline = Timeline(entries: entries, policy: .atEnd)
+    let timeline = Timeline(entries: [OCREntry(date: .now)], policy: .never)
     completion(timeline)
   }
 }

@@ -4,7 +4,7 @@ import SwiftUI
 import DesignSystem
 
 struct OCRWidget: Widget {
-  let kind: String = "OCRWidget"
+  private let kind: String = "OCRWidget"
   
   var body: some WidgetConfiguration {
     StaticConfiguration(kind: kind, provider: OCRProvider()) { entry in
@@ -34,7 +34,7 @@ struct OCRWidgetEntryView: View {
     .padding(.vertical, 20)
     .widgetURL(URL(string: "widget://OCR"))
     .containerBackground(for: .widget) {
-      Color.white
+      Color(uiColor: Colors.Gray._1)
     }
   }
 }
