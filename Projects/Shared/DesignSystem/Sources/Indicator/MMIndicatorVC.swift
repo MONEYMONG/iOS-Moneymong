@@ -44,7 +44,7 @@ public final class MMLodingIndicatorVC: UIViewController {
 
   private func setupConstraints() {
     rootContainer.flex
-      .backgroundColor(Colors.White._1)
+      .backgroundColor(.clear)
       .alignItems(.center)
       .justifyContent(.center)
       .define { flex in
