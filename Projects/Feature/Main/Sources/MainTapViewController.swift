@@ -1,14 +1,18 @@
 import UIKit
 
 import BaseFeature
+import Core
 import DesignSystem
 
 import RxSwift
 
 public final class MainTapViewController: UITabBarController {
   private let disposeBag = DisposeBag()
+  weak var coordinator: Coordinator?
+  private let agencyID: Int?
 
-  public init() {
+  public init(agencyID: Int?) {
+    self.agencyID = agencyID
     super.init(nibName: nil, bundle: nil)
   }
   
@@ -26,6 +30,7 @@ public final class MainTapViewController: UITabBarController {
     
     setupTabBar()
     bind()
+    observeNotification()
   }
 
   private func setupTabBar() {
@@ -57,5 +62,31 @@ public final class MainTapViewController: UITabBarController {
         owner.tabBar.isHidden = value
       })
       .disposed(by: disposeBag)
+  }
+  
+  private func observeNotification() {
+    NotificationCenter.default.rx
+      .notification(.init("deeplink"))
+      .compactMap { $0.userInfo?["query"] as? String }
+      .bind(with: self) { owner, query in
+        guard let agencyID = owner.agencyID else { return }
+        
+        switch query {
+        case "OCR":
+          owner.coordinator?.move(to: .createOCRLedger(agencyID))
+        case "CreateLedger":
+          owner.coordinator?.move(to: .createManualLedger(agencyID))
+        case "LedgerDetail":
+          owner.coordinator?.move(to: .ledger)
+        default: break
+        }
+        
+        DeepLinkManager.clear();
+      }
+      .disposed(by: disposeBag)
+    
+    if let destination = DeepLinkManager.destination {
+      NotificationCenter.default.post(name: .init("deeplink"), object: nil, userInfo: ["query": destination])
+    }
   }
 }

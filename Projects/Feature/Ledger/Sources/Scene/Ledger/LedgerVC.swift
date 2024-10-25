@@ -52,10 +52,6 @@ public final class LedgerVC: BaseVC, View {
     )
   }
   
-  public override func setupUI() {
-    super.setupUI()
-  }
-  
   public override func setupConstraints() {
     super.setupConstraints()
     view.addSubview(emptyView)

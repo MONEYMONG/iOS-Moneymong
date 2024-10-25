@@ -11,7 +11,6 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     _ application: UIApplication,
     didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?
   ) -> Bool {
-    //URLSessionProxyDelegate.enableAutomaticRegistration()
     FirebaseManager.shared.initSDK()
     KakaoAuthManager.shared.initSDK()
     return true

@@ -87,5 +87,9 @@ public enum Images {
   public static let timeLineBlue = UIImage(named: "time.line.blue", in: Bundle.module, with: nil)
   
   public static let feedback = UIImage(named: "feedback", in: Bundle.module, with: nil)
+  
+  // Widget
+  public static let scanCircle = UIImage(named: "scan.circle.gray", in: Bundle.module, with: nil)
+  public static let mongCoin = UIImage(named: "mong.coin", in: Bundle.module, with: nil)
 }
 
