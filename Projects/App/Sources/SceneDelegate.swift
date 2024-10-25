@@ -19,6 +19,8 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
     
     self.appCoordinator = AppCoordinator(navigationController: navigationController)
     appCoordinator?.start(animated: false)
+    
+    self.scene(scene, openURLContexts: connectionOptions.urlContexts)
   }
 
   func scene(_ scene: UIScene, openURLContexts URLContexts: Set<UIOpenURLContext>) {
