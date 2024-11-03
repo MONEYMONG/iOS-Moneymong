@@ -26,16 +26,15 @@ struct AgencyProvider: TimelineProvider {
   
   func getTimeline(in context: Context, completion: @escaping (Timeline<AgencyEntry>) -> ()) {
     let entry: AgencyEntry
-    if let dic = UserDefaults(suiteName: "group.moneymong")?.dictionary(forKey: "test"),
+    if let dic = UserDefaults(suiteName: "group.moneymong")?.dictionary(forKey: "agencyInfo"),
        let name = dic["name"] as? String,
-       let amount = dic["total"] as? Int {
-     
+       let amount = dic["total"] as? Int
+    {
       entry = AgencyEntry(
         date: .now,
         name: name,
         amount: amount
       )
-      
     } else {
       entry = AgencyEntry(
         date: .now,

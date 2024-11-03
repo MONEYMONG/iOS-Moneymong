@@ -132,12 +132,12 @@ public final class LedgerRepository: LedgerRepositoryInterface {
     
     let result = try await networkManager.request(target: targetType, of: LedgerListResponseDTO.self)
     
-    let dic:[String: Any] = [
-      "name" : "머니몽 소속",
+    let dict: [String: Any] = [
+      "name" : result.agencyName,
       "total" : result.totalBalance
     ]
     
-    UserDefaults(suiteName: "group.moneymong")?.set(dic, forKey: "test")
+    UserDefaults(suiteName: "group.moneymong")?.set(dict, forKey: "agencyInfo")
     WidgetCenter.shared.reloadAllTimelines()
     return result.toEntity
   }

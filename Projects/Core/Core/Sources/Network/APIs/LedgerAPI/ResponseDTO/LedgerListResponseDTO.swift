@@ -5,6 +5,7 @@ struct LedgerListResponseDTO: Responsable {
   let ledgerDetailTotalCount :Int
   let totalBalance: Int
   let ledgerInfoViewDetails: [LedgerResponseDTO]
+  let agencyName: String
   
   var toEntity: LedgerList {
     return LedgerList(
