@@ -1,4 +1,5 @@
 import Foundation
+import WidgetKit
 
 public protocol AgencyRepositoryInterface {
   func fetchList(page: Int, size: Int) async throws -> [Agency]
@@ -74,5 +75,7 @@ public final class AgencyRepository: AgencyRepositoryInterface {
   public func deleteAgency(id: Int) async throws {
     let targetType = AgencyAPI.delete(id: id)
     try await networkManager.request(target: targetType)
+    UserDefaults(suiteName: "group.moneymong")?.removeObject(forKey: "agencyInfo")
+    WidgetCenter.shared.reloadAllTimelines()
   }
 }
