@@ -91,5 +91,7 @@ public enum Images {
   // Widget
   public static let scanCircle = UIImage(named: "scan.circle.gray", in: Bundle.module, with: nil)
   public static let mongCoin = UIImage(named: "mong.coin", in: Bundle.module, with: nil)
+  public static let mongLedgerWidget = UIImage(named: "mong.ledger.widget", in: Bundle.module, with: nil)
+  public static let mongLedgerWidgetMini = UIImage(named: "mong.ledger.widget.mini", in: Bundle.module, with: nil)
 }
 
