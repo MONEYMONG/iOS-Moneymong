@@ -8,7 +8,11 @@ struct SecondWidget: Widget {
   
   var body: some WidgetConfiguration {
     StaticConfiguration(kind: kind, provider: AgencyProvider()) { entry in
-      SecondWidgetEntryView(entry: entry)
+      if entry.name.isEmpty {
+        NotSelectedAgencyView()
+      } else {
+        SecondWidgetEntryView(entry: entry)
+      }
     }
     .supportedFamilies([.systemMedium])
     .configurationDisplayName("내 장부")
@@ -78,6 +82,6 @@ struct SecondWidgetEntryView: View {
 #Preview(as: .systemMedium) {
   SecondWidget()
 } timeline: {
-  AgencyEntry(date: .now, name: "머니몽", amount: 100000)
+  AgencyEntry(date: .now, name: "", amount: 100000)
   AgencyEntry(date: .now, name: "머니몽2", amount: 120000)
 }
