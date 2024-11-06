@@ -7,7 +7,11 @@ struct MainWidget: Widget {
   
   var body: some WidgetConfiguration {
     StaticConfiguration(kind: kind, provider: AgencyProvider()) { entry in
-      MainWidgetEntryView(entry: entry)
+      if entry.name.isEmpty {
+        NotSelectedAgencyView()
+      } else {
+        MainWidgetEntryView(entry: entry)
+      }
     }
     .supportedFamilies([.systemMedium])
     .configurationDisplayName("회비 내역 등록")
