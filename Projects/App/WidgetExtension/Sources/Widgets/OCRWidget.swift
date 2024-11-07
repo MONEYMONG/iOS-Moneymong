@@ -7,8 +7,12 @@ struct OCRWidget: Widget {
   private let kind: String = "OCRWidget"
   
   var body: some WidgetConfiguration {
-    StaticConfiguration(kind: kind, provider: OCRProvider()) { entry in
-      OCRWidgetEntryView()
+    StaticConfiguration(kind: kind, provider: AgencyProvider()) { entry in
+      if entry.name.isEmpty {
+        MiniNotSelectedAgencyView()
+      } else {
+        OCRWidgetEntryView()
+      }
     }
     .supportedFamilies([.systemSmall])
     .configurationDisplayName("회비 내역 스캔")
@@ -38,3 +42,9 @@ struct OCRWidgetEntryView: View {
     }
   }
 }
+
+#Preview(as: .systemSmall, widget: {
+  OCRWidget()
+}, timeline: {
+  AgencyEntry(date: .now, name: "머니몽", amount: 1000)
+})
