@@ -9,7 +9,7 @@ struct OCRWidget: Widget {
   var body: some WidgetConfiguration {
     StaticConfiguration(kind: kind, provider: AgencyProvider()) { entry in
       if entry.name.isEmpty {
-        MiniNotSelectedAgencyView()
+        SmallEmptyAgencyView()
       } else {
         OCRWidgetEntryView()
       }
@@ -37,14 +37,6 @@ struct OCRWidgetEntryView: View {
     }
     .padding(.vertical, 20)
     .widgetURL(URL(string: "widget://OCR"))
-    .containerBackground(for: .widget) {
-      Color(uiColor: Colors.Gray._1)
-    }
+    .widgetBackground(Color(uiColor: Colors.Gray._1))
   }
 }
-
-#Preview(as: .systemSmall, widget: {
-  OCRWidget()
-}, timeline: {
-  AgencyEntry(date: .now, name: "머니몽", amount: 1000)
-})

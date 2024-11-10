@@ -8,7 +8,7 @@ struct MainWidget: Widget {
   var body: some WidgetConfiguration {
     StaticConfiguration(kind: kind, provider: AgencyProvider()) { entry in
       if entry.name.isEmpty {
-        NotSelectedAgencyView()
+        EmptyAgencyView()
       } else {
         MainWidgetEntryView(entry: entry)
       }
@@ -21,7 +21,6 @@ struct MainWidget: Widget {
 
 struct MainWidgetEntryView: View {
   var entry: AgencyProvider.Entry
-  
   
   var body: some View {
     VStack {
@@ -71,14 +70,6 @@ struct MainWidgetEntryView: View {
       .frame(height: 24)
       Spacer()
     }
-    .containerBackground(for: .widget) {
-      Color(uiColor: Colors.Gray._1)
-    }
+    .widgetBackground(Color(uiColor: Colors.Gray._1))
   }
 }
-
-#Preview(as: .systemMedium, widget: {
-  MainWidget()
-}, timeline: {
-  AgencyEntry(date: .now, name: "머니몽", amount: 1000)
-})

@@ -1,6 +1,6 @@
 import SwiftUI
 
-public struct GradientView: View {
+public struct GradientBackgroundView: View {
   public var body: some View {
     LinearGradient(
       stops: [

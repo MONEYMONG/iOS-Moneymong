@@ -8,7 +8,7 @@ let project = Project(
   ),
   settings: .settings(
     base: .init()
-      .marketingVersion("1.2.2")
+      .marketingVersion("1.3.0")
       .swiftVersion("5.7")
       .currentProjectVersion("1")
       .appleGenericVersioningSystem(),
@@ -23,6 +23,7 @@ let project = Project(
       platform: .iOS,
       product: .appExtension,
       bundleId: "com.yapp.moneymong.WidgetExtension",
+      deploymentTarget: .iOS(targetVersion: "15.0", devices: .iphone),
       infoPlist: .extendingDefault(with: [
         "CFBundleDisplayName": "$(PRODUCT_NAME)",
         "NSExtension": [

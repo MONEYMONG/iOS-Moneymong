@@ -2,15 +2,16 @@ import SwiftUI
 
 import DesignSystem
 
-struct MiniNotSelectedAgencyView: View {
+// 2 * 2 위젯인데 소속이 없을경우
+struct SmallEmptyAgencyView: View {
   var body: some View {
     VStack {
       Image(uiImage: Images.mongLedgerWidgetMini!)
       VStack {
         (
-          Text("회비 관리할 ").foregroundStyle(.white) +
-          Text("장부").foregroundStyle(Color(uiColor: Colors.Blue._4)) +
-          Text("를").foregroundStyle(.white)
+          Text("회비 관리할 ").foregroundColor(.white) +
+          Text("장부").foregroundColor(Color(uiColor: Colors.Blue._4)) +
+          Text("를").foregroundColor(.white)
         )
         .font(.system(size: 16, weight: .bold))
         Text("만들어주세요!")
@@ -18,8 +19,6 @@ struct MiniNotSelectedAgencyView: View {
           .font(.system(size: 16, weight: .bold))
       }
     }
-    .containerBackground(for: .widget) {
-      GradientView()
-    }
+    .widgetBackground(GradientBackgroundView())
   }
 }

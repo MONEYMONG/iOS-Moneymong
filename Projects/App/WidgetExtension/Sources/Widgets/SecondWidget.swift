@@ -9,7 +9,7 @@ struct SecondWidget: Widget {
   var body: some WidgetConfiguration {
     StaticConfiguration(kind: kind, provider: AgencyProvider()) { entry in
       if entry.name.isEmpty {
-        NotSelectedAgencyView()
+        EmptyAgencyView()
       } else {
         SecondWidgetEntryView(entry: entry)
       }
@@ -73,15 +73,6 @@ struct SecondWidgetEntryView: View {
     }
     .padding(.horizontal, 10)
     .padding(.vertical, 20)
-    .containerBackground(for: .widget) {
-      Color(uiColor: Colors.Gray._1)
-    }
+    .widgetBackground(Color(uiColor: Colors.Gray._1))
   }
-}
-
-#Preview(as: .systemMedium) {
-  SecondWidget()
-} timeline: {
-  AgencyEntry(date: .now, name: "", amount: 100000)
-  AgencyEntry(date: .now, name: "머니몽2", amount: 120000)
 }
