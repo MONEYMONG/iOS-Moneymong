@@ -8,7 +8,7 @@ let project = Project(
   ),
   settings: .settings(
     base: .init()
-      .marketingVersion("1.3.0")
+      .marketingVersion("1.3.2")
       .swiftVersion("5.7")
       .currentProjectVersion("1")
       .appleGenericVersioningSystem(),
@@ -35,7 +35,23 @@ let project = Project(
       entitlements: "WidgetExtension/Resources/WidgetExtension.entitlements",
       dependencies: [
         .project(target: "DesignSystem", path: .relativeToRoot("Projects/Shared/DesignSystem"))
-      ]
+      ],
+      settings: .settings(
+        base: [
+          "DEVELOPMENT_TEAM[sdk=iphoneos*]": "H5G7RFWFSQ",
+          "CODE_SIGN_STYLE": "Manual"
+        ],
+        configurations: [
+          .debug(name: "Debug", settings: [
+            "CODE_SIGN_IDENTITY": "Apple Development: Nayeon Gu (3CMPGMMD7L)",
+            "PROVISIONING_PROFILE_SPECIFIER": "match Development com.yapp.moneymong.WidgetExtension"
+          ]),
+          .release(name: "Release", settings: [
+            "CODE_SIGN_IDENTITY": "Apple Distribution: Nayeon Gu (H5G7RFWFSQ)",
+            "PROVISIONING_PROFILE_SPECIFIER": "match AppStore com.yapp.moneymong.WidgetExtension"
+          ])
+        ]
+      )
     ),
     Target(
       name: "Moneymong",
@@ -86,8 +102,22 @@ let project = Project(
         .target(name: "WidgetExtension")
       ],
       settings: .settings(
-        base: .init()
-          .cutomSetting()
+        base: [
+          "DEBUG_INFORMATION_FORMAT": "dwarf-with-dsym",
+          "OTHER_LDFLAGS": "-ObjC",
+          "DEVELOPMENT_TEAM[sdk=iphoneos*]": "H5G7RFWFSQ",
+          "CODE_SIGN_STYLE": "Manual"
+        ],
+        configurations: [
+          .debug(name: "Debug", settings: [
+            "CODE_SIGN_IDENTITY": "Apple Development: Nayeon Gu (3CMPGMMD7L)",
+            "PROVISIONING_PROFILE_SPECIFIER": "match Development com.yapp.moneymong"
+          ]),
+          .release(name: "Release", settings: [
+            "CODE_SIGN_IDENTITY": "Apple Distribution: Nayeon Gu (H5G7RFWFSQ)",
+            "PROVISIONING_PROFILE_SPECIFIER": "match AppStore com.yapp.moneymong"
+          ])
+        ]
       ),
       launchArguments: [
         LaunchArgument(name: "IDEPreferLogStreaming=YES", isEnabled: true),
@@ -96,12 +126,3 @@ let project = Project(
     )
   ]
 )
-
-extension Dictionary where Key == String, Value == ProjectDescription.SettingValue {
-  func cutomSetting() -> SettingsDictionary {
-    return merging([
-      "DEBUG_INFORMATION_FORMAT": "dwarf-with-dsym",
-      "OTHER_LDFLAGS": "-ObjC"
-    ])
-  }
-}
