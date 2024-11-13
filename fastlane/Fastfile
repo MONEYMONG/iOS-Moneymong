@@ -22,20 +22,6 @@ platform :ios do
       timeout: 3600,
       lock_when_sleeps: true
     )
-
-    import_certificate(
-      certificate_path: "Tuist/Signing/release.cer",
-      keychain_name: "#{KEYCHAIN_NAME}",
-      keychain_password: "#{KEYCHAIN_PASSWORD}"
-    )
-
-    import_certificate(
-      certificate_path: "Tuist/Signing/release.p12",
-      keychain_name: "#{KEYCHAIN_NAME}",
-      keychain_password: "#{KEYCHAIN_PASSWORD}"
-    )
-
-    install_provisioning_profile(path: "Tuist/Signing/#{APP_NAME}.Release.mobileprovision")
   end
 
   # 테스트 플라이트 업로드
@@ -58,15 +44,34 @@ platform :ios do
       xcodeproj: "Projects/App/Moneymong.xcodeproj"
     )
 
+    match(
+      type: "appstore",
+      app_identifier: "com.yapp.moneymong",
+      force_for_new_devices: true,
+      readonly: true
+    )
+
+    match(
+      type: "appstore",
+      app_identifier: "com.yapp.moneymong.WidgetExtension",
+      force_for_new_devices: true,
+      readonly: true
+    )
+
     # ✅ 빌드
     build_app(
       workspace: "#{APP_NAME}.xcworkspace",
       scheme: "#{SCHEME}",
-      export_method: "app-store"
+      export_method: "app-store",
+      xcargs: "-allowProvisioningUpdates"
     )
 
     # ✅ 테스트 플라이트 업로드
-    upload_to_testflight(skip_waiting_for_build_processing: true)
+    upload_to_testflight(
+      app_identifier: "com.yapp.moneymong",
+      skip_waiting_for_build_processing: true
+    )
+    
     slack(
       message: "⭐️ 테스트 플라이트 업로드 성공",
       channel: "#알림-ios-배포",
