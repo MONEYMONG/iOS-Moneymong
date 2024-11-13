@@ -9,16 +9,13 @@ jobs:
     runs-on: macos-latest
     steps:
       - uses: actions/checkout@v2
-      - name: Setup Xcode version
-        uses: maxim-lobanov/setup-xcode@v1
+      - uses: maxim-lobanov/setup-xcode@v1
         with:
           xcode-version: 15.4.0
-
-      - name: Setting Master Key
-        run: | 
-          echo "$MASTER_KEY" > Tuist/master.key
-        env:
-          MASTER_KEY: ${{secrets.MASTER_KEY}}
+      - uses: shimataro/ssh-key-action@v2
+        with: 
+          key: ${{ secrets.SSH_KEY }}
+          known_hosts: ${{ secrets.KNOWN_HOSTS }}
 
       - name: Install Tuist
         run: brew tap tuist/tuist
