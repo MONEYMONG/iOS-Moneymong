@@ -7,6 +7,7 @@ SLACK_HOOK_URL = ENV["SLACK_HOOK_URL"]
 
 FASTLANE_API_KEY_ID = ENV["FASTLANE_API_KEY_ID"]
 FASTLANE_API_KEY_ISSUER_ID = ENV["FASTLANE_API_KEY_ISSUER_ID"]
+FASTLANE_API_KEY_CONTENT = ENV["FASTLANE_API_KEY_CONTENT"]
 
 default_platform(:ios)
 
@@ -34,7 +35,7 @@ platform :ios do
     app_store_connect_api_key(
       key_id: "#{FASTLANE_API_KEY_ID}",
       issuer_id: "#{FASTLANE_API_KEY_ISSUER_ID}",
-      key_filepath: "fastlane/AuthKey.p8"
+      key_content: "#{FASTLANE_API_KEY_CONTENT}"
     )
     
     new_build_number = latest_testflight_build_number + 1

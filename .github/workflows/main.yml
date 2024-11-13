@@ -59,4 +59,5 @@ jobs:
             KEYCHAIN_PASSWORD: ${{ secrets.KEYCHAIN_PASSWORD }}
             FASTLANE_API_KEY_ID: ${{ secrets.FASTLANE_API_KEY_ID }}
             FASTLANE_API_KEY_ISSUER_ID: ${{ secrets.FASTLANE_API_KEY_ISSUER_ID }}
+            FASTLANE_API_KEY_CONTENT: ${{ secrets.FASTLANE_API_KEY_CONTENT }}
             SLACK_HOOK_URL: ${{ secrets.SLACK_HOOK_URL }}
