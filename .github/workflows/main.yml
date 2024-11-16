@@ -55,6 +55,7 @@ jobs:
 
       - run: fastlane tf
         env:
+            MATCH_PASSWORD: ${{ secrets.MATCH_PASSWORD }}
             KEYCHAIN_NAME: ${{ secrets.KEYCHAIN_NAME }}
             KEYCHAIN_PASSWORD: ${{ secrets.KEYCHAIN_PASSWORD }}
             FASTLANE_API_KEY_ID: ${{ secrets.FASTLANE_API_KEY_ID }}
