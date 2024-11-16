@@ -2,7 +2,7 @@ name: UploadTestFlight
 
 on:
   push:
-    branches: [ develop ]
+    branches: [ develop, epic/CD ]
 
 jobs:
   upload_testflight:
