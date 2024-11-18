@@ -7,6 +7,7 @@ SLACK_HOOK_URL = ENV["SLACK_HOOK_URL"]
 
 FASTLANE_API_KEY_ID = ENV["FASTLANE_API_KEY_ID"]
 FASTLANE_API_KEY_ISSUER_ID = ENV["FASTLANE_API_KEY_ISSUER_ID"]
+FASTLANE_API_KEY_CONTENT = ENV["FASTLANE_API_KEY_CONTENT"]
 
 default_platform(:ios)
 
@@ -22,20 +23,6 @@ platform :ios do
       timeout: 3600,
       lock_when_sleeps: true
     )
-
-    import_certificate(
-      certificate_path: "Tuist/Signing/release.cer",
-      keychain_name: "#{KEYCHAIN_NAME}",
-      keychain_password: "#{KEYCHAIN_PASSWORD}"
-    )
-
-    import_certificate(
-      certificate_path: "Tuist/Signing/release.p12",
-      keychain_name: "#{KEYCHAIN_NAME}",
-      keychain_password: "#{KEYCHAIN_PASSWORD}"
-    )
-
-    install_provisioning_profile(path: "Tuist/Signing/#{APP_NAME}.Release.mobileprovision")
   end
 
   # 테스트 플라이트 업로드
@@ -48,7 +35,7 @@ platform :ios do
     app_store_connect_api_key(
       key_id: "#{FASTLANE_API_KEY_ID}",
       issuer_id: "#{FASTLANE_API_KEY_ISSUER_ID}",
-      key_filepath: "fastlane/AuthKey.p8"
+      key_content: "#{FASTLANE_API_KEY_CONTENT}"
     )
     
     new_build_number = latest_testflight_build_number + 1
@@ -58,15 +45,42 @@ platform :ios do
       xcodeproj: "Projects/App/Moneymong.xcodeproj"
     )
 
+    match(
+      git_url: "git@github.com:MONEYMONG/iOS-Moneymong-Match.git",
+      storage_mode: "git",
+      type: "appstore",
+      app_identifier: "com.yapp.moneymong",
+      force_for_new_devices: true,
+      readonly: true,
+      keychain_name: "#{KEYCHAIN_NAME}",
+      keychain_password: "#{KEYCHAIN_PASSWORD}"
+    )
+
+    match(
+      git_url: "git@github.com:MONEYMONG/iOS-Moneymong-Match.git",
+      storage_mode: "git",
+      type: "appstore",
+      app_identifier: "com.yapp.moneymong.WidgetExtension",
+      force_for_new_devices: true,
+      readonly: true,
+      keychain_name: "#{KEYCHAIN_NAME}",
+      keychain_password: "#{KEYCHAIN_PASSWORD}"
+    )
+
     # ✅ 빌드
     build_app(
       workspace: "#{APP_NAME}.xcworkspace",
       scheme: "#{SCHEME}",
-      export_method: "app-store"
+      export_method: "app-store",
+      xcargs: "-allowProvisioningUpdates"
     )
 
     # ✅ 테스트 플라이트 업로드
-    upload_to_testflight(skip_waiting_for_build_processing: true)
+    upload_to_testflight(
+      app_identifier: "com.yapp.moneymong",
+      skip_waiting_for_build_processing: true
+    )
+    
     slack(
       message: "⭐️ 테스트 플라이트 업로드 성공",
       channel: "#알림-ios-배포",
