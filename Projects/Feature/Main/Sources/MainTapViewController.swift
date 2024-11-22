@@ -9,10 +9,10 @@ import RxSwift
 public final class MainTapViewController: UITabBarController {
   private let disposeBag = DisposeBag()
   weak var coordinator: Coordinator?
-  private let agencyID: Int?
+  private let localStorage: LocalStorageInterface
 
-  public init(agencyID: Int?) {
-    self.agencyID = agencyID
+  public init(localStorage: LocalStorageInterface) {
+    self.localStorage = localStorage
     super.init(nibName: nil, bundle: nil)
   }
   
@@ -69,7 +69,7 @@ public final class MainTapViewController: UITabBarController {
       .notification(.init("deeplink"))
       .compactMap { $0.userInfo?["query"] as? String }
       .bind(with: self) { owner, query in
-        guard let agencyID = owner.agencyID else { return }
+        guard let agencyID = owner.localStorage.selectedAgency else { return }
         
         switch query {
         case "OCR":
