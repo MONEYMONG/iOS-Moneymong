@@ -9,10 +9,8 @@ import RxSwift
 public final class MainTapViewController: UITabBarController {
   private let disposeBag = DisposeBag()
   weak var coordinator: Coordinator?
-  private let localStorage: LocalStorageInterface
 
-  public init(localStorage: LocalStorageInterface) {
-    self.localStorage = localStorage
+  public init() {
     super.init(nibName: nil, bundle: nil)
   }
   
@@ -67,15 +65,17 @@ public final class MainTapViewController: UITabBarController {
   private func observeNotification() {
     NotificationCenter.default.rx
       .notification(.init("deeplink"))
-      .compactMap { $0.userInfo?["query"] as? String }
-      .bind(with: self) { owner, query in
-        guard let agencyID = owner.localStorage.selectedAgency else { return }
-        
-        switch query {
+      .compactMap { noti -> (query: String, agencyID: Int)? in
+        guard let query = noti.userInfo?["query"] as? String,
+              let agencyID = noti.userInfo?["agencyID"] as? Int else { return nil }
+        return (query, agencyID)
+      }
+      .bind(with: self) { owner, userInfo in
+        switch userInfo.query {
         case "OCR":
-          owner.coordinator?.move(to: .createOCRLedger(agencyID))
+          owner.coordinator?.move(to: .createOCRLedger(userInfo.agencyID))
         case "CreateLedger":
-          owner.coordinator?.move(to: .createManualLedger(agencyID))
+          owner.coordinator?.move(to: .createManualLedger(userInfo.agencyID))
         case "LedgerDetail":
           owner.coordinator?.move(to: .ledger)
         default: break

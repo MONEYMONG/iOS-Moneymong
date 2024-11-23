@@ -7,12 +7,13 @@ import DesignSystem
 
 final class AppCoordinator: Coordinator {
   var navigationController: UINavigationController
-  var diContainer: AppDIContainer = AppDIContainer()
+  let diContainer: AppDIContainer
   weak var parentCoordinator: Coordinator?
   var childCoordinators: [Coordinator] = []
   
-  init(navigationController: UINavigationController) {
+  init(navigationController: UINavigationController, diContainer: AppDIContainer) {
     self.navigationController = navigationController
+    self.diContainer = diContainer
   }
 
   func start(animated: Bool) {

@@ -7,27 +7,21 @@ import MyPageFeature
 import Core
 
 final class AppDIContainer {
-
-  private let localStorage: LocalStorageInterface
-  private let networkManager: NetworkManagerInterfacae
-  private let tokenIntercepter: TokenRequestIntercepter
-
   let signDIContainer: SignDIContainer
   let mainDIContainer: MainDIContainer
 
-  init() {
-    self.localStorage = LocalStorage()
-    self.networkManager = NetworkManager()
+  init(
+    localStorage: LocalStorageInterface,
+    networkManager: NetworkManagerInterfacae
+  ) {
     
-    self.tokenIntercepter = TokenRequestIntercepter(
+    (networkManager as? NetworkManager)?.tokenIntercepter = TokenRequestIntercepter(
       localStorage: localStorage,
       tokenRepository: TokenRepository(
         networkManager: networkManager,
         localStorage: localStorage
       )
     )
-    
-    (networkManager as? NetworkManager)?.tokenIntercepter = tokenIntercepter
 
     self.signDIContainer = SignDIContainer(
       localStorage: localStorage,
