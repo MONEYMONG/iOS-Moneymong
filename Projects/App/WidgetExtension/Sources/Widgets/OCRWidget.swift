@@ -36,7 +36,7 @@ struct OCRWidgetEntryView: View {
         .font(.system(size: 16, weight: .bold))
     }
     .padding(.vertical, 20)
-    .widgetURL(URL(string: "widget://OCR"))
+    .widgetURL(LinkManager.ocr.url)
     .widgetBackground(Color(uiColor: Colors.Gray._1))
   }
 }

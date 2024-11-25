@@ -48,7 +48,7 @@ struct SecondWidgetEntryView: View {
       }
 
       HStack(spacing: 10) {
-        Link(destination: URL(string: "widget://OCR")!) {
+        Link(destination: LinkManager.ocr.url) {
           Text("영수증 스캔")
             .font(.system(size: 12, weight: .bold))
             .foregroundColor(Color(uiColor: Colors.White._1))
@@ -59,7 +59,7 @@ struct SecondWidgetEntryView: View {
             .cornerRadius(10)
         }
         
-        Link(destination: URL(string: "widget://LedgerDetail")!) {
+        Link(destination: LinkManager.ledgerDetail.url) {
           Text("회비 내역 확인")
             .font(.system(size: 12, weight: .bold))
             .foregroundColor(Color(uiColor: Colors.Blue._4))
