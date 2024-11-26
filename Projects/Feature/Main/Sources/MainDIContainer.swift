@@ -39,7 +39,7 @@ public final class MainDIContainer {
   }
 
   func mainTab(with coordinator: Coordinator) -> MainTapViewController {
-    let tabVC = MainTapViewController(agencyID: localStorage.selectedAgency)
+    let tabVC = MainTapViewController()
     tabVC.coordinator = coordinator
     tabVC.setViewControllers(
       [agencyTab(with: coordinator),

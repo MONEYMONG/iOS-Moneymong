@@ -24,7 +24,7 @@ struct MainWidgetEntryView: View {
   
   var body: some View {
     VStack {
-      Link(destination: URL(string: "widget://CreateLedger")!) {
+      Link(destination: LinkManager.createLedger.url) {
         HStack(alignment: .center) {
           Text("\(entry.name)에 오늘 사용한 금액 입력")
             .bold()
@@ -43,7 +43,7 @@ struct MainWidgetEntryView: View {
       
       Spacer()
       HStack {
-        Link(destination: URL(string: "widget://OCR")!) {
+        Link(destination: LinkManager.ocr.url) {
           HStack {
             Spacer()
             Text("영수증 스캔")
@@ -56,7 +56,7 @@ struct MainWidgetEntryView: View {
         
         Divider()
           .background(Color(uiColor: Colors.Gray._5))
-        Link(destination: URL(string: "widget://LedgerDetail")!) {
+        Link(destination: LinkManager.ledgerDetail.url) {
           HStack {
             Spacer()
             Text("회비 내역 확인")

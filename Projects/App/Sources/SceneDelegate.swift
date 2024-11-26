@@ -4,6 +4,10 @@ import Core
 import DesignSystem
 
 class SceneDelegate: UIResponder, UIWindowSceneDelegate {
+  private let localStorage = LocalStorage()
+  private let networkManager = NetworkManager()
+  private lazy var diContainer = AppDIContainer(localStorage: localStorage, networkManager: networkManager)
+  
   private var appCoordinator: AppCoordinator?
   var window: UIWindow?
   
@@ -17,7 +21,10 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
     self.window?.makeKeyAndVisible()
     self.window?.rootViewController = navigationController
     
-    self.appCoordinator = AppCoordinator(navigationController: navigationController)
+    self.appCoordinator = AppCoordinator(
+      navigationController: navigationController,
+      diContainer: diContainer
+    )
     appCoordinator?.start(animated: false)
     
     self.scene(scene, openURLContexts: connectionOptions.urlContexts)
@@ -25,9 +32,9 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
 
   func scene(_ scene: UIScene, openURLContexts URLContexts: Set<UIOpenURLContext>) {
     guard let url = URLContexts.first?.url else { return }
-    
+
     if url.absoluteString.contains("widget://") {
-      DeepLinkManager.setDestination(url.absoluteString)
+      DeepLinkManager.setDestination(url.absoluteString, agencyID: localStorage.selectedAgency)
     } else {
       KakaoAuthManager.shared.openURL(url)
     }
