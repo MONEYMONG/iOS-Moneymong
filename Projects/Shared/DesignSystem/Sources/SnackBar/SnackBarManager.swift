@@ -21,7 +21,7 @@ public final class SnackBarManager {
       return
     }
     
-    print("topview: \(view)")
+    debugPrint("topview: \(view)")
     
     if let previousSnackBar = view.subviews.first(where: { $0 is MMSnackBar }) {
       UIView.animate(withDuration: 0.3) {

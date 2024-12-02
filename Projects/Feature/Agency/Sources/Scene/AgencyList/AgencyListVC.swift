@@ -68,23 +68,35 @@ public final class AgencyListVC: BaseVC, View {
     // Action Binding
     
     navigationItem.rightBarButtonItem?.rx.tap
+      .observe(on: MainScheduler.instance)
       .throttle(.seconds(1), latest: false, scheduler: MainScheduler.instance)
+      .do(onNext: { [weak self] in
+        self?.searchHeaderView.startEditing()
+      })
       .map { Reactor.Action.tapSearchBar }
       .bind(to: reactor.action)
       .disposed(by: disposeBag)
     
     searchHeaderView.searchBar.rx.searchButtonClicked
+      .observe(on: MainScheduler.instance)
+      .do(onNext: { [weak self] in
+        self?.searchHeaderView.endEditing()
+      })
       .map { Reactor.Action.tapSearchButton }
       .bind(to: reactor.action)
       .disposed(by: disposeBag)
     
     searchHeaderView.searchBar.rx.text
       .skip(1)
+      .compactMap { $0 }
+      .distinctUntilChanged()
+      .observe(on: MainScheduler.instance)
       .map { Reactor.Action.searchTextChanged($0) }
       .bind(to: reactor.action)
       .disposed(by: disposeBag)
     
     searchHeaderView.cancelButton.rx.tap
+      .observe(on: MainScheduler.instance)
       .map { Reactor.Action.tapCancelButton }
       .bind(to: reactor.action)
       .disposed(by: disposeBag)
@@ -128,19 +140,20 @@ public final class AgencyListVC: BaseVC, View {
     // Data Binding
     
     reactor.pulse(\.$query)
+      .observe(on: MainScheduler.instance)
       .bind(with: self) { owner, query in
-        print("query: \(query)")
+        
+        owner.navigationItem.rightBarButtonItem?.setValue(query != nil, forKey: "hidden")
         owner.searchHeaderView.flex.height(query == nil ? 0 : 60)
         owner.searchHeaderView.flex.markDirty()
-        
         UIView.animate(withDuration: 0.2) {
           owner.searchHeaderView.isHidden = query == nil
           owner.rootContainer.flex.layout()
         }
         
-        owner.navigationItem.rightBarButtonItem?.setValue(query != nil, forKey: "hidden")
-        
-        owner.searchHeaderView.searchBar.text = query
+        if query == nil {
+          owner.searchHeaderView.endEditing()
+        }
       }
       .disposed(by: disposeBag)
     
@@ -184,7 +197,6 @@ public final class AgencyListVC: BaseVC, View {
       .observe(on: MainScheduler.instance)
       .bind(with: self) { owner, error in
         owner.coordinator?.present(.alert(title: "네트워크에러", subTitle: nil, okAction: { }))
-        print(error)
       }
       .disposed(by: disposeBag)
     

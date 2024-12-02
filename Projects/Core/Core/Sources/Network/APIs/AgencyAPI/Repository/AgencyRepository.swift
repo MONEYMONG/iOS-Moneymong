@@ -29,7 +29,7 @@ public final class AgencyRepository: AgencyRepositoryInterface {
   }
   
   public func search(query: String) async throws -> [Agency] {
-    let targetType = AgencyAPI.search(query: .init(keyword: query))
+    let targetType = AgencyAPI.search(query: query)
     let dto = try await networkManager.request(target: targetType, of: [AgencyResponseDTO].self)
     return dto.toEntity
   }

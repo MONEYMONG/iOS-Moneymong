@@ -17,7 +17,6 @@ final class SearchView: UIView {
     return v
   }()
   
-  
   override init(frame: CGRect) {
     super.init(frame: frame)
     setupUI()
@@ -50,6 +49,8 @@ final class SearchView: UIView {
     searchBar.searchTextField.backgroundColor = Colors.White._1
     searchBar.searchTextField.clearButtonMode = .always
     searchBar.searchTextField.leftView = nil
+    searchBar.autocorrectionType = .no
+    searchBar.spellCheckingType = .no
     
     if let textField = searchBar.value(forKey: "searchField") as? UITextField {
       textField.leftView?.frame.origin.x = 10  // 왼쪽 여백
@@ -71,5 +72,14 @@ final class SearchView: UIView {
     
     rootConainter.pin.all()
     rootConainter.flex.layout()
+  }
+  
+  func startEditing() {
+    searchBar.searchTextField.becomeFirstResponder()
+    searchBar.searchTextField.text = ""
+  }
+  
+  func endEditing() {
+    searchBar.searchTextField.resignFirstResponder()
   }
 }

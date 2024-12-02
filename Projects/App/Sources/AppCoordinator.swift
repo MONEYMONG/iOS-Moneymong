@@ -31,7 +31,6 @@ final class AppCoordinator: Coordinator {
 
   deinit {
     NotificationCenter.default.removeObserver(self)
-    print(#function)
   }
 }
 

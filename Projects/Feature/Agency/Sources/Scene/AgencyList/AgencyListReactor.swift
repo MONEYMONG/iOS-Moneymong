@@ -92,6 +92,7 @@ public final class AgencyListReactor: Reactor {
       } else {
         return .just(.setDestination(.joinAgency(agency)))
       }
+      
     case let .didPrefech(row):
       guard isPageable(row: row) else { return .empty() }
       return .concat([
@@ -102,14 +103,33 @@ public final class AgencyListReactor: Reactor {
           .catch { return .just(.agencyResponse(.failure($0.toMMError))) },
         .just(.setLoading(false))
       ])
+      
     case .feedBack:
       return .just(.setDestination(.web(Const.feedbackUrl)))
+    
     case .tapSearchBar:
       return .just(.setQuery(""))
+      
     case .tapSearchButton:
-      fatalError()
+      guard let query = currentState.query else { return .empty() }
+      
+      return .concat([
+        .just(.setLoading(true)),
+        .task { try await agencyRepo.search(query: query) }
+          .map { .agencyResponse(.success($0)) }
+          .catch { return .just(.agencyResponse(.failure($0.toMMError))) },
+        .just(.setLoading(false))
+      ])
+      
     case .tapCancelButton:
-      return .just(.setQuery(nil))
+      return .concat([
+        .just(.setQuery(nil)),
+        .just(.setPage(0)),
+        .task { try await agencyRepo.fetchList(page: currentState.page, size: listLimit) }
+          .map { .agencyResponse(.success($0)) }
+          .catch { return .just(.agencyResponse(.failure($0.toMMError))) },
+      ])
+      
     case let .searchTextChanged(query):
       return .just(.setQuery(query))
     }
@@ -124,6 +144,7 @@ public final class AgencyListReactor: Reactor {
         newState.items = initialState.items
       }
       newState.items += items.map { .agency($0) }
+      
     case let .agencyResponse(.failure(error)):
       newState.error = error
       
@@ -141,11 +162,12 @@ public final class AgencyListReactor: Reactor {
       
     case let .setAlert(title, subTitle):
       newState.alert = (title, subTitle)
+    
     case let .setPage(page):
       newState.page = page
+      
     case let .setQuery(query):
       newState.query = query
-      print("query: \(query)")
     }
     
     return newState
