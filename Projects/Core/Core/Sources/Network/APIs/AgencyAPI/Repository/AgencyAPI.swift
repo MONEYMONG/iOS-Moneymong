@@ -2,6 +2,7 @@ import Foundation
 
 enum AgencyAPI {
   case list(param: AgencyListRequestDTO) // 소속목록조회
+  case search(query: AgencyQueryRequestDTO) // 소속 목록 검색 조회
   case create(param: AgencyCreateRequestDTO) // 소속생성
   case memberList(id: Int) // 멤버목록조회
   case changeRole(id: Int, param: ChangeMemberRoleRequestDTO) // 멤버권한변경
@@ -21,6 +22,7 @@ extension AgencyAPI: TargetType {
   var path: String {
     switch self {
     case .list: return "v1/agencies"
+    case .search: return "v1/agencies/search"
     case .create: return "v1/agencies"
     case let .memberList(id): return "v1/agencies/\(id)/agency-users"
     case let .changeRole(id, _): return "v1/agencies/\(id)/agency-users/roles"
@@ -36,6 +38,7 @@ extension AgencyAPI: TargetType {
   var method: HTTPMethod {
     switch self {
     case .list: return .get
+    case .search: return .get
     case .create: return .post
     case .memberList: return .get
     case .changeRole: return .patch
@@ -51,6 +54,7 @@ extension AgencyAPI: TargetType {
   var task: HTTPTask {
     switch self {
     case let .list(param): return .requestJSONEncodable(query: param)
+    case let .search(param): return .requestJSONEncodable(params: param)
     case let .create(param): return .requestJSONEncodable(params: param)
     case .memberList: return .plain
     case let .changeRole(_, param): return .requestJSONEncodable(params: param)

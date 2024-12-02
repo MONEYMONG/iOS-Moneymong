@@ -18,6 +18,10 @@ public final class AgencyListReactor: Reactor {
     case tap(Agency)
     case didPrefech(Int)
     case feedBack
+    case tapSearchBar // 네비게이션의 search 아이콘을 눌렀을때
+    case tapSearchButton // 키보드의 검색 버튼을 눌렀을떄
+    case tapCancelButton
+    case searchTextChanged(String?)
   }
   
   public enum Mutation {
@@ -27,9 +31,12 @@ public final class AgencyListReactor: Reactor {
     case setDestination(State.Destination)
     case setAlert(title: String, subTitle: String)
     case setPage(Int)
+    case setQuery(String?)
   }
   
   public struct State {
+    @Pulse var query: String?
+    
     var page: Int = 0
     @Pulse var myAgency: [Agency] = []
     @Pulse var items: [Item] = [.feedback]
@@ -97,6 +104,14 @@ public final class AgencyListReactor: Reactor {
       ])
     case .feedBack:
       return .just(.setDestination(.web(Const.feedbackUrl)))
+    case .tapSearchBar:
+      return .just(.setQuery(""))
+    case .tapSearchButton:
+      fatalError()
+    case .tapCancelButton:
+      return .just(.setQuery(nil))
+    case let .searchTextChanged(query):
+      return .just(.setQuery(query))
     }
   }
   
@@ -128,6 +143,9 @@ public final class AgencyListReactor: Reactor {
       newState.alert = (title, subTitle)
     case let .setPage(page):
       newState.page = page
+    case let .setQuery(query):
+      newState.query = query
+      print("query: \(query)")
     }
     
     return newState
