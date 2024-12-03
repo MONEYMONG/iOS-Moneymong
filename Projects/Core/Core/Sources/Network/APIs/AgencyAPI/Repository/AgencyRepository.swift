@@ -3,6 +3,7 @@ import WidgetKit
 
 public protocol AgencyRepositoryInterface {
   func fetchList(page: Int, size: Int) async throws -> [Agency]
+  func search(query: String) async throws -> [Agency]
   func create(name: String, type: String) async throws -> Int
   func fetchMemberList(id: Int) async throws -> [Member]
   func changeMemberRole(id: Int, userId: Int, role: String) async throws
@@ -24,6 +25,12 @@ public final class AgencyRepository: AgencyRepositoryInterface {
   public func fetchList(page: Int, size: Int) async throws -> [Agency] {
     let targetType = AgencyAPI.list(param: .init(page: page, size: size, sort: nil))
     let dto = try await networkManager.request(target: targetType, of: AgencyListResponseDTO.self)
+    return dto.toEntity
+  }
+  
+  public func search(query: String) async throws -> [Agency] {
+    let targetType = AgencyAPI.search(query: query)
+    let dto = try await networkManager.request(target: targetType, of: [AgencyResponseDTO].self)
     return dto.toEntity
   }
   

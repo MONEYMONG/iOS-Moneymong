@@ -27,6 +27,8 @@ public final class AgencyListVC: BaseVC, View {
     return v
   }()
   
+  private let searchHeaderView = SearchView()
+  
   private let createAgencyButton: UIButton = {
     let v = UIButton()
     v.setBackgroundImage(Images.plusCircleFillRed, for: .normal)
@@ -42,20 +44,63 @@ public final class AgencyListVC: BaseVC, View {
   public override func setupConstraints() {
     super.setupConstraints()
 
-    view.addSubview(collectionView)
     view.addSubview(createAgencyButton)
+    
+    rootContainer.flex.define { flex in
+      flex.addItem(searchHeaderView).height(0)
+        .marginLeft(13).marginRight(20)
+      flex.addItem(collectionView).grow(1).shrink(1)
+    }
   }
   
   public override func viewDidLayoutSubviews() {
     super.viewDidLayoutSubviews()
     
-    collectionView.contentInset = .init(top: 0, left: 0, bottom: 20, right: 0)
-    collectionView.pin.all(view.pin.safeArea)
-    createAgencyButton.pin.size(70).bottom(view.pin.safeArea + 20).right(view.pin.safeArea + 10)
+    createAgencyButton.pin.size(70)
+      .bottom(view.pin.safeArea + 20)
+      .right(view.pin.safeArea + 10)
+    
+    rootContainer.flex.layout()
   }
 
   public func bind(reactor: AgencyListReactor) {
+    setRightItem(.search)
     // Action Binding
+    
+    navigationItem.rightBarButtonItem?.rx.tap
+      .observe(on: MainScheduler.instance)
+      .throttle(.seconds(1), latest: false, scheduler: MainScheduler.instance)
+      .do(onNext: { [weak self] in
+        self?.searchHeaderView.startEditing()
+      })
+      .map { Reactor.Action.tapSearchBar }
+      .bind(to: reactor.action)
+      .disposed(by: disposeBag)
+    
+    searchHeaderView.searchBar.rx.searchButtonClicked
+      .observe(on: MainScheduler.instance)
+      .do(onNext: { [weak self] in
+        self?.searchHeaderView.endEditing()
+      })
+      .map { Reactor.Action.tapSearchButton }
+      .bind(to: reactor.action)
+      .disposed(by: disposeBag)
+    
+    searchHeaderView.searchBar.rx.text
+      .skip(1)
+      .compactMap { $0 }
+      .distinctUntilChanged()
+      .observe(on: MainScheduler.instance)
+      .map { Reactor.Action.searchTextChanged($0) }
+      .bind(to: reactor.action)
+      .disposed(by: disposeBag)
+    
+    searchHeaderView.cancelButton.rx.tap
+      .observe(on: MainScheduler.instance)
+      .map { Reactor.Action.tapCancelButton }
+      .bind(to: reactor.action)
+      .disposed(by: disposeBag)
+    
     rx.viewWillAppear
       .bind {
         reactor.action.onNext(.requestAgencyList)
@@ -93,6 +138,25 @@ public final class AgencyListVC: BaseVC, View {
       .disposed(by: disposeBag)
     
     // Data Binding
+    
+    reactor.pulse(\.$query)
+      .observe(on: MainScheduler.instance)
+      .bind(with: self) { owner, query in
+        
+        owner.navigationItem.rightBarButtonItem?.setValue(query != nil, forKey: "hidden")
+        owner.searchHeaderView.flex.height(query == nil ? 0 : 60)
+        owner.searchHeaderView.flex.markDirty()
+        UIView.animate(withDuration: 0.2) {
+          owner.searchHeaderView.isHidden = query == nil
+          owner.rootContainer.flex.layout()
+        }
+        
+        if query == nil {
+          owner.searchHeaderView.endEditing()
+        }
+      }
+      .disposed(by: disposeBag)
+    
     reactor.pulse(\.$items)
       .bind(to: collectionView.rx.items) { view, row, item in
         let indexPath = IndexPath(row: row, section: 0)
@@ -133,7 +197,6 @@ public final class AgencyListVC: BaseVC, View {
       .observe(on: MainScheduler.instance)
       .bind(with: self) { owner, error in
         owner.coordinator?.present(.alert(title: "네트워크에러", subTitle: nil, okAction: { }))
-        print(error)
       }
       .disposed(by: disposeBag)
     

@@ -35,7 +35,7 @@ final class AlertVC: UIViewController {
       AlertsManager.show(
         title: "메인 타이틀1",
         subTitle: nil,
-        type: .onlyOkButton({ print("ok") })
+        type: .onlyOkButton({ })
       )
     }
     
@@ -44,9 +44,9 @@ final class AlertVC: UIViewController {
         title: "메인 타이틀1",
         subTitle: "서브 타이틀2",
         type: .default(okAction: {
-          print("ok")
+          debugPrint("ok")
         }, cancelAction: {
-          print("cancel")
+          debugPrint("cancel")
         })
       )
     }

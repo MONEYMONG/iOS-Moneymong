@@ -15,7 +15,6 @@ public final class NetworkManager: NetworkManagerInterfacae {
   public init() {}
   
   public func request(target: TargetType) async throws {
-    
     let dataResponse = await AF.request(target, interceptor: tokenIntercepter)
       .validateTokenExpire()
       .serializingData()
@@ -54,7 +53,6 @@ public final class NetworkManager: NetworkManagerInterfacae {
   }
   
   public func request<DTO: Responsable>(target: TargetType, of type: DTO.Type) async throws -> DTO {
-    
     let dataRequest: DataRequest
     switch target.task {
     case .upload(let multipartFormData):

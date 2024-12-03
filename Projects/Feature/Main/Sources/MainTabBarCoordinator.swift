@@ -23,7 +23,7 @@ public final class MainTabBarCoordinator: Coordinator {
   public func move(to scene: Scene) {
     switch scene {
     case .main: // 메인으로 이동
-      print("move to main")
+      debugPrint("move to main")
     case .login: // 로그인으로 이동
       parentCoordinator?.move(to: .login)
       remove()
@@ -42,7 +42,7 @@ public final class MainTabBarCoordinator: Coordinator {
   }
   
   deinit {
-    print(#function)
+    debugPrint(#function)
   }
 }
 

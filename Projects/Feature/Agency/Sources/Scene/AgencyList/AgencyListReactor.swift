@@ -18,6 +18,10 @@ public final class AgencyListReactor: Reactor {
     case tap(Agency)
     case didPrefech(Int)
     case feedBack
+    case tapSearchBar // 네비게이션의 search 아이콘을 눌렀을때
+    case tapSearchButton // 키보드의 검색 버튼을 눌렀을떄
+    case tapCancelButton
+    case searchTextChanged(String?)
   }
   
   public enum Mutation {
@@ -27,9 +31,12 @@ public final class AgencyListReactor: Reactor {
     case setDestination(State.Destination)
     case setAlert(title: String, subTitle: String)
     case setPage(Int)
+    case setQuery(String?)
   }
   
   public struct State {
+    @Pulse var query: String?
+    
     var page: Int = 0
     @Pulse var myAgency: [Agency] = []
     @Pulse var items: [Item] = [.feedback]
@@ -85,6 +92,7 @@ public final class AgencyListReactor: Reactor {
       } else {
         return .just(.setDestination(.joinAgency(agency)))
       }
+      
     case let .didPrefech(row):
       guard isPageable(row: row) else { return .empty() }
       return .concat([
@@ -95,8 +103,35 @@ public final class AgencyListReactor: Reactor {
           .catch { return .just(.agencyResponse(.failure($0.toMMError))) },
         .just(.setLoading(false))
       ])
+      
     case .feedBack:
       return .just(.setDestination(.web(Const.feedbackUrl)))
+    
+    case .tapSearchBar:
+      return .just(.setQuery(""))
+      
+    case .tapSearchButton:
+      guard let query = currentState.query else { return .empty() }
+      
+      return .concat([
+        .just(.setLoading(true)),
+        .task { try await agencyRepo.search(query: query) }
+          .map { .agencyResponse(.success($0)) }
+          .catch { return .just(.agencyResponse(.failure($0.toMMError))) },
+        .just(.setLoading(false))
+      ])
+      
+    case .tapCancelButton:
+      return .concat([
+        .just(.setQuery(nil)),
+        .just(.setPage(0)),
+        .task { try await agencyRepo.fetchList(page: currentState.page, size: listLimit) }
+          .map { .agencyResponse(.success($0)) }
+          .catch { return .just(.agencyResponse(.failure($0.toMMError))) },
+      ])
+      
+    case let .searchTextChanged(query):
+      return .just(.setQuery(query))
     }
   }
   
@@ -109,6 +144,7 @@ public final class AgencyListReactor: Reactor {
         newState.items = initialState.items
       }
       newState.items += items.map { .agency($0) }
+      
     case let .agencyResponse(.failure(error)):
       newState.error = error
       
@@ -126,8 +162,12 @@ public final class AgencyListReactor: Reactor {
       
     case let .setAlert(title, subTitle):
       newState.alert = (title, subTitle)
+    
     case let .setPage(page):
       newState.page = page
+      
+    case let .setQuery(query):
+      newState.query = query
     }
     
     return newState

@@ -7,6 +7,7 @@ public extension UIViewController {
     case backWhite
     case closeBlack
     case closeWhite
+    case search
     case trash
     case 수정완료
     case 등록하기
@@ -32,6 +33,9 @@ public extension UIViewController {
       case .trash:
         button.image = Images.trash?.withRenderingMode(.alwaysTemplate)
         button.tintColor = Colors.Gray._7
+      case .search:
+        button.image = Images.search?.withRenderingMode(.alwaysTemplate)
+        button.tintColor = Colors.Gray._9
       case .수정완료:
         button.title = "수정완료"
         button.setTitleTextAttributes([.font: Fonts.body._3], for: .normal)

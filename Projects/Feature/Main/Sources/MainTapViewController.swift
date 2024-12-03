@@ -15,7 +15,7 @@ public final class MainTapViewController: UITabBarController {
   }
   
   deinit {
-    print(#function)
+    debugPrint(#function)
   }
   
   @available(*, unavailable)

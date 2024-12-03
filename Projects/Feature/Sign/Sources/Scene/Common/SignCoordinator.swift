@@ -19,7 +19,7 @@ public final class SignCoordinator: Coordinator {
   }
   
   deinit {
-    print(#function)
+    debugPrint(#function)
   }
 }
 

@@ -50,7 +50,7 @@ public final class MyPageCoordinator: Coordinator {
   }
   
   deinit {
-    print(#function)
+    debugPrint(#function)
   }
 }
 

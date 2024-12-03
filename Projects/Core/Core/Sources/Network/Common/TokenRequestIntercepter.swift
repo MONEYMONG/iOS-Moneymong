@@ -19,7 +19,6 @@ public final class TokenRequestIntercepter: RequestInterceptor {
     for session: Session,
     completion: @escaping (Result<URLRequest, Error>) -> Void
   ) {
-    
     #if DEBUG
     guard urlRequest.url?.absoluteString.hasPrefix("https://dev.moneymong.site/") == true,
           let accessToken = localStorage.accessToken

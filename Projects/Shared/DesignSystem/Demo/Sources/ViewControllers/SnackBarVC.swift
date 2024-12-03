@@ -39,7 +39,7 @@ final class SnackBarVC: UIViewController {
     
     retryButton.addAction {
       SnackBarManager.show(title: "다시 시도해주세요") {
-        print("Retry Tapped")
+        debugPrint("Retry Tapped")
       }
     }
   }
