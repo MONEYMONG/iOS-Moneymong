@@ -62,20 +62,5 @@
 
 # 트러블 슈팅
 
-## OCR 기능 개발시, 디바이스 기종의 카메라 개수에 따른 초점 문제
-
-사진촬영을 했을때 기종에 따라서 화면에 초점이 안맞는 문제가 있었다.  
-찾아보니 iPhone의 카메라 개수는 기종에 따라서 1~3개로 차이가 나고, 어떤 카메라를 사용할 것인지의 문제였다.  
-사용할 카메라가 여러개라면 기본 카메라로 설정하도록 구현해서 해결하였다.  
-
-## Fastlane을 적용할때 원격저장소에서 Xcode signing certificate를 얻어야 하는 문제
-
-처음에는 tuist 문서를 참고해서 tuist signing을 적용해서 원격저장소에서 git action CI/CD 사이클을 돌렸다.  
-문제는 추후 개발과정에서 widget이 추가되면서 widget target의 signing역시 해줘야 했는데, 방법을 못찾은건진 모르겠지만 tuist signing으론 해결할 수 없다는 결론을 내렸다.  
-fastlane 문서를 참고해서 match방식으로 변경해서 해당 문제를 해결할 수 있었다.
-
-## ReactorKit애서 Swift Concurrency를 지원하지 않았던 문제
-
-이 프로젝트의 network, repository의 함수들은 모두 swift concurrency (async await)을 사용해서 만들어져 있었다.  
-그런데 reactorKit이 해당 부분을 지원하지 않아서 reactor에서 사용할 수가 없었다.  
-async -> Observable로 바꿔줄 수 있는 extension을 만들어서 해결하였다.
+- [영수증 스캔 시 초점이 잡히지 않는 문제](https://github.com/MONEYMONG/iOS-Moneymong/wiki/%EC%98%81%EC%88%98%EC%A6%9D-%EC%8A%A4%EC%BA%94-%EC%8B%9C-%EC%B4%88%EC%A0%90%EC%9D%B4-%EC%9E%A1%ED%9E%88%EC%A7%80-%EC%95%8A%EB%8A%94-%EB%AC%B8%EC%A0%9C)
+- [Tuist Signing에서 Match로 인증 방식 개선](https://github.com/MONEYMONG/iOS-Moneymong/wiki/%EC%9E%90%EB%8F%99%ED%99%94-%EB%B0%B0%ED%8F%AC-%EC%8B%9C-Tuist-Signing%EC%97%90%EC%84%9C-Match%EB%A1%9C-%EC%9D%B8%EC%A6%9D-%EB%B0%A9%EC%8B%9D-%EA%B0%9C%EC%84%A0)
