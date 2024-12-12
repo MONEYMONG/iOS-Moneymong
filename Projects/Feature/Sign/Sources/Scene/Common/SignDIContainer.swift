@@ -6,7 +6,7 @@ public final class SignDIContainer {
 
   public init(
     localStorage: LocalStorageInterface = LocalStorage(),
-    networkManager: NetworkManagerInterfacae = NetworkManager()
+    networkManager: NetworkManagerInterfacae
   ) {
     self.localStorage = localStorage
     self.networkManager = networkManager

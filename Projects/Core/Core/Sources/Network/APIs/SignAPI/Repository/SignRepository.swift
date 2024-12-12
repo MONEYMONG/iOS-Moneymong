@@ -22,7 +22,7 @@ public final class SignRepository: SignRepositoryInterface {
   private let appleAuthManager: AppleAuthManager
 
   public init(
-    networkManager: NetworkManagerInterfacae = NetworkManager(),
+    networkManager: NetworkManagerInterfacae,
     localStorage: LocalStorageInterface = LocalStorage(),
     kakaoAuthManager: KakaoAuthManager = .shared,
     appleAuthManager: AppleAuthManager = AppleAuthManager()

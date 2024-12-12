@@ -12,10 +12,12 @@ public final class NetworkManager: NetworkManagerInterfacae {
   
   public var tokenIntercepter: TokenRequestIntercepter?
   
+  private let session = Session(eventMonitors: [NetworkLogger()])
+  
   public init() {}
   
   public func request(target: TargetType) async throws {
-    let dataResponse = await AF.request(target, interceptor: tokenIntercepter)
+    let dataResponse = await session.request(target, interceptor: tokenIntercepter)
       .validateTokenExpire()
       .serializingData()
       .response
@@ -56,7 +58,7 @@ public final class NetworkManager: NetworkManagerInterfacae {
     let dataRequest: DataRequest
     switch target.task {
     case .upload(let multipartFormData):
-      dataRequest = AF.upload(
+      dataRequest = session.upload(
         multipartFormData: multipartFormData,
         with: target,
         interceptor: tokenIntercepter
@@ -64,7 +66,7 @@ public final class NetworkManager: NetworkManagerInterfacae {
       .validateTokenExpire()
       
     default:
-      dataRequest = AF.request(
+      dataRequest = session.request(
         target,
         interceptor: tokenIntercepter
       )

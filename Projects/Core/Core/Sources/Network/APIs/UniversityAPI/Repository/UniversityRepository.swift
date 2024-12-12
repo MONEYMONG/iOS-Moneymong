@@ -9,7 +9,7 @@ public protocol UniversityRepositoryInterface {
 public final class UniversityRepository: UniversityRepositoryInterface {
   private let networkManager: NetworkManagerInterfacae
 
-  public init(networkManager: NetworkManagerInterfacae = NetworkManager()) {
+  public init(networkManager: NetworkManagerInterfacae) {
     self.networkManager = networkManager
   }
 
