@@ -3,17 +3,27 @@ import Combine
 
 import DesignSystem
 import BaseFeature
+import CreateAgencyInterface
 
 import RxSwift
 import RxCocoa
 import ReactorKit
-import FlexLayout
-import PinLayout
 
-final class CreateAgencyVC: BaseVC, View {
-  weak var coordinator: AgencyCoordinator?
-  var disposeBag = DisposeBag()
+public final class InputAgencyInfoVC: BaseVC, View {
+  public var disposeBag = DisposeBag()
   private var cancelBag = Set<AnyCancellable>()
+  
+  private let createCompleteFactory: CreateCompleteFactoryInterface
+  private let inputUniversityInfoFactory: InputUniversityInfoFactoryInterface
+  
+  init(
+    createCompleteFactory: CreateCompleteFactoryInterface,
+    inputUniversityInfoFactory: InputUniversityInfoFactoryInterface
+  ) {
+    self.createCompleteFactory = createCompleteFactory
+    self.inputUniversityInfoFactory = inputUniversityInfoFactory
+    super.init()
+  }
   
   private let titleLabel: UILabel = {
     let v = UILabel()
@@ -46,7 +56,7 @@ final class CreateAgencyVC: BaseVC, View {
   
   private let createButton: MMButton = MMButton(title: "등록하기", type: .disable)
   
-  override func setupConstraints() {
+  public override func setupConstraints() {
     super.setupConstraints()
     
     rootContainer.flex.paddingHorizontal(20).define { flex in
@@ -57,23 +67,24 @@ final class CreateAgencyVC: BaseVC, View {
       flex.addItem().grow(1)
       flex.addItem(createButton).height(56).marginBottom(12)
     }
+    
+    setRightItem(.closeBlack)
   }
   
-  func bind(reactor: CreateAgencyReactor) {
-    setRightItem(.closeBlack)
-    
+  public func bind(reactor: InputAgencyInfoReactor) {
     // Action Binding
     navigationItem.rightBarButtonItem?.rx.tap
       .throttle(.seconds(1), latest: false, scheduler: MainScheduler.instance)
       .bind(with: self) { owner, _ in
-        owner.coordinator?.present(.alert(
+        AlertsManager.show(
           title: "정말 나가시겠습니까?",
           subTitle: "입력하신 내용은 저장되지 않습니다.",
-          okAction: {
-            owner.coordinator?.dismiss()
-          },
-          cancelAction: { }
-        ))
+          type: .default(okAction: {
+            owner.dismiss(animated: true)
+          }, cancelAction: {
+            
+          })
+        )
       }
       .disposed(by: disposeBag)
     
@@ -132,7 +143,8 @@ final class CreateAgencyVC: BaseVC, View {
       .bind(with: self) { owner, value in
         switch value {
         case let .complete(id):
-          owner.coordinator?.present(.createComplete(id: id))
+          let vc = owner.createCompleteFactory.make()
+          owner.navigationController?.pushViewController(vc, animated: true)
         }
       }
       .disposed(by: disposeBag)
@@ -141,11 +153,11 @@ final class CreateAgencyVC: BaseVC, View {
       .compactMap { $0 }
       .observe(on: MainScheduler.instance)
       .bind(with: self) { owner, value in
-        owner.coordinator?.present(.alert(
+        AlertsManager.show(
           title: "등록에 실패했습니다",
           subTitle: nil,
-          okAction: { }
-        ))
+          type: .onlyOkButton({})
+        )
       }
       .disposed(by: disposeBag)
     

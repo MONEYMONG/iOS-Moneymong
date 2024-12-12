@@ -9,9 +9,7 @@ import FlexLayout
 import PinLayout
 import ReactorKit
 
-final class SignUpVC: BaseVC, View {
-
-  weak var coordinator: SignCoordinator?
+final class InputUniversityInfoVC: BaseVC, View {
   var disposeBag = DisposeBag()
   private var anyCancellable = Set<AnyCancellable>()
 
@@ -98,16 +96,16 @@ final class SignUpVC: BaseVC, View {
       }
   }
 
-  func bind(reactor: SignUpReactor) {
+  func bind(reactor: InputUniversityInfoReactor) {
     // State Binding
     
-    reactor.pulse(\.$errorMessage)
-      .compactMap { $0 }
-      .observe(on: MainScheduler.instance)
-      .bind(with: self) { owner, errorMessage in
-        owner.coordinator?.alert(title: errorMessage)
-      }
-      .disposed(by: disposeBag)
+//    reactor.pulse(\.$errorMessage)
+//      .compactMap { $0 }
+//      .observe(on: MainScheduler.instance)
+//      .bind(with: self) { owner, errorMessage in
+//        owner.coordinator?.alert(title: errorMessage)
+//      }
+//      .disposed(by: disposeBag)
 
     reactor.pulse(\.$isLoading)
       .compactMap { $0 }
@@ -150,26 +148,26 @@ final class SignUpVC: BaseVC, View {
       }
       .disposed(by: disposeBag)
 
-    reactor.pulse(\.$destination)
-      .compactMap { $0 }
-      .observe(on: MainScheduler.instance)
-      .bind(with: self) { owner, destination in
-        switch destination {
-        case .congratulations:
-          owner.coordinator?.congratulations()
-        }
-      }
-      .disposed(by: disposeBag)
+//    reactor.pulse(\.$destination)
+//      .compactMap { $0 }
+//      .observe(on: MainScheduler.instance)
+//      .bind(with: self) { owner, destination in
+//        switch destination {
+//        case .congratulations:
+//          owner.coordinator?.congratulations()
+//        }
+//      }
+//      .disposed(by: disposeBag)
 
     // Action Binding
 
     setLeftItem(.back)
     
-    navigationItem.leftBarButtonItem?.rx.tap
-      .bind(with: self) { owner, _ in
-        owner.coordinator?.pop()
-      }
-      .disposed(by: disposeBag)
+//    navigationItem.leftBarButtonItem?.rx.tap
+//      .bind(with: self) { owner, _ in
+//        owner.coordinator?.pop()
+//      }
+//      .disposed(by: disposeBag)
     
     view.rx.tapGesture
       .bind { $0.endEditing(true) }

@@ -40,8 +40,8 @@ public extension SignCoordinator {
     remove()
   }
 
-  func signUp(animated: Bool = true) {
-    let vc = diContainer.signUp(with: self)
+  func createAgency(animated: Bool = true) {
+    let vc = diContainer.createAgency(with: self)
     navigationController.pushViewController(vc, animated: animated)
   }
 

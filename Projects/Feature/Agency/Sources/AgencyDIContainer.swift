@@ -1,6 +1,7 @@
 import UIKit
 
 import Core
+import CreateAgencyInterface
 
 public final class AgencyDIContainer {
   
@@ -10,14 +11,18 @@ public final class AgencyDIContainer {
   private let agencyRepo: AgencyRepositoryInterface
   private let userRepo: UserRepositoryInterface
   
+  private let inputAgencyInfoFactory: InputAgencyInfoFactoryInterface
+  
   public init(
     localStorage: LocalStorageInterface,
-    networkManager: NetworkManagerInterfacae
+    networkManager: NetworkManagerInterfacae,
+    inputAgencyInfoFactory: InputAgencyInfoFactoryInterface
   ) {
     self.localStorage = localStorage
     self.networkManager = networkManager
     self.agencyRepo = AgencyRepository(networkManager: networkManager)
     self.userRepo = UserRepository(networkManager: networkManager, localStorage: localStorage)
+    self.inputAgencyInfoFactory = inputAgencyInfoFactory
   }
 
   func agency(with coordinator: AgencyCoordinator) -> AgencyListVC {
@@ -28,10 +33,8 @@ public final class AgencyDIContainer {
   }
   
   func createAgency(with coordinator: AgencyCoordinator) -> UIViewController {
-    let vc = CreateAgencyVC()
+    let vc = inputAgencyInfoFactory.make()
     let rootVC = UINavigationController(rootViewController: vc)
-    vc.reactor = CreateAgencyReactor(agencyRepo: agencyRepo, userRepo: userRepo)
-    vc.coordinator = coordinator
     return rootVC
   }
   

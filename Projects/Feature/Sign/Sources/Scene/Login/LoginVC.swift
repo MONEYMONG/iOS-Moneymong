@@ -113,7 +113,7 @@ final class LoginVC: BaseVC, View {
         case .main:
           owner.coordinator?.main()
         case .signUp:
-          owner.coordinator?.signUp()
+          owner.coordinator?.createAgency()
         }
       }
       .disposed(by: disposeBag)

@@ -2,7 +2,7 @@ import Core
 
 import ReactorKit
 
-final class SignUpReactor: Reactor {
+final class InputUniversityInfoReactor: Reactor {
 
   enum Action {
     case searchKeyword(String)

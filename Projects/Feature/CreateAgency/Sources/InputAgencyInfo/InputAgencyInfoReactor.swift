@@ -2,9 +2,9 @@ import Core
 
 import ReactorKit
 
-final class CreateAgencyReactor: Reactor {
+public final class InputAgencyInfoReactor: Reactor {
   
-  struct State {
+  public struct State {
     @Pulse var userInfo: UserInfo?
     @Pulse var index = 0 // 소속 종류: 동아리 or 학생회
     @Pulse var text = "" // 소속 이름
@@ -15,19 +15,19 @@ final class CreateAgencyReactor: Reactor {
     
     @Pulse var destination: Destination?
     
-    enum Destination {
+    public enum Destination {
       case complete(Int)
     }
   }
   
-  enum Action {
+  public enum Action {
     case onAppear
     case textFieldDidChange(String)
     case selectedIndexDidChange(Int)
     case tapCreateButton
   }
   
-  enum Mutation {
+  public enum Mutation {
     case setText(String)
     case setError(MoneyMongError)
     case setLoading(Bool)
@@ -49,7 +49,7 @@ final class CreateAgencyReactor: Reactor {
     self.userRepo = userRepo
   }
   
-  func mutate(action: Action) -> Observable<Mutation> {
+  public func mutate(action: Action) -> Observable<Mutation> {
     switch action {
     case .onAppear:
       return .task {
@@ -97,7 +97,7 @@ final class CreateAgencyReactor: Reactor {
     }
   }
   
-  func reduce(state: State, mutation: Mutation) -> State {
+  public func reduce(state: State, mutation: Mutation) -> State {
     var newState = state
     
     switch mutation {

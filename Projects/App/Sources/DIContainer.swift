@@ -3,6 +3,7 @@ import SignFeature
 import AgencyFeature
 import LedgerFeature
 import MyPageFeature
+import CreateAgency
 
 import Core
 
@@ -25,12 +26,14 @@ final class AppDIContainer {
 
     self.signDIContainer = SignDIContainer(
       localStorage: localStorage,
-      networkManager: networkManager
+      networkManager: networkManager,
+      inputAgencyInfoFactory: InputAgencyInfoFactory()
     )
     
     self.mainDIContainer = MainDIContainer(
       localStorage: localStorage,
-      networkManager: networkManager
+      networkManager: networkManager,
+      inputAgencyInfoFactory: InputAgencyInfoFactory()
     )
   }
 }

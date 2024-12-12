@@ -1,10 +1,12 @@
 import UIKit
 
-import BaseFeature
 import AgencyFeature
+import BaseFeature
+import Core
+import CreateAgencyInterface
 import LedgerFeature
 import MyPageFeature
-import Core
+
 
 public final class MainDIContainer {
   private let localStorage: LocalStorageInterface
@@ -13,17 +15,19 @@ public final class MainDIContainer {
   private let agencyContainer: AgencyDIContainer
   private let myPageContainer: MyPageDIContainer
   private let ledgerContainer: LedgerDIContainer
-
+  
   public init(
     localStorage: LocalStorageInterface,
-    networkManager: NetworkManagerInterfacae
+    networkManager: NetworkManagerInterfacae,
+    inputAgencyInfoFactory: InputAgencyInfoFactoryInterface
   ) {
     self.localStorage = localStorage
     self.networkManager = networkManager
 
     self.agencyContainer = .init(
       localStorage: localStorage,
-      networkManager: networkManager
+      networkManager: networkManager,
+      inputAgencyInfoFactory: inputAgencyInfoFactory
     )
     
     self.myPageContainer = .init(
