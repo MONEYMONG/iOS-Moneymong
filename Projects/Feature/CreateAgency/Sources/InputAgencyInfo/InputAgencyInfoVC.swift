@@ -16,6 +16,10 @@ public final class InputAgencyInfoVC: BaseVC, View {
   private let createCompleteFactory: CreateCompleteFactoryInterface
   private let inputUniversityInfoFactory: InputUniversityInfoFactoryInterface
   
+  private var keybordShowCreateButtonConstraints: [NSLayoutConstraint] = []
+  private var keybordHideCreateButtonConstraints: [NSLayoutConstraint] = []
+
+  
   init(
     createCompleteFactory: CreateCompleteFactoryInterface,
     inputUniversityInfoFactory: InputUniversityInfoFactoryInterface
@@ -65,14 +69,61 @@ public final class InputAgencyInfoVC: BaseVC, View {
       flex.addItem(agencySegmentControl).marginBottom(40)
       flex.addItem(agencyTextField)
       flex.addItem().grow(1)
-      flex.addItem(createButton).height(56).marginBottom(12)
     }
+    
+    view.addSubview(createButton)
+    createButton.translatesAutoresizingMaskIntoConstraints = false
+    
+    keybordHideCreateButtonConstraints = [
+      createButton.heightAnchor.constraint(equalToConstant: 56),
+      createButton.bottomAnchor.constraint(equalTo: view.keyboardLayoutGuide.topAnchor),
+      createButton.trailingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.trailingAnchor, constant: -12),
+      createButton.leadingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.leadingAnchor, constant: 12)
+    ]
+    
+    keybordShowCreateButtonConstraints = [
+      createButton.heightAnchor.constraint(equalToConstant: 56),
+      createButton.bottomAnchor.constraint(equalTo: view.keyboardLayoutGuide.topAnchor),
+      createButton.trailingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.trailingAnchor, constant: 3),
+      createButton.leadingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.leadingAnchor, constant: -3)
+    ]
+    
+    NSLayoutConstraint.activate(keybordHideCreateButtonConstraints)
     
     setRightItem(.closeBlack)
   }
   
   public func bind(reactor: InputAgencyInfoReactor) {
     // Action Binding
+    
+    NotificationCenter.default.rx.notification(UIResponder.keyboardWillShowNotification)
+      .bind(with: self) { owner, _ in
+        UIView.animate(withDuration: 0.2) {
+          NSLayoutConstraint.deactivate(owner.keybordHideCreateButtonConstraints)
+          NSLayoutConstraint.activate(owner.keybordShowCreateButtonConstraints)
+        }
+        
+        UIView.animate(withDuration: 0.2) {
+          owner.createButton.layer.cornerRadius = 0
+        }
+        owner.view.layoutIfNeeded()
+      }
+      .disposed(by: disposeBag)
+    
+    NotificationCenter.default.rx.notification(UIResponder.keyboardWillHideNotification)
+      .bind(with: self) { owner, _ in
+        UIView.animate(withDuration: 0.2) {
+          NSLayoutConstraint.deactivate(owner.keybordShowCreateButtonConstraints)
+          NSLayoutConstraint.activate(owner.keybordHideCreateButtonConstraints)
+        }
+        
+        UIView.animate(withDuration: 0.2) {
+          owner.createButton.layer.cornerRadius = 12
+        }
+        owner.view.layoutIfNeeded()
+      }
+      .disposed(by: disposeBag)
+    
     navigationItem.rightBarButtonItem?.rx.tap
       .throttle(.seconds(1), latest: false, scheduler: MainScheduler.instance)
       .bind(with: self) { owner, _ in
