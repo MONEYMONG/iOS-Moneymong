@@ -1,10 +1,17 @@
 import UIKit
 
+import Core
 import CreateAgencyInterface
 
 public struct CreateCompleteFactory: CreateCompleteFactoryInterface {
   
-  public init() {}
+  private let networkManager: NetworkManagerInterfacae
+  private let localStorage: LocalStorageInterface
+  
+  public init(networkManager: NetworkManagerInterfacae, localStorage: LocalStorageInterface) {
+    self.networkManager = networkManager
+    self.localStorage = localStorage
+  }
   
   public func make() -> UIViewController {
     let vc = CreateCompleteVC()
