@@ -54,7 +54,7 @@ public final class SignDIContainer {
   }
 
   func createAgency(with coordinator: SignCoordinator) -> UIViewController {
-    let vc = inputAgencyInfoFactory.make()
+    let vc = inputAgencyInfoFactory.make(universityType: .unknown)
     return vc
   }
 

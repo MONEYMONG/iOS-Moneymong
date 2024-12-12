@@ -2,6 +2,7 @@ import UIKit
 
 import BaseFeature
 import DesignSystem
+import CreateAgencyInterface
 
 public final class AgencyCoordinator: Coordinator {
   public var navigationController: UINavigationController
@@ -20,7 +21,7 @@ public final class AgencyCoordinator: Coordinator {
     case alert(title: String, subTitle: String?, okAction: () -> Void, cancelAction: (() -> Void)? = nil)
     case joinAgency(id: Int, name: String)
     case joinComplete
-    case createAgency
+    case createAgency(UniversityType)
     case createComplete(id: Int)
     case web(String)
   }
@@ -41,8 +42,8 @@ public final class AgencyCoordinator: Coordinator {
       joinAgency(id: id, name: name, animated: animated)
     case .joinComplete:
       joinComplete(animated: animated)
-    case .createAgency: 
-      createAgency(animated: animated)
+    case let .createAgency(universityType):
+      createAgency(universityType: universityType, animated: animated)
     case let .createComplete(id):
       createComplete(agencyID: id, animated: animated)
     case let .web(url):
@@ -69,8 +70,8 @@ extension AgencyCoordinator {
     navigationController.viewControllers = [vc]
   }
   
-  private func createAgency(animated: Bool) {
-    let vc = diContainer.createAgency(with: self)
+  private func createAgency(universityType: UniversityType, animated: Bool) {
+    let vc = diContainer.createAgency(universityType: universityType)
     secondFlowNavigationController = vc as? UINavigationController
     vc.modalPresentationStyle = .fullScreen
     navigationController.topViewController?.present(vc, animated: animated)

@@ -27,13 +27,13 @@ public final class AgencyDIContainer {
 
   func agency(with coordinator: AgencyCoordinator) -> AgencyListVC {
     let vc = AgencyListVC()
-    vc.reactor = AgencyListReactor(agencyRepo: agencyRepo)
+    vc.reactor = AgencyListReactor(agencyRepo: agencyRepo, userRepo: userRepo)
     vc.coordinator = coordinator
     return vc
   }
   
-  func createAgency(with coordinator: AgencyCoordinator) -> UIViewController {
-    let vc = inputAgencyInfoFactory.make()
+  func createAgency(universityType: UniversityType) -> UIViewController {
+    let vc = inputAgencyInfoFactory.make(universityType: universityType)
     let rootVC = UINavigationController(rootViewController: vc)
     return rootVC
   }

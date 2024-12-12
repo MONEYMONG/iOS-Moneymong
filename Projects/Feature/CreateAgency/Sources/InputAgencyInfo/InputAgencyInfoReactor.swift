@@ -1,17 +1,19 @@
 import Core
+import CreateAgencyInterface
 
 import ReactorKit
 
 public final class InputAgencyInfoReactor: Reactor {
   
   public struct State {
-    @Pulse var userInfo: UserInfo?
     @Pulse var index = 0 // 소속 종류: 동아리 or 학생회
     @Pulse var text = "" // 소속 이름
     @Pulse var isButtonEnabled = false
     
     @Pulse var isLoading = false
     @Pulse var error: MoneyMongError?
+    
+    @Pulse var universityType: UniversityType
     
     @Pulse var destination: Destination?
     
@@ -21,7 +23,6 @@ public final class InputAgencyInfoReactor: Reactor {
   }
   
   public enum Action {
-    case onAppear
     case textFieldDidChange(String)
     case selectedIndexDidChange(Int)
     case tapCreateButton
@@ -34,29 +35,21 @@ public final class InputAgencyInfoReactor: Reactor {
     case setSelectedIndex(Int)
     case setButtonEnabled(Bool)
     case setDestination(State.Destination)
-    case setUserInfo(UserInfo)
   }
   
-  public let initialState: State = State()
+  public let initialState: State
   private let agencyRepo: AgencyRepositoryInterface
-  private let userRepo: UserRepositoryInterface
   
   init(
-    agencyRepo: AgencyRepositoryInterface,
-    userRepo: UserRepositoryInterface
+    universityType: UniversityType,
+    agencyRepo: AgencyRepositoryInterface
   ) {
     self.agencyRepo = agencyRepo
-    self.userRepo = userRepo
+    self.initialState = State(universityType: universityType)
   }
   
   public func mutate(action: Action) -> Observable<Mutation> {
     switch action {
-    case .onAppear:
-      return .task {
-        try await userRepo.user()
-      }
-      .map { .setUserInfo($0) }
-      .catch { return .just(.setError($0.toMMError)) }
       
     case let .textFieldDidChange(text):
       return .concat(
@@ -113,8 +106,6 @@ public final class InputAgencyInfoReactor: Reactor {
       newState.error = value
     case let .setLoading(value):
       newState.isLoading = value
-    case let .setUserInfo(value):
-      newState.userInfo = value
     }
     
     return newState

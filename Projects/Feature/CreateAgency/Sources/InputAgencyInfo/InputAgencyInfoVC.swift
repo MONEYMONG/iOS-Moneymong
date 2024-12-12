@@ -143,11 +143,6 @@ public final class InputAgencyInfoVC: BaseVC, View {
       .bind { $0.endEditing(true) }
       .disposed(by: disposeBag)
     
-    rx.viewWillAppear
-      .map { Reactor.Action.onAppear }
-      .bind(to: reactor.action)
-      .disposed(by: disposeBag)
-    
     agencyTextField.textField.rx.text
       .compactMap { $0 }
       .map { Reactor.Action.textFieldDidChange($0) }
@@ -172,8 +167,8 @@ public final class InputAgencyInfoVC: BaseVC, View {
       .disposed(by: disposeBag)
     
     // State Binding
-    reactor.pulse(\.$userInfo)
-      .filter { $0?.universityName == "정보없음"}
+    reactor.pulse(\.$universityType)
+      .filter { $0 == .none}
       .observe(on: MainScheduler.instance)
       .bind(with: self) { owner, _ in
         owner.agencySegmentControl.selectedIndex = 2

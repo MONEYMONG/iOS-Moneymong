@@ -27,13 +27,13 @@ final class AppDIContainer {
     self.signDIContainer = SignDIContainer(
       localStorage: localStorage,
       networkManager: networkManager,
-      inputAgencyInfoFactory: InputAgencyInfoFactory()
+      inputAgencyInfoFactory: InputAgencyInfoFactory(networkManager: networkManager, localStorage: localStorage)
     )
     
     self.mainDIContainer = MainDIContainer(
       localStorage: localStorage,
       networkManager: networkManager,
-      inputAgencyInfoFactory: InputAgencyInfoFactory()
+      inputAgencyInfoFactory: InputAgencyInfoFactory(networkManager: networkManager, localStorage: localStorage)
     )
   }
 }
