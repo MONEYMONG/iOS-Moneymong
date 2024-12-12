@@ -99,6 +99,7 @@ let project = Project(
       dependencies: [
         .project(target: "SignFeature", path: .relativeToRoot("Projects/Feature/Sign")),
         .project(target: "MainFeature", path: .relativeToRoot("Projects/Feature/Main")),
+        .project(target: "CreateAgency", path: .relativeToRoot("Projects/Feature/CreateAgency")),
         .target(name: "WidgetExtension")
       ],
       settings: .settings(

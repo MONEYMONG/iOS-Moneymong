@@ -1,61 +1,63 @@
 import ProjectDescription
 
 let project = Project(
-    name: "{{ name }}",
+    name: "CreateAgency",
     settings: .settings(
         base: .init()
         .swiftVersion("5.7")
     ),
     targets: [
         Target(
-            name: "{{ name }}",
+            name: "CreateAgency",
             platform: .iOS,
             product: .framework,
-            bundleId: "com.framework.moneymong.{{ name }}",
+            bundleId: "com.framework.moneymong.CreateAgency",
             deploymentTarget: .iOS(targetVersion: "15.0", devices: .iphone),
             sources: ["Sources/**"],
             dependencies: [
-                .target(name: "{{ name }}Interface")
+                .target(name: "CreateAgencyInterface"),
+                .project(target: "BaseFeature", path: .relativeToRoot("Projects/Feature/Base")),
+                .project(target: "MainFeature", path: .relativeToRoot("Projects/Feature/Main"))
             ]
         ),
         Target(
-            name: "{{ name }}Interface",
+            name: "CreateAgencyInterface",
             platform: .iOS,
             product: .framework,
-            bundleId: "com.framework.moneymong.{{ name }}Interface",
+            bundleId: "com.framework.moneymong.CreateAgencyInterface",
             deploymentTarget: .iOS(targetVersion: "15.0", devices: .iphone),
             sources: ["Interface/**"],
             dependencies: [
             ]
         ),
         Target(
-            name: "{{ name }}Tests",
+            name: "CreateAgencyTests",
             platform: .iOS,
             product: .unitTests,
-            bundleId: "com.framework.moneymong.{{ name }}Tests",
+            bundleId: "com.framework.moneymong.CreateAgencyTests",
             deploymentTarget: .iOS(targetVersion: "15.0", devices: .iphone),
             sources: ["Tests/**"],
             dependencies: [
-                .target(name: "{{ name }}"),
-                .target(name: "{{ name }}Testing")
+                .target(name: "CreateAgency"),
+                .target(name: "CreateAgencyTesting")
             ]
         ),
         Target(
-            name: "{{ name }}Testing",
+            name: "CreateAgencyTesting",
             platform: .iOS,
             product: .staticLibrary,
-            bundleId: "com.framework.moneymong.{{ name }}Testing",
+            bundleId: "com.framework.moneymong.CreateAgencyTesting",
             deploymentTarget: .iOS(targetVersion: "15.0", devices: .iphone),
             sources: ["Testing/**"],
             dependencies: [
-                .target(name: "{{ name }}Interface")
+                .target(name: "CreateAgencyInterface")
             ]
         ),
         Target(
-            name: "{{ name }}Demo",
+            name: "CreateAgencyDemo",
             platform: .iOS,
             product: .app,
-            bundleId: "com.framework.moneymong.{{ name }}Demo",
+            bundleId: "com.framework.moneymong.CreateAgencyDemo",
             deploymentTarget: .iOS(targetVersion: "15.0", devices: .iphone),
             infoPlist: .extendingDefault(with: [
               "UIUserInterfaceStyle": "Light",
@@ -77,10 +79,10 @@ let project = Project(
               "NSBonjourServices": ["_pulse._tcp"]
             ]),
             sources: ["Demo/Sources/**"],
-            resources: ["Demo/Resources/**"]
+            resources: ["Demo/Resources/**"],
             dependencies: [
-                .target(name: "{{ name }}"),
-                .target(name: "{{ name }}Testing")
+                .target(name: "CreateAgency"),
+                .target(name: "CreateAgencyTesting")
             ]
         )
     ]

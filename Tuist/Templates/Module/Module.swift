@@ -33,7 +33,7 @@ let modulTemplate = Template(
             templatePath: "SceneDelegate.stencil"
         ),
         .file(
-            path: "Demo/Sources/LaunchScreen.storyboard",
+            path: "Demo/Resources/LaunchScreen.storyboard",
             templatePath: "LaunchScreen.stencil"
         ),
         .file(
