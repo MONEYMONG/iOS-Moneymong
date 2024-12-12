@@ -194,7 +194,7 @@ public final class InputAgencyInfoVC: BaseVC, View {
       .bind(with: self) { owner, value in
         switch value {
         case let .complete(id):
-          let vc = owner.createCompleteFactory.make()
+          let vc = owner.createCompleteFactory.make(id: id)
           owner.navigationController?.pushViewController(vc, animated: true)
         }
       }
