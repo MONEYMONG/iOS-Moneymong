@@ -60,7 +60,7 @@
 
 <img src = "https://github.com/user-attachments/assets/081b5a60-f38d-407d-a310-8d7207962abb" width = "100%">
 
-# 트러블 슈팅
+# 📒 문서
 
 - [영수증 스캔 시 초점이 잡히지 않는 문제](https://github.com/MONEYMONG/iOS-Moneymong/wiki/%EC%98%81%EC%88%98%EC%A6%9D-%EC%8A%A4%EC%BA%94-%EC%8B%9C-%EC%B4%88%EC%A0%90%EC%9D%B4-%EC%9E%A1%ED%9E%88%EC%A7%80-%EC%95%8A%EB%8A%94-%EB%AC%B8%EC%A0%9C)
 - [Tuist Signing에서 Match로 인증 방식 개선](https://github.com/MONEYMONG/iOS-Moneymong/wiki/%EC%9E%90%EB%8F%99%ED%99%94-%EB%B0%B0%ED%8F%AC-%EC%8B%9C-Tuist-Signing%EC%97%90%EC%84%9C-Match%EB%A1%9C-%EC%9D%B8%EC%A6%9D-%EB%B0%A9%EC%8B%9D-%EA%B0%9C%EC%84%A0)
