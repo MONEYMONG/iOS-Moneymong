@@ -2,6 +2,10 @@ import ProjectDescription
 
 let project = Project(
     name: "{{ name }}",
+    settings: .settings(
+        base: .init()
+        .swiftVersion("5.7")
+    ),
     targets: [
         Target(
             name: "{{ name }}",
@@ -32,7 +36,19 @@ let project = Project(
             deploymentTarget: .iOS(targetVersion: "15.0", devices: .iphone),
             sources: ["Tests/**"],
             dependencies: [
-                .target(name: "{{ name }}")
+                .target(name: "{{ name }}"),
+                .target(name: "{{ name }}Testing")
+            ]
+        ),
+        Target(
+            name: "{{ name }}Testing",
+            platform: .iOS,
+            product: .staticLibrary,
+            bundleId: "com.framework.moneymong.{{ name }}Testing",
+            deploymentTarget: .iOS(targetVersion: "15.0", devices: .iphone),
+            sources: ["Testing/**"],
+            dependencies: [
+                .target(name: "{{ name }}Interface")
             ]
         ),
         Target(
@@ -47,9 +63,9 @@ let project = Project(
                 "UILaunchStoryboardName": "LaunchScreen"
             ]),
             sources: ["Demo/Sources/**"],
-            resources: ["Demo/Resources/**"],
             dependencies: [
-                .target(name: "{{ name }}")
+                .target(name: "{{ name }}"),
+                .target(name: "{{ name }}Testing")
             ]
         )
     ]
