@@ -63,12 +63,12 @@ final class InputUniversityInfoVC: BaseVC, View {
     return view
   }()
 
-  private let confirmButton: MMButton = {
+  private let registerButton: MMButton = {
     let button = MMButton(title: Const.confirmTitle, type: .disable)
     return button
   }()
 
-  private let notUniversityInfoButton: UIButton = {
+  private let notRegisterButton: UIButton = {
     let button = UIButton()
     button.setTitle(Const.universityInfoEmpty, for: .normal)
     button.setTitleColor(Colors.Blue._4, for: .normal)
@@ -104,32 +104,32 @@ final class InputUniversityInfoVC: BaseVC, View {
         }
         
         flex.addItem(gradeInputView).grow(1)
-        flex.addItem(confirmButton).height(56).marginBottom(16)
-        flex.addItem(notUniversityInfoButton).marginBottom(12)
+        flex.addItem(registerButton).height(56).marginBottom(16)
+        flex.addItem(notRegisterButton).marginBottom(12)
       }
     
-    view.addSubview(confirmButton)
-    view.addSubview(notUniversityInfoButton)
-    confirmButton.translatesAutoresizingMaskIntoConstraints = false
-    notUniversityInfoButton.translatesAutoresizingMaskIntoConstraints = false
+    view.addSubview(registerButton)
+    view.addSubview(notRegisterButton)
+    registerButton.translatesAutoresizingMaskIntoConstraints = false
+    notRegisterButton.translatesAutoresizingMaskIntoConstraints = false
     
     NSLayoutConstraint.activate([
-      notUniversityInfoButton.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor),
-      notUniversityInfoButton.centerXAnchor.constraint(equalTo: view.centerXAnchor)
+      notRegisterButton.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor),
+      notRegisterButton.centerXAnchor.constraint(equalTo: view.centerXAnchor)
     ])
     
     keybordHideCreateButtonConstraints = [
-      confirmButton.heightAnchor.constraint(equalToConstant: 56),
-      confirmButton.bottomAnchor.constraint(equalTo: notUniversityInfoButton.topAnchor, constant: -16),
-      confirmButton.trailingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.trailingAnchor, constant: -12),
-      confirmButton.leadingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.leadingAnchor, constant: 12)
+      registerButton.heightAnchor.constraint(equalToConstant: 56),
+      registerButton.bottomAnchor.constraint(equalTo: notRegisterButton.topAnchor, constant: -16),
+      registerButton.trailingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.trailingAnchor, constant: -12),
+      registerButton.leadingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.leadingAnchor, constant: 12)
     ]
     
     keybordShowCreateButtonConstraints = [
-      confirmButton.heightAnchor.constraint(equalToConstant: 56),
-      confirmButton.bottomAnchor.constraint(equalTo: view.keyboardLayoutGuide.topAnchor),
-      confirmButton.trailingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.trailingAnchor, constant: 3),
-      confirmButton.leadingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.leadingAnchor, constant: -3)
+      registerButton.heightAnchor.constraint(equalToConstant: 56),
+      registerButton.bottomAnchor.constraint(equalTo: view.keyboardLayoutGuide.topAnchor),
+      registerButton.trailingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.trailingAnchor, constant: 3),
+      registerButton.leadingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.leadingAnchor, constant: -3)
     ]
     
     NSLayoutConstraint.activate(keybordHideCreateButtonConstraints)
@@ -183,7 +183,7 @@ final class InputUniversityInfoVC: BaseVC, View {
     reactor.pulse(\.$isConfirm)
       .observe(on: MainScheduler.instance)
       .bind(with: self) { owner, value in
-        owner.confirmButton.setState(value ? .primary : .disable)
+        owner.registerButton.setState(value ? .primary : .disable)
       }
       .disposed(by: disposeBag)
 
@@ -213,7 +213,7 @@ final class InputUniversityInfoVC: BaseVC, View {
         }
         
         UIView.animate(withDuration: 0.2) {
-          owner.confirmButton.layer.cornerRadius = 0
+          owner.registerButton.layer.cornerRadius = 0
         }
         owner.view.layoutIfNeeded()
       }
@@ -227,7 +227,7 @@ final class InputUniversityInfoVC: BaseVC, View {
         }
         
         UIView.animate(withDuration: 0.2) {
-          owner.confirmButton.layer.cornerRadius = 12
+          owner.registerButton.layer.cornerRadius = 12
         }
         owner.view.layoutIfNeeded()
       }
@@ -276,13 +276,13 @@ final class InputUniversityInfoVC: BaseVC, View {
       }
       .store(in: &anyCancellable)
 
-    confirmButton.rx.tap
+    registerButton.rx.tap
       .throttle(.milliseconds(500), scheduler: MainScheduler.instance)
       .map { Reactor.Action.confirm }
       .bind(to: reactor.action)
       .disposed(by: disposeBag)
 
-    notUniversityInfoButton.rx.tap
+    notRegisterButton.rx.tap
       .throttle(.milliseconds(500), scheduler: MainScheduler.instance)
       .map { Reactor.Action.notUnivercityInfo }
       .bind(to: reactor.action)

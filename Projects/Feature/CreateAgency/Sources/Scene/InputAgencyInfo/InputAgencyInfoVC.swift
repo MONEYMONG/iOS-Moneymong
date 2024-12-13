@@ -59,7 +59,7 @@ public final class InputAgencyInfoVC: BaseVC, View {
     return v
   }()
   
-  private let createButton: MMButton = MMButton(title: "등록하기", type: .disable)
+  private let registerButton: MMButton = MMButton(title: "등록하기", type: .disable)
   
   public override func setupConstraints() {
     super.setupConstraints()
@@ -72,21 +72,21 @@ public final class InputAgencyInfoVC: BaseVC, View {
       flex.addItem().grow(1)
     }
     
-    view.addSubview(createButton)
-    createButton.translatesAutoresizingMaskIntoConstraints = false
+    view.addSubview(registerButton)
+    registerButton.translatesAutoresizingMaskIntoConstraints = false
     
     keybordHideCreateButtonConstraints = [
-      createButton.heightAnchor.constraint(equalToConstant: 56),
-      createButton.bottomAnchor.constraint(equalTo: view.keyboardLayoutGuide.topAnchor),
-      createButton.trailingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.trailingAnchor, constant: -12),
-      createButton.leadingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.leadingAnchor, constant: 12)
+      registerButton.heightAnchor.constraint(equalToConstant: 56),
+      registerButton.bottomAnchor.constraint(equalTo: view.keyboardLayoutGuide.topAnchor),
+      registerButton.trailingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.trailingAnchor, constant: -12),
+      registerButton.leadingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.leadingAnchor, constant: 12)
     ]
     
     keybordShowCreateButtonConstraints = [
-      createButton.heightAnchor.constraint(equalToConstant: 56),
-      createButton.bottomAnchor.constraint(equalTo: view.keyboardLayoutGuide.topAnchor),
-      createButton.trailingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.trailingAnchor, constant: 3),
-      createButton.leadingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.leadingAnchor, constant: -3)
+      registerButton.heightAnchor.constraint(equalToConstant: 56),
+      registerButton.bottomAnchor.constraint(equalTo: view.keyboardLayoutGuide.topAnchor),
+      registerButton.trailingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.trailingAnchor, constant: 3),
+      registerButton.leadingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.leadingAnchor, constant: -3)
     ]
     
     NSLayoutConstraint.activate(keybordHideCreateButtonConstraints)
@@ -104,7 +104,7 @@ public final class InputAgencyInfoVC: BaseVC, View {
         }
         
         UIView.animate(withDuration: 0.2) {
-          owner.createButton.layer.cornerRadius = 0
+          owner.registerButton.layer.cornerRadius = 0
         }
         owner.view.layoutIfNeeded()
       }
@@ -118,7 +118,7 @@ public final class InputAgencyInfoVC: BaseVC, View {
         }
         
         UIView.animate(withDuration: 0.2) {
-          owner.createButton.layer.cornerRadius = 12
+          owner.registerButton.layer.cornerRadius = 12
         }
         owner.view.layoutIfNeeded()
       }
@@ -160,7 +160,7 @@ public final class InputAgencyInfoVC: BaseVC, View {
       }
       .store(in: &cancelBag)
     
-    createButton.rx.tap
+    registerButton.rx.tap
       .throttle(.seconds(1), latest: false, scheduler: MainScheduler.instance)
       .map { Reactor.Action.tapCreateButton }
       .bind(to: reactor.action)
@@ -179,7 +179,7 @@ public final class InputAgencyInfoVC: BaseVC, View {
     
     reactor.pulse(\.$isButtonEnabled)
       .bind(with: self) { owner, value in
-        owner.createButton.setState(value ? .primary : .disable)
+        owner.registerButton.setState(value ? .primary : .disable)
       }
       .disposed(by: disposeBag)
     
