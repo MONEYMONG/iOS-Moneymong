@@ -36,7 +36,7 @@ public final class AgencyDIContainer {
     let navigationController = UINavigationController()
     let createAgencyCoordinator = CreateAgencyCoordinator(navigationController: navigationController, inputAgencyFactory: inputAgencyInfoFactory)
     createAgencyCoordinator.parentCoordinator = coordinator
-    createAgencyCoordinator.start(animated: true, universityType: .unknown)
+    createAgencyCoordinator.start(animated: true, universityType: universityType)
     return navigationController
   }
   
