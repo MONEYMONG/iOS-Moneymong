@@ -13,8 +13,9 @@ public struct InputUniversityInfoFactory: InputUniversityInfoFactoryInterface {
     self.localStorage = localStorage
   }
   
-  public func make(agencyName: String, agencyType: AgencyType) -> UIViewController {
+  public func make(coordinator: CreateAgencyCoordinator, agencyName: String, agencyType: AgencyType) -> UIViewController {
     let vc = InputUniversityInfoVC(completeFactory: CreateCompleteFactory(networkManager: networkManager, localStorage: localStorage))
+    vc.coordinator = coordinator
     vc.reactor = InputUniversityInfoReactor(
       agencyName: agencyName,
       agencyType: agencyType,

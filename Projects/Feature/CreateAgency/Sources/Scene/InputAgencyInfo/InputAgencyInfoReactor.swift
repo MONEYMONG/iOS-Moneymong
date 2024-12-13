@@ -40,13 +40,16 @@ public final class InputAgencyInfoReactor: Reactor {
   
   public let initialState: State
   private let agencyRepo: AgencyRepositoryInterface
+  private let universityRepo: UniversityRepositoryInterface
   
   init(
     universityType: UniversityType,
-    agencyRepo: AgencyRepositoryInterface
+    agencyRepo: AgencyRepositoryInterface,
+    universityRepo: UniversityRepositoryInterface
   ) {
     self.agencyRepo = agencyRepo
     self.initialState = State(universityType: universityType)
+    self.universityRepo = universityRepo
   }
   
   public func mutate(action: Action) -> Observable<Mutation> {
@@ -62,13 +65,16 @@ public final class InputAgencyInfoReactor: Reactor {
       return .just(.setAgencyType(index))
       
     case .tapCreateButton:
-      if currentState.universityType == .unknown {
+      if currentState.universityType == .unknown, currentState.agencyType != .general {
         return .just(.setDestination(.inputUniversity(currentState.text, currentState.agencyType)))
       } else {
         return .concat(
           .just(.setLoading(true)),
           .task {
-            try await agencyRepo.create(
+            if currentState.universityType == .unknown {
+              try await universityRepo.university(name: nil, grade: nil)
+            }
+            return try await agencyRepo.create(
               name: currentState.text,
               type: currentState.agencyType.rawValue
             )

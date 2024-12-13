@@ -54,8 +54,11 @@ public final class SignDIContainer {
   }
 
   func createAgency(with coordinator: SignCoordinator) -> UIViewController {
-    let vc = inputAgencyInfoFactory.make(universityType: .unknown)
-    return vc
+    let navigationController = UINavigationController()
+    let createAgencyCoordinator = CreateAgencyCoordinator(navigationController: navigationController, inputAgencyFactory: inputAgencyInfoFactory)
+    createAgencyCoordinator.parentCoordinator = coordinator
+    createAgencyCoordinator.start(animated: true, universityType: .unknown)
+    return navigationController
   }
 
   func congratulations(with coordinator: SignCoordinator) -> CongratulationsVC {

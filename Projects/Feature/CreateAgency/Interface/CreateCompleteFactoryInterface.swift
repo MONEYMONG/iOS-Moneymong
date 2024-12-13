@@ -1,5 +1,5 @@
 import UIKit
 
 public protocol CreateCompleteFactoryInterface {
-  func make(id: Int) -> UIViewController
+  func make(coordinator: CreateAgencyCoordinator, id: Int) -> UIViewController
 }

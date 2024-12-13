@@ -15,6 +15,8 @@ final class InputUniversityInfoVC: BaseVC, View {
   private var anyCancellable = Set<AnyCancellable>()
   
   private let completeFactory: CreateCompleteFactoryInterface
+  
+  var coordinator: CreateAgencyCoordinator?
 
   private let titleLabel: UILabel = {
     let label = UILabel()
@@ -160,10 +162,11 @@ final class InputUniversityInfoVC: BaseVC, View {
       .compactMap { $0 }
       .observe(on: MainScheduler.instance)
       .bind(with: self) { owner, destination in
+        guard let coordinator = owner.coordinator else { return }
         switch destination {
         case .congratulations: break
         case let .complete(id):
-          let vc = owner.completeFactory.make(id: id)
+          let vc = owner.completeFactory.make(coordinator: coordinator, id: id)
           owner.navigationController?.pushViewController(vc, animated: true)
         }
       }

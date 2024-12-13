@@ -19,6 +19,18 @@ public final class SignCoordinator: Coordinator {
     splash()
   }
   
+  public func move(to scene: Scene) {
+    switch scene {
+    case .ledger:
+      parentCoordinator?.move(to: .ledger)
+      remove()
+    case .createManualLedger(let id):
+      parentCoordinator?.move(to: .createManualLedger(id))
+      remove()
+    default: break
+    }
+  }
+  
   deinit {
     debugPrint(#function)
   }
@@ -43,6 +55,7 @@ public extension SignCoordinator {
 
   func createAgency(animated: Bool = true) {
     let vc = diContainer.createAgency(with: self)
+    vc.modalPresentationStyle = .fullScreen
     navigationController.present(vc, animated: animated)
   }
 

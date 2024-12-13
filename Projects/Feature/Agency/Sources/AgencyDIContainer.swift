@@ -12,7 +12,7 @@ public final class AgencyDIContainer {
   private let userRepo: UserRepositoryInterface
   
   private let inputAgencyInfoFactory: InputAgencyInfoFactoryInterface
-  
+    
   public init(
     localStorage: LocalStorageInterface,
     networkManager: NetworkManagerInterfacae,
@@ -32,17 +32,12 @@ public final class AgencyDIContainer {
     return vc
   }
   
-  func createAgency(universityType: UniversityType) -> UIViewController {
-    let vc = inputAgencyInfoFactory.make(universityType: universityType)
-    let rootVC = UINavigationController(rootViewController: vc)
-    return rootVC
-  }
-  
-  func createComplete(with coordinator: AgencyCoordinator, id: Int) -> CreateCompleteVC {
-    let vc = CreateCompleteVC()
-    vc.reactor = CreateCompleteReactor(userRepo: userRepo, id: id)
-    vc.coordinator = coordinator
-    return vc
+  func createAgency(with coordinator: AgencyCoordinator, universityType: UniversityType) -> UIViewController {
+    let navigationController = UINavigationController()
+    let createAgencyCoordinator = CreateAgencyCoordinator(navigationController: navigationController, inputAgencyFactory: inputAgencyInfoFactory)
+    createAgencyCoordinator.parentCoordinator = coordinator
+    createAgencyCoordinator.start(animated: true, universityType: .unknown)
+    return navigationController
   }
   
   func joinAgency(id: Int, name: String, with coordinator: AgencyCoordinator) -> UIViewController {

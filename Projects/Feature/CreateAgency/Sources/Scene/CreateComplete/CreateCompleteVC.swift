@@ -2,6 +2,7 @@ import UIKit
 
 import BaseFeature
 import DesignSystem
+import CreateAgencyInterface
 
 import ReactorKit
 import RxCocoa
@@ -9,6 +10,8 @@ import RxSwift
 
 final class CreateCompleteVC: BaseVC, View {
   var disposeBag = DisposeBag()
+  
+  var coordinator: CreateAgencyCoordinator?
   
   private let completeImageView = UIImageView(image: Images.agencyCongrats)
   private let completeLabel: UILabel = {
@@ -46,23 +49,25 @@ final class CreateCompleteVC: BaseVC, View {
   
   func bind(reactor: CreateCompleteReactor) {
     
-//    reactor.pulse(\.$destination)
-//      .observe(on: MainScheduler.instance)
-//      .compactMap { $0 }
-//      .bind(with: self) { owner, destination in
-//        switch destination {
-//        case .dismiss:
-//          owner.coordinator?.dismiss()
-//        case .ledger:
-//          owner.coordinator?.dismiss(animated: false)
-//          owner.coordinator?.goLedger()
-//        case .manualInput:
-//          let id = reactor.currentState.agencyID
-//          owner.coordinator?.dismiss(animated: false)
-//          owner.coordinator?.goManualInput(agencyID: id)
-//        }
-//      }
-//      .disposed(by: disposeBag)
+    reactor.pulse(\.$destination)
+      .observe(on: MainScheduler.instance)
+      .compactMap { $0 }
+      .bind(with: self) { owner, destination in
+        switch destination {
+        case .dismiss:
+          owner.dismiss(animated: true)
+        case .ledger:
+          owner.dismiss(animated: true) {
+            owner.coordinator?.goLedger()
+          }
+        case .manualInput:
+          let id = reactor.currentState.agencyID
+          owner.dismiss(animated: true) {
+            owner.coordinator?.goManualInput(agencyID: id)
+          }
+        }
+      }
+      .disposed(by: disposeBag)
     
     setRightItem(.closeBlack, color: Colors.White._1)
     

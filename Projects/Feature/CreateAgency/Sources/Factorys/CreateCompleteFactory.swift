@@ -13,8 +13,9 @@ public struct CreateCompleteFactory: CreateCompleteFactoryInterface {
     self.localStorage = localStorage
   }
   
-  public func make(id: Int) -> UIViewController {
+  public func make(coordinator: CreateAgencyCoordinator, id: Int) -> UIViewController {
     let vc = CreateCompleteVC()
+    vc.coordinator = coordinator
     vc.reactor = CreateCompleteReactor(userRepo: UserRepository(networkManager: networkManager, localStorage: localStorage), id: id)
     
     return vc

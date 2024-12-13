@@ -15,7 +15,7 @@ public final class MainDIContainer {
   private let agencyContainer: AgencyDIContainer
   private let myPageContainer: MyPageDIContainer
   private let ledgerContainer: LedgerDIContainer
-  
+    
   public init(
     localStorage: LocalStorageInterface,
     networkManager: NetworkManagerInterfacae,
@@ -23,7 +23,7 @@ public final class MainDIContainer {
   ) {
     self.localStorage = localStorage
     self.networkManager = networkManager
-
+    
     self.agencyContainer = .init(
       localStorage: localStorage,
       networkManager: networkManager,
