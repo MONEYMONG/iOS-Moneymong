@@ -57,14 +57,12 @@ final class CreateCompleteVC: BaseVC, View {
         case .dismiss:
           owner.dismiss(animated: true)
         case .ledger:
-          owner.dismiss(animated: true) {
-            owner.coordinator?.goLedger()
-          }
+          owner.dismiss(animated: true)
+          owner.coordinator?.goLedger()
         case .manualInput:
           let id = reactor.currentState.agencyID
-          owner.dismiss(animated: true) {
-            owner.coordinator?.goManualInput(agencyID: id)
-          }
+          owner.dismiss(animated: true)
+          owner.coordinator?.goManualInput(agencyID: id)
         }
       }
       .disposed(by: disposeBag)
