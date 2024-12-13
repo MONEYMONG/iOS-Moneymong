@@ -4,6 +4,7 @@ import Combine
 import DesignSystem
 import BaseFeature
 import Core
+import CreateAgencyInterface
 
 import FlexLayout
 import PinLayout
@@ -12,6 +13,8 @@ import ReactorKit
 final class InputUniversityInfoVC: BaseVC, View {
   var disposeBag = DisposeBag()
   private var anyCancellable = Set<AnyCancellable>()
+  
+  private let completeFactory: CreateCompleteFactoryInterface
 
   private let titleLabel: UILabel = {
     let label = UILabel()
@@ -67,6 +70,11 @@ final class InputUniversityInfoVC: BaseVC, View {
     button.titleLabel?.font = Fonts.body._3
     return button
   }()
+  
+  init(completeFactory: CreateCompleteFactoryInterface) {
+    self.completeFactory = completeFactory
+    super.init()
+  }
 
   override func setupUI() {
     super.setupUI()
@@ -99,13 +107,13 @@ final class InputUniversityInfoVC: BaseVC, View {
   func bind(reactor: InputUniversityInfoReactor) {
     // State Binding
     
-//    reactor.pulse(\.$errorMessage)
-//      .compactMap { $0 }
-//      .observe(on: MainScheduler.instance)
-//      .bind(with: self) { owner, errorMessage in
-//        owner.coordinator?.alert(title: errorMessage)
-//      }
-//      .disposed(by: disposeBag)
+    reactor.pulse(\.$errorMessage)
+      .compactMap { $0 }
+      .observe(on: MainScheduler.instance)
+      .bind(with: self) { owner, errorMessage in
+        AlertsManager.show(title: errorMessage, type: .onlyOkButton())
+      }
+      .disposed(by: disposeBag)
 
     reactor.pulse(\.$isLoading)
       .compactMap { $0 }
@@ -148,26 +156,28 @@ final class InputUniversityInfoVC: BaseVC, View {
       }
       .disposed(by: disposeBag)
 
-//    reactor.pulse(\.$destination)
-//      .compactMap { $0 }
-//      .observe(on: MainScheduler.instance)
-//      .bind(with: self) { owner, destination in
-//        switch destination {
-//        case .congratulations:
-//          owner.coordinator?.congratulations()
-//        }
-//      }
-//      .disposed(by: disposeBag)
+    reactor.pulse(\.$destination)
+      .compactMap { $0 }
+      .observe(on: MainScheduler.instance)
+      .bind(with: self) { owner, destination in
+        switch destination {
+        case .congratulations: break
+        case let .complete(id):
+          let vc = owner.completeFactory.make(id: id)
+          owner.navigationController?.pushViewController(vc, animated: true)
+        }
+      }
+      .disposed(by: disposeBag)
 
     // Action Binding
 
     setLeftItem(.back)
     
-//    navigationItem.leftBarButtonItem?.rx.tap
-//      .bind(with: self) { owner, _ in
-//        owner.coordinator?.pop()
-//      }
-//      .disposed(by: disposeBag)
+    navigationItem.leftBarButtonItem?.rx.tap
+      .bind(with: self) { owner, _ in
+        owner.navigationController?.popViewController(animated: true)
+      }
+      .disposed(by: disposeBag)
     
     view.rx.tapGesture
       .bind { $0.endEditing(true) }

@@ -21,7 +21,7 @@ final class InputUniversityInfoReactor: Reactor {
     case setErrorMessage(String)
     case setInputType(InputType)
     case setIsConfirm(Bool)
-    case setDestination(Destination)
+    case setDestination(State.Destination)
     case setSelectedUniversity(University)
     case setSelectedGrade(Int)
   }
@@ -31,11 +31,6 @@ final class InputUniversityInfoReactor: Reactor {
     case grade(University)
   }
 
-  enum Destination {
-    case congratulations
-    case complete(Int)
-  }
-
   struct State {
     @Pulse var isConfirm: Bool = false
     @Pulse var isLoading: Bool?
@@ -43,11 +38,16 @@ final class InputUniversityInfoReactor: Reactor {
     @Pulse var schoolList: [University]?
     @Pulse var isEmptyList: Bool?
     @Pulse var inputType: InputType = .university
-    @Pulse var destination: Destination?
+    @Pulse var destination: State.Destination?
     @Pulse var agencyName: String
     @Pulse var agencyType: AgencyType
     var selectedUniversity: University?
     var selectedGrade: Int?
+    
+    enum Destination {
+      case congratulations
+      case complete(Int)
+    }
   }
 
   let initialState: State
@@ -134,7 +134,6 @@ final class InputUniversityInfoReactor: Reactor {
         }
           .map { .setDestination(.complete($0)) }
           .catch { error in .just(.setErrorMessage(error.localizedDescription)) },
-
           .just(.setIsLoading(false))
       ])
 

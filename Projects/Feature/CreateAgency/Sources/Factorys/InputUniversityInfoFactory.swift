@@ -6,13 +6,15 @@ import CreateAgencyInterface
 public struct InputUniversityInfoFactory: InputUniversityInfoFactoryInterface {
   
   private let networkManager: NetworkManagerInterfacae
+  private let localStorage: LocalStorageInterface
   
-  public init(networkManager: NetworkManagerInterfacae) {
+  public init(networkManager: NetworkManagerInterfacae, localStorage: LocalStorageInterface) {
     self.networkManager = networkManager
+    self.localStorage = localStorage
   }
   
   public func make(agencyName: String, agencyType: AgencyType) -> UIViewController {
-    let vc = InputUniversityInfoVC()
+    let vc = InputUniversityInfoVC(completeFactory: CreateCompleteFactory(networkManager: networkManager, localStorage: localStorage))
     vc.reactor = InputUniversityInfoReactor(
       agencyName: agencyName,
       agencyType: agencyType,
