@@ -17,6 +17,9 @@ final class InputUniversityInfoVC: BaseVC, View {
   private let completeFactory: CreateCompleteFactoryInterface
   
   var coordinator: CreateAgencyCoordinator?
+  
+  private var keybordShowCreateButtonConstraints: [NSLayoutConstraint] = []
+  private var keybordHideCreateButtonConstraints: [NSLayoutConstraint] = []
 
   private let titleLabel: UILabel = {
     let label = UILabel()
@@ -104,6 +107,32 @@ final class InputUniversityInfoVC: BaseVC, View {
         flex.addItem(confirmButton).height(56).marginBottom(16)
         flex.addItem(notUniversityInfoButton).marginBottom(12)
       }
+    
+    view.addSubview(confirmButton)
+    view.addSubview(notUniversityInfoButton)
+    confirmButton.translatesAutoresizingMaskIntoConstraints = false
+    notUniversityInfoButton.translatesAutoresizingMaskIntoConstraints = false
+    
+    NSLayoutConstraint.activate([
+      notUniversityInfoButton.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor),
+      notUniversityInfoButton.centerXAnchor.constraint(equalTo: view.centerXAnchor)
+    ])
+    
+    keybordHideCreateButtonConstraints = [
+      confirmButton.heightAnchor.constraint(equalToConstant: 56),
+      confirmButton.bottomAnchor.constraint(equalTo: notUniversityInfoButton.topAnchor, constant: -16),
+      confirmButton.trailingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.trailingAnchor, constant: -12),
+      confirmButton.leadingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.leadingAnchor, constant: 12)
+    ]
+    
+    keybordShowCreateButtonConstraints = [
+      confirmButton.heightAnchor.constraint(equalToConstant: 56),
+      confirmButton.bottomAnchor.constraint(equalTo: view.keyboardLayoutGuide.topAnchor),
+      confirmButton.trailingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.trailingAnchor, constant: 3),
+      confirmButton.leadingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.leadingAnchor, constant: -3)
+    ]
+    
+    NSLayoutConstraint.activate(keybordHideCreateButtonConstraints)
   }
 
   func bind(reactor: InputUniversityInfoReactor) {
@@ -175,6 +204,34 @@ final class InputUniversityInfoVC: BaseVC, View {
     // Action Binding
 
     setLeftItem(.back)
+    
+    NotificationCenter.default.rx.notification(UIResponder.keyboardWillShowNotification)
+      .bind(with: self) { owner, _ in
+        UIView.animate(withDuration: 0.2) {
+          NSLayoutConstraint.deactivate(owner.keybordHideCreateButtonConstraints)
+          NSLayoutConstraint.activate(owner.keybordShowCreateButtonConstraints)
+        }
+        
+        UIView.animate(withDuration: 0.2) {
+          owner.confirmButton.layer.cornerRadius = 0
+        }
+        owner.view.layoutIfNeeded()
+      }
+      .disposed(by: disposeBag)
+    
+    NotificationCenter.default.rx.notification(UIResponder.keyboardWillHideNotification)
+      .bind(with: self) { owner, _ in
+        UIView.animate(withDuration: 0.2) {
+          NSLayoutConstraint.deactivate(owner.keybordShowCreateButtonConstraints)
+          NSLayoutConstraint.activate(owner.keybordHideCreateButtonConstraints)
+        }
+        
+        UIView.animate(withDuration: 0.2) {
+          owner.confirmButton.layer.cornerRadius = 12
+        }
+        owner.view.layoutIfNeeded()
+      }
+      .disposed(by: disposeBag)
     
     navigationItem.leftBarButtonItem?.rx.tap
       .bind(with: self) { owner, _ in
@@ -255,10 +312,10 @@ final class InputUniversityInfoVC: BaseVC, View {
 }
 
 fileprivate enum Const {
-  static var title: String { "대학 정보를 알려주세요!" }
-  static var description: String { "학교 이름과 학년을 선택해주세요." }
-  static var confirmTitle: String { "가입하기" }
+  static var title: String { "어디 학교 교내 동아리인가요?" }
+  static var description: String { "소속 대학교를 알려주세요" }
+  static var confirmTitle: String { "등록하기" }
   static var university: String { "대학교" }
   static var searchBarPlaceholder: String { "ex)머니대학교" }
-  static var universityInfoEmpty: String { "입력할 대학 정보가 없어요" }
+  static var universityInfoEmpty: String { "총무에게 초대받았어요" }
 }
