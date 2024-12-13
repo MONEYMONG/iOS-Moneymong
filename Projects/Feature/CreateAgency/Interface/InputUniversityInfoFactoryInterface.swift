@@ -1,5 +1,5 @@
 import UIKit
 
 public protocol InputUniversityInfoFactoryInterface {
-  func make() -> UIViewController
+  func make(agencyName: String, agencyType: AgencyType) -> UIViewController
 }

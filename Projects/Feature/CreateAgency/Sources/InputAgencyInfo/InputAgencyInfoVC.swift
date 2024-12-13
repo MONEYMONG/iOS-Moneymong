@@ -191,6 +191,9 @@ public final class InputAgencyInfoVC: BaseVC, View {
         case let .complete(id):
           let vc = owner.createCompleteFactory.make(id: id)
           owner.navigationController?.pushViewController(vc, animated: true)
+        case let .inputUniversity(agencyName, agencyType):
+          let vc = owner.inputUniversityInfoFactory.make(agencyName: agencyName, agencyType: agencyType)
+          owner.navigationController?.pushViewController(vc, animated: true)
         }
       }
       .disposed(by: disposeBag)

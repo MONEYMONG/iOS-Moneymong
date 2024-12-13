@@ -6,7 +6,7 @@ import ReactorKit
 public final class InputAgencyInfoReactor: Reactor {
   
   public struct State {
-    @Pulse var index = 0 // 소속 종류: 동아리 or 학생회
+    @Pulse var agencyType: AgencyType = .inSchoolClub // 소속 종류: 동아리 or 학생회
     @Pulse var text = "" // 소속 이름
     @Pulse var isButtonEnabled = false
     
@@ -19,6 +19,7 @@ public final class InputAgencyInfoReactor: Reactor {
     
     public enum Destination {
       case complete(Int)
+      case inputUniversity(String, AgencyType)
     }
   }
   
@@ -32,7 +33,7 @@ public final class InputAgencyInfoReactor: Reactor {
     case setText(String)
     case setError(MoneyMongError)
     case setLoading(Bool)
-    case setSelectedIndex(Int)
+    case setAgencyType(Int)
     case setButtonEnabled(Bool)
     case setDestination(State.Destination)
   }
@@ -58,35 +59,25 @@ public final class InputAgencyInfoReactor: Reactor {
       )
       
     case let .selectedIndexDidChange(index):
-      return .just(.setSelectedIndex(index))
+      return .just(.setAgencyType(index))
       
     case .tapCreateButton:
-      return .concat(
-        .just(.setLoading(true)),
-        .task {
-          let type: String
-          
-          switch currentState.index {
-          case 0:
-            type = "IN_SCHOOL_CLUB"
-          case 1:
-            type = "STUDENT_COUNCIL"
-          case 2:
-            type = "GENERAL"
-          default:
-            fatalError("Invalid type")
+      if currentState.universityType == .unknown {
+        return .just(.setDestination(.inputUniversity(currentState.text, currentState.agencyType)))
+      } else {
+        return .concat(
+          .just(.setLoading(true)),
+          .task {
+            try await agencyRepo.create(
+              name: currentState.text,
+              type: currentState.agencyType.rawValue
+            )
           }
-          
-          return try await agencyRepo.create(
-            name: currentState.text,
-            type: type
-          )
-        }
-        .map { .setDestination(.complete($0)) }
-        .catch { return .just(.setError($0.toMMError)) },
-        
-        .just(.setLoading(false))
-      )
+            .map { .setDestination(.complete($0)) }
+            .catch { return .just(.setError($0.toMMError)) },
+          .just(.setLoading(false))
+        )
+      }
     }
   }
   
@@ -98,8 +89,8 @@ public final class InputAgencyInfoReactor: Reactor {
       newState.text = text
     case let .setButtonEnabled(value):
       newState.isButtonEnabled = value
-    case let .setSelectedIndex(index):
-      newState.index = index
+    case let .setAgencyType(index):
+      newState.agencyType = parsingAgencyType(with: index) ?? .inSchoolClub
     case let .setDestination(value):
       newState.destination = value
     case let .setError(value):
@@ -109,5 +100,16 @@ public final class InputAgencyInfoReactor: Reactor {
     }
     
     return newState
+  }
+}
+
+extension InputAgencyInfoReactor {
+  func parsingAgencyType(with selectedIndex: Int) -> AgencyType? {
+    switch selectedIndex {
+    case 0: .inSchoolClub
+    case 1: .studentCouncil
+    case 2: .general
+    default: nil
+    }
   }
 }

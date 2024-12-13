@@ -16,7 +16,7 @@ public struct InputAgencyInfoFactory: InputAgencyInfoFactoryInterface {
   public func make(universityType: UniversityType) -> UIViewController {
     let vc = InputAgencyInfoVC(
       createCompleteFactory: CreateCompleteFactory(networkManager: networkManager, localStorage: localStorage),
-      inputUniversityInfoFactory: InputUniversityInfoFactory()
+      inputUniversityInfoFactory: InputUniversityInfoFactory(networkManager: networkManager)
     )
     vc.reactor = InputAgencyInfoReactor(
       universityType: universityType,

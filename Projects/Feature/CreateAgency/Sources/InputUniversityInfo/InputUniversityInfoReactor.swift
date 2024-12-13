@@ -1,4 +1,5 @@
 import Core
+import CreateAgencyInterface
 
 import ReactorKit
 
@@ -32,6 +33,7 @@ final class InputUniversityInfoReactor: Reactor {
 
   enum Destination {
     case congratulations
+    case complete(Int)
   }
 
   struct State {
@@ -42,15 +44,26 @@ final class InputUniversityInfoReactor: Reactor {
     @Pulse var isEmptyList: Bool?
     @Pulse var inputType: InputType = .university
     @Pulse var destination: Destination?
+    @Pulse var agencyName: String
+    @Pulse var agencyType: AgencyType
     var selectedUniversity: University?
     var selectedGrade: Int?
   }
 
-  let initialState: State = State()
+  let initialState: State
+  
   private let universityRepository: UniversityRepositoryInterface
+  private let agencyRepository: AgencyRepositoryInterface
 
-  init(universityRepository: UniversityRepositoryInterface) {
+  init(
+    agencyName: String,
+    agencyType: AgencyType,
+    universityRepository: UniversityRepositoryInterface,
+    agencyRepository: AgencyRepositoryInterface
+  ) {
     self.universityRepository = universityRepository
+    self.agencyRepository = agencyRepository
+    self.initialState = State(agencyName: agencyName, agencyType: agencyType)
   }
 
   func mutate(action: Action) -> Observable<Mutation> {
@@ -112,12 +125,14 @@ final class InputUniversityInfoReactor: Reactor {
                 let grade = currentState.selectedGrade else {
             throw MoneyMongError.appError(.default, errorMessage: "필수 입력값을 입력해주세요.")
           }
-          return try await universityRepository.university(
+          try await universityRepository.university(
             name: university.schoolName,
             grade: grade
           )
+          
+          return try await agencyRepository.create(name: currentState.agencyName, type: currentState.agencyType.rawValue)
         }
-          .map {.setDestination(.congratulations) }
+          .map { .setDestination(.complete($0)) }
           .catch { error in .just(.setErrorMessage(error.localizedDescription)) },
 
           .just(.setIsLoading(false))
