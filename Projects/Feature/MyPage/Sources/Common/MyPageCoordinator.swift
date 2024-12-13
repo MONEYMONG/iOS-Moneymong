@@ -1,7 +1,7 @@
 import UIKit
 import SwiftUI
 
-import BaseFeature
+import BaseFeatureInterface
 import DesignSystem
 
 public final class MyPageCoordinator: Coordinator {

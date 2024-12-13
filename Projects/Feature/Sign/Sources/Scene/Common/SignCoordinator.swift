@@ -1,6 +1,7 @@
 import UIKit
 
-import BaseFeature
+import BaseFeatureInterface
+import CreateAgencyInterface
 import DesignSystem
 
 public final class SignCoordinator: Coordinator {
@@ -8,7 +9,7 @@ public final class SignCoordinator: Coordinator {
   private let diContainer: SignDIContainer
   public weak var parentCoordinator: Coordinator?
   public var childCoordinators: [Coordinator] = []
-
+  
   public init(navigationController: UINavigationController, diContainer: SignDIContainer) {
     self.navigationController = navigationController
     self.diContainer = diContainer
@@ -42,7 +43,7 @@ public extension SignCoordinator {
 
   func createAgency(animated: Bool = true) {
     let vc = diContainer.createAgency(with: self)
-    navigationController.pushViewController(vc, animated: animated)
+    navigationController.present(vc, animated: animated)
   }
 
   func congratulations(animated: Bool = true) {

@@ -6,6 +6,9 @@ let project = Project(
       disableBundleAccessors: true,
       disableSynthesizedResourceAccessors: true
     ),
+    settings: .settings(base: [
+      "SWIFT_VERSION": "5.7"
+    ]),
     targets: [
         Target(
             name: "BaseFeature",
@@ -16,11 +19,19 @@ let project = Project(
             sources: ["Sources/**"],
             dependencies: [
               .project(target: "DesignSystem", path: .relativeToRoot("Projects/Shared/DesignSystem")),
-              .project(target: "Core", path: .relativeToRoot("Projects/Core/Core"))
-            ],
-            settings: .settings(base: [
-              "SWIFT_VERSION": "5.7"
-            ])
+              .project(target: "Core", path: .relativeToRoot("Projects/Core/Core")),
+              .target(name: "BaseFeatureInterface")
+            ]
+        ),
+        Target(
+            name: "BaseFeatureInterface",
+            platform: .iOS,
+            product: .framework,
+            bundleId: "com.framework.moneymong.BaseFeatureInterface",
+            deploymentTarget: .iOS(targetVersion: "15.0", devices: .iphone),
+            sources: ["Interface/**"],
+            dependencies: [
+            ]
         )
     ]
 )

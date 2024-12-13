@@ -15,19 +15,18 @@ let project = Project(
             deploymentTarget: .iOS(targetVersion: "15.0", devices: .iphone),
             sources: ["Sources/**"],
             dependencies: [
-                .target(name: "CreateAgencyInterface"),
-                .project(target: "BaseFeature", path: .relativeToRoot("Projects/Feature/Base")),
-                .project(target: "MainFeature", path: .relativeToRoot("Projects/Feature/Main"))
-            ]
+              .target(name: "CreateAgencyInterface"),
+              .project(target: "BaseFeature", path: .relativeToRoot("Projects/Feature/Base"))            ]
         ),
         Target(
-            name: "CreateAgencyInterface",
+          name: "CreateAgencyInterface",
             platform: .iOS,
             product: .framework,
             bundleId: "com.framework.moneymong.CreateAgencyInterface",
             deploymentTarget: .iOS(targetVersion: "15.0", devices: .iphone),
             sources: ["Interface/**"],
             dependencies: [
+              .project(target: "BaseFeatureInterface", path: .relativeToRoot("Projects/Feature/Base"))
             ]
         ),
         Target(

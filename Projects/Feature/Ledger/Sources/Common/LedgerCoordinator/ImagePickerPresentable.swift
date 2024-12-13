@@ -1,6 +1,6 @@
 import UIKit
 
-import BaseFeature
+import BaseFeatureInterface
 
 protocol ImagePickerPresentable where Self: Coordinator {
   func imagePicker(
