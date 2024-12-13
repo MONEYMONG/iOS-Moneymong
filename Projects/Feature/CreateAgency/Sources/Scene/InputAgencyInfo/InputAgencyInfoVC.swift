@@ -61,6 +61,14 @@ public final class InputAgencyInfoVC: BaseVC, View {
   
   private let registerButton: MMButton = MMButton(title: "등록하기", type: .disable)
   
+  private let notRegisterButton: UIButton = {
+    let button = UIButton()
+    button.setTitle("총무에게 초대받았어요", for: .normal)
+    button.setTitleColor(Colors.Blue._4, for: .normal)
+    button.titleLabel?.font = Fonts.body._3
+    return button
+  }()
+  
   public override func setupConstraints() {
     super.setupConstraints()
     
@@ -73,11 +81,18 @@ public final class InputAgencyInfoVC: BaseVC, View {
     }
     
     view.addSubview(registerButton)
+    view.addSubview(notRegisterButton)
     registerButton.translatesAutoresizingMaskIntoConstraints = false
+    notRegisterButton.translatesAutoresizingMaskIntoConstraints = false
+    
+    NSLayoutConstraint.activate([
+      notRegisterButton.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor),
+      notRegisterButton.centerXAnchor.constraint(equalTo: view.centerXAnchor)
+    ])
     
     keybordHideCreateButtonConstraints = [
       registerButton.heightAnchor.constraint(equalToConstant: 56),
-      registerButton.bottomAnchor.constraint(equalTo: view.keyboardLayoutGuide.topAnchor),
+      registerButton.bottomAnchor.constraint(equalTo: notRegisterButton.topAnchor, constant: -16),
       registerButton.trailingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.trailingAnchor, constant: -12),
       registerButton.leadingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.leadingAnchor, constant: 12)
     ]

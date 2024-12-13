@@ -149,7 +149,6 @@ public final class AgencyListVC: BaseVC, View {
     reactor.pulse(\.$query)
       .observe(on: MainScheduler.instance)
       .bind(with: self) { owner, query in
-        
         owner.navigationItem.rightBarButtonItem?.setValue(query != nil, forKey: "hidden")
         owner.searchHeaderView.flex.height(query == nil ? 0 : 60)
         owner.searchHeaderView.flex.markDirty()
