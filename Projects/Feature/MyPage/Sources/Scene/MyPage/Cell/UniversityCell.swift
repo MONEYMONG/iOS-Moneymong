@@ -75,19 +75,8 @@ final class UniversityCell: UITableViewCell, ReusableView {
     switch item {
     case let .university(userInfo):
       
-      let universityText: String
-      
-      // 대학 정보가 없는경우
-      if userInfo.grade == 0 {
-        universityText = "정보 없음"
-      }
-      // 대학 정보가 있는 경우
-      else {
-        universityText = "\(userInfo.universityName) \(userInfo.grade)학년 \(userInfo.grade == 5 ? "이상" : "")"
-      }
-      
       universityLabel.setTextWithLineHeight(
-        text: universityText,
+        text: userInfo.universityName,
         lineHeight: 24
       )
       universityLabel.flex.markDirty()
