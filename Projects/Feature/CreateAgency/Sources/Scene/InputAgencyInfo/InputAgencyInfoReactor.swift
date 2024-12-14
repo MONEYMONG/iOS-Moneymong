@@ -20,6 +20,7 @@ public final class InputAgencyInfoReactor: Reactor {
     public enum Destination {
       case complete(Int)
       case inputUniversity(String, AgencyType)
+      case main
     }
   }
   
@@ -27,6 +28,7 @@ public final class InputAgencyInfoReactor: Reactor {
     case textFieldDidChange(String)
     case selectedIndexDidChange(Int)
     case tapCreateButton
+    case notRegisterButtonDidTap
   }
   
   public enum Mutation {
@@ -54,7 +56,6 @@ public final class InputAgencyInfoReactor: Reactor {
   
   public func mutate(action: Action) -> Observable<Mutation> {
     switch action {
-      
     case let .textFieldDidChange(text):
       return .concat(
         .just(.setText(text)),
@@ -84,6 +85,14 @@ public final class InputAgencyInfoReactor: Reactor {
           .just(.setLoading(false))
         )
       }
+      
+    case .notRegisterButtonDidTap:
+      return .task {
+        if currentState.universityType == .unknown {
+          try await universityRepo.university(name: nil, grade: nil)
+        }
+      }
+      .map { .setDestination(.main) }
     }
   }
   

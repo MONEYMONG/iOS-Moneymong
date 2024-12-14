@@ -22,15 +22,15 @@ public final class CreateAgencyCoordinator: Coordinator {
     navigationController.viewControllers = [vc]
   }
   
-  public func goLedger() {
-    parentCoordinator?.move(to: .ledger)
-  }
-  
-  public func goManualInput(agencyID: Int) {
-    parentCoordinator?.move(to: .createManualLedger(agencyID))
-  }
-  
-  public func dismiss() {
-    
+  public func move(to scene: Scene) {
+    switch scene {
+    case .main:
+      parentCoordinator?.move(to: .main)
+    case .ledger:
+      parentCoordinator?.move(to: .ledger)
+    case let .createManualLedger(id):
+      parentCoordinator?.move(to: .createManualLedger(id))
+    default: break
+    }
   }
 }

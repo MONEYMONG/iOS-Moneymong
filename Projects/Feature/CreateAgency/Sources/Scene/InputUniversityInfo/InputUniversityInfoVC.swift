@@ -195,11 +195,12 @@ final class InputUniversityInfoVC: UIViewController, View {
       .compactMap { $0 }
       .observe(on: MainScheduler.instance)
       .bind(with: self) { owner, destination in
-        guard let coordinator = owner.coordinator else { return }
         switch destination {
-        case .congratulations: break
+        case .main:
+          owner.dismiss(animated: true)
+          owner.coordinator?.move(to: .main)
         case let .complete(id):
-          let vc = owner.completeFactory.make(coordinator: coordinator, id: id)
+          let vc = owner.completeFactory.make(coordinator: owner.coordinator, id: id)
           owner.navigationController?.pushViewController(vc, animated: true)
         }
       }
@@ -269,7 +270,7 @@ final class InputUniversityInfoVC: UIViewController, View {
     
     notRegisterButton.rx.tap
       .throttle(.milliseconds(500), scheduler: MainScheduler.instance)
-      .map { Reactor.Action.notUnivercityInfo }
+      .map { Reactor.Action.notRegisterButtonDidTap }
       .bind(to: reactor.action)
       .disposed(by: disposeBag)
   }

@@ -21,6 +21,9 @@ public final class SignCoordinator: Coordinator {
   
   public func move(to scene: Scene) {
     switch scene {
+    case .main:
+      parentCoordinator?.move(to: .main)
+      remove()
     case .ledger:
       parentCoordinator?.move(to: .ledger)
       remove()

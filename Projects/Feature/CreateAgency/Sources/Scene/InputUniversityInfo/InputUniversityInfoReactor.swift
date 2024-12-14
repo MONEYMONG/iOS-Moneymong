@@ -9,7 +9,7 @@ final class InputUniversityInfoReactor: Reactor {
     case searchKeyword(String)
     case selectUniversity(University)
     case confirm
-    case notUnivercityInfo
+    case notRegisterButtonDidTap
   }
 
   enum Mutation {
@@ -34,7 +34,7 @@ final class InputUniversityInfoReactor: Reactor {
     @Pulse var selectedUniversity: University?
     
     enum Destination {
-      case congratulations
+      case main
       case complete(Int)
     }
   }
@@ -107,13 +107,13 @@ final class InputUniversityInfoReactor: Reactor {
           .just(.setIsLoading(false))
       ])
 
-    case .notUnivercityInfo:
+    case .notRegisterButtonDidTap:
       return Observable.concat([
         .just(.setIsLoading(true)),
         .task { [unowned self] in
           return try await universityRepository.university(name: nil, grade: nil)
         }
-          .map {.setDestination(.congratulations) }
+          .map {.setDestination(.main) }
           .catch { error in .just(.setErrorMessage(error.localizedDescription)) },
 
           .just(.setIsLoading(false))

@@ -48,7 +48,6 @@ final class CreateCompleteVC: BaseVC, View {
   }
   
   func bind(reactor: CreateCompleteReactor) {
-    
     reactor.pulse(\.$destination)
       .observe(on: MainScheduler.instance)
       .compactMap { $0 }
@@ -58,11 +57,11 @@ final class CreateCompleteVC: BaseVC, View {
           owner.dismiss(animated: true)
         case .ledger:
           owner.dismiss(animated: true)
-          owner.coordinator?.goLedger()
+          owner.coordinator?.move(to: .ledger)
         case .manualInput:
           let id = reactor.currentState.agencyID
           owner.dismiss(animated: true)
-          owner.coordinator?.goManualInput(agencyID: id)
+          owner.coordinator?.move(to: .createManualLedger(id))
         }
       }
       .disposed(by: disposeBag)

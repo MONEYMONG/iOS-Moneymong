@@ -181,6 +181,12 @@ public final class InputAgencyInfoVC: BaseVC, View {
       .bind(to: reactor.action)
       .disposed(by: disposeBag)
     
+    notRegisterButton.rx.tap
+      .throttle(.seconds(1), latest: false, scheduler: MainScheduler.instance)
+      .map { Reactor.Action.notRegisterButtonDidTap }
+      .bind(to: reactor.action)
+      .disposed(by: disposeBag)
+      
     // State Binding
     reactor.pulse(\.$universityType)
       .filter { $0 == .none}
@@ -210,6 +216,9 @@ public final class InputAgencyInfoVC: BaseVC, View {
         case let .inputUniversity(agencyName, agencyType):
           let vc = owner.inputUniversityInfoFactory.make(coordinator: coordinator, agencyName: agencyName, agencyType: agencyType)
           owner.navigationController?.pushViewController(vc, animated: true)
+        case .main:
+          owner.dismiss(animated: true)
+          owner.coordinator?.move(to: .main)
         }
       }
       .disposed(by: disposeBag)
