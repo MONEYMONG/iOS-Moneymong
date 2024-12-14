@@ -55,6 +55,7 @@ final class CreateCompleteVC: BaseVC, View {
         switch destination {
         case .dismiss:
           owner.dismiss(animated: true)
+          owner.coordinator?.move(to: .main)
         case .ledger:
           owner.dismiss(animated: true)
           owner.coordinator?.move(to: .ledger)
