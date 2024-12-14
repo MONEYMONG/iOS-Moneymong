@@ -90,6 +90,11 @@ public final class InputAgencyInfoVC: BaseVC, View {
       notRegisterButton.centerXAnchor.constraint(equalTo: view.centerXAnchor)
     ])
     
+    if reactor?.currentState.universityType != .unknown {
+      notRegisterButton.isHidden = true
+      notRegisterButton.heightAnchor.constraint(equalToConstant: 0).isActive = true
+    }
+    
     keybordHideCreateButtonConstraints = [
       registerButton.heightAnchor.constraint(equalToConstant: 56),
       registerButton.bottomAnchor.constraint(equalTo: notRegisterButton.topAnchor, constant: -16),
