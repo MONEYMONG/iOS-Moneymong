@@ -10,7 +10,7 @@ import FlexLayout
 import PinLayout
 import ReactorKit
 
-final class InputUniversityInfoVC: BaseVC, View {
+final class InputUniversityInfoVC: UIViewController, View {
   var disposeBag = DisposeBag()
   private var anyCancellable = Set<AnyCancellable>()
   
@@ -20,7 +20,7 @@ final class InputUniversityInfoVC: BaseVC, View {
   
   private var keybordShowCreateButtonConstraints: [NSLayoutConstraint] = []
   private var keybordHideCreateButtonConstraints: [NSLayoutConstraint] = []
-
+  
   private let titleLabel: UILabel = {
     let label = UILabel()
     label.text = Const.title
@@ -28,7 +28,7 @@ final class InputUniversityInfoVC: BaseVC, View {
     label.textColor = Colors.Black._1
     return label
   }()
-
+  
   private let descriptionLabel: UILabel = {
     let label = UILabel()
     label.text = Const.description
@@ -36,86 +36,103 @@ final class InputUniversityInfoVC: BaseVC, View {
     label.textColor = Colors.Gray._6
     return label
   }()
-
+  
   private let searchBar: MMSearchBar = {
     let searchBar = MMSearchBar(title: Const.university, didSearch: nil)
     searchBar.setPlaceholder(to: Const.searchBarPlaceholder)
     return searchBar
   }()
-
+  
   private let emptyListView: EmptyListView = {
     let view = EmptyListView()
     view.isHidden = true
     return view
   }()
-
+  
   private let tableView: UITableView = {
     let tableView = UITableView()
     tableView.register(UniversityCell.self)
     tableView.keyboardDismissMode = .interactive
     tableView.separatorStyle = .none
     tableView.showsVerticalScrollIndicator = false
+    tableView.contentInset.bottom = 28
     return tableView
   }()
-
-  private let gradeInputView: GradeInputView = {
-    let view = GradeInputView()
-    return view
-  }()
-
+  
   private let registerButton: MMButton = {
     let button = MMButton(title: Const.confirmTitle, type: .disable)
     return button
   }()
-
+  
   private let notRegisterButton: UIButton = {
     let button = UIButton()
-    button.setTitle(Const.universityInfoEmpty, for: .normal)
+    button.setTitle(Const.notRegisterButton, for: .normal)
     button.setTitleColor(Colors.Blue._4, for: .normal)
     button.titleLabel?.font = Fonts.body._3
     return button
   }()
-  
+    
   init(completeFactory: CreateCompleteFactoryInterface) {
     self.completeFactory = completeFactory
-    super.init()
+    super.init(nibName: nil, bundle: nil)
   }
-
-  override func setupUI() {
-    super.setupUI()
-    
+  
+  @available(*, unavailable)
+  required init?(coder: NSCoder) {
+    fatalError("init(coder:) has not been implemented")
+  }
+  
+  override func viewDidLoad() {
+    super.viewDidLoad()
+    setupConstraints()
+    setupUI()
+  }
+  
+  func setupUI() {
+    view.backgroundColor = .white
+    navigationItem.hidesBackButton = true
     tableView.backgroundView = emptyListView
   }
   
-  private let searchContentView = UIView()
-  override func setupConstraints() {
-    super.setupConstraints()
-    rootContainer.flex
-      .backgroundColor(Colors.White._1)
-      .paddingHorizontal(20)
-      .define { flex in
-        flex.addItem().height(12)
-        flex.addItem(titleLabel).marginBottom(8)
-        flex.addItem(descriptionLabel).marginBottom(40)
-        
-        flex.addItem(searchContentView).grow(1).define { flex in
-          flex.addItem(searchBar).marginBottom(4)
-          flex.addItem(tableView).grow(1)
-        }
-        
-        flex.addItem(gradeInputView).grow(1)
-        flex.addItem(registerButton).height(56).marginBottom(16)
-        flex.addItem(notRegisterButton).marginBottom(12)
-      }
-    
+  func setupConstraints() {
+    view.addSubview(titleLabel)
+    view.addSubview(descriptionLabel)
+    view.addSubview(searchBar)
+    view.addSubview(tableView)
     view.addSubview(registerButton)
     view.addSubview(notRegisterButton)
+    
+    titleLabel.translatesAutoresizingMaskIntoConstraints = false
+    descriptionLabel.translatesAutoresizingMaskIntoConstraints = false
+    searchBar.translatesAutoresizingMaskIntoConstraints = false
+    tableView.translatesAutoresizingMaskIntoConstraints = false
     registerButton.translatesAutoresizingMaskIntoConstraints = false
     notRegisterButton.translatesAutoresizingMaskIntoConstraints = false
+        
+    NSLayoutConstraint.activate([
+      titleLabel.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 12),
+      titleLabel.trailingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.trailingAnchor, constant: -20),
+      titleLabel.leadingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.leadingAnchor, constant: 20)
+    ])
     
     NSLayoutConstraint.activate([
-      notRegisterButton.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor),
-      notRegisterButton.centerXAnchor.constraint(equalTo: view.centerXAnchor)
+      descriptionLabel.topAnchor.constraint(equalTo: titleLabel.bottomAnchor, constant: 8),
+      descriptionLabel.trailingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.trailingAnchor, constant: -20),
+      descriptionLabel.leadingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.leadingAnchor, constant: 20)
+    ])
+    
+    NSLayoutConstraint.activate([
+      searchBar.topAnchor.constraint(equalTo: descriptionLabel.bottomAnchor, constant: 40),
+      searchBar.heightAnchor.constraint(equalToConstant: 56),
+      searchBar.trailingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.trailingAnchor, constant: -20),
+      searchBar.leadingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.leadingAnchor, constant: 20)
+    ])
+    
+    NSLayoutConstraint.activate([
+      tableView.topAnchor.constraint(equalTo: searchBar.bottomAnchor, constant: 4),
+      tableView.bottomAnchor.constraint(equalTo: registerButton.topAnchor),
+      tableView.trailingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.trailingAnchor, constant: -20),
+      tableView.leadingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.leadingAnchor, constant: 20)
     ])
     
     keybordHideCreateButtonConstraints = [
@@ -133,8 +150,13 @@ final class InputUniversityInfoVC: BaseVC, View {
     ]
     
     NSLayoutConstraint.activate(keybordHideCreateButtonConstraints)
+    
+    NSLayoutConstraint.activate([
+      notRegisterButton.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor),
+      notRegisterButton.centerXAnchor.constraint(equalTo: view.centerXAnchor)
+    ])
   }
-
+  
   func bind(reactor: InputUniversityInfoReactor) {
     // State Binding
     
@@ -145,13 +167,7 @@ final class InputUniversityInfoVC: BaseVC, View {
         AlertsManager.show(title: errorMessage, type: .onlyOkButton())
       }
       .disposed(by: disposeBag)
-
-    reactor.pulse(\.$isLoading)
-      .compactMap { $0 }
-      .observe(on: MainScheduler.instance)
-      .bind(to: rx.isLoading)
-      .disposed(by: disposeBag)
-
+    
     reactor.pulse(\.$schoolList)
       .compactMap { $0 }
       .bind(to: tableView.rx.items (
@@ -161,32 +177,20 @@ final class InputUniversityInfoVC: BaseVC, View {
         cell.configure(with: item)
       }
       .disposed(by: disposeBag)
-
+    
     reactor.pulse(\.$isEmptyList)
       .compactMap { $0 }.map { !$0 }
       .observe(on: MainScheduler.instance)
       .bind(to: emptyListView.rx.isHidden)
       .disposed(by: disposeBag)
-
-    reactor.pulse(\.$inputType)
-      .observe(on: MainScheduler.instance)
-      .bind(with: self) { owner, inputType in
-        switch inputType {
-        case .university:
-          owner.setUniversityInput()
-        case .grade(let university):
-          owner.setGradeInput(to: university)
-        }
-      }
-      .disposed(by: disposeBag)
-
+    
     reactor.pulse(\.$isConfirm)
       .observe(on: MainScheduler.instance)
       .bind(with: self) { owner, value in
         owner.registerButton.setState(value ? .primary : .disable)
       }
       .disposed(by: disposeBag)
-
+    
     reactor.pulse(\.$destination)
       .compactMap { $0 }
       .observe(on: MainScheduler.instance)
@@ -200,9 +204,9 @@ final class InputUniversityInfoVC: BaseVC, View {
         }
       }
       .disposed(by: disposeBag)
-
+    
     // Action Binding
-
+    
     setLeftItem(.back)
     
     NotificationCenter.default.rx.notification(UIResponder.keyboardWillShowNotification)
@@ -242,7 +246,7 @@ final class InputUniversityInfoVC: BaseVC, View {
     view.rx.tapGesture
       .bind { $0.endEditing(true) }
       .disposed(by: disposeBag)
-
+    
     searchBar.textField.rx.text
       .orEmpty
       .distinctUntilChanged()
@@ -250,64 +254,24 @@ final class InputUniversityInfoVC: BaseVC, View {
       .map { Reactor.Action.searchKeyword($0) }
       .bind(to: reactor.action)
       .disposed(by: disposeBag)
-
-    Observable.zip(
-      tableView.rx.modelSelected(University.self),
-      tableView.rx.itemSelected
-    )
-    .delay(.milliseconds(500), scheduler: MainScheduler.instance)
-    .bind(with: self) { owner, event in
-      let (item, indexPath) = (event.0, event.1)
-      owner.tableView.deselectRow(at: indexPath, animated: true)
-      owner.searchBar.textField.resignFirstResponder()
+    
+    tableView.rx.modelSelected(University.self)
+    .bind(with: self) { owner, item in
       reactor.action.onNext(.selectUniversity(item))
     }
     .disposed(by: disposeBag)
-
-    gradeInputView.didTapUnSelectButton
-      .bind(with: self) { owner, _ in
-        owner.setUniversityInput()
-      }
-      .disposed(by: disposeBag)
-
-    gradeInputView.didTapSelectGrade
-      .sink {
-        reactor.action.onNext(.selectGrade($0+1))
-      }
-      .store(in: &anyCancellable)
 
     registerButton.rx.tap
       .throttle(.milliseconds(500), scheduler: MainScheduler.instance)
       .map { Reactor.Action.confirm }
       .bind(to: reactor.action)
       .disposed(by: disposeBag)
-
+    
     notRegisterButton.rx.tap
       .throttle(.milliseconds(500), scheduler: MainScheduler.instance)
       .map { Reactor.Action.notUnivercityInfo }
       .bind(to: reactor.action)
       .disposed(by: disposeBag)
-  }
-
-  private func setGradeInput(to university: University) {
-    searchContentView.flex.isIncludedInLayout(false).markDirty()
-    searchContentView.isHidden = true
-    
-    gradeInputView.configure(university: university)
-    gradeInputView.flex.isIncludedInLayout(true).markDirty()
-    gradeInputView.isHidden = false
-    view.setNeedsLayout()
-  }
-
-  private func setUniversityInput() {
-    searchContentView.flex.isIncludedInLayout(true).markDirty()
-    searchContentView.isHidden = false
-    
-    gradeInputView.flex.isIncludedInLayout(false).markDirty()
-    gradeInputView.isHidden = true
-    gradeInputView.selectedIndex = -1
-    
-    view.setNeedsLayout()
   }
 }
 
@@ -317,5 +281,5 @@ fileprivate enum Const {
   static var confirmTitle: String { "등록하기" }
   static var university: String { "대학교" }
   static var searchBarPlaceholder: String { "ex)머니대학교" }
-  static var universityInfoEmpty: String { "총무에게 초대받았어요" }
+  static var notRegisterButton: String { "총무에게 초대받았어요" }
 }

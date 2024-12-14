@@ -8,8 +8,6 @@ final class InputUniversityInfoReactor: Reactor {
   enum Action {
     case searchKeyword(String)
     case selectUniversity(University)
-    case unSelectUniversity
-    case selectGrade(Int)
     case confirm
     case notUnivercityInfo
   }
@@ -19,16 +17,9 @@ final class InputUniversityInfoReactor: Reactor {
     case setEmptyList(Bool)
     case setIsLoading(Bool)
     case setErrorMessage(String)
-    case setInputType(InputType)
     case setIsConfirm(Bool)
     case setDestination(State.Destination)
-    case setSelectedUniversity(University)
-    case setSelectedGrade(Int)
-  }
-
-  enum InputType {
-    case university
-    case grade(University)
+    case setSelectedUniversity(University?)
   }
 
   struct State {
@@ -37,12 +28,10 @@ final class InputUniversityInfoReactor: Reactor {
     @Pulse var errorMessage: String?
     @Pulse var schoolList: [University]?
     @Pulse var isEmptyList: Bool?
-    @Pulse var inputType: InputType = .university
     @Pulse var destination: State.Destination?
     @Pulse var agencyName: String
     @Pulse var agencyType: AgencyType
-    var selectedUniversity: University?
-    var selectedGrade: Int?
+    @Pulse var selectedUniversity: University?
     
     enum Destination {
       case congratulations
@@ -70,6 +59,9 @@ final class InputUniversityInfoReactor: Reactor {
     switch action {
     case .searchKeyword(let keyword):
       return Observable.create { [unowned self] observer in
+        observer.onNext(.setSelectedUniversity(nil))
+        observer.onNext(.setIsConfirm(false))
+        
         if keyword == "" {
           observer.onNext(.setSchoolList([]))
           observer.onNext(.setEmptyList(false))
@@ -91,43 +83,21 @@ final class InputUniversityInfoReactor: Reactor {
       }
 
     case .selectUniversity(let university):
-      return Observable.concat([
+      return .concat([
         .just(.setSelectedUniversity(university)),
-        .just(.setInputType(.grade(university)))
+        .just(.setIsConfirm(true))
       ])
-
-    case .unSelectUniversity:
-      return Observable.concat([
-        .just(.setIsConfirm(false)),
-        .just(.setInputType(.university))
-      ])
-
-    case .selectGrade(let grade):
-      return Observable.create { [unowned self] observer in
-        observer.onNext(.setSelectedGrade(grade))
-        
-        if currentState.selectedUniversity != nil,
-           let grade = currentState.selectedGrade,
-           (1...5) ~= grade
-        {
-          observer.onNext(.setIsConfirm(true))
-        } else {
-          observer.onNext(.setIsConfirm(false))
-        }
-        return Disposables.create()
-      }
 
     case .confirm:
       return Observable.concat([
         .just(.setIsLoading(true)),
         .task { [unowned self] in
-          guard let university = currentState.selectedUniversity,
-                let grade = currentState.selectedGrade else {
+          guard let university = currentState.selectedUniversity else {
             throw MoneyMongError.appError(.default, errorMessage: "필수 입력값을 입력해주세요.")
           }
           try await universityRepository.university(
             name: university.schoolName,
-            grade: grade
+            grade: nil
           )
           
           return try await agencyRepository.create(name: currentState.agencyName, type: currentState.agencyType.rawValue)
@@ -160,8 +130,6 @@ final class InputUniversityInfoReactor: Reactor {
       newState.errorMessage = errorMessage
     case .setSchoolList(let list):
       newState.schoolList = list
-    case .setInputType(let type):
-      newState.inputType = type
     case .setIsConfirm(let value):
       newState.isConfirm = value
     case .setDestination(let destination):
@@ -170,8 +138,6 @@ final class InputUniversityInfoReactor: Reactor {
       newState.isEmptyList = value
     case .setSelectedUniversity(let university):
       newState.selectedUniversity = university
-    case .setSelectedGrade(let grade):
-      newState.selectedGrade = grade
     }
     return newState
   }
