@@ -20,9 +20,9 @@ let modulTemplate = Template(
             path: "Sources/Dummy.swift",
             contents: "// Dummy"
         ),
-        .directory(
-          path: "Resources",
-          sourcePath: "Assets.xcassets"
+        .string(
+            path: "Testing/Dummy.swift",
+            contents: "// Dummy"
         ),
         .file(
             path: "Demo/Sources/AppDelegate.swift",
@@ -31,10 +31,6 @@ let modulTemplate = Template(
         .file(
             path: "Demo/Sources/SceneDelegate.swift",
             templatePath: "SceneDelegate.stencil"
-        ),
-        .file(
-            path: "Demo/Sources/\(moduleNameAttribute)ViewController.swift",
-            templatePath: "ViewController.stencil"
         ),
         .file(
             path: "Demo/Resources/LaunchScreen.storyboard",

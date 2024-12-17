@@ -1,6 +1,7 @@
 import UIKit
 
 import Core
+import CreateAgencyInterface
 
 public final class AgencyDIContainer {
   
@@ -10,36 +11,33 @@ public final class AgencyDIContainer {
   private let agencyRepo: AgencyRepositoryInterface
   private let userRepo: UserRepositoryInterface
   
+  private let inputAgencyInfoFactory: InputAgencyInfoFactoryInterface
+    
   public init(
     localStorage: LocalStorageInterface,
-    networkManager: NetworkManagerInterfacae
+    networkManager: NetworkManagerInterfacae,
+    inputAgencyInfoFactory: InputAgencyInfoFactoryInterface
   ) {
     self.localStorage = localStorage
     self.networkManager = networkManager
     self.agencyRepo = AgencyRepository(networkManager: networkManager)
     self.userRepo = UserRepository(networkManager: networkManager, localStorage: localStorage)
+    self.inputAgencyInfoFactory = inputAgencyInfoFactory
   }
 
   func agency(with coordinator: AgencyCoordinator) -> AgencyListVC {
     let vc = AgencyListVC()
-    vc.reactor = AgencyListReactor(agencyRepo: agencyRepo)
+    vc.reactor = AgencyListReactor(agencyRepo: agencyRepo, userRepo: userRepo)
     vc.coordinator = coordinator
     return vc
   }
   
-  func createAgency(with coordinator: AgencyCoordinator) -> UIViewController {
-    let vc = CreateAgencyVC()
-    let rootVC = UINavigationController(rootViewController: vc)
-    vc.reactor = CreateAgencyReactor(agencyRepo: agencyRepo, userRepo: userRepo)
-    vc.coordinator = coordinator
-    return rootVC
-  }
-  
-  func createComplete(with coordinator: AgencyCoordinator, id: Int) -> CreateCompleteVC {
-    let vc = CreateCompleteVC()
-    vc.reactor = CreateCompleteReactor(userRepo: userRepo, id: id)
-    vc.coordinator = coordinator
-    return vc
+  func createAgency(with coordinator: AgencyCoordinator, universityType: UniversityType) -> UIViewController {
+    let navigationController = UINavigationController()
+    let createAgencyCoordinator = CreateAgencyCoordinator(navigationController: navigationController, inputAgencyFactory: inputAgencyInfoFactory)
+    createAgencyCoordinator.parentCoordinator = coordinator
+    createAgencyCoordinator.start(animated: true, universityType: universityType)
+    return navigationController
   }
   
   func joinAgency(id: Int, name: String, with coordinator: AgencyCoordinator) -> UIViewController {

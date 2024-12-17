@@ -2,6 +2,7 @@ import UIKit
 
 import BaseFeature
 import DesignSystem
+import CreateAgencyInterface
 
 import ReactorKit
 import RxCocoa
@@ -9,7 +10,8 @@ import RxSwift
 
 final class CreateCompleteVC: BaseVC, View {
   var disposeBag = DisposeBag()
-  weak var coordinator: AgencyCoordinator?
+  
+  var coordinator: CreateAgencyCoordinator?
   
   private let completeImageView = UIImageView(image: Images.agencyCongrats)
   private let completeLabel: UILabel = {
@@ -46,21 +48,21 @@ final class CreateCompleteVC: BaseVC, View {
   }
   
   func bind(reactor: CreateCompleteReactor) {
-    
     reactor.pulse(\.$destination)
       .observe(on: MainScheduler.instance)
       .compactMap { $0 }
       .bind(with: self) { owner, destination in
         switch destination {
         case .dismiss:
-          owner.coordinator?.dismiss()
+          owner.dismiss(animated: true)
+          owner.coordinator?.move(to: .main)
         case .ledger:
-          owner.coordinator?.dismiss(animated: false)
-          owner.coordinator?.goLedger()
+          owner.dismiss(animated: true)
+          owner.coordinator?.move(to: .ledger)
         case .manualInput:
           let id = reactor.currentState.agencyID
-          owner.coordinator?.dismiss(animated: false)
-          owner.coordinator?.goManualInput(agencyID: id)
+          owner.dismiss(animated: true)
+          owner.coordinator?.move(to: .createManualLedger(id))
         }
       }
       .disposed(by: disposeBag)

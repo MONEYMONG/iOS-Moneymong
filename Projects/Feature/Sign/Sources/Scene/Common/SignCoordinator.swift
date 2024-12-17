@@ -1,6 +1,7 @@
 import UIKit
 
-import BaseFeature
+import BaseFeatureInterface
+import CreateAgencyInterface
 import DesignSystem
 
 public final class SignCoordinator: Coordinator {
@@ -8,7 +9,7 @@ public final class SignCoordinator: Coordinator {
   private let diContainer: SignDIContainer
   public weak var parentCoordinator: Coordinator?
   public var childCoordinators: [Coordinator] = []
-
+  
   public init(navigationController: UINavigationController, diContainer: SignDIContainer) {
     self.navigationController = navigationController
     self.diContainer = diContainer
@@ -16,6 +17,21 @@ public final class SignCoordinator: Coordinator {
 
   public func start(animated: Bool) {
     splash()
+  }
+  
+  public func move(to scene: Scene) {
+    switch scene {
+    case .main:
+      parentCoordinator?.move(to: .main)
+      remove()
+    case .ledger:
+      parentCoordinator?.move(to: .ledger)
+      remove()
+    case .createManualLedger(let id):
+      parentCoordinator?.move(to: .createManualLedger(id))
+      remove()
+    default: break
+    }
   }
   
   deinit {
@@ -40,9 +56,10 @@ public extension SignCoordinator {
     remove()
   }
 
-  func signUp(animated: Bool = true) {
-    let vc = diContainer.signUp(with: self)
-    navigationController.pushViewController(vc, animated: animated)
+  func createAgency(animated: Bool = true) {
+    let vc = diContainer.createAgency(with: self)
+    vc.modalPresentationStyle = .fullScreen
+    navigationController.present(vc, animated: animated)
   }
 
   func congratulations(animated: Bool = true) {

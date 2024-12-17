@@ -1,15 +1,22 @@
+import UIKit
+
 import Core
+import CreateAgencyInterface
 
 public final class SignDIContainer {
   private let localStorage: LocalStorageInterface
   private let networkManager: NetworkManagerInterfacae
+  
+  private let inputAgencyInfoFactory: InputAgencyInfoFactoryInterface
 
   public init(
-    localStorage: LocalStorageInterface = LocalStorage(),
-    networkManager: NetworkManagerInterfacae
+    localStorage: LocalStorageInterface,
+    networkManager: NetworkManagerInterfacae,
+    inputAgencyInfoFactory: InputAgencyInfoFactoryInterface
   ) {
     self.localStorage = localStorage
     self.networkManager = networkManager
+    self.inputAgencyInfoFactory = inputAgencyInfoFactory
   }
 
   func splash(with coordinator: SignCoordinator) -> SplashVC {
@@ -46,12 +53,12 @@ public final class SignDIContainer {
     return vc
   }
 
-  func signUp(with coordinator: SignCoordinator) -> SignUpVC {
-    let vc = SignUpVC()
-    let universityRepository = UniversityRepository(networkManager: networkManager)
-    vc.reactor = SignUpReactor(universityRepository: universityRepository)
-    vc.coordinator = coordinator
-    return vc
+  func createAgency(with coordinator: SignCoordinator) -> UIViewController {
+    let navigationController = UINavigationController()
+    let createAgencyCoordinator = CreateAgencyCoordinator(navigationController: navigationController, inputAgencyFactory: inputAgencyInfoFactory)
+    createAgencyCoordinator.parentCoordinator = coordinator
+    createAgencyCoordinator.start(animated: true, universityType: .unknown)
+    return navigationController
   }
 
   func congratulations(with coordinator: SignCoordinator) -> CongratulationsVC {

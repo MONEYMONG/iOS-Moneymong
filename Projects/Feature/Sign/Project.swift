@@ -24,7 +24,8 @@ let project = Project(
       ]),
       sources: ["Sources/**"],
       dependencies: [
-        .project(target: "BaseFeature", path: .relativeToRoot("Projects/Feature/Base"))
+        .project(target: "BaseFeature", path: .relativeToRoot("Projects/Feature/Base")),
+        .project(target: "CreateAgencyInterface", path: .relativeToRoot("Projects/Feature/CreateAgency"))
       ],
       settings: .settings(base: [
         "SWIFT_VERSION": "5.7"

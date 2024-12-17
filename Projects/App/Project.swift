@@ -8,7 +8,7 @@ let project = Project(
   ),
   settings: .settings(
     base: .init()
-      .marketingVersion("1.3.2")
+      .marketingVersion("1.4.0")
       .swiftVersion("5.7")
       .currentProjectVersion("1")
       .appleGenericVersioningSystem(),
@@ -99,6 +99,7 @@ let project = Project(
       dependencies: [
         .project(target: "SignFeature", path: .relativeToRoot("Projects/Feature/Sign")),
         .project(target: "MainFeature", path: .relativeToRoot("Projects/Feature/Main")),
+        .project(target: "CreateAgency", path: .relativeToRoot("Projects/Feature/CreateAgency")),
         .target(name: "WidgetExtension")
       ],
       settings: .settings(

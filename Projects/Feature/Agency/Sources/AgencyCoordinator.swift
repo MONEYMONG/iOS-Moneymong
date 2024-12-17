@@ -1,7 +1,8 @@
 import UIKit
 
-import BaseFeature
+import BaseFeatureInterface
 import DesignSystem
+import CreateAgencyInterface
 
 public final class AgencyCoordinator: Coordinator {
   public var navigationController: UINavigationController
@@ -10,7 +11,7 @@ public final class AgencyCoordinator: Coordinator {
   public var childCoordinators: [Coordinator] = []
   
   weak var secondFlowNavigationController: UINavigationController?
-
+  
   public init(navigationController: UINavigationController, diContainer: AgencyDIContainer) {
     self.navigationController = navigationController
     self.diContainer = diContainer
@@ -20,13 +21,22 @@ public final class AgencyCoordinator: Coordinator {
     case alert(title: String, subTitle: String?, okAction: () -> Void, cancelAction: (() -> Void)? = nil)
     case joinAgency(id: Int, name: String)
     case joinComplete
-    case createAgency
-    case createComplete(id: Int)
+    case createAgency(UniversityType)
     case web(String)
   }
 
   public func start(animated: Bool) {
     agency(animated: animated)
+  }
+  
+  public func move(to scene: BaseFeatureInterface.Scene) {
+    switch scene {
+    case .ledger:
+      parentCoordinator?.move(to: .ledger)
+    case .createManualLedger(let int):
+      parentCoordinator?.move(to: .createManualLedger(int))
+    default: break
+    }
   }
   
   func present(_ scene: Scene, animated: Bool = true) {
@@ -41,10 +51,8 @@ public final class AgencyCoordinator: Coordinator {
       joinAgency(id: id, name: name, animated: animated)
     case .joinComplete:
       joinComplete(animated: animated)
-    case .createAgency: 
-      createAgency(animated: animated)
-    case let .createComplete(id):
-      createComplete(agencyID: id, animated: animated)
+    case let .createAgency(universityType):
+      createAgency(universityType: universityType, animated: animated)
     case let .web(url):
       web(urlString: url)
     }
@@ -54,12 +62,8 @@ public final class AgencyCoordinator: Coordinator {
     navigationController.topViewController?.dismiss(animated: animated)
   }
   
-  func goLedger() {
+  public func goLedger() {
     parentCoordinator?.move(to: .ledger)
-  }
-  
-  func goManualInput(agencyID: Int) {
-    parentCoordinator?.move(to: .createManualLedger(agencyID))
   }
 }
 
@@ -69,16 +73,10 @@ extension AgencyCoordinator {
     navigationController.viewControllers = [vc]
   }
   
-  private func createAgency(animated: Bool) {
-    let vc = diContainer.createAgency(with: self)
-    secondFlowNavigationController = vc as? UINavigationController
+  private func createAgency(universityType: UniversityType, animated: Bool) {
+    let vc = diContainer.createAgency(with: self, universityType: universityType)
     vc.modalPresentationStyle = .fullScreen
-    navigationController.topViewController?.present(vc, animated: animated)
-  }
-  
-  private func createComplete(agencyID: Int, animated: Bool) {
-    let vc = diContainer.createComplete(with: self, id: agencyID)
-    secondFlowNavigationController?.pushViewController(vc, animated: animated)
+    navigationController.present(vc, animated: animated)
   }
   
   private func joinAgency(id: Int, name: String, animated: Bool) {

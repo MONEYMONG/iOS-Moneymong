@@ -22,6 +22,7 @@ public final class AgencyListReactor: Reactor {
     case tapSearchButton // 키보드의 검색 버튼을 눌렀을떄
     case tapCancelButton
     case searchTextChanged(String?)
+    case viewDidLoad
   }
   
   public enum Mutation {
@@ -32,6 +33,7 @@ public final class AgencyListReactor: Reactor {
     case setAlert(title: String, subTitle: String)
     case setPage(Int)
     case setQuery(String?)
+    case setUserInfo(Result<UserInfo, MoneyMongError>)
   }
   
   public struct State {
@@ -40,6 +42,7 @@ public final class AgencyListReactor: Reactor {
     var page: Int = 0
     @Pulse var myAgency: [Agency] = []
     @Pulse var items: [Item] = [.feedback]
+    @Pulse var userInfo: UserInfo?
     
     @Pulse var error: MoneyMongError?
     @Pulse var isLoading = false
@@ -53,11 +56,18 @@ public final class AgencyListReactor: Reactor {
   }
   
   public let initialState: State = State()
+  
   private let agencyRepo: AgencyRepositoryInterface
+  private let userRepo: UserRepositoryInterface
+  
   private let listLimit = 20
   
-  init(agencyRepo: AgencyRepositoryInterface) {
+  init(
+    agencyRepo: AgencyRepositoryInterface,
+    userRepo: UserRepositoryInterface
+  ) {
     self.agencyRepo = agencyRepo
+    self.userRepo = userRepo
   }
   
   public func mutate(action: Action) -> Observable<Mutation> {
@@ -132,6 +142,12 @@ public final class AgencyListReactor: Reactor {
       
     case let .searchTextChanged(query):
       return .just(.setQuery(query))
+    case .viewDidLoad:
+      return .task {
+        try await userRepo.user()
+      }
+      .map { .setUserInfo(.success($0)) }
+      .catch { return .just(.setUserInfo(.failure($0.toMMError))) }
     }
   }
   
@@ -168,6 +184,12 @@ public final class AgencyListReactor: Reactor {
       
     case let .setQuery(query):
       newState.query = query
+      
+    case let .setUserInfo(.success(userInfo)):
+      newState.userInfo = userInfo
+      
+    case let .setUserInfo(.failure(error)):
+      newState.error = error
     }
     
     return newState

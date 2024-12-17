@@ -2,7 +2,7 @@ import UIKit
 
 import DesignSystem
 import Core
-import BaseFeature
+import BaseFeatureInterface
 
 public final class LedgerCoordinator: Coordinator {
   public var navigationController: UINavigationController

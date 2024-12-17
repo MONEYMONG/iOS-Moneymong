@@ -1,6 +1,6 @@
 import UIKit
 
-import BaseFeature
+import BaseFeatureInterface
 import Core
 
 final class CreateOCRLedgerDIContainer {

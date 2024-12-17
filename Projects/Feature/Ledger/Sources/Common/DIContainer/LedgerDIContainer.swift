@@ -1,7 +1,7 @@
 import UIKit
 
 import Core
-import BaseFeature
+import BaseFeatureInterface
 
 public final class LedgerDIContainer {
 

@@ -1,6 +1,6 @@
 import UIKit
 
-import BaseFeature
+import BaseFeatureInterface
 import MainFeature
 import SignFeature
 import DesignSystem
@@ -26,6 +26,14 @@ final class AppCoordinator: Coordinator {
       main(animated: true)
     case .login:
       sign(animated: true)
+    case .ledger:
+      main(animated: true)
+      let mainCoordinator = childCoordinators.first { $0 is MainTabBarCoordinator }
+      mainCoordinator?.move(to: .ledger)
+    case let .createManualLedger(id):
+      main(animated: true)
+      let mainCoordinator = childCoordinators.first { $0 is MainTabBarCoordinator }
+      mainCoordinator?.move(to: .createManualLedger(id))
     default: break
     }
   }

@@ -4,6 +4,7 @@ import DesignSystem
 import BaseFeature
 import Utility
 import Core
+import CreateAgencyInterface
 
 import ReactorKit
 import RxDataSources
@@ -66,6 +67,10 @@ public final class AgencyListVC: BaseVC, View {
   public func bind(reactor: AgencyListReactor) {
     setRightItem(.search)
     // Action Binding
+    rx.viewDidLoad
+      .map { Reactor.Action.viewDidLoad }
+      .bind(to: reactor.action)
+      .disposed(by: disposeBag)
     
     navigationItem.rightBarButtonItem?.rx.tap
       .observe(on: MainScheduler.instance)
@@ -123,8 +128,10 @@ public final class AgencyListVC: BaseVC, View {
     
     createAgencyButton.rx.tap
       .throttle(.seconds(1), latest: false, scheduler: MainScheduler.instance)
-      .bind(with: self) { owner, _ in
-        owner.coordinator?.present(.createAgency)
+      .compactMap { reactor.currentState.userInfo?.universityName }
+      .map { universityName -> UniversityType in universityName == "정보없음" ? .none : .exists }
+      .bind(with: self) { owner, universityType in
+        owner.coordinator?.present(.createAgency(universityType))
       }
       .disposed(by: disposeBag)
     
@@ -142,7 +149,6 @@ public final class AgencyListVC: BaseVC, View {
     reactor.pulse(\.$query)
       .observe(on: MainScheduler.instance)
       .bind(with: self) { owner, query in
-        
         owner.navigationItem.rightBarButtonItem?.setValue(query != nil, forKey: "hidden")
         owner.searchHeaderView.flex.height(query == nil ? 0 : 60)
         owner.searchHeaderView.flex.markDirty()
