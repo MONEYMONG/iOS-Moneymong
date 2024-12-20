@@ -121,9 +121,9 @@ public final class InputAgencyInfoReactor: Reactor {
 extension InputAgencyInfoReactor {
   func parsingAgencyType(with selectedIndex: Int) -> AgencyType? {
     switch selectedIndex {
-    case 0: .inSchoolClub
-    case 1: .studentCouncil
-    case 2: .general
+    case 0: .general
+    case 1: .inSchoolClub
+    case 2: .studentCouncil
     default: nil
     }
   }
