@@ -105,8 +105,8 @@ public final class InputAgencyInfoVC: BaseVC, View {
     keybordShowCreateButtonConstraints = [
       registerButton.heightAnchor.constraint(equalToConstant: 56),
       registerButton.bottomAnchor.constraint(equalTo: view.keyboardLayoutGuide.topAnchor),
-      registerButton.trailingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.trailingAnchor, constant: 3),
-      registerButton.leadingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.leadingAnchor, constant: -3)
+      registerButton.trailingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.trailingAnchor, constant: 12),
+      registerButton.leadingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.leadingAnchor, constant: -12)
     ]
     
     NSLayoutConstraint.activate(keybordHideCreateButtonConstraints)
