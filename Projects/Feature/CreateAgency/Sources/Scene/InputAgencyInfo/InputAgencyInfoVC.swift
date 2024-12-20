@@ -159,7 +159,7 @@ public final class InputAgencyInfoVC: BaseVC, View {
       }
       .disposed(by: disposeBag)
     
-    view.rx.tapGesture
+    rootContainer.rx.tapGesture
       .bind { $0.endEditing(true) }
       .disposed(by: disposeBag)
     
