@@ -12,7 +12,7 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
     let networkManager = NetworkManager()
     let localStorage = LocalStorage()
     
-    window?.rootViewController = UINavigationController(rootViewController: InputUniversityInfoFactory(networkManager: networkManager, localStorage: localStorage).make(coordinator: nil, agencyName: "", agencyType: .inSchoolClub))
+    window?.rootViewController = UINavigationController(rootViewController: InputAgencyInfoFactory(networkManager: networkManager, localStorage: localStorage).make(coordinator: nil, universityType: .unknown))
     window?.makeKeyAndVisible()
   }
   

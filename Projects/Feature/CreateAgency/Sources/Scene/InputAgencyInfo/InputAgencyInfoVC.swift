@@ -48,7 +48,7 @@ public final class InputAgencyInfoVC: BaseVC, View {
   }()
   
   private let agencySegmentControl: MMSegmentControl = {
-    let v = MMSegmentControl(titles: ["동아리", "학생회", "기타모임"], type: .round)
+    let v = MMSegmentControl(titles: [ "기타모임", "동아리", "학생회"], type: .round)
     v.selectedIndex = 0
     return v
   }()
@@ -197,8 +197,8 @@ public final class InputAgencyInfoVC: BaseVC, View {
       .filter { $0 == .none}
       .observe(on: MainScheduler.instance)
       .bind(with: self) { owner, _ in
-        owner.agencySegmentControl.selectedIndex = 2
-        owner.agencySegmentControl.disableButtons(with: 0,1)
+        owner.agencySegmentControl.selectedIndex = 0
+        owner.agencySegmentControl.disableButtons(with: 1,2)
         owner.agencySegmentControl.flex.layout()
       }
       .disposed(by: disposeBag)
@@ -242,6 +242,13 @@ public final class InputAgencyInfoVC: BaseVC, View {
     
     reactor.pulse(\.$isLoading)
       .bind(to: rx.isLoading)
+      .disposed(by: disposeBag)
+    
+    reactor.pulse(\.$agencyType)
+      .map { $0 == .general ? "등록하기" : "다음으로" }
+      .bind(with: self) { owner, title in
+        owner.registerButton.setTitle(to: title)
+      }
       .disposed(by: disposeBag)
   }
 }
