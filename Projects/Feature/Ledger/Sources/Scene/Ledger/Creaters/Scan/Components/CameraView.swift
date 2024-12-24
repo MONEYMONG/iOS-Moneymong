@@ -77,7 +77,7 @@ final class CameraView: UIView {
     try configureCameraFocus(backCamera)
     
     // 세션 시작
-    DispatchQueue.main.async {
+    DispatchQueue.global().async {
       self.captureSession.startRunning()
     }
   }
@@ -108,6 +108,3 @@ final class CameraView: UIView {
     }
   }
 }
-
-
-
