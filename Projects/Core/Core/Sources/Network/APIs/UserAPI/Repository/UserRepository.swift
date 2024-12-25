@@ -28,7 +28,6 @@ public final class UserRepository: UserRepositoryInterface {
     let entity = dto.toEntity
 
     localStorage.userID = entity.id
-    FirebaseManager.shared.setUser(id: "\(entity.id)")
 
     return entity
   }

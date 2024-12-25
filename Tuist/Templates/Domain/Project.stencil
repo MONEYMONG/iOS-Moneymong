@@ -1,0 +1,55 @@
+import ProjectDescription
+
+let project = Project(
+    name: "{{ name }}",
+    settings: .settings(
+        base: .init()
+        .swiftVersion("5.7")
+    ),
+    targets: [
+        Target(
+            name: "{{ name }}",
+            platform: .iOS,
+            product: .framework,
+            bundleId: "com.framework.moneymong.{{ name }}",
+            deploymentTarget: .iOS(targetVersion: "15.0", devices: .iphone),
+            sources: ["Sources/**"],
+            dependencies: [
+                .target(name: "{{ name }}Interface")
+            ]
+        ),
+        Target(
+            name: "{{ name }}Interface",
+            platform: .iOS,
+            product: .framework,
+            bundleId: "com.framework.moneymong.{{ name }}Interface",
+            deploymentTarget: .iOS(targetVersion: "15.0", devices: .iphone),
+            sources: ["Interface/**"],
+            dependencies: [
+            ]
+        ),
+        Target(
+            name: "{{ name }}Tests",
+            platform: .iOS,
+            product: .unitTests,
+            bundleId: "com.framework.moneymong.{{ name }}Tests",
+            deploymentTarget: .iOS(targetVersion: "15.0", devices: .iphone),
+            sources: ["Tests/**"],
+            dependencies: [
+                .target(name: "{{ name }}"),
+                .target(name: "{{ name }}Testing")
+            ]
+        ),
+        Target(
+            name: "{{ name }}Testing",
+            platform: .iOS,
+            product: .staticLibrary,
+            bundleId: "com.framework.moneymong.{{ name }}Testing",
+            deploymentTarget: .iOS(targetVersion: "15.0", devices: .iphone),
+            sources: ["Testing/**"],
+            dependencies: [
+                .target(name: "{{ name }}Interface")
+            ]
+        )
+    ]
+)

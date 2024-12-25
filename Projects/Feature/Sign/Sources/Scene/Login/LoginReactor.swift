@@ -66,6 +66,7 @@ final class LoginReactor: Reactor {
           )
         }
         
+        #warning("의미 없어 보임")
         _ = try await userRepo.user()
         
         return result
