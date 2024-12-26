@@ -1,4 +1,7 @@
 import Foundation
+
+import UserInterface
+
 import Alamofire
 
 public protocol UniversityRepositoryInterface {

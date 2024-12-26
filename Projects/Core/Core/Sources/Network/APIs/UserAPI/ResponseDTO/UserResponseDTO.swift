@@ -1,5 +1,7 @@
 import Foundation
 
+import UserInterface
+
 /// 유저정보
 public struct UserResponseDTO: Responsable {
   let id: Int?
@@ -9,6 +11,16 @@ public struct UserResponseDTO: Responsable {
   let universityName: String?
   let grade: Int?
   let provider: String?
+  
+  public init(id: Int?, userToken: String?, nickname: String?, email: String?, universityName: String?, grade: Int?, provider: String?) {
+    self.id = id
+    self.userToken = userToken
+    self.nickname = nickname
+    self.email = email
+    self.universityName = universityName
+    self.grade = grade
+    self.provider = provider
+  }
   
   public var toEntity: UserInfo {
     .init(

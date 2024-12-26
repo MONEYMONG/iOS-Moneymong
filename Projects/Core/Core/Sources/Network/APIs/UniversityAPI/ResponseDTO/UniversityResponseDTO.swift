@@ -1,3 +1,5 @@
+import UserInterface
+
 public struct UniversityResponseDTO: Responsable {
   public let id: Int?
   public let schoolName: String?
