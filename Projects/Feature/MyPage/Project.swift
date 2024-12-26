@@ -18,7 +18,8 @@ let project = Project(
               .project(
                 target: "BaseFeature",
                 path: .relativeToRoot("Projects/Feature/Base")
-              )
+              ),
+              .project(target: "UserInterface", path: .relativeToRoot("Projects/Domain/User"))
             ],
             settings: .settings(base: [
               "SWIFT_VERSION": "5.7"

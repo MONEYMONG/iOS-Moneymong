@@ -23,7 +23,8 @@ let project = Project(
       dependencies: [
         .project(target: "Utility", path: .relativeToRoot("Projects/Core/Utility")),
         .project(target: "ThirdPartyLips", path: .relativeToRoot("Projects/Shared/ThirdPartyLips")),
-        .project(target: "UserInterface", path: .relativeToRoot("Projects/Domain/User"))
+        .project(target: "UserInterface", path: .relativeToRoot("Projects/Domain/User")),
+        .project(target: "AuthInterface", path: .relativeToRoot("Projects/Domain/Auth"))
       ],
       launchArguments: [
         LaunchArgument(name: "IDEPreferLogStreaming=YES", isEnabled: true),

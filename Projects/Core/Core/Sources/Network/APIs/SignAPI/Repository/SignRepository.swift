@@ -1,4 +1,7 @@
 import Foundation
+
+import AuthInterface
+
 import Alamofire
 
 public protocol SignRepositoryInterface {
