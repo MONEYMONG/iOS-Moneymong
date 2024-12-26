@@ -6,12 +6,11 @@ let project = Project(
     disableBundleAccessors: true,
     disableSynthesizedResourceAccessors: true
   ),
-  packages: [
-    .remote(
-      url: "https://github.com/firebase/firebase-ios-sdk",
-      requirement: .upToNextMajor(from: "10.28.0")
-    )
-  ],
+  settings: .settings(base: [
+    "DEBUG_INFORMATION_FORMAT": "dwarf-with-dsym",
+    "OTHER_LDFLAGS": "-ObjC",
+    "SWIFT_VERSION": "5.7"
+  ]),
   targets: [
     Target(
       name: "Core",
@@ -24,19 +23,23 @@ let project = Project(
       dependencies: [
         .project(target: "Utility", path: .relativeToRoot("Projects/Core/Utility")),
         .project(target: "ThirdPartyLips", path: .relativeToRoot("Projects/Shared/ThirdPartyLips")),
-        .package(product: "FirebaseAnalytics"),
-        .package(product: "FirebaseDynamicLinks"),
-        .package(product: "FirebaseMessaging")
+        .project(target: "UserInterface", path: .relativeToRoot("Projects/Domain/User"))
       ],
-      settings: .settings(base: [
-        "DEBUG_INFORMATION_FORMAT": "dwarf-with-dsym",
-        "OTHER_LDFLAGS": "-ObjC",
-        "SWIFT_VERSION": "5.7"
-      ]),
       launchArguments: [
         LaunchArgument(name: "IDEPreferLogStreaming=YES", isEnabled: true),
         LaunchArgument(name: "-FIRDebugEnabled", isEnabled: true)
       ]
+    ),
+    Target(
+        name: "CoreTesting",
+        platform: .iOS,
+        product: .staticLibrary,
+        bundleId: "com.framework.moneymong.CoreTesting",
+        deploymentTarget: .iOS(targetVersion: "15.0", devices: .iphone),
+        sources: ["Testing/**"],
+        dependencies: [
+            .target(name: "Core")
+        ]
     )
   ]
 )
