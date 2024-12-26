@@ -19,7 +19,7 @@ public final class UniversityRepository: UniversityRepositoryInterface {
   public func universities(keyword: String) async throws -> [University] {
     let targetType = UniversityAPI.universities(keyword)
     let dto = try await networkManager.request(target: targetType, of: UniversitiesResponseDTO.self)
-    return dto.toEntity.universities
+    return dto.toEntity
   }
 
   public func university(name: String?, grade: Int?) async throws {
