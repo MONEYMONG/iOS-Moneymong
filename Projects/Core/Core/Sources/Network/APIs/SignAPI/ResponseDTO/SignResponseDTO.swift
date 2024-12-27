@@ -1,3 +1,5 @@
+import AuthInterface
+
 public struct SignResponseDTO: Responsable {
   public let accessToken: String?
   public let refreshToken: String?

@@ -3,6 +3,7 @@ import UIKit
 import Utility
 import DesignSystem
 import Core
+import UserInterface
 
 final class UniversityCell: UITableViewCell, ReusableView {
   private let schoolImageView: UIImageView = {

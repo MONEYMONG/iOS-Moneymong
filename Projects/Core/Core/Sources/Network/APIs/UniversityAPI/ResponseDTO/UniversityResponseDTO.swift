@@ -1,3 +1,5 @@
+import UserInterface
+
 public struct UniversityResponseDTO: Responsable {
   public let id: Int?
   public let schoolName: String?
@@ -19,7 +21,7 @@ public struct UniversitiesResponseDTO: Responsable {
     self.universities = universities
   }
 
-  public var toEntity: Universities {
-    .init(universities: universities?.compactMap { $0.toEntity } ?? [])
+  public var toEntity: [University] {
+    universities?.compactMap { $0.toEntity } ?? []
   }
 }

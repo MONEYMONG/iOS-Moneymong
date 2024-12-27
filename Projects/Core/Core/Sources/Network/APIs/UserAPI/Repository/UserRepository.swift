@@ -1,5 +1,7 @@
 import Foundation
 
+import UserInterface
+
 public protocol UserRepositoryInterface {
   func user() async throws -> UserInfo
   func fetchUserID() -> Int

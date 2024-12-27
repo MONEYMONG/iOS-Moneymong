@@ -3,6 +3,8 @@ import UIKit
 import DesignSystem
 import Core
 
+import UserInterface
+
 import RxSwift
 
 final class GradeInputView: UIView {
