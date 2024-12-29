@@ -1,6 +1,7 @@
 import Core
 
 import ReactorKit
+import LedgerInterface
 
 final class LedgerDetailReactor: Reactor {
 
