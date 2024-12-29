@@ -1,5 +1,7 @@
 import Foundation
 
+import LedgerInterface
+
 public struct LedgerDetail {
   public let id: Int
   public let storeInfo: String

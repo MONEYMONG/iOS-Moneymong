@@ -1,5 +1,7 @@
 import Foundation
 
+import LedgerInterface
+
 struct LedgerDetailResponseDTO: Responsable {
   let id: Int
   let storeInfo: String

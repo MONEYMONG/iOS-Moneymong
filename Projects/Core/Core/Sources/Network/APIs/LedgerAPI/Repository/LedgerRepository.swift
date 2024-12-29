@@ -1,6 +1,8 @@
 import Foundation
 import WidgetKit
 
+import LedgerInterface
+
 public protocol LedgerRepositoryInterface {
   
   func imageUpload(_ data: Data) async throws -> ImageInfo

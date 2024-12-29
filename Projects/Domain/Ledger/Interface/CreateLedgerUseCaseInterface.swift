@@ -1,0 +1,14 @@
+import Foundation
+
+public protocol CreateLedgerUseCaseInterface {
+  func execute(
+    id: Int,
+    storeInfo: String,
+    fundType: FundType,
+    amount: Int,
+    description: String,
+    paymentDate: String,
+    receiptImageUrls: [String],
+    documentImageUrls: [String]
+  ) async throws
+}

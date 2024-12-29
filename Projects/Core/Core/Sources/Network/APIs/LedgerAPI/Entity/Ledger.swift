@@ -1,3 +1,5 @@
+import LedgerInterface
+
 /// 장부 목록 내역에 사용되는 모델
 ///
 /// - Parameters:
