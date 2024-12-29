@@ -1,5 +1,7 @@
 import Core
 
+import LedgerInterface
+
 struct LedgerImageInfo: Equatable {
   let imageSection: LedgerContentsReactor.ImageSection
   let key: String
