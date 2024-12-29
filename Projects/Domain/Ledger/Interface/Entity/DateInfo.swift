@@ -1,4 +1,4 @@
-public struct DateInfo {
+public struct DateInfo: Equatable {
   public let year: Int
   public let month: Int
   
@@ -8,7 +8,7 @@ public struct DateInfo {
   }
 }
 
-public struct DateRange {
+public struct DateRange: Equatable {
   public let start: DateInfo
   public let end: DateInfo
   

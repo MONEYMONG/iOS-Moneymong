@@ -2,6 +2,7 @@ import UIKit
 
 import DesignSystem
 import Core
+import LedgerInterface
 
 import PinLayout
 import FlexLayout
