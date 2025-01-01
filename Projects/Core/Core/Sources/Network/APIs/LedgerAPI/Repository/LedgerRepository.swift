@@ -190,15 +190,8 @@ public final class LedgerRepository: LedgerRepositoryInterface {
   }
   
   public func fetchDateRange() -> DateRange? {
-    guard let dateRange = localStorage.ledgerDateRange,
-          let startYear = dateRange["startYear"],
-          let startMonth = dateRange["startMonth"],
-          let endYear = dateRange["endYear"],
-          let endMonth = dateRange["endMonth"] else { return nil }
-    return DateRange(
-      start: DateInfo(year: startYear, month: startMonth),
-      end: DateInfo(year: endYear, month: endMonth)
-    )
+    guard let dateRange = localStorage.ledgerDateRange else { return nil }
+    return DateRange(dic: dateRange)
   }
 }
 
