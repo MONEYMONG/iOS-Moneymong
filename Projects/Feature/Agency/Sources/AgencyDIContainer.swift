@@ -20,7 +20,7 @@ public final class AgencyDIContainer {
   ) {
     self.localStorage = localStorage
     self.networkManager = networkManager
-    self.agencyRepo = AgencyRepository(networkManager: networkManager)
+    self.agencyRepo = AgencyRepository(networkManager: networkManager, localStorage: localStorage)
     self.userRepo = UserRepository(networkManager: networkManager, localStorage: localStorage)
     self.inputAgencyInfoFactory = inputAgencyInfoFactory
   }

@@ -20,7 +20,7 @@ public struct InputUniversityInfoFactory: InputUniversityInfoFactoryInterface {
       agencyName: agencyName,
       agencyType: agencyType,
       universityRepository: UniversityRepository(networkManager: networkManager),
-      agencyRepository: AgencyRepository(networkManager: networkManager)
+      agencyRepository: AgencyRepository(networkManager: networkManager, localStorage: localStorage)
     )
     return vc
   }
