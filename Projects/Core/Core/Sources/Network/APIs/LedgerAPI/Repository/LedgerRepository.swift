@@ -1,5 +1,4 @@
 import Foundation
-import WidgetKit
 
 import LedgerInterface
 
@@ -134,13 +133,10 @@ public final class LedgerRepository: LedgerRepositoryInterface {
     
     let result = try await networkManager.request(target: targetType, of: LedgerListResponseDTO.self)
     
-    let dict: [String: Any] = [
-      "name" : result.agencyName,
-      "total" : result.totalBalance
-    ]
-    
-    UserDefaults(suiteName: "group.moneymong")?.set(dict, forKey: "agencyInfo")
-    WidgetCenter.shared.reloadAllTimelines()
+    localStorage.saveCurrentLedgerInfo(
+      agencyName: result.agencyName,
+      totalBalance: result.totalBalance
+    )
     return result.toEntity
   }
   
