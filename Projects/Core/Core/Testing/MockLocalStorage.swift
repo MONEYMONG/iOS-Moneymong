@@ -15,6 +15,8 @@ public final class MockLocalStorage: LocalStorageInterface {
   
   public var socialAccessToken: String?
   
+  public var currentLedgerInfo: [String : Any]?
+  
   public func removeAll() {
     selectedAgency = nil
     userID = nil
@@ -24,5 +26,13 @@ public final class MockLocalStorage: LocalStorageInterface {
 
     accessToken = nil
     refreshToken = nil
+  }
+  
+  public func saveCurrentLedgerInfo(agencyName: String, totalBalance: Int) {
+    currentLedgerInfo = ["agencyName": agencyName, "totalBalance": totalBalance]
+  }
+  
+  public func deleteCurrentLedgerInfo() {
+    currentLedgerInfo = nil
   }
 }
