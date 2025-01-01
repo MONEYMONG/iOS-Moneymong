@@ -186,12 +186,7 @@ public final class LedgerRepository: LedgerRepositoryInterface {
   }
   
   public func saveDateRange(_ dateRange: DateRange) {
-    localStorage.ledgerDateRange = [
-      "startYear" : dateRange.start.year,
-      "startMonth" : dateRange.start.month,
-      "endYear" : dateRange.end.year,
-      "endMonth" : dateRange.end.month
-    ]
+    localStorage.ledgerDateRange = dateRange.toDic
   }
   
   public func fetchDateRange() -> DateRange? {

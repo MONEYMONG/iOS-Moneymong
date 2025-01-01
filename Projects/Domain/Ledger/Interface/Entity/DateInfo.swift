@@ -16,4 +16,12 @@ public struct DateRange: Equatable {
     self.start = start
     self.end = end
   }
+  public var toDic: [String:Int] {
+    return [
+      "startYear" : start.year,
+      "startMonth" : start.month,
+      "endYear" : end.year,
+      "endMonth" : end.month
+    ]
+  }
 }
