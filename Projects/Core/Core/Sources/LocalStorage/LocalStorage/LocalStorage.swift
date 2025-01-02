@@ -11,13 +11,12 @@ public protocol LocalStorageInterface: AnyObject {
   var socialAccessToken: String? { get set }
   
   func removeAll()
+  func saveCurrentLedgerInfo(agencyName: String, totalBalance: Int)
+  func deleteCurrentLedgerInfo()
 }
 
 public final class LocalStorage: LocalStorageInterface {
-
-  public init() {
-    
-  }
+  public init() {}
   
   @UD(key: .recentLoginType)
   public var recentLoginType: String?
@@ -49,5 +48,18 @@ public final class LocalStorage: LocalStorageInterface {
 
     accessToken = nil
     refreshToken = nil
+  }
+  
+  public func saveCurrentLedgerInfo(agencyName: String, totalBalance: Int) {
+    let dic: [String: Any] = [
+      "name" : agencyName,
+      "total" : totalBalance
+    ]
+    
+    UserDefaults(suiteName: "group.moneymong")?.set(dic, forKey: "agencyInfo")
+  }
+  
+  public func deleteCurrentLedgerInfo() {
+    UserDefaults(suiteName: "group.moneymong")?.removeObject(forKey: "agencyInfo")
   }
 }

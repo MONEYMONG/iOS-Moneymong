@@ -1,5 +1,7 @@
 import Foundation
 
+import LedgerInterface
+
 struct LedgerListResponseDTO: Responsable {
   let id: Int
   let ledgerDetailTotalCount :Int

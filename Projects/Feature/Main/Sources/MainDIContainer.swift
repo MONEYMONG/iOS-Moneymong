@@ -37,7 +37,7 @@ public final class MainDIContainer {
     
     self.ledgerContainer = .init(
       ledgerRepo: LedgerRepository(networkManager: networkManager, localStorage: localStorage),
-      agencyRepo: AgencyRepository(networkManager: networkManager),
+      agencyRepo: AgencyRepository(networkManager: networkManager, localStorage: localStorage),
       userRepo: UserRepository(networkManager: networkManager, localStorage: localStorage)
     )
   }

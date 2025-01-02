@@ -11,4 +11,14 @@ public struct Ledger: Equatable {
   public let balance: Int
   public var order: Int
   public let paymentDate: String
+  
+  public init(id: Int, storeInfo: String, fundType: FundType, amount: Int, balance: Int, order: Int, paymentDate: String) {
+    self.id = id
+    self.storeInfo = storeInfo
+    self.fundType = fundType
+    self.amount = amount
+    self.balance = balance
+    self.order = order
+    self.paymentDate = paymentDate
+  }
 }

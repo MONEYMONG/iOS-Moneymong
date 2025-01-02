@@ -20,7 +20,12 @@ let project = Project(
             dependencies: [
               .project(target: "DesignSystem", path: .relativeToRoot("Projects/Shared/DesignSystem")),
               .project(target: "Core", path: .relativeToRoot("Projects/Core/Core")),
-              .target(name: "BaseFeatureInterface")
+              .target(name: "BaseFeatureInterface"),
+              .project(target: "LedgerInterface", path: .relativeToRoot("Projects/Domain/Ledger")),
+              .project(target: "UserInterface", path: .relativeToRoot("Projects/Domain/User")),
+              .project(target: "AuthInterface", path: .relativeToRoot("Projects/Domain/Auth"))
+
+
             ]
         ),
         Target(

@@ -1,5 +1,6 @@
 import Foundation
-import WidgetKit
+
+import LedgerInterface
 
 public protocol LedgerRepositoryInterface {
   
@@ -132,13 +133,10 @@ public final class LedgerRepository: LedgerRepositoryInterface {
     
     let result = try await networkManager.request(target: targetType, of: LedgerListResponseDTO.self)
     
-    let dict: [String: Any] = [
-      "name" : result.agencyName,
-      "total" : result.totalBalance
-    ]
-    
-    UserDefaults(suiteName: "group.moneymong")?.set(dict, forKey: "agencyInfo")
-    WidgetCenter.shared.reloadAllTimelines()
+    localStorage.saveCurrentLedgerInfo(
+      agencyName: result.agencyName,
+      totalBalance: result.totalBalance
+    )
     return result.toEntity
   }
   
@@ -184,24 +182,12 @@ public final class LedgerRepository: LedgerRepositoryInterface {
   }
   
   public func saveDateRange(_ dateRange: DateRange) {
-    localStorage.ledgerDateRange = [
-      "startYear" : dateRange.start.year,
-      "startMonth" : dateRange.start.month,
-      "endYear" : dateRange.end.year,
-      "endMonth" : dateRange.end.month
-    ]
+    localStorage.ledgerDateRange = dateRange.toDic
   }
   
   public func fetchDateRange() -> DateRange? {
-    guard let dateRange = localStorage.ledgerDateRange,
-          let startYear = dateRange["startYear"],
-          let startMonth = dateRange["startMonth"],
-          let endYear = dateRange["endYear"],
-          let endMonth = dateRange["endMonth"] else { return nil }
-    return DateRange(
-      start: DateInfo(year: startYear, month: startMonth),
-      end: DateInfo(year: endYear, month: endMonth)
-    )
+    guard let dateRange = localStorage.ledgerDateRange else { return nil }
+    return DateRange(dic: dateRange)
   }
 }
 

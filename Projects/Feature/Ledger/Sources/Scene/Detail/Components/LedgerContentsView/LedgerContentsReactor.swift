@@ -3,6 +3,7 @@ import UIKit
 import DesignSystem
 import Core
 import BaseFeature
+import LedgerInterface
 
 import ReactorKit
 

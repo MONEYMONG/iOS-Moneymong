@@ -3,6 +3,7 @@ import UIKit
 import BaseFeatureInterface
 import DesignSystem
 import Core
+import LedgerInterface
 
 final class CreateOCRLedgerCoordinator: Coordinator {
   unowned var navigationController: UINavigationController

@@ -1,6 +1,6 @@
 import Foundation
 
-public struct LedgerDetail {
+public struct LedgerDetail: Equatable {
   public let id: Int
   public let storeInfo: String
   public let amount: Int
