@@ -1,6 +1,7 @@
 import Foundation
 
 import Core
+import AgencyInterface
 
 import ReactorKit
 import RxSwift

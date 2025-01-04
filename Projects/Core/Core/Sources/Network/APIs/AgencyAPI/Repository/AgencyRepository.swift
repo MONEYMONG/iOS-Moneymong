@@ -1,6 +1,8 @@
 import Foundation
 import WidgetKit
 
+import AgencyInterface
+
 public protocol AgencyRepositoryInterface {
   func fetchList(page: Int, size: Int) async throws -> [Agency]
   func search(query: String) async throws -> [Agency]
