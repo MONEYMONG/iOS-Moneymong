@@ -2,6 +2,7 @@ import ReactorKit
 
 import Core
 import AgencyInterface
+import LedgerInterface
 
 final class LedgerTabReactor: Reactor {
   

@@ -19,9 +19,11 @@ public protocol AgencyRepositoryInterface {
 
 public final class AgencyRepository: AgencyRepositoryInterface {
   private let networkManager: NetworkManagerInterfacae
+  private let localStorage: LocalStorageInterface
 
-  public init(networkManager: NetworkManagerInterfacae) {
+  public init(networkManager: NetworkManagerInterfacae, localStorage: LocalStorageInterface) {
     self.networkManager = networkManager
+    self.localStorage = localStorage
   }
   
   public func fetchList(page: Int, size: Int) async throws -> [Agency] {
@@ -84,7 +86,7 @@ public final class AgencyRepository: AgencyRepositoryInterface {
   public func deleteAgency(id: Int) async throws {
     let targetType = AgencyAPI.delete(id: id)
     try await networkManager.request(target: targetType)
-    UserDefaults(suiteName: "group.moneymong")?.removeObject(forKey: "agencyInfo")
+    localStorage.deleteCurrentLedgerInfo()
     WidgetCenter.shared.reloadAllTimelines()
   }
 }

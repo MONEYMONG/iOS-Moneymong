@@ -1,6 +1,6 @@
 import Foundation
 
-public struct OCRResult {
+public struct OCRResult: Equatable {
   public let inferResult: String
   public let source: String
   public let amount: String

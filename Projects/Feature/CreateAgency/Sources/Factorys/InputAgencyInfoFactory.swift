@@ -21,7 +21,7 @@ public struct InputAgencyInfoFactory: InputAgencyInfoFactoryInterface {
     vc.coordinator = coordinator
     vc.reactor = InputAgencyInfoReactor(
       universityType: universityType,
-      agencyRepo: AgencyRepository(networkManager: networkManager),
+      agencyRepo: AgencyRepository(networkManager: networkManager, localStorage: localStorage),
       universityRepo: UniversityRepository(networkManager: networkManager)
     )
     

@@ -1,5 +1,7 @@
 import Foundation
 
+import LedgerInterface
+
 struct OCRResponseDTO: Responsable {
   let version : String
   let requestId: String

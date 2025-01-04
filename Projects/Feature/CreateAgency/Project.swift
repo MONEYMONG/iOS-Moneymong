@@ -16,8 +16,7 @@ let project = Project(
             sources: ["Sources/**"],
             dependencies: [
               .target(name: "CreateAgencyInterface"),
-              .project(target: "BaseFeature", path: .relativeToRoot("Projects/Feature/Base")),
-              .project(target: "UserInterface", path: .relativeToRoot("Projects/Domain/User"))
+              .project(target: "BaseFeature", path: .relativeToRoot("Projects/Feature/Base"))
             ]
         ),
         Target(

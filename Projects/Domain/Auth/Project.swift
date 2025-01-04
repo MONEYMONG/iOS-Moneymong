@@ -15,7 +15,8 @@ let project = Project(
             deploymentTarget: .iOS(targetVersion: "15.0", devices: .iphone),
             sources: ["Sources/**"],
             dependencies: [
-                .target(name: "AuthInterface")
+                .target(name: "AuthInterface"),
+                .project(target: "Core", path: .relativeToRoot("Projects/Core/Core"))
             ]
         ),
         Target(
@@ -37,7 +38,8 @@ let project = Project(
             sources: ["Tests/**"],
             dependencies: [
                 .target(name: "Auth"),
-                .target(name: "AuthTesting")
+                .target(name: "AuthTesting"),
+                .project(target: "CoreTesting", path: .relativeToRoot("Projects/Core/Core"))
             ]
         ),
         Target(

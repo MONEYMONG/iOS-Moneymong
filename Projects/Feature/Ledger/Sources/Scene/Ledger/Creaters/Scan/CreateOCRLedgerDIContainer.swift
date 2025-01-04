@@ -1,6 +1,7 @@
 import UIKit
 
 import BaseFeatureInterface
+import LedgerInterface
 import Core
 
 final class CreateOCRLedgerDIContainer {
