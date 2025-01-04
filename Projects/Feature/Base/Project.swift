@@ -20,7 +20,8 @@ let project = Project(
             dependencies: [
               .project(target: "DesignSystem", path: .relativeToRoot("Projects/Shared/DesignSystem")),
               .project(target: "Core", path: .relativeToRoot("Projects/Core/Core")),
-              .target(name: "BaseFeatureInterface")
+              .target(name: "BaseFeatureInterface"),
+              .project(target: "AgencyInterface", path: .relativeToRoot("Projects/Domain/Agency"))
             ]
         ),
         Target(
