@@ -6,6 +6,10 @@ let project = Project(
       disableBundleAccessors: true,
       disableSynthesizedResourceAccessors: true
     ),
+    settings: .settings(
+        base: .init()
+        .swiftVersion("5.7")
+    ),
     targets: [
         Target(
             name: "MyPageFeature",
@@ -18,11 +22,30 @@ let project = Project(
               .project(
                 target: "BaseFeature",
                 path: .relativeToRoot("Projects/Feature/Base")
-              )
-            ],
-            settings: .settings(base: [
-              "SWIFT_VERSION": "5.7"
-            ])
+              ),
+              .target(name: "MyPageFeatureInterface")
+            ]
+        ),
+        Target(
+            name: "MyPageFeatureInterface",
+            platform: .iOS,
+            product: .framework,
+            bundleId: "com.framework.moneymong.MyPageFeatureInterface",
+            deploymentTarget: .iOS(targetVersion: "15.0", devices: .iphone),
+            sources: ["Interface/**"],
+            dependencies: [
+            ]
+        ),
+        Target(
+            name: "MyPageFeatureTesting",
+            platform: .iOS,
+            product: .staticLibrary,
+            bundleId: "com.framework.moneymong.MyPageFeatureTesting",
+            deploymentTarget: .iOS(targetVersion: "15.0", devices: .iphone),
+            sources: ["Testing/**"],
+            dependencies: [
+                .target(name: "MyPageFeatureInterface")
+            ]
         ),
         Target(
             name: "MyPageFeatureTests",

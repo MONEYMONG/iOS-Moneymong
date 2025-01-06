@@ -1,6 +1,7 @@
 import UIKit
 
 import Core
+import AuthInterface
 import UserInterface
 
 import ReactorKit
@@ -33,19 +34,21 @@ public final class MyPageReactor: Reactor {
   
   public let initialState: State = State()
   
-  init(userRepo: UserRepositoryInterface) {
-    self.userRepo = userRepo
+  init(getMyInfoUseCase: GetMyInfoUseCaseInterface, logoutUseCase: LogoutUseCaseInterface) {
+    self.getMyInfoUseCase = getMyInfoUseCase
+    self.logoutUseCase = logoutUseCase
   }
   
-  private let userRepo: UserRepositoryInterface
+  private let getMyInfoUseCase: GetMyInfoUseCaseInterface
+  private let logoutUseCase: LogoutUseCaseInterface
   
   public func mutate(action: Action) -> Observable<Mutation> {
     switch action {
     case .onappear:
       return .concat(
         .just(.setLoading(true)),
-        
-        .task { try await userRepo.user() }
+
+        .task { try await getMyInfoUseCase.execute() }
         .map { .setItem($0) }
         .catch { return .just(.setError($0.toMMError))},
         
@@ -55,7 +58,7 @@ public final class MyPageReactor: Reactor {
       return .concat(
         .just(.setLoading(true)),
         
-        .task { try await userRepo.logout() }
+        .task { try await logoutUseCase.execute() }
         .map { .setDestination(.login) }
         .catch { return .just(.setError($0.toMMError))},
         

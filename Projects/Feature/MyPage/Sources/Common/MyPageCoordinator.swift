@@ -1,18 +1,18 @@
 import UIKit
 import SwiftUI
 
+import BaseFeature
 import BaseFeatureInterface
 import DesignSystem
+import MyPageFeatureInterface
 
 public final class MyPageCoordinator: Coordinator {
   public var navigationController: UINavigationController
-  private let diContainer: MyPageDIContainer
   public weak var parentCoordinator: Coordinator?
   public var childCoordinators: [Coordinator] = []
 
-  public init(navigationController: UINavigationController, diContainer: MyPageDIContainer) {
+  public init(navigationController: UINavigationController) {
     self.navigationController = navigationController
-    self.diContainer = diContainer
   }
   
   enum Scene {
@@ -56,20 +56,18 @@ public final class MyPageCoordinator: Coordinator {
 
 extension MyPageCoordinator {
   private func myPage(animated: Bool) {
-    let vc = diContainer.myPage(with: self)
+    guard let vc = DIContainer.shared.resolve(type: MyPageFactoryInterface.self).makeMyPageVC() as? MyPageVC else { return }
+    vc.coordinator = self
     navigationController.setViewControllers([vc], animated: true)
   }
   
   private func withdrawl(animated: Bool = true) {
-    let vc = diContainer.withDrawl(with: self)
+    guard let vc = DIContainer.shared.resolve(type: MyPageFactoryInterface.self).makeWithdrawalVC() as? WithdrawalVC else { return }
+    vc.coordinator = self
     navigationController.pushViewController(vc, animated: animated)
   }
   
   private func alert(title: String, subTitle: String, okAction: @escaping () -> Void) {
     AlertsManager.show(title: title, subTitle: subTitle, type: .default(okAction: okAction))
   }
-  
-//  private func debug(animated: Bool = true) {
-//    navigationController.pushViewController(UIHostingController(rootView: PulseView()), animated: animated)
-//  }
 }

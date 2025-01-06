@@ -9,7 +9,7 @@ public protocol UniversityRepositoryInterface {
   func universities(keyword: String) async throws -> [University]
 }
 
-public final class UniversityRepository: UniversityRepositoryInterface {
+public struct UniversityRepository: UniversityRepositoryInterface {
   private let networkManager: NetworkManagerInterfacae
 
   public init(networkManager: NetworkManagerInterfacae) {

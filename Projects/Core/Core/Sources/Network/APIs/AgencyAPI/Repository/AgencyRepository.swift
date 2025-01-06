@@ -17,7 +17,7 @@ public protocol AgencyRepositoryInterface {
   func deleteAgency(id: Int) async throws
 }
 
-public final class AgencyRepository: AgencyRepositoryInterface {
+public struct AgencyRepository: AgencyRepositoryInterface {
   private let networkManager: NetworkManagerInterfacae
   private let localStorage: LocalStorageInterface
 
@@ -87,6 +87,5 @@ public final class AgencyRepository: AgencyRepositoryInterface {
     let targetType = AgencyAPI.delete(id: id)
     try await networkManager.request(target: targetType)
     localStorage.deleteCurrentLedgerInfo()
-    WidgetCenter.shared.reloadAllTimelines()
   }
 }

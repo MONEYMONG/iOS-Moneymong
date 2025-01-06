@@ -4,7 +4,7 @@ public protocol VersionRepositoryInterface {
   func get() async throws
 }
 
-public final class VersionRepository: VersionRepositoryInterface {
+public struct VersionRepository: VersionRepositoryInterface {
   private let networkManager: NetworkManagerInterfacae
   
   public init(networkManager: NetworkManagerInterfacae) {

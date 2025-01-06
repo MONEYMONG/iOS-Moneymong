@@ -11,7 +11,7 @@ public protocol UserRepositoryInterface {
   func withdrawl() async throws
 }
 
-public final class UserRepository: UserRepositoryInterface {
+public struct UserRepository: UserRepositoryInterface {
   private let networkManager: NetworkManagerInterfacae
   private let localStorage: LocalStorageInterface
 

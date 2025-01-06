@@ -1,6 +1,6 @@
 import ReactorKit
 
-import Core
+import AuthInterface
 
 public final class WithdrawalReactor: Reactor {
   public enum Action {
@@ -26,11 +26,11 @@ public final class WithdrawalReactor: Reactor {
   
   public let initialState: State = State()
   
-  init(userRepo: UserRepositoryInterface) {
-    self.userRepo = userRepo
+  init(deleteUserUseCase: DeleteUserUseCaseInterface) {
+    self.deleteUserUseCase = deleteUserUseCase
   }
   
-  private let userRepo: UserRepositoryInterface
+  private let deleteUserUseCase: DeleteUserUseCaseInterface
   
   public func mutate(action: Action) -> Observable<Mutation> {
     switch action {
@@ -40,7 +40,7 @@ public final class WithdrawalReactor: Reactor {
       return .concat(
         .just(.setLoading(true)),
         
-        .task { try await self.userRepo.withdrawl()}
+        .task { try await self.deleteUserUseCase.execute()}
         .map { _ in return .setDestination(.login)},
         
         .just(.setLoading(false)),

@@ -17,7 +17,7 @@ public protocol SignRepositoryInterface {
   func recentLoginType() -> LoginType?
 }
 
-public final class SignRepository: SignRepositoryInterface {
+public struct SignRepository: SignRepositoryInterface {
   private let networkManager: NetworkManagerInterfacae
   private let localStorage: LocalStorageInterface
 
@@ -26,7 +26,7 @@ public final class SignRepository: SignRepositoryInterface {
 
   public init(
     networkManager: NetworkManagerInterfacae,
-    localStorage: LocalStorageInterface = LocalStorage(),
+    localStorage: LocalStorageInterface,
     kakaoAuthManager: KakaoAuthManager = .shared,
     appleAuthManager: AppleAuthManager = AppleAuthManager()
   ) {

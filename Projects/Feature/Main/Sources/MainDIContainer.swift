@@ -13,7 +13,6 @@ public final class MainDIContainer {
   private let networkManager: NetworkManagerInterfacae
 
   private let agencyContainer: AgencyDIContainer
-  private let myPageContainer: MyPageDIContainer
   private let ledgerContainer: LedgerDIContainer
     
   public init(
@@ -28,11 +27,6 @@ public final class MainDIContainer {
       localStorage: localStorage,
       networkManager: networkManager,
       inputAgencyInfoFactory: inputAgencyInfoFactory
-    )
-    
-    self.myPageContainer = .init(
-      localStorage: localStorage,
-      networkManager: networkManager
     )
     
     self.ledgerContainer = .init(
@@ -80,10 +74,7 @@ public final class MainDIContainer {
   
   private func myPageTab(with coordinator: Coordinator) -> UIViewController {
     let vc = UINavigationController()
-    let myPageCoordinator = MyPageCoordinator(
-      navigationController: vc,
-      diContainer: myPageContainer
-    )
+    let myPageCoordinator = MyPageCoordinator(navigationController: vc)
     coordinator.childCoordinators.append(myPageCoordinator)
     myPageCoordinator.parentCoordinator = coordinator
     myPageCoordinator.start(animated: false)
