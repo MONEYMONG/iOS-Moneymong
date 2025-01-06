@@ -13,6 +13,8 @@ import Core
 import DesignSystem
 import MyPageFeature
 import MyPageFeatureInterface
+import LedgerFeature
+import LedgerFeatureInterface
 
 class SceneDelegate: UIResponder, UIWindowSceneDelegate {
   private let localStorage = LocalStorage()
@@ -67,6 +69,8 @@ extension SceneDelegate {
   func registerDependency() {
     let localStorage = LocalStorage()
     let networkManager = NetworkManager()
+    let ledgerService = LedgerService()
+    let contentFormatter = ContentFormatter()
     
     networkManager.tokenIntercepter = TokenRequestIntercepter(
       localStorage: localStorage,
