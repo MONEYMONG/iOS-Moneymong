@@ -10,7 +10,8 @@ public struct KickoutMemberUseCase: KickoutMemberUseCaseInterface {
     self.repo = repo
   }
   
-  public func execute(id: Int, userId: Int) async throws {
+  public func execute(id: Int, userId: Int) async throws -> [Member] {
     try await repo.kickoutMember(id: id, userId: userId)
+    return try await repo.fetchMemberList(id: id)
   }
 }
