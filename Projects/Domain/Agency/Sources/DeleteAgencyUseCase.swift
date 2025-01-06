@@ -4,18 +4,27 @@ import Core
 import AgencyInterface
 
 public struct DeleteAgencyUseCase: DeleteAgencyUseCaseInterface {
-  private let repo: AgencyRepositoryInterface
+  private let agencyRepo: AgencyRepositoryInterface
+  private let userRepo: UserRepositoryInterface
   private let widgetRefreshController: WidgetRefreshable
   
-  public init(repo: AgencyRepositoryInterface, widgetRefreshController: WidgetRefreshable) {
-    self.repo = repo
+  public init(
+    agencyRepo: AgencyRepositoryInterface,
+    userRepo: UserRepositoryInterface,
+    widgetRefreshController: WidgetRefreshable
+  ) {
+    self.agencyRepo = agencyRepo
+    self.userRepo = userRepo
     self.widgetRefreshController = widgetRefreshController
   }
   
-  public func execute(id: Int) async throws {
+  public func execute(id: Int) async throws -> Agency? {
     defer {
       widgetRefreshController.refresh()
     }
-    try await repo.deleteAgency(id: id)
+    try await agencyRepo.deleteAgency(id: id)
+    let newAgency = try await agencyRepo.fetchMyAgency().first
+    userRepo.updateSelectedAgency(id: newAgency?.id)
+    return newAgency
   }
 }
