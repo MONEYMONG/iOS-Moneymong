@@ -3,6 +3,7 @@ import UIKit
 import DesignSystem
 import Core
 import BaseFeatureInterface
+import AgencyInterface
 import LedgerInterface
 
 public final class LedgerCoordinator: Coordinator {

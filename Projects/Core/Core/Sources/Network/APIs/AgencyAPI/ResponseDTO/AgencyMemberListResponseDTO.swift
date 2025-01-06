@@ -1,5 +1,7 @@
 import Foundation
 
+import AgencyInterface
+
 /// 소속 멤버리스트 조회
 struct AgencyMemberListResponseDTO: Responsable {
   let count: Int

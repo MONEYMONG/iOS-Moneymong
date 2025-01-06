@@ -3,6 +3,7 @@ import UIKit
 import Utility
 import DesignSystem
 import Core
+import AgencyInterface
 
 final class AgencyCell: UITableViewCell, ReusableView {
   

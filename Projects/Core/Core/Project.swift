@@ -25,6 +25,7 @@ let project = Project(
         .project(target: "ThirdPartyLips", path: .relativeToRoot("Projects/Shared/ThirdPartyLips")),
         .project(target: "UserInterface", path: .relativeToRoot("Projects/Domain/User")),
         .project(target: "AuthInterface", path: .relativeToRoot("Projects/Domain/Auth")),
+        .project(target: "AgencyInterface", path: .relativeToRoot("Projects/Domain/Agency")),
         .project(target: "LedgerInterface", path: .relativeToRoot("Projects/Domain/Ledger"))
       ],
       launchArguments: [
