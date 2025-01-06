@@ -6,6 +6,10 @@ let project = Project(
       disableBundleAccessors: true,
       disableSynthesizedResourceAccessors: true
     ),
+    settings: .settings(
+        base: .init()
+        .swiftVersion("5.7")
+    ),
     targets: [
         Target(
             name: "LedgerFeature",
@@ -15,11 +19,30 @@ let project = Project(
             deploymentTarget: .iOS(targetVersion: "15.0", devices: .iphone),
             sources: ["Sources/**"],
             dependencies: [
-              .project(target: "BaseFeature", path: .relativeToRoot("Projects/Feature/Base"))
-            ],
-            settings: .settings(base: [
-              "SWIFT_VERSION": "5.7"
-            ])
+              .project(target: "BaseFeature", path: .relativeToRoot("Projects/Feature/Base")),
+              .target(name: "LedgerFeatureInterface")
+            ]
+        ),
+        Target(
+            name: "LedgerFeatureInterface",
+            platform: .iOS,
+            product: .framework,
+            bundleId: "com.framework.moneymong.LedgerFeatureInterface",
+            deploymentTarget: .iOS(targetVersion: "15.0", devices: .iphone),
+            sources: ["Interface/**"],
+            dependencies: [
+            ]
+        ),
+        Target(
+            name: "LedgerFeatureTesting",
+            platform: .iOS,
+            product: .staticLibrary,
+            bundleId: "com.framework.moneymong.LedgerFeatureTesting",
+            deploymentTarget: .iOS(targetVersion: "15.0", devices: .iphone),
+            sources: ["Testing/**"],
+            dependencies: [
+                .target(name: "LedgerFeatureInterface")
+            ]
         ),
         Target(
             name: "LedgerFeatureTests",
@@ -29,7 +52,8 @@ let project = Project(
             deploymentTarget: .iOS(targetVersion: "15.0", devices: .iphone),
             sources: ["Tests/**"],
             dependencies: [
-                .target(name: "LedgerFeature")
+                .target(name: "LedgerFeature"),
+                .target(name: "LedgerFeatureTesting")
             ]
         ),
         Target(
@@ -62,7 +86,8 @@ let project = Project(
             sources: ["Demo/Sources/**"],
             resources: ["Demo/Resources/**"],
             dependencies: [
-                .target(name: "LedgerFeature")
+                .target(name: "LedgerFeature"),
+                .target(name: "LedgerFeatureTesting")
             ]
         )
     ]
