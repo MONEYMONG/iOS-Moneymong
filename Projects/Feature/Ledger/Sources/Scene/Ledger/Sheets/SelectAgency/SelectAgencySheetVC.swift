@@ -14,7 +14,6 @@ import RxCocoa
 final class SelectAgencySheetVC: BottomSheetVC, View {
   
   var disposeBag = DisposeBag()
-  weak var coordinator: LedgerCoordinator?
   
   private let tableView: UITableView = {
     let v = UITableView()
@@ -89,11 +88,7 @@ final class SelectAgencySheetVC: BottomSheetVC, View {
       .compactMap { $0 }
       .observe(on: MainScheduler.instance)
       .bind(with: self) { owner, error in
-        owner.coordinator?.present(.alert(
-          title: "네트워크 에러",
-          subTitle: error?.localizedDescription,
-          type: .onlyOkButton { }
-        ))
+        AlertsManager.show(title: "네트워크 에러", subTitle: error.localizedDescription, type: .onlyOkButton({ }))
       }
       .disposed(by: disposeBag)
   }

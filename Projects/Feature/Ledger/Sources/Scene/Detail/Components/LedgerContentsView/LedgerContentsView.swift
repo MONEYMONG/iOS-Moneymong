@@ -8,8 +8,12 @@ import Core
 import ReactorKit
 import RxDataSources
 
-final class LedgerContentsView: BaseView, View, UIScrollViewDelegate {
+protocol LedgerContentsViewDelegate: AnyObject {
+  func selectSection(_ ledgerContentsView: LedgerContentsView)
+  func pop(_ ledgerContentsView: LedgerContentsView)
+}
 
+final class LedgerContentsView: BaseView, View, UIScrollViewDelegate {
   public enum State {
     case read
     case update
@@ -20,9 +24,8 @@ final class LedgerContentsView: BaseView, View, UIScrollViewDelegate {
     static var verticalMargin: Double = 40
   }
 
-  weak var coordinator: LedgerCoordinator?
-
   var disposeBag = DisposeBag()
+  weak var delegate: LedgerContentsViewDelegate?
 
   private let scrollView: UIScrollView = {
     let scrollView = UIScrollView()
@@ -108,9 +111,8 @@ final class LedgerContentsView: BaseView, View, UIScrollViewDelegate {
 
   private var isShowKeyboard: Bool = false
 
-  init(coordinator: LedgerCoordinator, reactor: LedgerContentsReactor) {
+  init(reactor: LedgerContentsReactor) {
     super.init()
-    self.coordinator = coordinator
     self.reactor = reactor
   }
 
@@ -255,7 +257,7 @@ final class LedgerContentsView: BaseView, View, UIScrollViewDelegate {
       .compactMap { $0 }
       .observe(on: MainScheduler.instance)
       .bind(with: self) { owner, _ in
-        owner.coordinator?.present(.imagePicker(delegate: owner))
+        owner.delegate?.selectSection(owner)
       }
       .disposed(by: disposeBag)
 
@@ -263,9 +265,7 @@ final class LedgerContentsView: BaseView, View, UIScrollViewDelegate {
       .compactMap { $0 }
       .observe(on: MainScheduler.instance)
       .bind(with: self) { owner, error in
-        owner.coordinator?.present(
-          .alert(title: error.localizedDescription, subTitle: nil, type: .onlyOkButton({}))
-        )
+        AlertsManager.show(title: error.localizedDescription, type: .onlyOkButton())
       }
       .disposed(by: disposeBag)
 
@@ -291,7 +291,7 @@ final class LedgerContentsView: BaseView, View, UIScrollViewDelegate {
       .map { _ in reactor.currentState.state }
       .bind(with: self) { owner, state in
         if state == .read {
-          owner.coordinator?.pop()
+          owner.delegate?.pop(owner)
         }
       }
       .disposed(by: disposeBag)

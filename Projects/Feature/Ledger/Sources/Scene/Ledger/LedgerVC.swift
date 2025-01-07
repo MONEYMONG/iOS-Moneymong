@@ -3,6 +3,7 @@ import UIKit
 import BaseFeature
 import AgencyInterface
 import DesignSystem
+import LedgerFeatureInterface
 
 import ReactorKit
 import PinLayout
@@ -106,8 +107,17 @@ public final class LedgerVC: BaseVC, View {
     
     agencyButton.rx.tap
       .bind(with: self) { owner, _ in
-        owner.coordinator?.present(.selectAgency)
+        owner.selectAgencySheet()
       }
       .disposed(by: disposeBag)
+  }
+}
+
+extension LedgerVC {
+  private func selectAgencySheet() {
+    let vc = DIContainer.shared.resolve(type: LedgerFactoryInterface.self).makeSelectAgency()
+    vc.modalPresentationStyle = .overFullScreen
+    vc.modalTransitionStyle = .crossDissolve
+    present(vc, animated: false)
   }
 }

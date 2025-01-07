@@ -1,32 +1,27 @@
 import UIKit
 
 import DesignSystem
-import Core
+import BaseFeature
 import BaseFeatureInterface
 import AgencyInterface
 import LedgerInterface
+import LedgerFeatureInterface
 
 public final class LedgerCoordinator: Coordinator {
   public var navigationController: UINavigationController
-  private let diContainer: LedgerDIContainer
   public weak var parentCoordinator: Coordinator?
   public var childCoordinators: [Coordinator] = []
   var moveTab: ((Int) -> Void)?
   
   enum Scene {
-    case editMember(Int, Member)
     case alert(title: String, subTitle: String?, type: MMAlerts.`Type`)
-    case createManualLedger(Int, CreateManualLedgerReactor.`Type`)
+    case createManualLedger(Int, ManualPresentType)
     case createOCRLedger(Int)
-    case datePicker(start: DateInfo, end: DateInfo)
-    case imagePicker(delegate: UIImagePickerControllerDelegate & UINavigationControllerDelegate)
     case detail(Ledger, Member.Role)
-    case selectAgency
   }
 
-  public init(navigationController: UINavigationController, diContainer: LedgerDIContainer) {
+  public init(navigationController: UINavigationController) {
     self.navigationController = navigationController
-    self.diContainer = diContainer
   }
 
   public func start(animated: Bool) {
@@ -37,14 +32,6 @@ public final class LedgerCoordinator: Coordinator {
     switch scene {
     case let .createManualLedger(agencyId, type):
       createManualLedger(agencyId: agencyId, type: type, animated: animated)
-    case let .datePicker(start, end):
-      datePicker(start: start, end: end)
-    case let .imagePicker(delegate):
-      imagePicker(animated: true, delegate: delegate)
-    case .selectAgency:
-      selectAgencySheet()
-    case let .editMember(id, member):
-      editMember(agencyID: id, member: member)
     case let .alert(title, subTitle, type):
       AlertsManager.show(title: title, subTitle: subTitle, type: type)
     case let .createOCRLedger(id):
@@ -66,62 +53,46 @@ public final class LedgerCoordinator: Coordinator {
 extension LedgerCoordinator {
   
   private func ledger(animated: Bool) {
-    let vc = diContainer.ledger(with: self)
-    navigationController.viewControllers = [vc]
+    let ledgerFactory = DIContainer.shared.resolve(type: LedgerFactoryInterface.self)
+    
+    guard let ledgerTabVC = ledgerFactory.makeLedgerTab() as? LedgerTabVC,
+          let memberTabVC = ledgerFactory.makeMemberTab() as? MemberTabVC else { return }
+    
+    ledgerTabVC.coordinator = self
+    memberTabVC.coordinator = self
+          
+    guard let ledgerMainVC = ledgerFactory.makeLedgerMain(ledgerTab: ledgerTabVC, memberTab: memberTabVC) as? LedgerVC else { return }
+    ledgerMainVC.coordinator = self
+    navigationController.viewControllers = [ledgerMainVC]
   }
   
   private func createManualLedger(
     agencyId: Int,
-    type: CreateManualLedgerReactor.`Type`,
+    type: ManualPresentType,
     animated: Bool
   ) {
-    let vc = diContainer.createManualLedger(with: self, agencyId: agencyId, type: type)
-    vc.modalPresentationStyle = .fullScreen
-    navigationController.present(vc, animated: animated)
+    let navigationController = UINavigationController()
+    let coordinator = CreateManualLedgerCoordinator(navigationController: navigationController)
+    coordinator.parentCoordinator = self
+    parentCoordinator?.childCoordinators.append(coordinator)
+    navigationController.modalPresentationStyle = .fullScreen
+    coordinator.start(agencyId: agencyId, type: type, animated: false)
+    self.navigationController.present(navigationController, animated: animated)
   }
   
   private func createOCRLedger(agencyId: Int, animated: Bool) {
-    let vc = diContainer.createOCRLedger(agencyId: agencyId, with: self)
-    vc.modalPresentationStyle = .fullScreen
-    navigationController.present(vc, animated: animated)
-  }
-  
-  private func datePicker(start: DateInfo, end: DateInfo) {
-    let vc = diContainer.datePicker(start: start, end: end)
-    vc.modalPresentationStyle = .overFullScreen
-    navigationController.present(vc, animated: false)
-  }
-  
-  private func selectAgencySheet() {
-    let vc = diContainer.selectAgencySheet(with: self)
-    vc.modalPresentationStyle = .overFullScreen
-    vc.modalTransitionStyle = .crossDissolve
-    navigationController.present(vc, animated: false)
-  }
-  
-  private func editMember(agencyID: Int, member: Member, animated: Bool = false) {
-    let vc = diContainer.editMember(agencyID: agencyID, member: member, with: self)
-    vc.modalPresentationStyle = .overFullScreen
-    vc.modalTransitionStyle = .crossDissolve
-    navigationController.present(vc, animated: animated)
+    let navigationController = UINavigationController()
+    let coordinator = CreateOCRLedgerCoordinator(navigationController: navigationController)
+    coordinator.parentCoordinator = self
+    parentCoordinator?.childCoordinators.append(coordinator)
+    navigationController.modalPresentationStyle = .fullScreen
+    coordinator.start(agencyId: agencyId, animated: animated)
+    self.navigationController.present(navigationController, animated: animated)
   }
 
   private func detail(ledgerID: Int, role: Member.Role, animated: Bool = true) {
-    let vc = diContainer.detail(with: self, ledgerID: ledgerID, role: role)
+    guard let vc = DIContainer.shared.resolve(type: LedgerFactoryInterface.self).makeDetail(ledgetID: ledgerID, role: role) as? LedgerDetailVC else { return }
+    vc.coordinator = self
     navigationController.pushViewController(vc, animated: animated)
-  }
-
-  private func imagePicker(
-    animated: Bool,
-    delegate: UIImagePickerControllerDelegate & UINavigationControllerDelegate
-  ) {
-    let picker: UIImagePickerController = {
-      let v = UIImagePickerController()
-      v.sourceType = .photoLibrary
-      return v
-    }()
-    picker.delegate = delegate
-    picker.modalPresentationStyle = .fullScreen
-    navigationController.present(picker, animated: animated)
   }
 }

@@ -4,16 +4,12 @@ import UIKit
 import Core
 import BaseFeature
 import LedgerInterface
+import UserInterface
+import LedgerFeatureInterface
 
 import ReactorKit
 
 final class CreateManualLedgerReactor: Reactor {
-  enum `Type` {
-    case operatingCost // 운영비 등록화면
-    case ocrResultEdit(OCRResult, Data) // ocr 결과 수정화면
-    case createManual
-  }
-  
   enum ContentType {
     case source
     case amount
@@ -61,7 +57,7 @@ final class CreateManualLedgerReactor: Reactor {
   
   struct State {
     let agencyId: Int
-    let type: `Type`
+    let type: ManualPresentType
     @Pulse var userName: String = ""
     @Pulse var receiptImages: [ImageData.Item] = [.button]
     @Pulse var documentImages: [ImageData.Item] = [.button]
@@ -89,23 +85,30 @@ final class CreateManualLedgerReactor: Reactor {
   
   let initialState: State
   private let service: LedgerServiceInterface
-  private let ledgerRepo: LedgerRepositoryInterface
-  private let userRepo: UserRepositoryInterface
   let formatter: ContentFormatter
+  
+  private let getMyInfoUseCase: GetMyInfoUseCaseInterface
+  private let deleteImageUseCase: DeleteImageUseCaseInterface
+  private let createLedgerUseCase: CreateLedgerUseCaseInterface
+  private let uploadImageUseCase: UploadImageUseCaseInterface
   
   init(
     agencyId: Int,
-    type: `Type`,
-    ledgerRepo: LedgerRepositoryInterface,
-    userRepo: UserRepositoryInterface,
+    type: ManualPresentType,
+    getMyInfoUseCase: GetMyInfoUseCaseInterface,
+    deleteImageUseCase: DeleteImageUseCaseInterface,
+    createLedgerUseCase: CreateLedgerUseCaseInterface,
+    uploadImageUseCase: UploadImageUseCaseInterface,
     ledgerService: LedgerServiceInterface,
     formatter: ContentFormatter
   ) {
-    self.ledgerRepo = ledgerRepo
-    self.userRepo = userRepo
     self.service = ledgerService
     self.formatter = formatter
     self.initialState = State(agencyId: agencyId, type: type)
+    self.getMyInfoUseCase = getMyInfoUseCase
+    self.deleteImageUseCase = deleteImageUseCase
+    self.createLedgerUseCase = createLedgerUseCase
+    self.uploadImageUseCase = uploadImageUseCase
   }
   
   func mutate(action: Action) -> Observable<Mutation> {
@@ -114,17 +117,17 @@ final class CreateManualLedgerReactor: Reactor {
       switch currentState.type {
       case .operatingCost:
         return .merge(
-          .task { try await userRepo.user().nickname }
+          .task { try await getMyInfoUseCase.execute().nickname }
             .map { .setName($0) },
           .just(.setOperatingCostValues)
         )
       case .createManual:
-        return .task { try await userRepo.user().nickname }
+        return .task { try await getMyInfoUseCase.execute().nickname }
           .map { .setName($0) }
       case let .ocrResultEdit(model, imageData):
         let image = ImageData(id: .init(), data: imageData)
         return .merge([
-          .task { try await userRepo.user().nickname }.map { .setName($0) },
+          .task { try await getMyInfoUseCase.execute().nickname }.map { .setName($0) },
           uploadImage(image: image, section: .receipt),
           .just(.setOCRResult(model))
         ])
@@ -161,7 +164,7 @@ final class CreateManualLedgerReactor: Reactor {
           guard let index else { throw MoneyMongError.appError(.default, errorMessage: "이미지 삭제가 정상적으로 이뤄지지 않았습니다") }
           imageURL = currentState.content.documentImages[index]
         }
-        try await ledgerRepo.imageDelete(imageURL)
+        try await deleteImageUseCase.execute(imageURL)
         return index!
       }
       .flatMap { Observable<Mutation>.concat([
@@ -347,7 +350,7 @@ private extension CreateManualLedgerReactor {
         throw MoneyMongError.appError(.default, errorMessage: "날짜 및 시간을 확인해 주세요")
       }
       let memo = currentState.content.memo.isEmpty ? "내용없음" : currentState.content.memo
-      return try await ledgerRepo.create(
+      return try await createLedgerUseCase.execute(
         id: currentState.agencyId,
         storeInfo: currentState.content.source,
         fundType: currentState.content.fundType == 1 ? .income : .expense,
@@ -368,7 +371,7 @@ private extension CreateManualLedgerReactor {
       guard let resizeImateData = UIImage(data: image.data)?.jpegData(compressionQuality: 0.027) else {
         throw MoneyMongError.appError(.default, errorMessage: "첨부 이미지를 확인해 주세요")
       }
-      var entity = try await ledgerRepo.imageUpload(resizeImateData)
+      var entity = try await uploadImageUseCase.execute(imageData: resizeImateData)
       entity.id = image.id
       return entity
     }

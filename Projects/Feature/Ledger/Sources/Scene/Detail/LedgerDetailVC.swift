@@ -9,7 +9,7 @@ import ReactorKit
 import PinLayout
 import FlexLayout
 
-final class LedgerDetailVC: BaseVC, View {
+final class LedgerDetailVC: BaseVC, View, ImagePickerPresentable {
 
   public var disposeBag = DisposeBag()
 
@@ -174,6 +174,16 @@ final class LedgerDetailVC: BaseVC, View {
         }
       })
       .disposed(by: disposeBag)
+  }
+}
+
+extension LedgerDetailVC: LedgerContentsViewDelegate {
+  func selectSection(_ ledgerContentsView: LedgerContentsView) {
+    imagePicker(target: self, animated: true, delegate: ledgerContentsView)
+  }
+  
+  func pop(_ ledgerContentsView: LedgerContentsView) {
+    navigationController?.popViewController(animated: true)
   }
 }
 

@@ -2,8 +2,9 @@ import UIKit
 
 import BaseFeatureInterface
 
-protocol ImagePickerPresentable where Self: Coordinator {
+protocol ImagePickerPresentable {
   func imagePicker(
+    target: UIViewController,
     animated: Bool,
     delegate: UIImagePickerControllerDelegate & UINavigationControllerDelegate
   )
@@ -11,6 +12,7 @@ protocol ImagePickerPresentable where Self: Coordinator {
 
 extension ImagePickerPresentable {
   func imagePicker(
+    target: UIViewController,
     animated: Bool,
     delegate: UIImagePickerControllerDelegate & UINavigationControllerDelegate
   ) {
@@ -21,6 +23,6 @@ extension ImagePickerPresentable {
     }()
     picker.delegate = delegate
     picker.modalPresentationStyle = .fullScreen
-    navigationController.present(picker, animated: animated)
+    target.present(picker, animated: animated)
   }
 }

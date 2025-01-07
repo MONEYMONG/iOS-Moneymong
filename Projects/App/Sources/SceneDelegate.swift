@@ -93,6 +93,21 @@ extension SceneDelegate {
       return SearchUniversitiesUseCase(universityRepo: universityRepo)
     }
     
+    DIContainer.shared.register(type: GetSelectedAgencyUseCaseInterface.self) {
+      let userRepo = UserRepository(networkManager: networkManager, localStorage: localStorage)
+      return GetSelectedAgencyUseCase(userRepo: userRepo)
+    }
+    
+    DIContainer.shared.register(type: UpdateSelectedAgencyUseCaseInterface.self) {
+      let userRepo = UserRepository(networkManager: networkManager, localStorage: localStorage)
+      return UpdateSelectedAgencyUseCase(userRepo: userRepo)
+    }
+    
+    DIContainer.shared.register(type: GetUserIDUseCaseInterface.self) {
+      let userRepo = UserRepository(networkManager: networkManager, localStorage: localStorage)
+      return GetUserIDUseCase(userRepo: userRepo)
+    }
+    
     // MARK: - Auth UseCase Dependency
     DIContainer.shared.register(type: AutoSignUseCaseInterface.self) {
       let signRepo = SignRepository(networkManager: networkManager, localStorage: localStorage)
@@ -133,7 +148,8 @@ extension SceneDelegate {
 
     DIContainer.shared.register(type: DeleteAgencyUseCaseInterface.self) {
       let agencyRepo = AgencyRepository(networkManager: networkManager, localStorage: localStorage)
-      return DeleteAgencyUseCase(repo: agencyRepo, widgetRefreshController: widgetRefreshController)
+      let userRepo = UserRepository(networkManager: networkManager, localStorage: localStorage)
+      return DeleteAgencyUseCase(agencyRepo: agencyRepo, userRepo: userRepo, widgetRefreshController: widgetRefreshController)
     }
 
     DIContainer.shared.register(type: GetAgencyListUseCaseInterface.self) {
@@ -242,8 +258,13 @@ extension SceneDelegate {
       return UploadReceiptUseCase(ledgerRepo: ledgerRepo)
     }
     
+    // MARK: - Factory Dependency
     DIContainer.shared.register(type: MyPageFactoryInterface.self) {
       return MyPageFactory()
+    }
+    
+    DIContainer.shared.register(type: LedgerFactoryInterface.self) {
+      return LedgerFactory(ledgerService: ledgerService, contentFormatter: contentFormatter)
     }
   }
 }

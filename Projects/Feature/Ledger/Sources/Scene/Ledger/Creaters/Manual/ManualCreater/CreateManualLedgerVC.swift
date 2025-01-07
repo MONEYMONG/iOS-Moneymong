@@ -4,6 +4,8 @@ import Combine
 import BaseFeature
 import DesignSystem
 
+import LedgerFeatureInterface
+
 import ReactorKit
 import RxDataSources
 import PinLayout
@@ -11,7 +13,7 @@ import FlexLayout
 
 // TODO: 각 텍스트 필드에 조건 넣어줘야함
 
-final class CreateManualLedgerVC: BaseVC, View {
+final class CreateManualLedgerVC: BaseVC, View, ImagePickerPresentable {
   weak var coordinator: CreateManualLedgerCoordinator?
   private struct ViewSize {
     static var cell: CGSize {
@@ -27,7 +29,7 @@ final class CreateManualLedgerVC: BaseVC, View {
   
   var disposeBag = DisposeBag()
   private var cancelBag = Set<AnyCancellable>()
-  private var startingType: CreateManualLedgerReactor.`Type` = .createManual
+  private var startingType: ManualPresentType = .createManual
   
   private let scrollView: UIScrollView = {
     let v = UIScrollView()
@@ -457,7 +459,7 @@ final class CreateManualLedgerVC: BaseVC, View {
     reactor.pulse(\.$selectedSection)
       .compactMap { $0 }
       .bind(with: self) { owner, _ in
-        owner.coordinator?.present(.imagePicker(delegate: owner))
+        owner.imagePicker(target: self, animated: true, delegate: owner)
       }
       .disposed(by: disposeBag)
     
@@ -519,14 +521,7 @@ final class CreateManualLedgerVC: BaseVC, View {
             owner?.dismiss(animated: true)
           })
         }
-        owner.coordinator?.present(
-          .alert(
-            title: title,
-            subTitle: subTitle,
-            type: alert
-          ),
-          animated: false
-        )
+        AlertsManager.show(title: title, subTitle: subTitle, type: alert)
       }
       .disposed(by: disposeBag)
     

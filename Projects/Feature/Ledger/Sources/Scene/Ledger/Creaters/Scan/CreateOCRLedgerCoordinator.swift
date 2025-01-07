@@ -1,37 +1,36 @@
 import UIKit
 
+import BaseFeature
 import BaseFeatureInterface
 import DesignSystem
 import Core
 import LedgerInterface
+import LedgerFeatureInterface
 
 final class CreateOCRLedgerCoordinator: Coordinator {
   unowned var navigationController: UINavigationController
-  private let diContainer: CreateOCRLedgerDIContainer
   weak var parentCoordinator: Coordinator?
   var childCoordinators: [Coordinator] = []
   
   enum Scene {
-    case guide
     case alert(title: String, subTitle: String?, type: MMAlerts.`Type`)
     case snackBar(title: String)
     case scanResult(Int, model: OCRResult, imageData: Data)
-    case createManualLedger(Int, CreateManualLedgerReactor.`Type`)
+    case createManualLedger(Int, ManualPresentType)
   }
 
-  init(navigationController: UINavigationController, diContainer: CreateOCRLedgerDIContainer) {
+  init(navigationController: UINavigationController) {
     self.navigationController = navigationController
-    self.diContainer = diContainer
   }
 
   func start(agencyId: Int, animated: Bool) {
-    scanCreater(agencyId: agencyId)
+    guard let vc = DIContainer.shared.resolve(type: LedgerFactoryInterface.self).makeOCR(agencyId: agencyId) as? CreateOCRLedgerVC else { return }
+    vc.coordinator = self
+    navigationController.viewControllers = [vc]
   }
   
   @MainActor func present(_ scene: Scene, animated: Bool = true) {
     switch scene {
-    case .guide:
-      scanGuide(animated: animated)
     case let .alert(title, subTitle, type):
       AlertsManager.show(title: title, subTitle: subTitle, type: type)
     case let .scanResult(id, model, data):
@@ -49,31 +48,18 @@ final class CreateOCRLedgerCoordinator: Coordinator {
 }
 
 extension CreateOCRLedgerCoordinator {
-  private func scanCreater(agencyId: Int) {
-    let vc = diContainer.scanCreater(agencyId: agencyId, with: self)
-    navigationController.viewControllers = [vc]
-  }
-  
-  private func scanGuide(animated: Bool) {
-    let vc = diContainer.scanGuide()
-    navigationController.present(vc, animated: animated)
-  }
-  
   private func scanResult(agencyId: Int, model: OCRResult, imageData: Data, animated: Bool = true) {
-    let vc = diContainer.scanResult(
-      with: self,
-      agencyId: agencyId,
-      model: model,
-      imageData: imageData
-    )
+    guard let vc = DIContainer.shared.resolve(type: LedgerFactoryInterface.self).makeOCRResult(agencyId: agencyId, model: model, imageData: imageData) as? OCRResultVC else { return }
+    vc.coordinator = self
     navigationController.pushViewController(vc, animated: animated)
   }
   
   private func createManualLedger(
     agencyId: Int,
-    type: CreateManualLedgerReactor.`Type`,
+    type: ManualPresentType,
     animated: Bool
   ) {
-    diContainer.createManualLedger(with: self, agencyId: agencyId, type: type)
+    let vc = DIContainer.shared.resolve(type: LedgerFactoryInterface.self).makeCreateManual(agencyId: agencyId, type: type)
+    navigationController.pushViewController(vc, animated: animated)
   }
 }
