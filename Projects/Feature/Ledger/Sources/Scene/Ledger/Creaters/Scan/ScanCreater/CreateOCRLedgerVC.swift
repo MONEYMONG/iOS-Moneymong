@@ -238,9 +238,9 @@ final class CreateOCRLedgerVC: UIViewController, View {
   }
 }
 
-extension CreateOCRLedgerVC: AVCapturePhotoCaptureDelegate {
-  func photoOutput(_ output: AVCapturePhotoOutput, didFinishProcessingPhoto photo: AVCapturePhoto, error: Error?) {
-    let imageData = photo.fileDataRepresentation()
+extension CreateOCRLedgerVC: CameraViewDelegate {
+  func cameraView(_ cameraView: CameraView, didShot result: UIImage) {
+    guard let imageData = result.jpegData(compressionQuality: 1.0) else { return }
     reactor?.action.onNext(.receiptShoot(imageData))
   }
 }
