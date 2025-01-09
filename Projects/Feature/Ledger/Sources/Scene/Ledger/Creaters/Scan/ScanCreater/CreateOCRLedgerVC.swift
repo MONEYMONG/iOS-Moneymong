@@ -184,16 +184,10 @@ final class CreateOCRLedgerVC: UIViewController, View {
       .bind(to: reactor.action)
       .disposed(by: disposeBag)
     
-    reactor.pulse(\.$imageData)
-      .map { $0 != nil ? UIImage(data: $0!) : nil }
-      .bind(to: captureImageView.rx.image)
-      .disposed(by: disposeBag)
-    
-    reactor.pulse(\.$imageData)
-      .map { $0 == nil }
+    reactor.pulse(\.$isTook)
       .bind(with: self) { owner, value in
-        owner.captureImageView.isHidden = value
-        owner.guideLabel.isHidden = !value
+        owner.captureImageView.isHidden = !value
+        owner.guideLabel.isHidden = value
       }
       .disposed(by: disposeBag)
     
@@ -239,7 +233,9 @@ final class CreateOCRLedgerVC: UIViewController, View {
 }
 
 extension CreateOCRLedgerVC: CameraViewDelegate {
-  func cameraView(_ cameraView: CameraView, didShot result: UIImage) {
+  func cameraView(_ cameraView: CameraView, scanResult result: UIImage, originalImage image: UIImage) {
+    captureImageView.image = image
+    
     guard let imageData = result.jpegData(compressionQuality: 1.0) else { return }
     reactor?.action.onNext(.receiptShoot(imageData))
   }

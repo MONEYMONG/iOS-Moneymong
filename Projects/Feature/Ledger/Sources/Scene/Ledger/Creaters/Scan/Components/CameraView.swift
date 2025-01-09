@@ -6,7 +6,7 @@ import Core
 import RxSwift
 
 protocol CameraViewDelegate: AnyObject {
-  func cameraView(_ cameraView: CameraView, didShot result: UIImage)
+  func cameraView(_ cameraView: CameraView, scanResult result: UIImage, originalImage image: UIImage)
 }
 
 final class CameraView: UIView {
@@ -163,9 +163,10 @@ extension CameraView: AVCapturePhotoCaptureDelegate {
   func photoOutput(_ output: AVCapturePhotoOutput, didFinishProcessingPhoto photo: AVCapturePhoto, error: Error?) {
     Task {
       guard let imageData = photo.fileDataRepresentation(),
+            let originalImage = UIImage(data: imageData),
             let result = await documentScanner.editImageWithScanResult(imageData) else { return }
       
-      delegate?.cameraView(self, didShot: UIImage(cgImage: result))
+      delegate?.cameraView(self, scanResult: UIImage(cgImage: result), originalImage: originalImage)
     }
   }
 }

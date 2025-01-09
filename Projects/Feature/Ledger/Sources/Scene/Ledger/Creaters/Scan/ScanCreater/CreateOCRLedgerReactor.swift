@@ -14,7 +14,7 @@ final class CreateOCRLedgerReactor: Reactor {
   }
   
   enum Mutation {
-    case setImageData(Data?)
+    case setTake(Bool)
     case setLoading(Bool)
     case setError(MoneyMongError)
     case setDestination(State.Destination)
@@ -22,7 +22,7 @@ final class CreateOCRLedgerReactor: Reactor {
   
   struct State {
     let agencyId: Int
-    @Pulse var imageData: Data?
+    @Pulse var isTook: Bool = false
     @Pulse var isLoading: Bool = false
     @Pulse var error: MoneyMongError?
     @Pulse var destination: Destination?
@@ -44,17 +44,17 @@ final class CreateOCRLedgerReactor: Reactor {
   
   func mutate(action: Action) -> Observable<Mutation> {
     switch action {
-    case .onAppear:
-        .just(.setImageData(nil))
     case .receiptShoot(let data):
         .concat([
-          .just(.setImageData(data)),
+          .just(.setTake(true)),
           .just(.setLoading(true)),
           requsetOCR(data),
           .just(.setLoading(false))
         ])
     case let .onError(error):
         .just(.setError(error))
+    case .onAppear:
+        .just(.setTake(false))
     }
   }
   
@@ -62,14 +62,14 @@ final class CreateOCRLedgerReactor: Reactor {
     var newState = state
     newState.error = nil
     switch mutation {
-    case let .setImageData(data):
-      newState.imageData = data
     case let .setLoading(isLoading):
       newState.isLoading = isLoading
     case let .setError(error):
       newState.error = error
     case let .setDestination(destination):
       newState.destination = destination
+    case let .setTake(isTook):
+      newState.isTook = isTook
     }
     return newState
   }
