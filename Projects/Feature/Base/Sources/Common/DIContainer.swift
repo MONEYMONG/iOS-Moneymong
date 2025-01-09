@@ -6,7 +6,7 @@ public final class DIContainer {
   
   private init() {}
   
-  public var storage: [String : () -> Any] = [:]
+  private var storage: [String : () -> Any] = [:]
   
   public func register<T>(type: T.Type, value: @escaping () -> T) {
     storage[String(describing: type)] = value
