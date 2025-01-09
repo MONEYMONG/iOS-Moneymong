@@ -147,10 +147,7 @@ final class MemberTabReactor: Reactor {
       return .just(.setDestination(.agencyDeleteAlert))
     case .tapAgnecyDeleteAlertButton:
       return .task {
-        guard let id = currentState.agencyID else {
-          throw MoneyMongError.appError(.default, errorMessage: "소속을 삭제할 수 없습니다\n잠시 후 다시 시도해 주세요")
-        }
-        let newAgency = try await deleteAgencyUseCase.execute(id: id)
+        let newAgency = try await deleteAgencyUseCase.execute(id: currentState.agencyID)
         ledgerService.agency.updateAgency(newAgency)
         return .setDestination(.ledgerTab)
       }

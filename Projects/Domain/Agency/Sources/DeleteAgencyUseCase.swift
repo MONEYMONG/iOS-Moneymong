@@ -18,9 +18,12 @@ public struct DeleteAgencyUseCase: DeleteAgencyUseCaseInterface {
     self.widgetRefreshController = widgetRefreshController
   }
   
-  public func execute(id: Int) async throws -> Agency? {
+  public func execute(id: Int?) async throws -> Agency? {
     defer {
       widgetRefreshController.refresh()
+    }
+    guard let id else {
+      throw MoneyMongError.appError(.default, errorMessage: "소속을 삭제할 수 없습니다\n잠시 후 다시 시도해 주세요")
     }
     try await agencyRepo.deleteAgency(id: id)
     let newAgency = try await agencyRepo.fetchMyAgency().first
