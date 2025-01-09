@@ -2,5 +2,5 @@ import Foundation
 
 // 맴버를 소속에서 쫒아낸다
 public protocol KickoutMemberUseCaseInterface {
-  func execute(id: Int, userId: Int) async throws
+  func execute(id: Int, userId: Int) async throws -> [Member]
 }

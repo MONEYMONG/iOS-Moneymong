@@ -33,19 +33,23 @@ final class LedgerDetailReactor: Reactor {
   }
 
   var initialState: State
-  private(set) var ledgerRepository: LedgerRepositoryInterface
   private let ledgerService: LedgerServiceInterface
   private(set) var ledgerContentsService: LedgerDetailContentsServiceInterface
+  
+  private let getLedgerDetailUseCase: GetLedgerDetailUseCaseInterface
+  private let deleteLedgerUseCase: DeleteLedgerUseCaseInterface
 
   init(
     ledgerID: Int,
     role: Member.Role,
-    ledgerRepository: LedgerRepositoryInterface,
+    getLedgerDetailUseCase: GetLedgerDetailUseCaseInterface,
+    deleteLedgerUseCase: DeleteLedgerUseCaseInterface,
     ledgerService: LedgerServiceInterface,
     ledgerContentsService: LedgerDetailContentsServiceInterface
   ) {
     self.initialState = State(ledgerId: ledgerID, role: role)
-    self.ledgerRepository = ledgerRepository
+    self.getLedgerDetailUseCase = getLedgerDetailUseCase
+    self.deleteLedgerUseCase = deleteLedgerUseCase
     self.ledgerService = ledgerService
     self.ledgerContentsService = ledgerContentsService
   }
@@ -75,7 +79,7 @@ final class LedgerDetailReactor: Reactor {
         .just(.setIsLoading(true)),
 
           .task {
-            let ledgerDetail = try await ledgerRepository.fetchLedgerDetail(id: currentState.ledgerId)
+            let ledgerDetail = try await getLedgerDetailUseCase.execute(id: currentState.ledgerId)
             ledgerContentsService.setLedger(ledgerDetail)
             return ledgerDetail
           }
@@ -89,7 +93,7 @@ final class LedgerDetailReactor: Reactor {
       return .concat([
         .just(.setIsLoading(true)),
 
-          .task { return try await ledgerRepository.delete(id: currentState.ledgerId) }
+          .task { return try await deleteLedgerUseCase.execute(id: currentState.ledgerId) }
           .map { [weak self] in self?.ledgerService.ledgerList.updateList() }
           .map { .setDeleteCompleted(()) }
           .catch { return .just(.setError($0.toMMError))},

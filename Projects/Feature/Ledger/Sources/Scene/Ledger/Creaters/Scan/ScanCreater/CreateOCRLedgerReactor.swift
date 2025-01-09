@@ -3,7 +3,6 @@ import Foundation
 import Core
 import LedgerInterface
 
-
 import ReactorKit
 
 final class CreateOCRLedgerReactor: Reactor {
@@ -34,13 +33,13 @@ final class CreateOCRLedgerReactor: Reactor {
     }
   }
   
-  private let ledgerRepo: LedgerRepositoryInterface
+  private let receiptOCRUseCase: ReceiptOCRUseCaseInterface
 
   init(
     agencyId: Int,
-    ledgerRepo: LedgerRepositoryInterface
+    receiptOCRUseCase: ReceiptOCRUseCaseInterface
   ) {
-    self.ledgerRepo = ledgerRepo
+    self.receiptOCRUseCase = receiptOCRUseCase
     self.initialState = State(agencyId: agencyId)
   }
   
@@ -80,7 +79,7 @@ final class CreateOCRLedgerReactor: Reactor {
     guard let data else { return .empty() }
     let agencyId = currentState.agencyId
     return .task {
-      let model = try await ledgerRepo.fetchOCR(data)
+      let model = try await receiptOCRUseCase.execute(imageData: data)
       if model.inferResult == "ERROR" {
         throw MoneyMongError.appError(.default, errorMessage: "영수증이 보이도록 정확하게 촬영해주세요")
       } else {

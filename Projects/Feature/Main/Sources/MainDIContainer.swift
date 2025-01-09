@@ -13,7 +13,6 @@ public final class MainDIContainer {
   private let networkManager: NetworkManagerInterfacae
 
   private let agencyContainer: AgencyDIContainer
-  private let ledgerContainer: LedgerDIContainer
     
   public init(
     localStorage: LocalStorageInterface,
@@ -27,12 +26,6 @@ public final class MainDIContainer {
       localStorage: localStorage,
       networkManager: networkManager,
       inputAgencyInfoFactory: inputAgencyInfoFactory
-    )
-    
-    self.ledgerContainer = .init(
-      ledgerRepo: LedgerRepository(networkManager: networkManager, localStorage: localStorage),
-      agencyRepo: AgencyRepository(networkManager: networkManager, localStorage: localStorage),
-      userRepo: UserRepository(networkManager: networkManager, localStorage: localStorage)
     )
   }
 
@@ -63,8 +56,7 @@ public final class MainDIContainer {
   private func ledgerTab(with coordinator: Coordinator) -> UIViewController {
     let vc = UINavigationController()
     let ledgerCoordinator = LedgerCoordinator(
-      navigationController: vc,
-      diContainer: ledgerContainer
+      navigationController: vc
     )
     coordinator.childCoordinators.append(ledgerCoordinator)
     ledgerCoordinator.parentCoordinator = coordinator

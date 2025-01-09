@@ -10,7 +10,6 @@ import PinLayout
 
 final class EditMemberSheetVC: BottomSheetVC, View {
   var disposeBag = DisposeBag()
-  weak var coordinator: LedgerCoordinator?
 
   private let editMemberView = EditMemberListView()
   private let assignRoleView = AssignRoleView()
@@ -56,11 +55,7 @@ final class EditMemberSheetVC: BottomSheetVC, View {
       .compactMap { $0 }
       .observe(on: MainScheduler.instance)
       .bind(with: self) { owner, error in
-        owner.coordinator?.present(.alert(
-          title: "네트워크 에러",
-          subTitle: error.localizedDescription,
-          type: .onlyOkButton({ })
-        ))
+        AlertsManager.show(title: "네트워크 에러", subTitle: error.localizedDescription, type: .onlyOkButton({ }))
       }
       .disposed(by: disposeBag)
     

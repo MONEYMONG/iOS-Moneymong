@@ -13,6 +13,8 @@ import Core
 import DesignSystem
 import MyPageFeature
 import MyPageFeatureInterface
+import LedgerFeature
+import LedgerFeatureInterface
 
 class SceneDelegate: UIResponder, UIWindowSceneDelegate {
   private let localStorage = LocalStorage()
@@ -67,6 +69,8 @@ extension SceneDelegate {
   func registerDependency() {
     let localStorage = LocalStorage()
     let networkManager = NetworkManager()
+    let ledgerService = LedgerService()
+    let contentFormatter = ContentFormatter()
     
     networkManager.tokenIntercepter = TokenRequestIntercepter(
       localStorage: localStorage,
@@ -87,6 +91,21 @@ extension SceneDelegate {
     DIContainer.shared.register(type: SearchUniversitiesUseCaseInterface.self) {
       let universityRepo = UniversityRepository(networkManager: networkManager)
       return SearchUniversitiesUseCase(universityRepo: universityRepo)
+    }
+    
+    DIContainer.shared.register(type: GetSelectedAgencyUseCaseInterface.self) {
+      let userRepo = UserRepository(networkManager: networkManager, localStorage: localStorage)
+      return GetSelectedAgencyUseCase(userRepo: userRepo)
+    }
+    
+    DIContainer.shared.register(type: UpdateSelectedAgencyUseCaseInterface.self) {
+      let userRepo = UserRepository(networkManager: networkManager, localStorage: localStorage)
+      return UpdateSelectedAgencyUseCase(userRepo: userRepo)
+    }
+    
+    DIContainer.shared.register(type: GetUserIDUseCaseInterface.self) {
+      let userRepo = UserRepository(networkManager: networkManager, localStorage: localStorage)
+      return GetUserIDUseCase(userRepo: userRepo)
     }
     
     // MARK: - Auth UseCase Dependency
@@ -129,7 +148,8 @@ extension SceneDelegate {
 
     DIContainer.shared.register(type: DeleteAgencyUseCaseInterface.self) {
       let agencyRepo = AgencyRepository(networkManager: networkManager, localStorage: localStorage)
-      return DeleteAgencyUseCase(repo: agencyRepo, widgetRefreshController: widgetRefreshController)
+      let userRepo = UserRepository(networkManager: networkManager, localStorage: localStorage)
+      return DeleteAgencyUseCase(agencyRepo: agencyRepo, userRepo: userRepo, widgetRefreshController: widgetRefreshController)
     }
 
     DIContainer.shared.register(type: GetAgencyListUseCaseInterface.self) {
@@ -238,8 +258,13 @@ extension SceneDelegate {
       return UploadReceiptUseCase(ledgerRepo: ledgerRepo)
     }
     
+    // MARK: - Factory Dependency
     DIContainer.shared.register(type: MyPageFactoryInterface.self) {
       return MyPageFactory()
+    }
+    
+    DIContainer.shared.register(type: LedgerFactoryInterface.self) {
+      return LedgerFactory(ledgerService: ledgerService, contentFormatter: contentFormatter)
     }
   }
 }

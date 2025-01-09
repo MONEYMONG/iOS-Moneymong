@@ -3,13 +3,13 @@ import LedgerInterface
 
 import RxSwift
 
-enum LedgerListEvent {
+public enum LedgerListEvent {
   case selectedDateRange(start: DateInfo, end: DateInfo)
   case createLedgerRecord
   case update
 }
 
-protocol LedgerListServiceInterface {
+public protocol LedgerListServiceInterface {
   var event: PublishSubject<LedgerListEvent> { get }
   func selectedDate(start: DateInfo, end: DateInfo) -> Observable<Void>
   func createLedgerRecord() -> Observable<Void>

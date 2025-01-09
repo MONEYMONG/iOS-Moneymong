@@ -87,7 +87,7 @@ final class CreateOCRLedgerVC: UIViewController, View {
     super.viewDidLoad()
     setupUI()
     setupConstraints()
-    coordinator?.present(.guide, animated: false)
+    showGuide()
   }
 
   override func viewDidLayoutSubviews() {
@@ -164,7 +164,7 @@ final class CreateOCRLedgerVC: UIViewController, View {
     
     navigationItem.leftBarButtonItem?.rx.tap
       .bind(with: self) { owner, _ in
-        owner.coordinator?.present(.guide, animated: false)
+        owner.showGuide()
       }
       .disposed(by: disposeBag)
     
@@ -235,6 +235,14 @@ final class CreateOCRLedgerVC: UIViewController, View {
         }
       }
       .disposed(by: disposeBag)
+  }
+}
+
+extension CreateOCRLedgerVC {
+  func showGuide() {
+    let vc = UINavigationController(rootViewController: ScanGuideVC())
+    vc.modalPresentationStyle = .overFullScreen
+    present(vc, animated: false)
   }
 }
 

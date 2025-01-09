@@ -13,6 +13,9 @@ public final class DIContainer {
   }
   
   public func resolve<T>(type: T.Type) -> T {
-    return storage[String(describing: type)]!() as! T
+    guard let object = storage[String(describing: type)]?() as? T else {
+      fatalError("Could not resolve \(type)")
+    }
+    return object
   }
 }
