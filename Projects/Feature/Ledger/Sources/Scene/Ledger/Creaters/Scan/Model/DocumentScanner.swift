@@ -15,7 +15,7 @@ actor DocumentScanner: Sendable {
         
         Task {
           await self.updateRecentScanResult(rectangleObservation)
-          let rect = await self.transformBoundingBox(rectangleObservation, to: previewSize)
+          let rect = await self.transformVisionToIOS(rectangleObservation, to: previewSize)
           continuation.resume(returning: rect)
         }
       }
@@ -55,11 +55,12 @@ actor DocumentScanner: Sendable {
     return context.createCGImage(ciImage, from: ciImage.extent)
   }
   
-  private func transformBoundingBox(_ rectangleObservation: VNRectangleObservation, to previewSize: CGRect) -> CGRect {
-    let transform = CGAffineTransform(scaleX: 1, y: -1).translatedBy(x: 0, y: -previewSize.height)
-    let scale = CGAffineTransform.identity.scaledBy(x: previewSize.width, y: previewSize.height)
-
-    return rectangleObservation.boundingBox.applying(scale).applying(transform)
+  private func transformVisionToIOS(_ rectangleObservation: VNRectangleObservation, to previewSize: CGRect) -> CGRect {
+    let visionRect = rectangleObservation.boundingBox
+    return CGRect(
+      origin: CGPoint(x: CGFloat(visionRect.minX * previewSize.width), y: CGFloat((1 - visionRect.maxY) * previewSize.height)),
+      size: CGSize(width: visionRect.width * previewSize.width, height: visionRect.height * previewSize.height)
+    )
   }
   
   private func updateRecentScanResult(_ rectangleObservation: VNRectangleObservation) {
