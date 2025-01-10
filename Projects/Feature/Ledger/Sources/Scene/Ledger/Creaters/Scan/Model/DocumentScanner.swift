@@ -35,8 +35,8 @@ actor DocumentScanner: Sendable {
     }
   }
   
-  func editImageWithScanResult(_ imageData: Data) -> CGImage? {
-    guard var ciImage = CIImage(data: imageData)?.oriented(.right),
+  func editImageWithScanResult(_ imageData: Data) -> CIImage? {
+    guard let ciImage = CIImage(data: imageData)?.oriented(.right),
           let recentScanResult else { return nil }
     
     let topLeft = recentScanResult.topLeft.scaled(to: ciImage.extent.size)
@@ -44,15 +44,12 @@ actor DocumentScanner: Sendable {
     let bottomLeft = recentScanResult.bottomLeft.scaled(to: ciImage.extent.size)
     let bottomRight = recentScanResult.bottomRight.scaled(to: ciImage.extent.size)
 
-    ciImage = ciImage.applyingFilter("CIPerspectiveCorrection", parameters: [
+    return ciImage.applyingFilter("CIPerspectiveCorrection", parameters: [
       "inputTopLeft": CIVector(cgPoint: topLeft),
       "inputTopRight": CIVector(cgPoint: topRight),
       "inputBottomLeft": CIVector(cgPoint: bottomLeft),
       "inputBottomRight": CIVector(cgPoint: bottomRight),
     ])
-
-    let context = CIContext()
-    return context.createCGImage(ciImage, from: ciImage.extent)
   }
   
   private func transformVisionToIOS(_ rectangleObservation: VNRectangleObservation, to previewSize: CGRect) -> CGRect {

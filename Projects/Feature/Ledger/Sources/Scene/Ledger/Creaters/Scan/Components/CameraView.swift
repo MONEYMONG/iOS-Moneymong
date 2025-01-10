@@ -166,7 +166,7 @@ extension CameraView: AVCapturePhotoCaptureDelegate {
             let originalImage = UIImage(data: imageData),
             let result = await documentScanner.editImageWithScanResult(imageData) else { return }
       
-      delegate?.cameraView(self, scanResult: UIImage(cgImage: result), originalImage: originalImage)
+      delegate?.cameraView(self, scanResult: UIImage(ciImage: result), originalImage: originalImage)
     }
   }
 }
