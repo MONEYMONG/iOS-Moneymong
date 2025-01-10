@@ -74,3 +74,5 @@ private extension CGPoint {
   }
 }
 
+extension CVImageBuffer: @unchecked @retroactive Sendable {}
+

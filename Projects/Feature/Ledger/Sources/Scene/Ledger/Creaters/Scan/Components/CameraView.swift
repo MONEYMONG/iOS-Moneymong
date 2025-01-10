@@ -170,5 +170,3 @@ extension CameraView: AVCapturePhotoCaptureDelegate {
     }
   }
 }
-
-extension CVImageBuffer: @unchecked @retroactive Sendable {}
