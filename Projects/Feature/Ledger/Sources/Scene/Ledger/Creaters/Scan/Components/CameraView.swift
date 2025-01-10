@@ -140,7 +140,7 @@ extension CameraView: AVCaptureVideoDataOutputSampleBufferDelegate {
     guard let buffer = CMSampleBufferGetImageBuffer(sampleBuffer) else { return }
 
     Task {
-      guard let scanRect = try await documentScanner.scanDocument(previewSize: self.bounds, pixelBuffer: buffer) else {
+      guard let scanRect = try await documentScanner.scanDocument(imageBuffer: buffer, with: bounds) else {
         scanFailedCount += 1
         return
       }

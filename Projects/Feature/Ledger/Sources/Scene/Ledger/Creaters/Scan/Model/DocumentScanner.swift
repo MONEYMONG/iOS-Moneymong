@@ -4,7 +4,7 @@ import CoreImage
 actor DocumentScanner: Sendable {
   private var recentScanResult: VNRectangleObservation?
   
-  func scanDocument(previewSize: CGRect, pixelBuffer: CVPixelBuffer) async throws -> CGRect? {
+  func scanDocument(imageBuffer: CVImageBuffer, with previewSize: CGRect) async throws -> CGRect? {
     return try await withCheckedThrowingContinuation { [weak self] continuation in
       guard let self else { continuation.resume(returning: nil); return }
       let request = VNDetectRectanglesRequest { (request: VNRequest, error: Error?) in
@@ -20,13 +20,11 @@ actor DocumentScanner: Sendable {
         }
       }
       
-      request.minimumAspectRatio = 0.3
-      request.maximumAspectRatio = 0.9
-      request.minimumSize = 0.3
-      request.maximumObservations = 1
+      request.minimumAspectRatio = 0.2
+      request.maximumAspectRatio = 1.0
       request.minimumConfidence = 0.8
       
-      let handler = VNImageRequestHandler(cvPixelBuffer: pixelBuffer, options: [:])
+      let handler = VNImageRequestHandler(cvPixelBuffer: imageBuffer, options: [:])
       do {
         try handler.perform([request])
       } catch {
