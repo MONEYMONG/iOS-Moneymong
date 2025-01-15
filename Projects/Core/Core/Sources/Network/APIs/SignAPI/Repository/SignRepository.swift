@@ -5,7 +5,6 @@ import AuthInterface
 import Alamofire
 
 public protocol SignRepositoryInterface {
-  func autoSign() async throws -> SignInfo
   func kakaoSign() async throws -> KakaoAuthInfo
   func appleSign() async throws -> AppleAuthInfo
   func sign(
@@ -55,16 +54,6 @@ public struct SignRepository: SignRepositoryInterface {
     } catch {
       throw MoneyMongError.unknown(error.localizedDescription)
     }
-  }
-
-  public func autoSign() async throws -> SignInfo {
-    guard let provider = localStorage.recentLoginType,
-          let accessToken = localStorage.socialAccessToken
-    else {
-      throw MoneyMongError.unknown("저장된 유저 정보가 없습니다.")
-    }
-
-    return try await sign(provider: provider, accessToken: accessToken)
   }
 
   public func sign(
