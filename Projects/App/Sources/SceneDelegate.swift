@@ -108,6 +108,11 @@ extension SceneDelegate {
       return GetUserIDUseCase(userRepo: userRepo)
     }
     
+    DIContainer.shared.register(type: RegisterUniversitiesUseCaseInterface.self) {
+      let universityRepo = UniversityRepository(networkManager: networkManager)
+      return RegisterUniversitiesUseCase(universityRepo: universityRepo)
+    }
+    
     // MARK: - Auth UseCase Dependency
     DIContainer.shared.register(type: AutoSignUseCaseInterface.self) {
       let tokenRepo = TokenRepository(networkManager: networkManager, localStorage: localStorage)
