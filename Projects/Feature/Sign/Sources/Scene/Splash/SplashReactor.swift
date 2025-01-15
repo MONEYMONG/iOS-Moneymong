@@ -1,4 +1,4 @@
-import Core
+import AuthInterface
 
 import ReactorKit
 
@@ -24,30 +24,22 @@ final class SplashReactor: Reactor {
   }
 
   let initialState: State = State()
-  private let signRepository: SignRepositoryInterface
-  private let userRepo: UserRepositoryInterface
-  private let versionRepo: VersionRepositoryInterface
+  
+  private let autoSignUseCase: AutoSignUseCaseInterface
 
   init(
-    signRepository: SignRepositoryInterface,
-    userRepo: UserRepositoryInterface,
-    versionRepo: VersionRepositoryInterface
+    autoSignUseCase: AutoSignUseCaseInterface
   ) {
-    self.signRepository = signRepository
-    self.userRepo = userRepo
-    self.versionRepo = versionRepo
+    self.autoSignUseCase = autoSignUseCase
   }
 
   func mutate(action: Action) -> Observable<Mutation> {
     switch action {
     case .onAppear:
         .task {
-          try await versionRepo.get()
-          let result = try await signRepository.autoSign()
-          _ = try await userRepo.user()
-          return result
+          try await autoSignUseCase.execute()
         }
-        .map { .setDestination($0.schoolInfoProvided ? .main : .login) }
+        .map { .setDestination(.main) }
         .catch { error in
           if error.localizedDescription == "앱 업데이트가 필요합니다." {
             return .just(.setAlert)

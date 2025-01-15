@@ -25,6 +25,7 @@ let project = Project(
       sources: ["Sources/**"],
       dependencies: [
         .project(target: "BaseFeature", path: .relativeToRoot("Projects/Feature/Base")),
+        .project(target: "CreateAgencyInterface", path: .relativeToRoot("Projects/Feature/CreateAgency")),
         .target(name: "SignFeatureInterface")
       ],
       settings: .settings(base: [

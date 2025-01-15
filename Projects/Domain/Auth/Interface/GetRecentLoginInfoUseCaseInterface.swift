@@ -1,3 +1,3 @@
-public protocol GetRecentLoginInfoUesCaseInterface {
+public protocol GetRecentLoginInfoUseCaseInterface {
   func execute() -> LoginType?
 }

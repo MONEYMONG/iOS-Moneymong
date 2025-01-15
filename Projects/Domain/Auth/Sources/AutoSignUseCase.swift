@@ -12,6 +12,6 @@ public struct AutoSignUseCase: AutoSignUseCaseInterface {
   
   public func execute() async throws {
     try await versionRepo.get()
-    return try await tokenRepo.token()
+    try await tokenRepo.token()
   }
 }

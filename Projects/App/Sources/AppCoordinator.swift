@@ -46,8 +46,7 @@ final class AppCoordinator: Coordinator {
 extension AppCoordinator {
   func sign(animated: Bool) {
     let signCoordinator = SignCoordinator(
-      navigationController: navigationController,
-      diContainer: diContainer.signDIContainer
+      navigationController: navigationController
     )
     signCoordinator.start(animated: true)
     signCoordinator.parentCoordinator = self

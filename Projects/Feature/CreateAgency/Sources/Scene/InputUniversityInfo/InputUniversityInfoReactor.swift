@@ -1,6 +1,7 @@
 import Core
 import CreateAgencyInterface
 import UserInterface
+import AgencyInterface
 
 import ReactorKit
 
@@ -42,17 +43,20 @@ final class InputUniversityInfoReactor: Reactor {
 
   let initialState: State
   
-  private let universityRepository: UniversityRepositoryInterface
-  private let agencyRepository: AgencyRepositoryInterface
+  private let registerUniversitiesUseCase: RegisterUniversitiesUseCaseInterface
+  private let searchUniversitiesUseCase: SearchUniversitiesUseCaseInterface
+  private let createAgencyUseCase: CreateAgencyUseCaseInterface
 
   init(
     agencyName: String,
     agencyType: AgencyType,
-    universityRepository: UniversityRepositoryInterface,
-    agencyRepository: AgencyRepositoryInterface
+    registerUniversitiesUseCase: RegisterUniversitiesUseCaseInterface,
+    searchUniversitiesUseCase: SearchUniversitiesUseCaseInterface,
+    createAgencyUseCase: CreateAgencyUseCaseInterface
   ) {
-    self.universityRepository = universityRepository
-    self.agencyRepository = agencyRepository
+    self.registerUniversitiesUseCase = registerUniversitiesUseCase
+    self.searchUniversitiesUseCase = searchUniversitiesUseCase
+    self.createAgencyUseCase = createAgencyUseCase
     self.initialState = State(agencyName: agencyName, agencyType: agencyType)
   }
 
@@ -72,7 +76,7 @@ final class InputUniversityInfoReactor: Reactor {
         observer.onNext(.setIsLoading(true))
         Task {
           do {
-            let universityList = try await universityRepository.universities(keyword: keyword)
+            let universityList = try await searchUniversitiesUseCase.execute(query: keyword)
             observer.onNext(.setSchoolList(universityList))
             observer.onNext(.setEmptyList(universityList.isEmpty))
           } catch {
@@ -96,12 +100,8 @@ final class InputUniversityInfoReactor: Reactor {
           guard let university = currentState.selectedUniversity else {
             throw MoneyMongError.appError(.default, errorMessage: "필수 입력값을 입력해주세요.")
           }
-          try await universityRepository.university(
-            name: university.schoolName,
-            grade: nil
-          )
-          
-          return try await agencyRepository.create(name: currentState.agencyName, type: currentState.agencyType.rawValue)
+          try await registerUniversitiesUseCase.execute(name: university.schoolName, grade: nil)
+          return try await createAgencyUseCase.execute(name: currentState.agencyName, type: currentState.agencyType.rawValue)
         }
           .map { .setDestination(.complete($0)) }
           .catch { error in .just(.setErrorMessage(error.localizedDescription)) },
@@ -112,7 +112,7 @@ final class InputUniversityInfoReactor: Reactor {
       return Observable.concat([
         .just(.setIsLoading(true)),
         .task { [unowned self] in
-          return try await universityRepository.university(name: nil, grade: nil)
+          try await registerUniversitiesUseCase.execute(name: nil, grade: nil)
         }
           .map {.setDestination(.main) }
           .catch { error in .just(.setErrorMessage(error.localizedDescription)) },

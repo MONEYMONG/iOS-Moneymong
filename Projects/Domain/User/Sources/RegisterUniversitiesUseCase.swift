@@ -8,7 +8,7 @@ public struct RegisterUniversitiesUseCase: RegisterUniversitiesUseCaseInterface 
     self.universityRepo = universityRepo
   }
   
-  public func execute(name: String?, grade: Int?) async throws -> [University] {
+  public func execute(name: String?, grade: Int?) async throws {
     try await universityRepo.university(name: name, grade: grade)
   }
 }
