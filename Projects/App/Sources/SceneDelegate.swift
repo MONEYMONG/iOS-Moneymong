@@ -110,9 +110,9 @@ extension SceneDelegate {
     
     // MARK: - Auth UseCase Dependency
     DIContainer.shared.register(type: AutoSignUseCaseInterface.self) {
-      let signRepo = SignRepository(networkManager: networkManager, localStorage: localStorage)
+      let tokenRepo = TokenRepository(networkManager: networkManager, localStorage: localStorage)
       let versionRepo = VersionRepository(networkManager: networkManager)
-      return AutoSignUseCase(signRepo: signRepo, versionRepo: versionRepo)
+      return AutoSignUseCase(tokenRepo: tokenRepo, versionRepo: versionRepo)
     }
     
     DIContainer.shared.register(type: DeleteUserUseCaseInterface.self) {

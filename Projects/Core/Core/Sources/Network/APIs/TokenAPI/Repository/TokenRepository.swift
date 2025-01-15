@@ -2,7 +2,7 @@ import Foundation
 import Alamofire
 
 public protocol TokenRepositoryInterface {
-  func token() async throws -> Token
+  func token() async throws
 }
 
 public final class TokenRepository: TokenRepositoryInterface {
@@ -18,10 +18,11 @@ public final class TokenRepository: TokenRepositoryInterface {
   }
 
   // 저장된 refreshToken 없을 경우 처리해줘야함
-  public func token() async throws -> Token {
+  public func token() async throws {
     let request = RefreshTokenRequestDTO(refreshToken: localStorage.refreshToken ?? "")
     let targetType = TokenAPI.token(request)
-    let dto = try await networkManager.request(target: targetType, of: TokenResponseDTO.self)
-    return dto.toEntity
+    let token = try await networkManager.request(target: targetType, of: TokenResponseDTO.self).toEntity
+    localStorage.accessToken = token.accessToken
+    localStorage.refreshToken = token.refreshToken
   }
 }

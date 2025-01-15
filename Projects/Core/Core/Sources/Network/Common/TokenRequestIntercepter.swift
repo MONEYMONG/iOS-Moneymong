@@ -59,6 +59,12 @@ public final class TokenRequestIntercepter: RequestInterceptor {
       completion(.success(urlRequest))
       return
     }
+    
+    //Check Version
+    if urlRequest.url?.absoluteString.hasSuffix("/version") == true {
+      completion(.success(urlRequest))
+      return
+    }
 
     var urlRequest = urlRequest
     urlRequest.setValue("Bearer " + accessToken, forHTTPHeaderField: "Authorization")
@@ -78,9 +84,7 @@ public final class TokenRequestIntercepter: RequestInterceptor {
     }
     Task {
       do {
-        let token = try await tokenRepository.token()
-        localStorage.accessToken = token.accessToken
-        localStorage.refreshToken = token.refreshToken
+        try await tokenRepository.token()
         completion(.retry)
       } catch {
         localStorage.removeAll()
