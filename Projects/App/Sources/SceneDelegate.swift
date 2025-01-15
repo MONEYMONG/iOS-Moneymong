@@ -130,6 +130,11 @@ extension SceneDelegate {
       return SignUpUseCase(signRepo: signRepo)
     }
     
+    DIContainer.shared.register(type: GetRecentLoginInfoUseCaseInterface.self) {
+      let signRepo = SignRepository(networkManager: networkManager, localStorage: localStorage)
+      return GetRecentLoginInfoUseCase(signRepo: signRepo)
+    }
+    
     // MARK: - Agency UseCase Dependency
     DIContainer.shared.register(type: ChangeMemberRoleUseCaseInterface.self) {
       let agencyRepo = AgencyRepository(networkManager: networkManager, localStorage: localStorage)
