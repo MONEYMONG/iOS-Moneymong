@@ -15,6 +15,10 @@ import MyPageFeature
 import MyPageFeatureInterface
 import LedgerFeature
 import LedgerFeatureInterface
+import SignFeature
+import SignFeatureInterface
+import CreateAgency
+import CreateAgencyInterface
 
 class SceneDelegate: UIResponder, UIWindowSceneDelegate {
   private let localStorage = LocalStorage()
@@ -108,11 +112,16 @@ extension SceneDelegate {
       return GetUserIDUseCase(userRepo: userRepo)
     }
     
+    DIContainer.shared.register(type: RegisterUniversitiesUseCaseInterface.self) {
+      let universityRepo = UniversityRepository(networkManager: networkManager)
+      return RegisterUniversitiesUseCase(universityRepo: universityRepo)
+    }
+    
     // MARK: - Auth UseCase Dependency
     DIContainer.shared.register(type: AutoSignUseCaseInterface.self) {
-      let signRepo = SignRepository(networkManager: networkManager, localStorage: localStorage)
+      let tokenRepo = TokenRepository(networkManager: networkManager, localStorage: localStorage)
       let versionRepo = VersionRepository(networkManager: networkManager)
-      return AutoSignUseCase(signRepo: signRepo, versionRepo: versionRepo)
+      return AutoSignUseCase(tokenRepo: tokenRepo, versionRepo: versionRepo)
     }
     
     DIContainer.shared.register(type: DeleteUserUseCaseInterface.self) {
@@ -128,6 +137,11 @@ extension SceneDelegate {
     DIContainer.shared.register(type: SignUpUseCaseInterface.self) {
       let signRepo = SignRepository(networkManager: networkManager, localStorage: localStorage)
       return SignUpUseCase(signRepo: signRepo)
+    }
+    
+    DIContainer.shared.register(type: GetRecentLoginInfoUseCaseInterface.self) {
+      let signRepo = SignRepository(networkManager: networkManager, localStorage: localStorage)
+      return GetRecentLoginInfoUseCase(signRepo: signRepo)
     }
     
     // MARK: - Agency UseCase Dependency
@@ -265,6 +279,22 @@ extension SceneDelegate {
     
     DIContainer.shared.register(type: LedgerFactoryInterface.self) {
       return LedgerFactory(ledgerService: ledgerService, contentFormatter: contentFormatter)
+    }
+    
+    DIContainer.shared.register(type: SignFactoryInterface.self) {
+      return SignFactory()
+    }
+    
+    DIContainer.shared.register(type: CreateCompleteFactoryInterface.self) {
+      return CreateCompleteFactory()
+    }
+    
+    DIContainer.shared.register(type: InputAgencyInfoFactoryInterface.self) {
+      return InputAgencyInfoFactory()
+    }
+    
+    DIContainer.shared.register(type: InputUniversityInfoFactoryInterface.self) {
+      return InputUniversityInfoFactory()
     }
   }
 }

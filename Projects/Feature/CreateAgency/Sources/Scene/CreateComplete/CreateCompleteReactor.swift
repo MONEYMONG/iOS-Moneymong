@@ -1,6 +1,6 @@
 import BaseFeature
 
-import Core
+import UserInterface
 
 import ReactorKit
 
@@ -26,12 +26,15 @@ final class CreateCompleteReactor: Reactor {
     case setDestination(State.Destination)
   }
   
-  private let userRepo: UserRepositoryInterface
+  private let updateSelectedAgencyUseCase: UpdateSelectedAgencyUseCaseInterface
   
   let initialState: State
   
-  init(userRepo: UserRepositoryInterface, id: Int) {
-    self.userRepo = userRepo
+  init(
+    updateSelectedAgencyUseCase: UpdateSelectedAgencyUseCaseInterface,
+    id: Int
+  ) {
+    self.updateSelectedAgencyUseCase = updateSelectedAgencyUseCase
     self.initialState = .init(agencyID: id)
   }
   
@@ -40,10 +43,10 @@ final class CreateCompleteReactor: Reactor {
     case .tapDismiss:
       return .just(.setDestination(.dismiss))
     case .tapLedger:
-      userRepo.updateSelectedAgency(id: currentState.agencyID)
+      updateSelectedAgencyUseCase.execute(id: currentState.agencyID)
       return .just(.setDestination(.ledger))
     case .tapOperatingCost:
-      userRepo.updateSelectedAgency(id: currentState.agencyID)
+      updateSelectedAgencyUseCase.execute(id: currentState.agencyID)
       return .just(.setDestination(.manualInput))
     }
   }

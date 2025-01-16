@@ -1,3 +1,3 @@
 public protocol AutoSignUseCaseInterface {
-  func execute() async throws -> SignInfo
+  func execute() async throws
 }

@@ -2,16 +2,16 @@ import AuthInterface
 import Core
 
 public struct AutoSignUseCase: AutoSignUseCaseInterface {
-  private let signRepo: SignRepositoryInterface
+  private let tokenRepo: TokenRepositoryInterface
   private let versionRepo: VersionRepositoryInterface
   
-  public init(signRepo: SignRepositoryInterface, versionRepo: VersionRepositoryInterface) {
-    self.signRepo = signRepo
+  public init(tokenRepo: TokenRepositoryInterface, versionRepo: VersionRepositoryInterface) {
+    self.tokenRepo = tokenRepo
     self.versionRepo = versionRepo
   }
   
-  public func execute() async throws -> SignInfo {
+  public func execute() async throws {
     try await versionRepo.get()
-    return try await signRepo.autoSign()
+    try await tokenRepo.token()
   }
 }

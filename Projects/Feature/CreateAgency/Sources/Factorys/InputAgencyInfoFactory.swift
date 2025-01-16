@@ -1,30 +1,24 @@
 import UIKit
 
-import Core
+import BaseFeature
 import CreateAgencyInterface
+import AgencyInterface
+import UserInterface
 
 public struct InputAgencyInfoFactory: InputAgencyInfoFactoryInterface {
-  
-  private let networkManager: NetworkManagerInterfacae
-  private let localStorage: LocalStorageInterface
-    
-  public init(networkManager: NetworkManagerInterfacae, localStorage: LocalStorageInterface) {
-    self.networkManager = networkManager
-    self.localStorage = localStorage
-  }
+  public init() {}
   
   public func make(coordinator: CreateAgencyCoordinator?, universityType: UniversityType) -> UIViewController {
     let vc = InputAgencyInfoVC(
-      createCompleteFactory: CreateCompleteFactory(networkManager: networkManager, localStorage: localStorage),
-      inputUniversityInfoFactory: InputUniversityInfoFactory(networkManager: networkManager, localStorage: localStorage)
+      createCompleteFactory: DIContainer.shared.resolve(type: CreateCompleteFactoryInterface.self),
+      inputUniversityInfoFactory: DIContainer.shared.resolve(type: InputUniversityInfoFactoryInterface.self)
     )
     vc.coordinator = coordinator
     vc.reactor = InputAgencyInfoReactor(
       universityType: universityType,
-      agencyRepo: AgencyRepository(networkManager: networkManager, localStorage: localStorage),
-      universityRepo: UniversityRepository(networkManager: networkManager)
+      createAgencyUseCase: DIContainer.shared.resolve(type: CreateAgencyUseCaseInterface.self),
+      registerAgencyUseCase: DIContainer.shared.resolve(type: RegisterUniversitiesUseCaseInterface.self)
     )
-    
     return vc
   }
 }

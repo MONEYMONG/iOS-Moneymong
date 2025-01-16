@@ -1,24 +1,21 @@
 import UIKit
 
+import BaseFeature
 import BaseFeatureInterface
 
 public final class CreateAgencyCoordinator: Coordinator {
   public var navigationController: UINavigationController
   public weak var parentCoordinator: Coordinator?
   public var childCoordinators: [Coordinator] = []
-  
-  private let inputAgencyFactory: InputAgencyInfoFactoryInterface
-  
+    
   public init(
-    navigationController: UINavigationController,
-    inputAgencyFactory: InputAgencyInfoFactoryInterface
+    navigationController: UINavigationController
   ) {
     self.navigationController = navigationController
-    self.inputAgencyFactory = inputAgencyFactory
   }
 
   public func start(animated: Bool, universityType: UniversityType) {
-    let vc = inputAgencyFactory.make(coordinator: self, universityType: universityType)
+    let vc = DIContainer.shared.resolve(type: InputAgencyInfoFactoryInterface.self).make(coordinator: self, universityType: universityType)
     navigationController.viewControllers = [vc]
   }
   

@@ -1,18 +1,18 @@
 import UIKit
 
+import BaseFeature
 import BaseFeatureInterface
 import CreateAgencyInterface
 import DesignSystem
+import SignFeatureInterface
 
 public final class SignCoordinator: Coordinator {
   public var navigationController: UINavigationController
-  private let diContainer: SignDIContainer
   public weak var parentCoordinator: Coordinator?
   public var childCoordinators: [Coordinator] = []
   
-  public init(navigationController: UINavigationController, diContainer: SignDIContainer) {
+  public init(navigationController: UINavigationController) {
     self.navigationController = navigationController
-    self.diContainer = diContainer
   }
 
   public func start(animated: Bool) {
@@ -41,13 +41,15 @@ public final class SignCoordinator: Coordinator {
 
 public extension SignCoordinator {
   func splash(animated: Bool = false) {
-    let vc = diContainer.splash(with: self)
+    guard let vc = DIContainer.shared.resolve(type: SignFactoryInterface.self).makeSplash() as? SplashVC else { return }
+    vc.coordinator = self
     navigationController.isNavigationBarHidden = false
     navigationController.viewControllers = [vc]
   }
 
   func login(animated: Bool = false) {
-    let vc = diContainer.login(with: self)
+    guard let vc = DIContainer.shared.resolve(type: SignFactoryInterface.self).makeLogin() as? LoginVC else { return }
+    vc.coordinator = self
     self.navigationController.pushViewController(vc, animated: animated)
   }
 
@@ -57,13 +59,18 @@ public extension SignCoordinator {
   }
 
   func createAgency(animated: Bool = true) {
-    let vc = diContainer.createAgency(with: self)
+    let vc = UINavigationController()
+    let coordinator = CreateAgencyCoordinator(navigationController: vc)
+    coordinator.parentCoordinator = self
+    childCoordinators.append(coordinator)
+    coordinator.start(animated: true, universityType: .unknown)
     vc.modalPresentationStyle = .fullScreen
     navigationController.present(vc, animated: animated)
   }
 
   func congratulations(animated: Bool = true) {
-    let vc = diContainer.congratulations(with: self)
+    guard let vc = DIContainer.shared.resolve(type: SignFactoryInterface.self).makeCongratulation() as? CongratulationsVC else { return }
+    vc.coordinator = self
     navigationController.pushViewController(vc, animated: animated)
   }
 

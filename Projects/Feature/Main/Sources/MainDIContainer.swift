@@ -16,16 +16,14 @@ public final class MainDIContainer {
     
   public init(
     localStorage: LocalStorageInterface,
-    networkManager: NetworkManagerInterfacae,
-    inputAgencyInfoFactory: InputAgencyInfoFactoryInterface
+    networkManager: NetworkManagerInterfacae
   ) {
     self.localStorage = localStorage
     self.networkManager = networkManager
     
     self.agencyContainer = .init(
       localStorage: localStorage,
-      networkManager: networkManager,
-      inputAgencyInfoFactory: inputAgencyInfoFactory
+      networkManager: networkManager
     )
   }
 

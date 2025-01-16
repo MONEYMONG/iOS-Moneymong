@@ -28,49 +28,28 @@ final class LoginReactor: Reactor {
   }
 
   let initialState: State = State()
-  private let signRepository: SignRepositoryInterface
-  private let userRepo: UserRepositoryInterface
+  
+  private let signUpUseCase: SignUpUseCaseInterface
+  private let getRecentLoginInfoUseCase: GetRecentLoginInfoUseCaseInterface
 
-  init(signRepository: SignRepositoryInterface, userRepo: UserRepositoryInterface) {
-    self.signRepository = signRepository
-    self.userRepo = userRepo
+  init(
+    signUpUseCase: SignUpUseCaseInterface,
+    getRecentLoginInfoUseCase: GetRecentLoginInfoUseCaseInterface
+  ) {
+    self.signUpUseCase = signUpUseCase
+    self.getRecentLoginInfoUseCase = getRecentLoginInfoUseCase
   }
 
   func mutate(action: Action) -> Observable<Mutation> {
     switch action {
 
     case .onAppear:
-      let loginType = signRepository.recentLoginType()
+      let loginType = getRecentLoginInfoUseCase.execute()
       return .just(.setRecentLoginType(loginType))
 
     case .login(let loginType):
       return .task {
-        let result: SignInfo
-        
-        switch loginType {
-        case .kakao:
-          let authInfo = try await signRepository.kakaoSign()
-          result = try await signRepository.sign(
-            provider: loginType.value,
-            accessToken: authInfo.accessToken,
-            name: nil,
-            code: nil
-          )
-
-        case .apple:
-          let authInfo = try await signRepository.appleSign()
-          result = try await signRepository.sign(
-            provider: loginType.value,
-            accessToken: authInfo.idToken,
-            name: authInfo.name,
-            code: authInfo.authorizationCode
-          )
-        }
-        
-        #warning("의미 없어 보임")
-        _ = try await userRepo.user()
-        
-        return result
+        return try await signUpUseCase.execute(loginType: loginType)
       }
       .map { .setDestination($0.schoolInfoExist ? .main : .signUp) }
       .catch { .just(.setErrorMessage($0.localizedDescription)) }

@@ -10,19 +10,15 @@ public final class AgencyDIContainer {
 
   private let agencyRepo: AgencyRepositoryInterface
   private let userRepo: UserRepositoryInterface
-  
-  private let inputAgencyInfoFactory: InputAgencyInfoFactoryInterface
-    
+      
   public init(
     localStorage: LocalStorageInterface,
-    networkManager: NetworkManagerInterfacae,
-    inputAgencyInfoFactory: InputAgencyInfoFactoryInterface
+    networkManager: NetworkManagerInterfacae
   ) {
     self.localStorage = localStorage
     self.networkManager = networkManager
     self.agencyRepo = AgencyRepository(networkManager: networkManager, localStorage: localStorage)
     self.userRepo = UserRepository(networkManager: networkManager, localStorage: localStorage)
-    self.inputAgencyInfoFactory = inputAgencyInfoFactory
   }
 
   func agency(with coordinator: AgencyCoordinator) -> AgencyListVC {
@@ -34,7 +30,7 @@ public final class AgencyDIContainer {
   
   func createAgency(with coordinator: AgencyCoordinator, universityType: UniversityType) -> UIViewController {
     let navigationController = UINavigationController()
-    let createAgencyCoordinator = CreateAgencyCoordinator(navigationController: navigationController, inputAgencyFactory: inputAgencyInfoFactory)
+    let createAgencyCoordinator = CreateAgencyCoordinator(navigationController: navigationController)
     createAgencyCoordinator.parentCoordinator = coordinator
     createAgencyCoordinator.start(animated: true, universityType: universityType)
     return navigationController
