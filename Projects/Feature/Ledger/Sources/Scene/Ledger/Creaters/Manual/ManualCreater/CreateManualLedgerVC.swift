@@ -105,9 +105,10 @@ final class CreateManualLedgerVC: BaseVC, View {
   private let timeTextField: MMTextField = {
     MMTextField(title: "시간")
       .setPlaceholder(to: "00:00:00(24시 단위)")
-      .setRequireMark()
+      .setRequireMark(to: false)
       .setKeyboardType(to: .numberPad)
       .setError() { text in
+        if text.isEmpty { return (true, nil) }
         let pattern = "^([01]?[0-9]|2[0-3]):[0-5][0-9]:[0-5][0-9]$"
         let regex = try! NSRegularExpression(pattern: pattern)
         
@@ -184,6 +185,7 @@ final class CreateManualLedgerVC: BaseVC, View {
     }
     
     dateTextField.setError() { [weak self] text in
+      if text.isEmpty { return (false, "날짜를 입력해주세요") }
       let pattern = "^\\d{4}/(0[1-9]|1[012])/(0[1-9]|[12]\\d|3[01])$"
       let regex = try! NSRegularExpression(pattern: pattern)
       
@@ -352,7 +354,7 @@ final class CreateManualLedgerVC: BaseVC, View {
       .disposed(by: disposeBag)
     
     timeTextField.clearButton.rx.tap
-      .map { Reactor.Action.inputContent(.time("", false)) }
+      .map { Reactor.Action.inputContent(.time("", true)) }
       .bind(to: reactor.action)
       .disposed(by: disposeBag)
     
@@ -367,6 +369,11 @@ final class CreateManualLedgerVC: BaseVC, View {
       .skip(1)
       .compactMap { $0 }
       .map { [weak self] in Reactor.Action.inputContent(.date($0, self?.dateTextField.state != .error)) }
+      .bind(to: reactor.action)
+      .disposed(by: disposeBag)
+    
+    dateTextField.clearButton.rx.tap
+      .map { Reactor.Action.inputContent(.date("", false)) }
       .bind(to: reactor.action)
       .disposed(by: disposeBag)
     

@@ -26,7 +26,7 @@ final class CreateManualLedgerReactor: Reactor {
     var isValidTitle = false
     var isValidAmount = false
     var isValidDate = false
-    var isValidTime = false
+    var isValidTime = true
   }
   
   enum AlertType {
@@ -323,7 +323,7 @@ private extension CreateManualLedgerReactor {
       }
       guard let date = formatter.mergeWithISO8601(
         date: currentState.content.date,
-        time: currentState.content.time
+        time: currentState.content.time != "" ? currentState.content.time : formatter.convertToTime(date: .now)
       )
       else {
         throw MoneyMongError.appError(.default, errorMessage: "날짜 및 시간을 확인해 주세요")
