@@ -9,12 +9,12 @@ import ReactorKit
 final class LedgerContentsReactor: Reactor {
 
   enum ContentType {
-    case storeInfo(String)
-    case amount(String)
+    case storeInfo(String, Bool)
+    case amount(String, Bool)
     case fundType(FundType)
     case memo(String)
-    case date(String)
-    case time(String)
+    case date(String, Bool)
+    case time(String, Bool)
     case authorName(String)
     case receiptImage(LedgerImageInfo, Bool)
     case documentImage(LedgerImageInfo, Bool)
@@ -23,6 +23,13 @@ final class LedgerContentsReactor: Reactor {
   enum ImageSection {
     case receipt
     case document
+  }
+  
+  struct ContentValid {
+    var isValidTitle = true
+    var isValidAmount = true
+    var isValidDate = true
+    var isValidTime = true
   }
 
   enum Action {
@@ -54,6 +61,11 @@ final class LedgerContentsReactor: Reactor {
   let formatter: ContentFormatter
   private let ledgerContentsService: LedgerDetailContentsServiceInterface
   private let ledgerRepo: LedgerRepositoryInterface
+  
+  private var valid = ContentValid()
+  private var isValided: Bool {
+    return valid.isValidTitle && valid.isValidAmount && valid.isValidDate && valid.isValidTime
+  }
 
   init(
     ledgerContentsService: LedgerDetailContentsServiceInterface,
@@ -112,8 +124,8 @@ final class LedgerContentsReactor: Reactor {
 
     case .didValueChanged(let valueType):
       let convertedFormValue = setContentValueFormat(valueType)
-      let isValid = checkContent(valueType)
-      ledgerContentsService.didValidChanged(isValid)
+      setValid(&valid, content: valueType)
+      ledgerContentsService.didValidChanged(isValided)
       return .just(.setValueChanged(convertedFormValue))
 
     case .selectedImageSection(let section):
@@ -155,11 +167,10 @@ final class LedgerContentsReactor: Reactor {
     switch mutation {
     case .setValueChanged(let valueType):
       switch valueType {
-
-      case .storeInfo(let storeInfo):
+      case let .storeInfo(storeInfo, _):
         newState.currentLedgerItem.storeInfo = storeInfo
-
-      case .amount(let amount):
+        
+      case let .amount(amount, _):
         newState.currentLedgerItem.amount = amount
 
       case .fundType(let fundType):
@@ -168,10 +179,10 @@ final class LedgerContentsReactor: Reactor {
       case .memo(let memo):
         newState.currentLedgerItem.memo = memo
 
-      case .date(let date):
+      case let .date(date, _):
         newState.currentLedgerItem.date = date
 
-      case .time(let time):
+      case let .time(time, _):
         newState.currentLedgerItem.time = time
 
       case .authorName(let authorName):
@@ -251,66 +262,33 @@ fileprivate extension LedgerContentsReactor {
       }
   }
 
-  func checkContent(_ content: ContentType) -> Bool {
+  func setValid(_ valid: inout ContentValid, content: ContentType) {
     switch content {
-    case .storeInfo(let v):
-      return (1...20) ~= v.count
-
-    case .amount(let v):
-      guard v.isEmpty == false,
-            let amount = Int(v.replacingOccurrences(of: ",", with: "")),
-            amount <= 999_999_999
-      else {
-        return false
-      }
-      return true
-
-    case .date(let v):
-      let pattern = "^\\d{4}.(0[1-9]|1[012]).(0[1-9]|[12]\\d|3[01])$"
-      let regex = try! NSRegularExpression(pattern: pattern)
-      let result = regex.firstMatch(
-        in: v,
-        range: NSRange(location: 0, length: v.count)
-      )
-      return result != nil
-
-    case .time(let v):
-      let pattern = "^([01]?[0-9]|2[0-3]):[0-5][0-9]:[0-5][0-9]$"
-      let regex = try! NSRegularExpression(pattern: pattern)
-      let result = regex.firstMatch(
-        in: v,
-        range: NSRange(location: 0, length: v.count)
-      )
-      return result != nil
-
-    case .memo(let v):
-      return (1...300) ~= v.count
-
-    default:
-      return true
+    case let .storeInfo(value, isValid):
+      valid.isValidTitle = isValid && !value.isEmpty
+      
+    case let .amount(_, isValid):
+      valid.isValidAmount = isValid
+      
+    case let .date(_, isValid):
+      valid.isValidDate = isValid
+      
+    case let .time(_, isValid):
+      valid.isValidTime = isValid
+      
+    default: break
     }
   }
 
   func setContentValueFormat(_ type: ContentType) -> ContentType {
     switch type {
-    case .storeInfo(let value):
-      return .storeInfo(value)
-    case .amount(let value):
-      return .amount(formatter.convertToAmount(with: value) ?? "")
-    case .date(let value):
-      return .date(formatter.convertToDate(with: value, separator: "."))
-    case .time(let value):
-      return .time(formatter.convertToTime(with: value))
-    case .memo(let value):
-      return .memo(value)
-    case .fundType(let value):
-      return .fundType(value)
-    case .authorName(let value):
-      return .authorName(value)
-    case .receiptImage(let imageInfo, let isAdd):
-      return.receiptImage(imageInfo, isAdd)
-    case .documentImage(let imageInfo, let isAdd):
-      return .documentImage(imageInfo, isAdd)
+    case .amount(let value, let isValid):
+      return .amount(formatter.convertToAmount(with: value) ?? "", isValid)
+    case .date(let value, let isValid):
+      return .date(formatter.convertToDate(with: value, separator: "."), isValid)
+    case .time(let value, let isValid):
+      return .time(formatter.convertToTime(with: value), isValid)
+    default: return type
     }
   }
 }

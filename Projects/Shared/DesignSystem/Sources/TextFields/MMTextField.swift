@@ -19,7 +19,7 @@ public class MMTextField: UIView {
     }
   }
   
-  private var state: State {
+  public var state: State {
     didSet { updateState() }
   }
   
