@@ -78,9 +78,7 @@ public final class TokenRequestIntercepter: RequestInterceptor {
     }
     Task {
       do {
-        let token = try await tokenRepository.token()
-        localStorage.accessToken = token.accessToken
-        localStorage.refreshToken = token.refreshToken
+        try await tokenRepository.token()
         completion(.retry)
       } catch {
         localStorage.removeAll()

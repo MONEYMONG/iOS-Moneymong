@@ -74,9 +74,9 @@ final class MemberCell: UITableViewCell, ReusableView {
     
     switch member.role {
     case .member:
-      roleView.configure(title: "일반멤버", titleColor: Colors.White._1, backgroundColor: Colors.Mint._3)
+      roleView.configure(title: "회원", titleColor: Colors.White._1, backgroundColor: Colors.Mint._3)
     case .staff:
-      roleView.configure(title: "운영진", titleColor: Colors.White._1, backgroundColor: Colors.Blue._4)
+      roleView.configure(title: "총무", titleColor: Colors.White._1, backgroundColor: Colors.Blue._4)
     }
       
     nameLabel.flex.markDirty()

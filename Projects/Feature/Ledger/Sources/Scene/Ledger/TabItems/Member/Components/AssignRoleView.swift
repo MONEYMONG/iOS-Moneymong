@@ -19,14 +19,14 @@ final class AssignRoleView: UIView {
 
   private let staffLabel: UILabel = {
     let v = UILabel()
-    v.setTextWithLineHeight(text: "운영진", lineHeight: 24)
+    v.setTextWithLineHeight(text: "총무", lineHeight: 24)
     v.font = Fonts.body._4
     v.textColor = Colors.Gray._5
     return v
   }()
   private let memberLabel: UILabel = {
     let v = UILabel()
-    v.setTextWithLineHeight(text: "일반멤버", lineHeight: 24)
+    v.setTextWithLineHeight(text: "회원 (회비 확인만 가능해요)", lineHeight: 24)
     v.font = Fonts.body._4
     v.textColor = Colors.Blue._4
     return v

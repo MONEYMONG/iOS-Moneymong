@@ -25,16 +25,16 @@ final class SplashReactor: Reactor {
 
   let initialState: State = State()
   private let signRepository: SignRepositoryInterface
-  private let userRepo: UserRepositoryInterface
+  private let tokenRepo: TokenRepositoryInterface
   private let versionRepo: VersionRepositoryInterface
 
   init(
     signRepository: SignRepositoryInterface,
-    userRepo: UserRepositoryInterface,
+    tokenRepo: TokenRepositoryInterface,
     versionRepo: VersionRepositoryInterface
   ) {
     self.signRepository = signRepository
-    self.userRepo = userRepo
+    self.tokenRepo = tokenRepo
     self.versionRepo = versionRepo
   }
 
@@ -43,11 +43,9 @@ final class SplashReactor: Reactor {
     case .onAppear:
         .task {
           try await versionRepo.get()
-          let result = try await signRepository.autoSign()
-          _ = try await userRepo.user()
-          return result
+          try await tokenRepo.token()
         }
-        .map { .setDestination($0.schoolInfoProvided ? .main : .login) }
+        .map { .setDestination(.main) }
         .catch { error in
           if error.localizedDescription == "앱 업데이트가 필요합니다." {
             return .just(.setAlert)

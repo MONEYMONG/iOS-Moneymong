@@ -50,7 +50,7 @@ final class LedgerContentsView: BaseView, View, UIScrollViewDelegate {
     v.setKeyboardType(to: .numberPad)
     v.setError() { text in
       guard let value = Int(text.replacingOccurrences(of: ",", with: "")) else {
-        return (false, "999,999,999원 이내로 입력해주세요")
+        return (false, "금액을 입력해주세요")
       }
       
       return (value <= 999_999_999, "999,999,999원 이내로 입력해주세요")
@@ -72,6 +72,7 @@ final class LedgerContentsView: BaseView, View, UIScrollViewDelegate {
     v.setRequireMark()
     v.setKeyboardType(to: .numberPad)
     v.setError() { text in
+      if text.isEmpty { return (false, "시간를 입력해 주세요") }
       let pattern = "^([01]?[0-9]|2[0-3]):[0-5][0-9]:[0-5][0-9]$"
       let regex = try! NSRegularExpression(pattern: pattern)
       
@@ -126,7 +127,8 @@ final class LedgerContentsView: BaseView, View, UIScrollViewDelegate {
     backgroundColor = .clear
     
     dateTextField.setError() { [weak self] text in
-      let pattern = "^\\d{4}/(0[1-9]|1[012])/(0[1-9]|[12]\\d|3[01])$"
+      if text.isEmpty { return (false, "날짜를 입력해 주세요") }
+      let pattern = "^\\d{4}.(0[1-9]|1[012]).(0[1-9]|[12]\\d|3[01])$"
       let regex = try! NSRegularExpression(pattern: pattern)
       
       if !(regex.firstMatch(in: text, range: NSRange(location: 0, length: text.count)) != nil) {
@@ -139,10 +141,10 @@ final class LedgerContentsView: BaseView, View, UIScrollViewDelegate {
       
       if let currentDate = self?.reactor?.formatter.convertToDate(date: .now) {
         let currentDateList = currentDate.split(separator: "/")
-        let inputDateList = text.split(separator: "/")
+        let inputDateList = text.split(separator: ".")
         for i in 0..<3 {
           if Int(inputDateList[i])! > Int(currentDateList[i])! {
-            return (false, "올바른 날짜를 입력해 주세요")
+            return (false, "미래 날짜는 입력이 불가능합니다")
           } else if Int(inputDateList[i])! == Int(currentDateList[i])! {
             continue
           } else {
@@ -319,54 +321,59 @@ final class LedgerContentsView: BaseView, View, UIScrollViewDelegate {
       .disposed(by: disposeBag)
 
     storeInfoTextField.textField.rx.text
+      .skip(1)
       .distinctUntilChanged()
       .compactMap { $0 }
-      .map { Reactor.Action.didValueChanged(.storeInfo($0)) }
+      .map { [weak self] in Reactor.Action.didValueChanged(.storeInfo($0, self?.storeInfoTextField.state != .error)) }
       .bind(to: reactor.action)
       .disposed(by: disposeBag)
 
     storeInfoTextField.clearButton.rx.tap
-      .map { Reactor.Action.didValueChanged(.storeInfo(Const.emptyString)) }
+      .map { Reactor.Action.didValueChanged(.storeInfo(Const.emptyString, false)) }
       .bind(to: reactor.action)
       .disposed(by: disposeBag)
 
     amountTextField.textField.rx.text
+      .skip(1)
       .distinctUntilChanged()
       .compactMap { $0 }
-      .map { Reactor.Action.didValueChanged(.amount($0)) }
+      .map { [weak self] in Reactor.Action.didValueChanged(.amount($0, self?.amountTextField.state != .error)) }
       .bind(to: reactor.action)
       .disposed(by: disposeBag)
 
     amountTextField.clearButton.rx.tap
-      .map { Reactor.Action.didValueChanged(.amount(Const.emptyString)) }
+      .map { Reactor.Action.didValueChanged(.amount(Const.emptyString, false)) }
       .bind(to: reactor.action)
       .disposed(by: disposeBag)
 
     dateTextField.textField.rx.text
+      .skip(1)
       .distinctUntilChanged()
       .compactMap { $0 }
-      .map { Reactor.Action.didValueChanged(.date($0)) }
+      .map { [weak self] in Reactor.Action.didValueChanged(.date($0, self?.dateTextField.state != .error)) }
       .bind(to: reactor.action)
       .disposed(by: disposeBag)
 
     dateTextField.clearButton.rx.tap
-      .map { Reactor.Action.didValueChanged(.date(Const.emptyString)) }
+      .map { Reactor.Action.didValueChanged(.date(Const.emptyString, false)) }
       .bind(to: reactor.action)
       .disposed(by: disposeBag)
 
     timeTextField.textField.rx.text
+      .skip(1)
       .distinctUntilChanged()
       .compactMap { $0 }
-      .map { Reactor.Action.didValueChanged(.time($0)) }
+      .map { [weak self] in Reactor.Action.didValueChanged(.time($0, self?.timeTextField.state != .error)) }
       .bind(to: reactor.action)
       .disposed(by: disposeBag)
 
     timeTextField.clearButton.rx.tap
-      .map { Reactor.Action.didValueChanged(.time(Const.emptyString)) }
+      .map { Reactor.Action.didValueChanged(.time(Const.emptyString, false)) }
       .bind(to: reactor.action)
       .disposed(by: disposeBag)
 
     memoTextView.textView.rx.text
+      .skip(1)
       .distinctUntilChanged()
       .compactMap { $0 }
       .bind(with: self) { owner, value in
@@ -377,6 +384,7 @@ final class LedgerContentsView: BaseView, View, UIScrollViewDelegate {
       .disposed(by: disposeBag)
 
     authorNameTextField.textField.rx.text
+      .skip(1)
       .distinctUntilChanged()
       .compactMap { $0 }
       .map { Reactor.Action.didValueChanged(.authorName($0)) }
