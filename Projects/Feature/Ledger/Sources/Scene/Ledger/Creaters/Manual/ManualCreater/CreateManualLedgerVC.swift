@@ -241,7 +241,6 @@ final class CreateManualLedgerVC: BaseVC, View {
               flex.addItem(documentCollectionView).marginBottom(24).marginRight(-8)
             default:
               flex.addItem(UILabel().text("영수증 (최대 12장)", font: Fonts.body._2, color: Colors.Gray._6))
-              flex.addItem(UILabel().text("*지출일 경우 영수증을 꼭 제출해주세요", font: Fonts.body._2, color: Colors.Blue._4))
               flex.addItem(receiptCollectionView).marginBottom(24).marginRight(-8)
               
               flex.addItem(UILabel().text("증빙 자료 (최대 12장)", font: Fonts.body._2, color: Colors.Gray._6))
