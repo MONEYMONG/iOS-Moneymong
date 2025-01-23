@@ -11,7 +11,6 @@ import FlexLayout
 
 public final class WithdrawalVC: BaseVC, View {
   public var disposeBag = DisposeBag()
-  weak var coordinator: MyPageCoordinator?
   
   private let titleLabel: UILabel = {
     let v = UILabel()
@@ -96,7 +95,7 @@ public final class WithdrawalVC: BaseVC, View {
     
     navigationItem.leftBarButtonItem?.rx.tap
       .bind(with: self) { owner, _ in
-        owner.coordinator?.pop()
+        owner.navigationController?.popViewController(animated: true)
       }
       .disposed(by: disposeBag)
     
@@ -128,7 +127,7 @@ public final class WithdrawalVC: BaseVC, View {
       .compactMap { $0 }
       .observe(on: MainScheduler.instance)
       .bind(with: self) { owner, value in
-        owner.coordinator?.goLogin()
+        NotificationCenter.default.post(name: .moveLogin, object: nil)
       }
       .disposed(by: disposeBag)
   }

@@ -60,7 +60,6 @@ extension MyPageCoordinator {
   
   private func withdrawl(animated: Bool = true) {
     guard let vc = DIContainer.shared.resolve(type: MyPageFactoryInterface.self).makeWithdrawalVC() as? WithdrawalVC else { return }
-    vc.coordinator = self
     navigationController.pushViewController(vc, animated: animated)
   }
 }
