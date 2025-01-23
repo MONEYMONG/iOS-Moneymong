@@ -54,7 +54,6 @@ public final class MyPageCoordinator: Coordinator {
 extension MyPageCoordinator {
   private func myPage(animated: Bool) {
     guard let vc = DIContainer.shared.resolve(type: MyPageFactoryInterface.self).makeMyPageVC() as? MyPageVC else { return }
-    vc.coordinator = self
     navigationController.setViewControllers([vc], animated: true)
   }
   

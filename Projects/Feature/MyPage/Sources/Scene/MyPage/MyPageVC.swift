@@ -5,6 +5,7 @@ import BaseFeature
 import Utility
 import DesignSystem
 import Core
+import MyPageFeatureInterface
 
 import ReactorKit
 import RxDataSources
@@ -12,7 +13,6 @@ import FlexLayout
 
 public final class MyPageVC: BaseVC, ReactorKit.View {
   public var disposeBag = DisposeBag()
-  weak var coordinator: MyPageCoordinator?
   
   private let tableView: UITableView = {
     let v = UITableView(frame: .zero, style: .insetGrouped)
@@ -36,7 +36,7 @@ public final class MyPageVC: BaseVC, ReactorKit.View {
     case .kakaoInquiry:
       return tableView.dequeue(InquiryCell.self, for: indexPath)
         .configure { [weak self] in
-          self?.coordinator?.present(.web(urlString: "http://pf.kakao.com/_zDsyG"))
+          self?.showSafari(urlString: "http://pf.kakao.com/_zDsyG")
         }
       
     case let .setting(model):
@@ -88,21 +88,18 @@ public final class MyPageVC: BaseVC, ReactorKit.View {
       
       switch item {
       case .setting(.service):
-        owner.coordinator?.present(.web(urlString: "https://www.notion.so/moneymong/8a382c0e511448838d2d350e16df3a95?pvs=4"))
+        owner.showSafari(urlString: "https://www.notion.so/moneymong/8a382c0e511448838d2d350e16df3a95?pvs=4")
       case .setting(.privacy):
-        owner.coordinator?.present(.web(urlString: "https://moneymong.notion.site/6e55b920fa3c47f6aeea84b4f1008563?pvs=4"))
+        owner.showSafari(urlString: "https://moneymong.notion.site/6e55b920fa3c47f6aeea84b4f1008563?pvs=4")
       case .setting(.withdrawal):
-        owner.coordinator?.present(.withrawal)
+        let withdrawalVC = DIContainer.shared.resolve(type: MyPageFactoryInterface.self).makeWithdrawalVC()
+        owner.navigationController?.pushViewController(withdrawalVC, animated: true)
       case .setting(.logout):
         owner.showAlert(
           title: "정말 로그아웃 하시겠습니까?",
           subTitle: "로그인한 계정이 로그아웃됩니다",
           type: .default(okAction: { reactor.action.onNext(.logout) })
         )
-      case .setting(.versionInfo):
-        #if DEBUG
-        owner.coordinator?.present(.debug)
-        #endif
       default: break
       }
     }
@@ -139,7 +136,7 @@ public final class MyPageVC: BaseVC, ReactorKit.View {
       .bind(with: self) { owner, destination in
         switch destination {
         case .login:
-          owner.coordinator?.goLogin()
+          NotificationCenter.default.post(name: .moveLogin, object: nil)
         }
       }
       .disposed(by: disposeBag)
