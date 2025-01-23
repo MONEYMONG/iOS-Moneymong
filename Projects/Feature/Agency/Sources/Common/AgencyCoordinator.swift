@@ -1,20 +1,22 @@
 import UIKit
 
-import BaseFeatureInterface
 import DesignSystem
+
+import BaseFeature
+import BaseFeatureInterface
+
+import AgencyFeatureInterface
 import CreateAgencyInterface
 
 public final class AgencyCoordinator: Coordinator {
   public var navigationController: UINavigationController
-  private let diContainer: AgencyDIContainer
   public weak var parentCoordinator: Coordinator?
   public var childCoordinators: [Coordinator] = []
   
   weak var secondFlowNavigationController: UINavigationController?
   
-  public init(navigationController: UINavigationController, diContainer: AgencyDIContainer) {
+  public init(navigationController: UINavigationController) {
     self.navigationController = navigationController
-    self.diContainer = diContainer
   }
   
   enum Scene {
@@ -69,25 +71,36 @@ public final class AgencyCoordinator: Coordinator {
 
 extension AgencyCoordinator {
   private func agency(animated: Bool) {
-    let vc = diContainer.agency(with: self)
+    let factory = DIContainer.shared.resolve(type: AgencyFactoryInterface.self)
+    let vc = factory.makeAgencyList()
+    if let agencyList = vc as? AgencyListVC {
+      agencyList.coordinator = self
+    }
     navigationController.viewControllers = [vc]
   }
   
   private func createAgency(universityType: UniversityType, animated: Bool) {
-    let vc = diContainer.createAgency(with: self, universityType: universityType)
+    let vc = UINavigationController()
+    let coordinator = CreateAgencyCoordinator(navigationController: vc)
+    coordinator.parentCoordinator = self
+    childCoordinators.append(coordinator)
+    coordinator.start(animated: animated, universityType: universityType)
     vc.modalPresentationStyle = .fullScreen
     navigationController.present(vc, animated: animated)
   }
   
   private func joinAgency(id: Int, name: String, animated: Bool) {
-    let vc = diContainer.joinAgency(id: id, name: name, with: self)
+    let factory = DIContainer.shared.resolve(type: AgencyFactoryInterface.self)
+    let vc = factory.makeJoinAgency(agencyID: id, agencyName: name)
+    
     secondFlowNavigationController = vc as? UINavigationController
     vc.modalPresentationStyle = .fullScreen
     navigationController.topViewController?.present(vc, animated: animated)
   }
   
   private func joinComplete(animated: Bool) {
-    let vc = diContainer.joinComplete(with: self)
+    let factory = DIContainer.shared.resolve(type: AgencyFactoryInterface.self)
+    let vc = factory.makeJoinComplete()
     secondFlowNavigationController?.pushViewController(vc, animated: animated)
   }
 }

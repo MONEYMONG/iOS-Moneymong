@@ -11,8 +11,6 @@ import MyPageFeature
 public final class MainDIContainer {
   private let localStorage: LocalStorageInterface
   private let networkManager: NetworkManagerInterfacae
-
-  private let agencyContainer: AgencyDIContainer
     
   public init(
     localStorage: LocalStorageInterface,
@@ -20,11 +18,6 @@ public final class MainDIContainer {
   ) {
     self.localStorage = localStorage
     self.networkManager = networkManager
-    
-    self.agencyContainer = .init(
-      localStorage: localStorage,
-      networkManager: networkManager
-    )
   }
 
   func mainTab(with coordinator: Coordinator) -> MainTapViewController {
@@ -41,10 +34,7 @@ public final class MainDIContainer {
 
   private func agencyTab(with coordinator: Coordinator) -> UIViewController {
     let vc = UINavigationController()
-    let agencyCoordinator = AgencyCoordinator(
-      navigationController: vc,
-      diContainer: agencyContainer
-    )
+    let agencyCoordinator = AgencyCoordinator(navigationController: vc)
     coordinator.childCoordinators.append(agencyCoordinator)
     agencyCoordinator.parentCoordinator = coordinator
     agencyCoordinator.start(animated: false)
@@ -53,9 +43,7 @@ public final class MainDIContainer {
   
   private func ledgerTab(with coordinator: Coordinator) -> UIViewController {
     let vc = UINavigationController()
-    let ledgerCoordinator = LedgerCoordinator(
-      navigationController: vc
-    )
+    let ledgerCoordinator = LedgerCoordinator(navigationController: vc)
     coordinator.childCoordinators.append(ledgerCoordinator)
     ledgerCoordinator.parentCoordinator = coordinator
     ledgerCoordinator.start(animated: false)
