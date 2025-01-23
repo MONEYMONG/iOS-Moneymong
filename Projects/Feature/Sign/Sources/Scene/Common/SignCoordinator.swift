@@ -42,7 +42,6 @@ public final class SignCoordinator: Coordinator {
 public extension SignCoordinator {
   func splash(animated: Bool = false) {
     guard let vc = DIContainer.shared.resolve(type: SignFactoryInterface.self).makeSplash() as? SplashVC else { return }
-    vc.coordinator = self
     navigationController.isNavigationBarHidden = false
     navigationController.viewControllers = [vc]
   }

@@ -3,10 +3,9 @@ import UIKit
 import DesignSystem
 import BaseFeature
 import ReactorKit
+import SignFeatureInterface
 
 final class SplashVC: BaseVC, View {
-
-  weak var coordinator: SignCoordinator?
   var disposeBag = DisposeBag()
 
   private let logoImageView: UIImageView = {
@@ -44,9 +43,10 @@ final class SplashVC: BaseVC, View {
       .bind(with: self) { owner, destination in
         switch destination {
         case .login:
-          owner.coordinator?.login()
+          let loginVC = DIContainer.shared.resolve(type: SignFactoryInterface.self).makeLogin()
+          owner.navigationController?.pushViewController(loginVC, animated: true)
         case .main:
-          owner.coordinator?.main()
+          NotificationCenter.default.post(name: .moveMain, object: nil)
         }
       }
       .disposed(by: disposeBag)
