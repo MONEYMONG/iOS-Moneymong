@@ -15,13 +15,52 @@ let project = Project(
             deploymentTarget: .iOS(targetVersion: "15.0", devices: .iphone),
             sources: ["Sources/**"],
             dependencies: [
-              .project(target: "BaseFeature", path: .relativeToRoot("Projects/Feature/Base")),
-              .project(target: "CreateAgencyInterface", path: .relativeToRoot("Projects/Feature/CreateAgency")),
-              .project(target: "UserInterface", path: .relativeToRoot("Projects/Domain/User"))
+              .target(name: "AgencyFeatureInterface"),
+              .project(
+                target: "BaseFeature",
+                path: .relativeToRoot("Projects/Feature/Base")
+              ),
+              .project(
+                target: "CreateAgencyInterface",
+                path: .relativeToRoot("Projects/Feature/CreateAgency")
+              ),
+              .project(
+                target: "UserInterface",
+                path: .relativeToRoot("Projects/Domain/User")
+              ),
+              .project(
+                target: "AgencyInterface",
+                path: .relativeToRoot("Projects/Domain/Agency")
+              )
             ],
             settings: .settings(base: [
               "SWIFT_VERSION": "5.7"
             ])
+        ),
+        Target(
+            name: "AgencyFeatureInterface",
+            platform: .iOS,
+            product: .framework,
+            bundleId: "com.framework.moneymong.AgencyFeatureInterface",
+            deploymentTarget: .iOS(targetVersion: "15.0", devices: .iphone),
+            sources: ["Interface/**"],
+            dependencies: [
+              .project(
+                target: "AgencyInterface",
+                path: .relativeToRoot("Projects/Domain/Agency")
+              )
+            ]
+        ),
+        Target(
+            name: "AgencyFeatureTesting",
+            platform: .iOS,
+            product: .staticLibrary,
+            bundleId: "com.framework.moneymong.AgencyFeatureTesting",
+            deploymentTarget: .iOS(targetVersion: "15.0", devices: .iphone),
+            sources: ["Testing/**"],
+            dependencies: [
+                .target(name: "AgencyFeatureInterface")
+            ]
         ),
         Target(
             name: "AgencyFeatureTests",
@@ -31,7 +70,8 @@ let project = Project(
             deploymentTarget: .iOS(targetVersion: "15.0", devices: .iphone),
             sources: ["Tests/**"],
             dependencies: [
-                .target(name: "AgencyFeature")
+              .target(name: "AgencyFeature"),
+              .target(name: "AgencyFeatureTesting")
             ]
         ),
         Target(
@@ -61,7 +101,8 @@ let project = Project(
             sources: ["Demo/Sources/**"],
             resources: ["Demo/Resources/**"],
             dependencies: [
-                .target(name: "AgencyFeature")
+                .target(name: "AgencyFeature"),
+                .target(name: "AgencyFeatureTesting")
             ]
         )
     ]
