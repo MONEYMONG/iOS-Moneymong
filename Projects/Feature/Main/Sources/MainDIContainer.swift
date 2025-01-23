@@ -1,11 +1,13 @@
 import UIKit
 
 import AgencyFeature
+import BaseFeature
 import BaseFeatureInterface
 import Core
 import CreateAgencyInterface
 import LedgerFeature
 import MyPageFeature
+import MyPageFeatureInterface
 
 
 public final class MainDIContainer {
@@ -51,11 +53,9 @@ public final class MainDIContainer {
   }
   
   private func myPageTab(with coordinator: Coordinator) -> UIViewController {
-    let vc = UINavigationController()
-    let myPageCoordinator = MyPageCoordinator(navigationController: vc)
-    coordinator.childCoordinators.append(myPageCoordinator)
-    myPageCoordinator.parentCoordinator = coordinator
-    myPageCoordinator.start(animated: false)
-    return vc
+    let navigationC = UINavigationController()
+    let myPageVC = DIContainer.shared.resolve(type: MyPageFactoryInterface.self).makeMyPageVC()
+    navigationC.viewControllers = [myPageVC]
+    return navigationC
   }
 }
