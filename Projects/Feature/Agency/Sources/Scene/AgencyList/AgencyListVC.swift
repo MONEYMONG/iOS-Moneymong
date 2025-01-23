@@ -202,7 +202,7 @@ public final class AgencyListVC: BaseVC, View {
       .compactMap { $0 }
       .observe(on: MainScheduler.instance)
       .bind(with: self) { owner, error in
-        owner.coordinator?.present(.alert(title: "네트워크에러", subTitle: nil, okAction: { }))
+        owner.showAlert(title: "네트워크 에러", subTitle: error.localizedDescription, type: .onlyOkButton())
       }
       .disposed(by: disposeBag)
     
@@ -223,11 +223,11 @@ public final class AgencyListVC: BaseVC, View {
       .compactMap { $0 }
       .observe(on: MainScheduler.instance)
       .bind(with: self) { owner, alert in
-        owner.coordinator?.present(.alert(
+        owner.showAlert(
           title: alert.title,
           subTitle: alert.subTitle,
-          okAction: {}
-        ))
+          type: .onlyOkButton()
+        )
       }
       .disposed(by: disposeBag)
   }

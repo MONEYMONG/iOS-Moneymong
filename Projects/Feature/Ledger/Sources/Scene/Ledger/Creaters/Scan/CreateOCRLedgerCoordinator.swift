@@ -13,7 +13,6 @@ final class CreateOCRLedgerCoordinator: Coordinator {
   var childCoordinators: [Coordinator] = []
   
   enum Scene {
-    case alert(title: String, subTitle: String?, type: MMAlerts.`Type`)
     case snackBar(title: String)
     case scanResult(Int, model: OCRResult, imageData: Data)
     case createManualLedger(Int, ManualPresentType)
@@ -31,8 +30,6 @@ final class CreateOCRLedgerCoordinator: Coordinator {
   
   @MainActor func present(_ scene: Scene, animated: Bool = true) {
     switch scene {
-    case let .alert(title, subTitle, type):
-      AlertsManager.show(title: title, subTitle: subTitle, type: type)
     case let .scanResult(id, model, data):
       scanResult(agencyId: id, model: model, imageData: data)
     case let .snackBar(title: title):

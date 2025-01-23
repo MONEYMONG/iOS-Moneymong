@@ -94,10 +94,10 @@ public final class MyPageVC: BaseVC, ReactorKit.View {
       case .setting(.withdrawal):
         owner.coordinator?.present(.withrawal)
       case .setting(.logout):
-        owner.coordinator?.present(.alert(
+        owner.showAlert(
           title: "정말 로그아웃 하시겠습니까?",
           subTitle: "로그인한 계정이 로그아웃됩니다",
-          okAction: { reactor.action.onNext(.logout) })
+          type: .default(okAction: { reactor.action.onNext(.logout) })
         )
       case .setting(.versionInfo):
         #if DEBUG
@@ -125,10 +125,10 @@ public final class MyPageVC: BaseVC, ReactorKit.View {
       .compactMap { $0 }
       .observe(on: MainScheduler.instance)
       .bind(with: self) { owner, error in
-        owner.coordinator?.present(.alert(
+        owner.showAlert(
           title: "네트워크 에러",
           subTitle: error.localizedDescription,
-          okAction: { })
+          type: .onlyOkButton()
         )
       }
       .disposed(by: disposeBag)

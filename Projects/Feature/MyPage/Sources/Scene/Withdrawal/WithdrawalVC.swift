@@ -107,10 +107,10 @@ public final class WithdrawalVC: BaseVC, View {
     
     withdrawalButton.rx.tap
       .bind(with: self) { owner, _ in
-        owner.coordinator?.present(.alert(
+        owner.showAlert(
           title: "정말 탈퇴 하시겠습니까?",
           subTitle: "탈퇴시 계정은 삭제되며 복구되지 않습니다",
-          okAction: { reactor.action.onNext(.tapWithdrawlButton)})
+          type: .default(okAction: { reactor.action.onNext(.tapWithdrawlButton) })
         )
       }
       .disposed(by: disposeBag)

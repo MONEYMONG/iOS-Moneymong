@@ -213,14 +213,12 @@ final class CreateOCRLedgerVC: UIViewController, View {
       .compactMap { $0 }
       .observe(on: MainScheduler.instance)
       .bind(with: self) { owner, error in
-        owner.coordinator?.present(
-          .alert(
-            title: error.errorTitle,
-            subTitle: error.errorDescription,
-            type: .onlyOkButton({ [weak self] in
-              self?.captureImageView.image = nil
-            })
-          )
+        owner.showAlert(
+          title: error.errorTitle,
+          subTitle: error.errorDescription,
+          type: .onlyOkButton({ [weak self] in
+            self?.captureImageView.image = nil
+          })
         )
       }
       .disposed(by: disposeBag)

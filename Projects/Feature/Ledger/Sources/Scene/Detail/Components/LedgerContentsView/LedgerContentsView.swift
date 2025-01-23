@@ -11,6 +11,7 @@ import RxDataSources
 protocol LedgerContentsViewDelegate: AnyObject {
   func selectSection(_ ledgerContentsView: LedgerContentsView)
   func pop(_ ledgerContentsView: LedgerContentsView)
+  func alert(_ ledgerContentsView: LedgerContentsView, title: String, subTitle: String?, type: MMAlerts.`Type`)
 }
 
 final class LedgerContentsView: BaseView, View, UIScrollViewDelegate {
@@ -265,7 +266,7 @@ final class LedgerContentsView: BaseView, View, UIScrollViewDelegate {
       .compactMap { $0 }
       .observe(on: MainScheduler.instance)
       .bind(with: self) { owner, error in
-        AlertsManager.show(title: error.localizedDescription, type: .onlyOkButton())
+        owner.delegate?.alert(owner, title: "네트워크 에러", subTitle: error.localizedDescription, type: .onlyOkButton())
       }
       .disposed(by: disposeBag)
 

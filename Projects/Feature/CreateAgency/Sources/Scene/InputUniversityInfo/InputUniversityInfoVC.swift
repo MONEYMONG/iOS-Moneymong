@@ -165,7 +165,11 @@ final class InputUniversityInfoVC: UIViewController, View {
       .compactMap { $0 }
       .observe(on: MainScheduler.instance)
       .bind(with: self) { owner, errorMessage in
-        AlertsManager.show(title: errorMessage, type: .onlyOkButton())
+        owner.showAlert(
+          title: "네트워크 에러",
+          subTitle: errorMessage,
+          type: .onlyOkButton()
+        )
       }
       .disposed(by: disposeBag)
     

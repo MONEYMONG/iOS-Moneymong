@@ -141,23 +141,23 @@ final class MemberTabVC: BaseVC, View {
       .bind(with: self) { owner, destination in
         switch destination {
         case let .kickOffAlert(memberID):
-          owner.coordinator?.present(.alert(
+          owner.showAlert(
             title: "정말 내보내시겠습니까?",
             subTitle: nil,
             type: .default(okAction: {
               reactor.action.onNext(.requestKickOffMember(memberID))
-            }, cancelAction: {})
-          ))
+            })
+          )
         case .ledgerTab:
           owner.coordinator?.moveTab?(0)
         case .agencyDeleteAlert:
-          owner.coordinator?.present(.alert(
+          owner.showAlert(
             title: "소속을 정말 삭제하시겠어요?",
             subTitle: "등록된 회비 내역이 모두 사라져요",
             type: .default(okAction: {
               reactor.action.onNext(.tapAgnecyDeleteAlertButton)
             }, cancelAction: {})
-          ))
+          )
         }
       }
       .disposed(by: disposeBag)

@@ -114,11 +114,11 @@ final class LedgerDetailVC: BaseVC, View, ImagePickerPresentable {
       .compactMap { $0 }
       .observe(on: MainScheduler.instance)
       .bind(with: self) { owner, error in
-        owner.coordinator?.present(.alert(
+        owner.showAlert(
           title: "네트워크 에러",
           subTitle: error.localizedDescription,
           type: .onlyOkButton({})
-        ))
+        )
       }
       .disposed(by: disposeBag)
 
@@ -161,14 +161,12 @@ final class LedgerDetailVC: BaseVC, View, ImagePickerPresentable {
         if isEdit {
           owner.reactor?.action.onNext(.didTapEdit)
         } else {
-          owner.coordinator?.present(
-            .alert(
-              title: Const.deleteAlertTitle,
-              subTitle: Const.deleteAlertDescription,
-              type: .default(
-                okAction: { owner.reactor?.action.onNext(.didTapDelete) },
-                cancelAction: {}
-              )
+          owner.showAlert(
+            title: Const.deleteAlertTitle,
+            subTitle: Const.deleteAlertDescription,
+            type: .default(
+              okAction: { owner.reactor?.action.onNext(.didTapDelete) },
+              cancelAction: {}
             )
           )
         }
@@ -178,6 +176,10 @@ final class LedgerDetailVC: BaseVC, View, ImagePickerPresentable {
 }
 
 extension LedgerDetailVC: LedgerContentsViewDelegate {
+  func alert(_ ledgerContentsView: LedgerContentsView, title: String, subTitle: String?, type: DesignSystem.MMAlerts.`Type`) {
+    showAlert(title: title, subTitle: subTitle, type: type)
+  }
+  
   func selectSection(_ ledgerContentsView: LedgerContentsView) {
     imagePicker(target: self, animated: true, delegate: ledgerContentsView)
   }

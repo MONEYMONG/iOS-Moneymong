@@ -198,7 +198,7 @@ final class OCRResultVC: BaseVC, View {
       .compactMap { $0 }
       .observe(on: MainScheduler.instance)
       .bind(with: self) { owner, error in
-        owner.coordinator?.present(.alert(title: "오류", subTitle: error.errorDescription, type: .onlyOkButton()))
+        owner.showAlert(title: "오류", subTitle: error.errorDescription, type: .onlyOkButton())
       }
       .disposed(by: disposeBag)
     

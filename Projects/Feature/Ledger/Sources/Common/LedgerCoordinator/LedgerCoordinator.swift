@@ -14,7 +14,6 @@ public final class LedgerCoordinator: Coordinator {
   var moveTab: ((Int) -> Void)?
   
   enum Scene {
-    case alert(title: String, subTitle: String?, type: MMAlerts.`Type`)
     case createManualLedger(Int, ManualPresentType)
     case createOCRLedger(Int)
     case detail(Ledger, Member.Role)
@@ -32,8 +31,6 @@ public final class LedgerCoordinator: Coordinator {
     switch scene {
     case let .createManualLedger(agencyId, type):
       createManualLedger(agencyId: agencyId, type: type, animated: animated)
-    case let .alert(title, subTitle, type):
-      AlertsManager.show(title: title, subTitle: subTitle, type: type)
     case let .createOCRLedger(id):
       createOCRLedger(agencyId: id, animated: animated)
     case let .detail(ledger, role):

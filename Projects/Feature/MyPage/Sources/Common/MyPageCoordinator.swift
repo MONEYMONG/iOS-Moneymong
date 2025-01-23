@@ -16,7 +16,6 @@ public final class MyPageCoordinator: Coordinator {
   }
   
   enum Scene {
-    case alert(title: String, subTitle: String, okAction: () -> Void)
     case web(urlString: String)
     case withrawal
     case debug
@@ -28,8 +27,6 @@ public final class MyPageCoordinator: Coordinator {
   
   func present(_ scene: Scene, animated: Bool = true) {
     switch scene {
-    case let .alert(title, subTitle, action): 
-      alert(title: title, subTitle: subTitle, okAction: action)
     case let .web(urlString):
       web(urlString: urlString)
     case .withrawal:
@@ -65,9 +62,5 @@ extension MyPageCoordinator {
     guard let vc = DIContainer.shared.resolve(type: MyPageFactoryInterface.self).makeWithdrawalVC() as? WithdrawalVC else { return }
     vc.coordinator = self
     navigationController.pushViewController(vc, animated: animated)
-  }
-  
-  private func alert(title: String, subTitle: String, okAction: @escaping () -> Void) {
-    AlertsManager.show(title: title, subTitle: subTitle, type: .default(okAction: okAction))
   }
 }

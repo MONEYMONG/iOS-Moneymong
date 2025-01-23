@@ -521,7 +521,7 @@ final class CreateManualLedgerVC: BaseVC, View, ImagePickerPresentable {
             owner?.dismiss(animated: true)
           })
         }
-        AlertsManager.show(title: title, subTitle: subTitle, type: alert)
+        owner.showAlert(title: title, subTitle: subTitle, type: alert)
       }
       .disposed(by: disposeBag)
     

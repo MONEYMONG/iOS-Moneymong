@@ -147,13 +147,11 @@ public final class InputAgencyInfoVC: BaseVC, View {
     navigationItem.rightBarButtonItem?.rx.tap
       .throttle(.seconds(1), latest: false, scheduler: MainScheduler.instance)
       .bind(with: self) { owner, _ in
-        AlertsManager.show(
+        owner.showAlert(
           title: "정말 나가시겠습니까?",
           subTitle: "입력하신 내용은 저장되지 않습니다.",
           type: .default(okAction: {
             owner.dismiss(animated: true)
-          }, cancelAction: {
-            
           })
         )
       }
@@ -232,7 +230,7 @@ public final class InputAgencyInfoVC: BaseVC, View {
       .compactMap { $0 }
       .observe(on: MainScheduler.instance)
       .bind(with: self) { owner, value in
-        AlertsManager.show(
+        owner.showAlert(
           title: "등록에 실패했습니다",
           subTitle: nil,
           type: .onlyOkButton({})

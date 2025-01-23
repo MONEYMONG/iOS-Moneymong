@@ -138,9 +138,7 @@ final class JoinAgencyVC: BaseVC, ReactorKit.View {
       .compactMap { $0 }
       .observe(on: MainScheduler.instance)
       .bind(with: self) { owner, message in
-        owner.coordinator?.present(
-          .alert(title: message, subTitle: nil, okAction: {})
-        )
+        owner.showAlert(title: message, subTitle: nil, type: .onlyOkButton({}))
       }
       .disposed(by: disposeBag)
     
