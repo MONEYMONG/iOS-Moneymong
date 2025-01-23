@@ -1,6 +1,7 @@
 import ReactorKit
 
 import Core
+import AgencyInterface
 
 final class JoinAgencyReactor: Reactor {
   struct State {
@@ -31,13 +32,15 @@ final class JoinAgencyReactor: Reactor {
   
   let initialState: State
   
-  private let agencyRepo: AgencyRepositoryInterface
-  private let userRepo: UserRepositoryInterface
+  private let confirmCertificateCodeUseCase: ConfirmCertificateCodeUseCaseInterface
   
-  init(id: Int, name: String, agencyRepo: AgencyRepositoryInterface, userRepo: UserRepositoryInterface) {
+  init(
+    id: Int,
+    name: String,
+    confirmCertificateCodeUseCase: ConfirmCertificateCodeUseCaseInterface
+  ) {
     self.initialState = .init(agencyID: id, agencyName: name)
-    self.agencyRepo = agencyRepo
-    self.userRepo = userRepo
+    self.confirmCertificateCodeUseCase = confirmCertificateCodeUseCase
   }
   
   func mutate(action: Action) -> Observable<Mutation> {
@@ -50,13 +53,10 @@ final class JoinAgencyReactor: Reactor {
       }
       
     case .requestJoinAgency:
-      let code = currentState.codes.compactMap { $0 }.map { String($0) }.joined()
+      let id = currentState.agencyID
+      let codes = currentState.codes
       return .task {
-        let result = try await agencyRepo.certificateCode(id: currentState.agencyID, code: code)
-        if result {
-          userRepo.updateSelectedAgency(id: currentState.agencyID)
-        }
-        return result
+        return try await confirmCertificateCodeUseCase.execute(id: id, code: codes)
       }
       .map { .joinAgencyResponse(.success($0)) }
       .catch { return .just(.joinAgencyResponse(.failure($0.toMMError))) }

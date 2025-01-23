@@ -4,6 +4,8 @@ import Auth
 import AuthInterface
 import Agency
 import AgencyInterface
+import AgencyFeature
+import AgencyFeatureInterface
 import BaseFeature
 import User
 import UserInterface
@@ -152,7 +154,8 @@ extension SceneDelegate {
 
     DIContainer.shared.register(type: ConfirmCertificateCodeUseCaseInterface.self) {
       let agencyRepo = AgencyRepository(networkManager: networkManager, localStorage: localStorage)
-      return ConfirmCertificateCodeUseCase(repo: agencyRepo)
+      let userRepo = UserRepository(networkManager: networkManager, localStorage: localStorage)
+      return ConfirmCertificateCodeUseCase(agencyRepo: agencyRepo, userRepo: userRepo)
     }
 
     DIContainer.shared.register(type: CreateAgencyUseCaseInterface.self) {
@@ -275,6 +278,10 @@ extension SceneDelegate {
     // MARK: - Factory Dependency
     DIContainer.shared.register(type: MyPageFactoryInterface.self) {
       return MyPageFactory()
+    }
+    
+    DIContainer.shared.register(type: AgencyFactoryInterface.self) {
+      return AgencyFactory()
     }
     
     DIContainer.shared.register(type: LedgerFactoryInterface.self) {
