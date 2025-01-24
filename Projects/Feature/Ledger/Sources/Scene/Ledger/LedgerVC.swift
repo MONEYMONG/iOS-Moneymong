@@ -11,7 +11,6 @@ import FlexLayout
 
 public final class LedgerVC: BaseVC, View {
   public var disposeBag = DisposeBag()
-  weak var coordinator: LedgerCoordinator?
   
   private let emptyView: LedgerEmptyView = {
     let v = LedgerEmptyView()
@@ -73,15 +72,9 @@ public final class LedgerVC: BaseVC, View {
       .bind(to: reactor.action)
       .disposed(by: disposeBag)
     
-    rx.viewDidLoad
-      .bind(with: self, onNext: { owner, _ in
-        owner.coordinator?.moveTab = { owner.lineTab.currentPage = $0 }
-      })
-      .disposed(by: disposeBag)
-    
     emptyView.tapAgency
       .bind(with: self) { owner, _ in
-        owner.coordinator?.goAgency()
+        NotificationCenter.default.post(name: .moveAgency, object: nil)
       }
       .disposed(by: disposeBag)
     

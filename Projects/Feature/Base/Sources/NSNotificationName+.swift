@@ -7,4 +7,5 @@ public extension NSNotification.Name {
   static let moveLogin = NSNotification.Name("moveLogin")
   static let moveMain = NSNotification.Name("moveMain")
   static let moveLedger = NSNotification.Name("moveLedger")
+  static let moveAgency = NSNotification.Name("moveAgency")
 }
