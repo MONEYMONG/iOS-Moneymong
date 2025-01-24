@@ -84,7 +84,6 @@ extension LedgerCoordinator {
 
   private func detail(ledgerID: Int, role: Member.Role, animated: Bool = true) {
     guard let vc = DIContainer.shared.resolve(type: LedgerFactoryInterface.self).makeDetail(ledgetID: ledgerID, role: role) as? LedgerDetailVC else { return }
-    vc.coordinator = self
     navigationController.pushViewController(vc, animated: animated)
   }
 }
