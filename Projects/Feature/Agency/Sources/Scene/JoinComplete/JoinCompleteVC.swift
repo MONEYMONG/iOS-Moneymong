@@ -9,7 +9,6 @@ import PinLayout
 
 final class JoinCompleteVC: BaseVC, View {
   var disposeBag = DisposeBag()
-  weak var coordinator: AgencyCoordinator?
   
   private let iconImageView = UIImageView(image: Images.congrats)
   
@@ -52,15 +51,15 @@ final class JoinCompleteVC: BaseVC, View {
     navigationItem.rightBarButtonItem?.rx.tap
       .throttle(.seconds(1), latest: false, scheduler: MainScheduler.instance)
       .bind(with: self) { owner, _ in
-        owner.coordinator?.dismiss()
+        owner.dismiss(animated: true)
       }
       .disposed(by: disposeBag)
     
     confirmButton.rx.tap
       .throttle(.seconds(1), latest: false, scheduler: MainScheduler.instance)
       .bind(with: self) { owner, _ in
-        owner.coordinator?.dismiss(animated: false)
-        owner.coordinator?.goLedger()
+        owner.dismiss(animated: false)
+        NotificationCenter.default.post(name: .moveLedger, object: nil)
       }
       .disposed(by: disposeBag)
   }
