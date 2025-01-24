@@ -1,5 +1,6 @@
 import UIKit
 
+import AgencyFeatureInterface
 import BaseFeature
 import DesignSystem
 import Utility
@@ -9,7 +10,6 @@ import RxCocoa
 
 final class JoinAgencyVC: BaseVC, ReactorKit.View {
   var disposeBag = DisposeBag()
-  weak var coordinator: AgencyCoordinator?
   
   private let titleLabel: UILabel = {
     let v = UILabel()
@@ -74,7 +74,7 @@ final class JoinAgencyVC: BaseVC, ReactorKit.View {
     navigationItem.rightBarButtonItem?.rx.tap
       .throttle(.seconds(1), latest: false, scheduler: MainScheduler.instance)
       .bind(with: self) { owner, _ in
-        owner.coordinator?.dismiss()
+        owner.dismiss(animated: true)
       }
       .disposed(by: disposeBag)
     
@@ -148,7 +148,9 @@ final class JoinAgencyVC: BaseVC, ReactorKit.View {
       .bind(with: self) { owner, destination in
         switch destination {
         case .joinComplete:
-          owner.coordinator?.present(.joinComplete)
+          let factory = DIContainer.shared.resolve(type: AgencyFactoryInterface.self)
+          let vc = factory.makeJoinComplete()
+          owner.navigationController?.pushViewController(vc, animated: true)
         }
       }
       .disposed(by: disposeBag)
