@@ -15,7 +15,7 @@ public final class CreateAgencyCoordinator: Coordinator {
   }
 
   public func start(animated: Bool, universityType: UniversityType) {
-    let vc = DIContainer.shared.resolve(type: InputAgencyInfoFactoryInterface.self).make(coordinator: self, universityType: universityType)
+    let vc = DIContainer.shared.resolve(type: InputAgencyInfoFactoryInterface.self).make(universityType: universityType)
     navigationController.viewControllers = [vc]
   }
   

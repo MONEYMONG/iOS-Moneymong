@@ -48,7 +48,6 @@ public extension SignCoordinator {
 
   func login(animated: Bool = false) {
     guard let vc = DIContainer.shared.resolve(type: SignFactoryInterface.self).makeLogin() as? LoginVC else { return }
-    vc.coordinator = self
     self.navigationController.pushViewController(vc, animated: animated)
   }
 

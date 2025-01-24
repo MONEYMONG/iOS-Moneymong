@@ -4,9 +4,9 @@ import DesignSystem
 import BaseFeature
 import ReactorKit
 
-final class LoginVC: BaseVC, View {
+import CreateAgencyInterface
 
-  weak var coordinator: SignCoordinator?
+final class LoginVC: BaseVC, View {
   var disposeBag = DisposeBag()
 
   private let imageView: UIImageView = {
@@ -111,9 +111,13 @@ final class LoginVC: BaseVC, View {
       .bind(with: self) { owner, destination in
         switch destination {
         case .main:
-          owner.coordinator?.main()
+          NotificationCenter.default.post(name: .moveMain, object: nil)
         case .signUp:
-          owner.coordinator?.createAgency()
+          let navigationC = UINavigationController()
+          let inputAgencyVC = DIContainer.shared.resolve(type: InputAgencyInfoFactoryInterface.self).make(universityType: .unknown)
+          navigationC.viewControllers = [inputAgencyVC]
+          navigationC.modalPresentationStyle = .fullScreen
+          owner.present(navigationC, animated: true)
         }
       }
       .disposed(by: disposeBag)

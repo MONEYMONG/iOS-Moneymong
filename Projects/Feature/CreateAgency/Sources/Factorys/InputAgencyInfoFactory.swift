@@ -8,12 +8,11 @@ import UserInterface
 public struct InputAgencyInfoFactory: InputAgencyInfoFactoryInterface {
   public init() {}
   
-  public func make(coordinator: CreateAgencyCoordinator?, universityType: UniversityType) -> UIViewController {
+  public func make(universityType: UniversityType) -> UIViewController {
     let vc = InputAgencyInfoVC(
       createCompleteFactory: DIContainer.shared.resolve(type: CreateCompleteFactoryInterface.self),
       inputUniversityInfoFactory: DIContainer.shared.resolve(type: InputUniversityInfoFactoryInterface.self)
     )
-    vc.coordinator = coordinator
     vc.reactor = InputAgencyInfoReactor(
       universityType: universityType,
       createAgencyUseCase: DIContainer.shared.resolve(type: CreateAgencyUseCaseInterface.self),
