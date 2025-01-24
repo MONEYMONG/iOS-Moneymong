@@ -1,5 +1,6 @@
 import UIKit
 
+import BaseFeature
 import BaseFeatureInterface
 import Core
 import DesignSystem
@@ -8,8 +9,7 @@ import RxSwift
 
 public final class MainTapViewController: UITabBarController {
   private let disposeBag = DisposeBag()
-  weak var coordinator: Coordinator?
-
+  
   public init() {
     super.init(nibName: nil, bundle: nil)
   }
@@ -22,15 +22,14 @@ public final class MainTapViewController: UITabBarController {
   required init?(coder: NSCoder) {
     fatalError("init(coder:) has not been implemented")
   }
-
+  
   public override func viewWillAppear(_ animated: Bool) {
     super.viewWillAppear(animated)
-    
     setupTabBar()
     bind()
     observeNotification()
   }
-
+  
   private func setupTabBar() {
     tabBar.layer.borderWidth = 1
     tabBar.layer.borderColor = Colors.Gray._2.cgColor
@@ -52,7 +51,7 @@ public final class MainTapViewController: UITabBarController {
     tabBar.tintColor = Colors.Blue._4
     tabBar.unselectedItemTintColor = Colors.Gray._4
   }
-
+  
   private func bind() {
     NotificationCenter.default.rx.notification(.tabBarHidden)
       .compactMap { $0.object as? Bool }
@@ -73,11 +72,11 @@ public final class MainTapViewController: UITabBarController {
       .bind(with: self) { owner, userInfo in
         switch userInfo.query {
         case "OCR":
-          owner.coordinator?.move(to: .createOCRLedger(userInfo.agencyID))
+          NotificationCenter.default.post(name: .presentOCRCreater, object: nil, userInfo: ["id" : userInfo.agencyID])
         case "CreateLedger":
-          owner.coordinator?.move(to: .createManualLedger(userInfo.agencyID))
+          NotificationCenter.default.post(name: .presentManualCreater, object: nil, userInfo: ["id" : userInfo.agencyID])
         case "LedgerDetail":
-          owner.coordinator?.move(to: .ledger)
+          NotificationCenter.default.post(name: .moveLedger, object: nil)
         default: break
         }
         
