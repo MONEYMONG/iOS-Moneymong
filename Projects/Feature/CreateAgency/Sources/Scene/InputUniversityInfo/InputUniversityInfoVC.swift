@@ -16,9 +16,7 @@ final class InputUniversityInfoVC: UIViewController, View {
   private var anyCancellable = Set<AnyCancellable>()
   
   private let completeFactory: CreateCompleteFactoryInterface
-  
-  var coordinator: CreateAgencyCoordinator?
-  
+    
   private var keybordShowCreateButtonConstraints: [NSLayoutConstraint] = []
   private var keybordHideCreateButtonConstraints: [NSLayoutConstraint] = []
   
@@ -203,7 +201,7 @@ final class InputUniversityInfoVC: UIViewController, View {
         switch destination {
         case .main:
           owner.dismiss(animated: true)
-          owner.coordinator?.move(to: .main)
+          NotificationCenter.default.post(name: .moveMain, object: nil)
         case let .complete(id):
           let vc = owner.completeFactory.make(id: id)
           owner.navigationController?.pushViewController(vc, animated: true)
