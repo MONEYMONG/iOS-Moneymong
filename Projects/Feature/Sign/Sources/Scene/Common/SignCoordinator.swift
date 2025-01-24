@@ -68,7 +68,6 @@ public extension SignCoordinator {
 
   func congratulations(animated: Bool = true) {
     guard let vc = DIContainer.shared.resolve(type: SignFactoryInterface.self).makeCongratulation() as? CongratulationsVC else { return }
-    vc.coordinator = self
     navigationController.pushViewController(vc, animated: animated)
   }
 
