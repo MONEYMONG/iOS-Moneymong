@@ -55,7 +55,6 @@ extension LedgerCoordinator {
     guard let ledgerTabVC = ledgerFactory.makeLedgerTab() as? LedgerTabVC,
           let memberTabVC = ledgerFactory.makeMemberTab() as? MemberTabVC else { return }
     
-    ledgerTabVC.coordinator = self
     memberTabVC.coordinator = self
           
     guard let ledgerMainVC = ledgerFactory.makeLedgerMain(ledgerTab: ledgerTabVC, memberTab: memberTabVC) as? LedgerVC else { return }

@@ -15,7 +15,6 @@ import FlexLayout
 final class LedgerTabVC: BaseVC, View {
   var disposeBag = DisposeBag()
   private var cancellableBag = Set<AnyCancellable>()
-  weak var coordinator: LedgerCoordinator?
 
   private let floatingButton = FloatingButton()
   private let amountGuideLabel: UILabel = {
@@ -115,7 +114,7 @@ final class LedgerTabVC: BaseVC, View {
       .compactMap { $0.userInfo?["id"] as? Int }
       .observe(on: MainScheduler.instance)
       .bind(with: self) { owner, id in
-        owner.coordinator?.present(.createManualLedger(id, .operatingCost))
+        owner.presentManual(agencyId: id, type: .operatingCost)
       }
       .disposed(by: disposeBag)
     
@@ -123,7 +122,7 @@ final class LedgerTabVC: BaseVC, View {
       .compactMap { $0.userInfo?["id"] as? Int }
       .observe(on: MainScheduler.instance)
       .bind(with: self) { owner, id in
-        owner.coordinator?.present(.createOCRLedger(id))
+        owner.presentOCR(agencyId: id)
       }
       .disposed(by: disposeBag)
     
@@ -143,7 +142,8 @@ final class LedgerTabVC: BaseVC, View {
       .withLatestFrom(reactor.pulse(\.$role)) { ($0, $1) }
       .bind(with: self) { owner, info in
         let (ledger, role) = info
-        owner.coordinator?.present(.detail(ledger, role ?? .staff))
+        let detailVC = DIContainer.shared.resolve(type: LedgerFactoryInterface.self).makeDetail(ledgetID: ledger.id, role: role ?? .staff)
+        owner.navigationController?.pushViewController(detailVC, animated: true)
       }
       .disposed(by: disposeBag)
     
@@ -200,9 +200,9 @@ final class LedgerTabVC: BaseVC, View {
         case let .datePicker(start, end):
           owner.datePicker(start: start, end: end)
         case let .createManualLedger(id):
-          owner.coordinator?.present(.createManualLedger(id, .createManual))
+          owner.presentManual(agencyId: id, type: .createManual)
         case let .createOCRLedger(id):
-          owner.coordinator?.present(.createOCRLedger(id))
+          owner.presentOCR(agencyId: id)
         }
       }
       .disposed(by: disposeBag)
@@ -214,5 +214,19 @@ extension LedgerTabVC {
     let vc = DIContainer.shared.resolve(type: LedgerFactoryInterface.self).makeDatePicker(start: start, end: end)
     vc.modalPresentationStyle = .overFullScreen
     present(vc, animated: false)
+  }
+  
+  private func presentOCR(agencyId: Int) {
+    let createOCRLedgerVC = DIContainer.shared.resolve(type: LedgerFactoryInterface.self).makeOCR(agencyId: agencyId)
+    let navigationController = UINavigationController(rootViewController: createOCRLedgerVC)
+    navigationController.modalPresentationStyle = .fullScreen
+    present(navigationController, animated: true)
+  }
+  
+  private func presentManual(agencyId: Int, type: ManualPresentType) {
+    let createManualLedgerVC = DIContainer.shared.resolve(type: LedgerFactoryInterface.self).makeCreateManual(agencyId: agencyId, type: type)
+    let navigationController = UINavigationController(rootViewController: createManualLedgerVC)
+    navigationController.modalPresentationStyle = .fullScreen
+    present(navigationController, animated: true)
   }
 }
