@@ -18,8 +18,6 @@ public final class InputAgencyInfoVC: BaseVC, View {
   
   private var keybordShowCreateButtonConstraints: [NSLayoutConstraint] = []
   private var keybordHideCreateButtonConstraints: [NSLayoutConstraint] = []
-
-  public var coordinator: CreateAgencyCoordinator?
   
   init(
     createCompleteFactory: CreateCompleteFactoryInterface,
@@ -211,17 +209,16 @@ public final class InputAgencyInfoVC: BaseVC, View {
       .compactMap { $0 }
       .observe(on: MainScheduler.instance)
       .bind(with: self) { owner, value in
-        guard let coordinator = owner.coordinator else { return }
         switch value {
         case let .complete(id):
-          let vc = owner.createCompleteFactory.make(coordinator: coordinator, id: id)
+          let vc = owner.createCompleteFactory.make(id: id)
           owner.navigationController?.pushViewController(vc, animated: true)
         case let .inputUniversity(agencyName, agencyType):
-          let vc = owner.inputUniversityInfoFactory.make(coordinator: coordinator, agencyName: agencyName, agencyType: agencyType)
+          let vc = owner.inputUniversityInfoFactory.make(agencyName: agencyName, agencyType: agencyType)
           owner.navigationController?.pushViewController(vc, animated: true)
         case .main:
           owner.dismiss(animated: true)
-          owner.coordinator?.move(to: .main)
+          NotificationCenter.default.post(name: .moveMain, object: nil)
         }
       }
       .disposed(by: disposeBag)

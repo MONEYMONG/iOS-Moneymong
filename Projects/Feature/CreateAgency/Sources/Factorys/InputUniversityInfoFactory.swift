@@ -8,9 +8,8 @@ import AgencyInterface
 public struct InputUniversityInfoFactory: InputUniversityInfoFactoryInterface {
   public init() {}
   
-  public func make(coordinator: CreateAgencyCoordinator?, agencyName: String, agencyType: AgencyType) -> UIViewController {
+  public func make(agencyName: String, agencyType: AgencyType) -> UIViewController {
     let vc = InputUniversityInfoVC(completeFactory: DIContainer.shared.resolve(type: CreateCompleteFactoryInterface.self))
-    vc.coordinator = coordinator
     vc.reactor = InputUniversityInfoReactor(
       agencyName: agencyName,
       agencyType: agencyType,

@@ -205,7 +205,7 @@ final class InputUniversityInfoVC: UIViewController, View {
           owner.dismiss(animated: true)
           owner.coordinator?.move(to: .main)
         case let .complete(id):
-          let vc = owner.completeFactory.make(coordinator: owner.coordinator, id: id)
+          let vc = owner.completeFactory.make(id: id)
           owner.navigationController?.pushViewController(vc, animated: true)
         }
       }

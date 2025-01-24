@@ -7,7 +7,7 @@ import UserInterface
 public struct CreateCompleteFactory: CreateCompleteFactoryInterface {
   public init() {}
   
-  public func make(coordinator: CreateAgencyCoordinator?, id: Int) -> UIViewController {
+  public func make(id: Int) -> UIViewController {
     let vc = CreateCompleteVC()
     vc.reactor = CreateCompleteReactor(
       updateSelectedAgencyUseCase: DIContainer.shared.resolve(type: UpdateSelectedAgencyUseCaseInterface.self),
