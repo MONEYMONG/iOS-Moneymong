@@ -9,6 +9,7 @@ import CreateAgencyInterface
 import LedgerFeature
 import MyPageFeature
 import MyPageFeatureInterface
+import LedgerFeatureInterface
 
 
 public final class MainDIContainer {
@@ -45,12 +46,11 @@ public final class MainDIContainer {
   }
   
   private func ledgerTab(with coordinator: Coordinator) -> UIViewController {
-    let vc = UINavigationController()
-    let ledgerCoordinator = LedgerCoordinator(navigationController: vc)
-    coordinator.childCoordinators.append(ledgerCoordinator)
-    ledgerCoordinator.parentCoordinator = coordinator
-    ledgerCoordinator.start(animated: false)
-    return vc
+    let ledgerFactory = DIContainer.shared.resolve(type: LedgerFactoryInterface.self)
+    let ledgerTab = ledgerFactory.makeLedgerTab()
+    let memberTab = ledgerFactory.makeMemberTab(delegate: nil)
+    let ledgerMainVC = ledgerFactory.makeLedgerMain(ledgerTab: ledgerTab, memberTab: memberTab)
+    return UINavigationController(rootViewController: ledgerMainVC)
   }
   
   private func myPageTab(with coordinator: Coordinator) -> UIViewController {
