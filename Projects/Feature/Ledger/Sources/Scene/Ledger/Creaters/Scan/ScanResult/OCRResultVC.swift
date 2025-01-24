@@ -219,7 +219,7 @@ final class OCRResultVC: BaseVC, View {
       .filter { !$0 }
       .bind(with: self) { owner, _ in
         owner.completeButton.setState(.disable)
-        owner.coordinator?.present(.snackBar(title: "일부 내용을 스캔하지 못했습니다"))
+        owner.showSnackBar(title: "일부 내용을 스캔하지 못했습니다")
       }
       .disposed(by: disposeBag)
   }

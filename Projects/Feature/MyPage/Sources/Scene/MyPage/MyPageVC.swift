@@ -106,14 +106,6 @@ public final class MyPageVC: BaseVC, ReactorKit.View {
     .disposed(by: disposeBag)
     
     // Data Binding
-    reactor.pulse(\.$showToast)
-      .filter { $0 }
-      .asDriver(onErrorJustReturn: false)
-      .drive(with: self) { owner, event in
-        SnackBarManager.show(title: "다시 시도해 주세요")
-      }
-      .disposed(by: disposeBag)
-    
     reactor.pulse(\.$isLoading)
       .bind(to: rx.isLoading)
       .disposed(by: disposeBag)

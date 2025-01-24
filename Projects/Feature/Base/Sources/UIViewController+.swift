@@ -16,4 +16,12 @@ public extension UIViewController {
     let vc = SFSafariViewController(url: url)
     self.present(vc, animated: animated)
   }
+  
+  func showSnackBar(
+    title: String,
+    action: (() -> Void)? = nil,
+    impact: UINotificationFeedbackGenerator.FeedbackType = .success
+  ) {
+    SnackBarManager.show(self.view, title: title, action: action, impact: impact)
+  }
 }

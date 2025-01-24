@@ -9,6 +9,7 @@ public final class SnackBarManager {
   
   /// snackBar를 애니메이션과 함께 보여줌
   public static func show(
+    _ targetView: UIView,
     title: String,
     action: (() -> Void)? = nil,
     impact: UINotificationFeedbackGenerator.FeedbackType = .success
@@ -17,9 +18,7 @@ public final class SnackBarManager {
     snackBar.configure(title: title, action: action)
     HapticManager.shared.hapticNotification(type: impact)
 
-    guard let view = UIWindow.firstWindow?.rootViewController?.topViewController().view else {
-      return
-    }
+    let view = targetView
     
     debugPrint("topview: \(view)")
     

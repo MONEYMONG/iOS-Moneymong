@@ -130,8 +130,8 @@ final class MemberTabVC: BaseVC, View {
     reactor.pulse(\.$snackBarMessage)
       .compactMap { $0 }
       .observe(on: MainScheduler.instance)
-      .bind {
-        SnackBarManager.show(title: $0)
+      .bind { [weak self] in
+        self?.showSnackBar(title: $0)
       }
       .disposed(by: disposeBag)
     

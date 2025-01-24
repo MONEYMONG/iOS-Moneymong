@@ -13,7 +13,6 @@ final class CreateOCRLedgerCoordinator: Coordinator {
   var childCoordinators: [Coordinator] = []
   
   enum Scene {
-    case snackBar(title: String)
     case scanResult(Int, model: OCRResult, imageData: Data)
     case createManualLedger(Int, ManualPresentType)
   }
@@ -32,8 +31,6 @@ final class CreateOCRLedgerCoordinator: Coordinator {
     switch scene {
     case let .scanResult(id, model, data):
       scanResult(agencyId: id, model: model, imageData: data)
-    case let .snackBar(title: title):
-      SnackBarManager.show(title: title)
     case let .createManualLedger(agencyId, type):
       createManualLedger(
         agencyId: agencyId,

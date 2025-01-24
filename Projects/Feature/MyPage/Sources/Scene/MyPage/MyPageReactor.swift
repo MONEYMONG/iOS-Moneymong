@@ -23,7 +23,6 @@ public final class MyPageReactor: Reactor {
   public struct State {
     @Pulse var isLoading = false
     @Pulse var item = [MyPageSectionItemModel.Model]()
-    @Pulse var showToast = false
     @Pulse var error: MoneyMongError?
     @Pulse var destination: Destination?
     

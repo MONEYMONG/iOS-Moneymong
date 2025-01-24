@@ -128,7 +128,7 @@ final class JoinAgencyVC: BaseVC, ReactorKit.View {
       .bind(with: self) { owner, message in
         owner.codeviews.forEach { $0.setState(.error) }
         
-        SnackBarManager.show(title: message) {
+        owner.showSnackBar(title: message) {
           owner.reactor?.action.onNext(.tapRetryButton)
         }
       }

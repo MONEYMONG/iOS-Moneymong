@@ -106,9 +106,9 @@ final class DatePickerSheetVC: BottomSheetVC, View {
       .bind(with: self) { owner, destination in
         switch destination {
         case .ledger:
-          owner.dismiss()
+          owner.dismiss(animated: false)
         case .showSnackBar:
-          SnackBarManager.show(title: "올바른 범위로 기간을 설정해주세요!")
+          owner.showSnackBar(title: "올바른 범위로 기간을 설정해주세요!")
         }
       }
       .disposed(by: disposeBag)
