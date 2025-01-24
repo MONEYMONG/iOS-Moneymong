@@ -15,13 +15,11 @@ import MyPageFeatureInterface
 
 final class AppCoordinator: Coordinator {
   var navigationController: UINavigationController
-  let diContainer: AppDIContainer
   weak var parentCoordinator: Coordinator?
   var childCoordinators: [Coordinator] = []
   
-  init(navigationController: UINavigationController, diContainer: AppDIContainer) {
+  init(navigationController: UINavigationController) {
     self.navigationController = navigationController
-    self.diContainer = diContainer
   }
 
   func start(animated: Bool) {

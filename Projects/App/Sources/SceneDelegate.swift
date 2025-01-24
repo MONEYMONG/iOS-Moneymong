@@ -25,14 +25,20 @@ import CreateAgencyInterface
 class SceneDelegate: UIResponder, UIWindowSceneDelegate {
   private let localStorage = LocalStorage()
   private let networkManager = NetworkManager()
-  private lazy var diContainer = AppDIContainer(localStorage: localStorage, networkManager: networkManager)
-  
   private var appCoordinator: AppCoordinator?
   var window: UIWindow?
   
   func scene(_ scene: UIScene, willConnectTo session: UISceneSession, options connectionOptions: UIScene.ConnectionOptions) {
+    networkManager.tokenIntercepter = TokenRequestIntercepter(
+      localStorage: localStorage,
+      tokenRepository: TokenRepository(
+        networkManager: networkManager,
+        localStorage: localStorage
+      )
+    )
+    
     Fonts.registerFont()
-    registerDependency()
+    registerDependency(networkManager: networkManager, localStorage: localStorage)
 
     let navigationController = UINavigationController()
     
@@ -42,8 +48,7 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
     self.window?.rootViewController = navigationController
     
     self.appCoordinator = AppCoordinator(
-      navigationController: navigationController,
-      diContainer: diContainer
+      navigationController: navigationController
     )
     appCoordinator?.start(animated: false)
     
@@ -72,20 +77,9 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
 }
 
 extension SceneDelegate {
-  func registerDependency() {
-    let localStorage = LocalStorage()
-    let networkManager = NetworkManager()
+  func registerDependency(networkManager: NetworkManagerInterfacae, localStorage: LocalStorageInterface) {
     let ledgerService = LedgerService()
     let contentFormatter = ContentFormatter()
-    
-    networkManager.tokenIntercepter = TokenRequestIntercepter(
-      localStorage: localStorage,
-      tokenRepository: TokenRepository(
-        networkManager: networkManager,
-        localStorage: localStorage
-      )
-    )
-    
     let widgetRefreshController = WidgetRefreshController()
     
     // MARK: - User UseCase Dependency
