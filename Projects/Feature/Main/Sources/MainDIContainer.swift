@@ -1,6 +1,7 @@
 import UIKit
 
 import AgencyFeature
+import AgencyFeatureInterface
 import BaseFeature
 import BaseFeatureInterface
 import Core
@@ -35,12 +36,12 @@ public final class MainDIContainer {
   }
 
   private func agencyTab(with coordinator: Coordinator) -> UIViewController {
-    let vc = UINavigationController()
-    let agencyCoordinator = AgencyCoordinator(navigationController: vc)
-    coordinator.childCoordinators.append(agencyCoordinator)
-    agencyCoordinator.parentCoordinator = coordinator
-    agencyCoordinator.start(animated: false)
-    return vc
+    let navigationC = UINavigationController()
+
+    let factory = DIContainer.shared.resolve(type: AgencyFactoryInterface.self)
+    let agencyListVC = factory.makeAgencyList()
+    navigationC.viewControllers = [agencyListVC]
+    return navigationC
   }
   
   private func ledgerTab(with coordinator: Coordinator) -> UIViewController {
