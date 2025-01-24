@@ -121,3 +121,9 @@ extension LedgerVC {
     present(vc, animated: false)
   }
 }
+
+extension LedgerVC: MemberTabVCDelegate {
+  public func deleteAgency() {
+    lineTab.currentPage = 0
+  }
+}

@@ -53,9 +53,8 @@ extension LedgerCoordinator {
     let ledgerFactory = DIContainer.shared.resolve(type: LedgerFactoryInterface.self)
     
     guard let ledgerTabVC = ledgerFactory.makeLedgerTab() as? LedgerTabVC,
-          let memberTabVC = ledgerFactory.makeMemberTab() as? MemberTabVC else { return }
+          let memberTabVC = ledgerFactory.makeMemberTab(delegate: nil) as? MemberTabVC else { return }
     
-    memberTabVC.coordinator = self
           
     guard let ledgerMainVC = ledgerFactory.makeLedgerMain(ledgerTab: ledgerTabVC, memberTab: memberTabVC) as? LedgerVC else { return }
     ledgerMainVC.coordinator = self

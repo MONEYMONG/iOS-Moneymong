@@ -41,7 +41,7 @@ public struct LedgerFactory: LedgerFactoryInterface {
     return vc
   }
   
-  public func makeMemberTab() -> UIViewController {
+  public func makeMemberTab(delegate: MemberTabVCDelegate?) -> UIViewController {
     let vc = MemberTabVC()
     vc.reactor = MemberTabReactor(
       getUserIDUseCase: DIContainer.shared.resolve(type: GetUserIDUseCaseInterface.self),
@@ -55,6 +55,7 @@ public struct LedgerFactory: LedgerFactoryInterface {
       ledgerService: ledgerService
     )
     vc.title = "맴버"
+    vc.delegate = delegate
     return vc
   }
   

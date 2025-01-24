@@ -9,8 +9,9 @@ import LedgerFeatureInterface
 import ReactorKit
 
 final class MemberTabVC: BaseVC, View {
+  weak var delegate: MemberTabVCDelegate?
+  
   var disposeBag = DisposeBag()
-  weak var coordinator: LedgerCoordinator?
   
   private let profileHeaderLabel: UILabel = {
     let v = UILabel()
@@ -149,7 +150,7 @@ final class MemberTabVC: BaseVC, View {
             })
           )
         case .ledgerTab:
-          owner.coordinator?.moveTab?(0)
+          owner.delegate?.deleteAgency()
         case .agencyDeleteAlert:
           owner.showAlert(
             title: "소속을 정말 삭제하시겠어요?",
