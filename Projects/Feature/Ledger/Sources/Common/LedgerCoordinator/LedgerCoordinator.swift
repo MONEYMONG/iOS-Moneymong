@@ -68,12 +68,10 @@ extension LedgerCoordinator {
     type: ManualPresentType,
     animated: Bool
   ) {
-    let navigationController = UINavigationController()
-    let coordinator = CreateManualLedgerCoordinator(navigationController: navigationController)
-    coordinator.parentCoordinator = self
-    parentCoordinator?.childCoordinators.append(coordinator)
+    
+    let createManualLedgerVC = DIContainer.shared.resolve(type: LedgerFactoryInterface.self).makeCreateManual(agencyId: agencyId, type: type)
+    let navigationController = UINavigationController(rootViewController: createManualLedgerVC)
     navigationController.modalPresentationStyle = .fullScreen
-    coordinator.start(agencyId: agencyId, type: type, animated: false)
     self.navigationController.present(navigationController, animated: animated)
   }
   

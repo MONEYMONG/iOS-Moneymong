@@ -14,7 +14,6 @@ import FlexLayout
 // TODO: 각 텍스트 필드에 조건 넣어줘야함
 
 final class CreateManualLedgerVC: BaseVC, View, ImagePickerPresentable {
-  weak var coordinator: CreateManualLedgerCoordinator?
   private struct ViewSize {
     static var cell: CGSize {
       let width = UIScreen.main.bounds.width * 0.28
@@ -165,10 +164,6 @@ final class CreateManualLedgerVC: BaseVC, View, ImagePickerPresentable {
     MMTextView(charactorLimitCount: 300, title: "메모")
       .setPlaceholder(to: "메모할 내용을 입력하세요")
   }()
-  
-  deinit {
-    coordinator?.remove()
-  }
 
   override func viewDidLayoutSubviews() {
     super.viewDidLayoutSubviews()
