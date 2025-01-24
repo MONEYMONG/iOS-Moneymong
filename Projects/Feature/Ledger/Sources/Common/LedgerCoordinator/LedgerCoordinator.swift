@@ -76,12 +76,9 @@ extension LedgerCoordinator {
   }
   
   private func createOCRLedger(agencyId: Int, animated: Bool) {
-    let navigationController = UINavigationController()
-    let coordinator = CreateOCRLedgerCoordinator(navigationController: navigationController)
-    coordinator.parentCoordinator = self
-    parentCoordinator?.childCoordinators.append(coordinator)
+    let createOCRLedgerVC = DIContainer.shared.resolve(type: LedgerFactoryInterface.self).makeOCR(agencyId: agencyId)
+    let navigationController = UINavigationController(rootViewController: createOCRLedgerVC)
     navigationController.modalPresentationStyle = .fullScreen
-    coordinator.start(agencyId: agencyId, animated: animated)
     self.navigationController.present(navigationController, animated: animated)
   }
 
