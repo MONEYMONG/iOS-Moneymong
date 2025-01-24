@@ -1,8 +1,10 @@
 import UIKit
 
+import BaseFeature
 import BaseFeatureInterface
 import MainFeature
 import SignFeature
+import SignFeatureInterface
 import DesignSystem
 
 final class AppCoordinator: Coordinator {
@@ -45,12 +47,9 @@ final class AppCoordinator: Coordinator {
 
 extension AppCoordinator {
   func sign(animated: Bool) {
-    let signCoordinator = SignCoordinator(
-      navigationController: navigationController
-    )
-    signCoordinator.start(animated: true)
-    signCoordinator.parentCoordinator = self
-    childCoordinators.append(signCoordinator)
+    let splashVC = DIContainer.shared.resolve(type: SignFactoryInterface.self).makeSplash()
+    navigationController.isNavigationBarHidden = false
+    navigationController.viewControllers = [splashVC]
   }
   
   func main(animated: Bool) {
