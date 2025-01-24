@@ -6,4 +6,5 @@ public extension NSNotification.Name {
   static let presentOCRCreater = NSNotification.Name("presentOCRCreater") // 동아리 운영비 OCR 스캔화면 present
   static let moveLogin = NSNotification.Name("moveLogin")
   static let moveMain = NSNotification.Name("moveMain")
+  static let moveLedger = NSNotification.Name("moveLedger")
 }

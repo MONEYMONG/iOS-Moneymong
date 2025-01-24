@@ -10,9 +10,7 @@ import RxSwift
 
 final class CreateCompleteVC: BaseVC, View {
   var disposeBag = DisposeBag()
-  
-  var coordinator: CreateAgencyCoordinator?
-  
+    
   private let completeImageView = UIImageView(image: Images.agencyCongrats)
   private let completeLabel: UILabel = {
     let v = UILabel()
@@ -54,15 +52,15 @@ final class CreateCompleteVC: BaseVC, View {
       .bind(with: self) { owner, destination in
         switch destination {
         case .dismiss:
+          NotificationCenter.default.post(name: .moveMain, object: nil)
           owner.dismiss(animated: true)
-          owner.coordinator?.move(to: .main)
         case .ledger:
+          NotificationCenter.default.post(name: .moveLedger, object: nil)
           owner.dismiss(animated: true)
-          owner.coordinator?.move(to: .ledger)
         case .manualInput:
           let id = reactor.currentState.agencyID
+          NotificationCenter.default.post(name: .presentManualCreater, object: nil, userInfo: ["id": id])
           owner.dismiss(animated: true)
-          owner.coordinator?.move(to: .createManualLedger(id))
         }
       }
       .disposed(by: disposeBag)
