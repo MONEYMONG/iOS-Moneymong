@@ -54,8 +54,7 @@ extension AppCoordinator {
   
   func main(animated: Bool) {
     let mainTabCoordinator = MainTabBarCoordinator(
-      navigationController: navigationController,
-      diContainer: diContainer.mainDIContainer
+      navigationController: navigationController
     )
     mainTabCoordinator.start(animated: true)
     mainTabCoordinator.parentCoordinator = self

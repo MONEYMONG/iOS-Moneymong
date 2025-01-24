@@ -1,19 +1,21 @@
 import UIKit
 
+import AgencyFeatureInterface
+import BaseFeature
 import BaseFeatureInterface
 import LedgerFeature
+import LedgerFeatureInterface
+import MyPageFeatureInterface
 
 public final class MainTabBarCoordinator: Coordinator {
   public var navigationController: UINavigationController
-  private let diContainer: MainDIContainer
   public weak var parentCoordinator: Coordinator?
   public var childCoordinators: [Coordinator] = []
   
   weak var tabBarController: UITabBarController?
 
-  public init(navigationController: UINavigationController, diContainer: MainDIContainer) {
+  public init(navigationController: UINavigationController) {
     self.navigationController = navigationController
-    self.diContainer = diContainer
   }
 
   public func start(animated: Bool) {
@@ -48,9 +50,45 @@ public final class MainTabBarCoordinator: Coordinator {
 
 public extension MainTabBarCoordinator {
   func mainTab(animated: Bool) {
-    let vc = diContainer.mainTab(with: self)
+    let vc = mainTab(with: self)
     navigationController.isNavigationBarHidden = true
     navigationController.viewControllers = [vc]
     tabBarController = vc
   }
+  
+    func mainTab(with coordinator: Coordinator) -> MainTapViewController {
+      let tabVC = MainTapViewController()
+      tabVC.coordinator = coordinator
+      tabVC.setViewControllers(
+        [agencyTab(with: coordinator),
+         ledgerTab(with: coordinator),
+         myPageTab(with: coordinator)],
+        animated: false
+      )
+      return tabVC
+    }
+  
+    private func agencyTab(with coordinator: Coordinator) -> UIViewController {
+      let navigationC = UINavigationController()
+  
+      let factory = DIContainer.shared.resolve(type: AgencyFactoryInterface.self)
+      let agencyListVC = factory.makeAgencyList()
+      navigationC.viewControllers = [agencyListVC]
+      return navigationC
+    }
+  
+    private func ledgerTab(with coordinator: Coordinator) -> UIViewController {
+      let ledgerFactory = DIContainer.shared.resolve(type: LedgerFactoryInterface.self)
+      let ledgerTab = ledgerFactory.makeLedgerTab()
+      let memberTab = ledgerFactory.makeMemberTab(delegate: nil)
+      let ledgerMainVC = ledgerFactory.makeLedgerMain(ledgerTab: ledgerTab, memberTab: memberTab)
+      return UINavigationController(rootViewController: ledgerMainVC)
+    }
+  
+    private func myPageTab(with coordinator: Coordinator) -> UIViewController {
+      let navigationC = UINavigationController()
+      let myPageVC = DIContainer.shared.resolve(type: MyPageFactoryInterface.self).makeMyPageVC()
+      navigationC.viewControllers = [myPageVC]
+      return navigationC
+    }
 }

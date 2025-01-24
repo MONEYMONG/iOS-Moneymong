@@ -8,8 +8,6 @@ import CreateAgency
 import Core
 
 final class AppDIContainer {
-  let mainDIContainer: MainDIContainer
-
   init(
     localStorage: LocalStorageInterface,
     networkManager: NetworkManagerInterfacae
@@ -21,11 +19,6 @@ final class AppDIContainer {
         networkManager: networkManager,
         localStorage: localStorage
       )
-    )
-    
-    self.mainDIContainer = MainDIContainer(
-      localStorage: localStorage,
-      networkManager: networkManager
     )
   }
 }
