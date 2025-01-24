@@ -23,7 +23,6 @@ final class CreateOCRLedgerCoordinator: Coordinator {
 
   func start(agencyId: Int, animated: Bool) {
     guard let vc = DIContainer.shared.resolve(type: LedgerFactoryInterface.self).makeOCR(agencyId: agencyId) as? CreateOCRLedgerVC else { return }
-    vc.coordinator = self
     navigationController.viewControllers = [vc]
   }
   

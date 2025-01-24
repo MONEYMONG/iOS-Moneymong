@@ -1,8 +1,10 @@
 import UIKit
 import AVFoundation
 
+import BaseFeature
 import DesignSystem
 import Core
+import LedgerFeatureInterface
 
 import FlexLayout
 import PinLayout
@@ -10,9 +12,7 @@ import ReactorKit
 
 final class CreateOCRLedgerVC: UIViewController, View {
   var disposeBag = DisposeBag()
-  
-  weak var coordinator: CreateOCRLedgerCoordinator?
-  
+    
   private let deviceHeight = UIScreen.main.bounds.height
   
   private let rootContainer = UIView()
@@ -78,10 +78,6 @@ final class CreateOCRLedgerVC: UIViewController, View {
   }()
   
   private let indicator = MMIndicator()
-  
-  deinit {
-    coordinator?.remove()
-  }
   
   override func viewDidLoad() {
     super.viewDidLoad()
@@ -229,7 +225,8 @@ final class CreateOCRLedgerVC: UIViewController, View {
       .bind(with: self) { owner, destination in
         switch destination {
         case let .scanResult(id, model, data):
-          owner.coordinator?.present(.scanResult(id, model: model, imageData: data))
+          let ocrResultVC = DIContainer.shared.resolve(type: LedgerFactoryInterface.self).makeOCRResult(agencyId: id, model: model, imageData: data)
+          owner.navigationController?.pushViewController(ocrResultVC, animated: true)
         }
       }
       .disposed(by: disposeBag)
