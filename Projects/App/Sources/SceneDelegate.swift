@@ -25,7 +25,6 @@ import CreateAgencyInterface
 class SceneDelegate: UIResponder, UIWindowSceneDelegate {
   private let localStorage = LocalStorage()
   private let networkManager = NetworkManager()
-  private var appCoordinator: AppCoordinator?
   var window: UIWindow?
   
   func scene(_ scene: UIScene, willConnectTo session: UISceneSession, options connectionOptions: UIScene.ConnectionOptions) {
@@ -40,17 +39,15 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
     Fonts.registerFont()
     registerDependency(networkManager: networkManager, localStorage: localStorage)
 
-    let navigationController = UINavigationController()
     
+    let splashVC = DIContainer.shared.resolve(type: SignFactoryInterface.self).makeSplash()
+    let navigationController = UINavigationController(rootViewController: splashVC)
+    navigationController.isNavigationBarHidden = false
+
     guard let windowScene = (scene as? UIWindowScene) else { return }
     window = UIWindow(windowScene: windowScene)
     self.window?.makeKeyAndVisible()
     self.window?.rootViewController = navigationController
-    
-    self.appCoordinator = AppCoordinator(
-      navigationController: navigationController
-    )
-    appCoordinator?.start(animated: false)
     
     self.scene(scene, openURLContexts: connectionOptions.urlContexts)
   }
