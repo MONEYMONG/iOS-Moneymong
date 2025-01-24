@@ -44,7 +44,6 @@ final class CreateOCRLedgerCoordinator: Coordinator {
 extension CreateOCRLedgerCoordinator {
   private func scanResult(agencyId: Int, model: OCRResult, imageData: Data, animated: Bool = true) {
     guard let vc = DIContainer.shared.resolve(type: LedgerFactoryInterface.self).makeOCRResult(agencyId: agencyId, model: model, imageData: imageData) as? OCRResultVC else { return }
-    vc.coordinator = self
     navigationController.pushViewController(vc, animated: animated)
   }
   

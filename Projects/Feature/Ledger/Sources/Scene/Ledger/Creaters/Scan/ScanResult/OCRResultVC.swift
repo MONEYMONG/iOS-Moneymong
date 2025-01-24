@@ -2,6 +2,7 @@ import UIKit
 
 import DesignSystem
 import BaseFeature
+import LedgerFeatureInterface
 
 import ReactorKit
 import PinLayout
@@ -9,8 +10,7 @@ import FlexLayout
 
 final class OCRResultVC: BaseVC, View {
   var disposeBag = DisposeBag()
-  weak var coordinator: CreateOCRLedgerCoordinator?
-  
+ 
   private let receiptImageView: UIImageView = {
     let v = UIImageView()
     v.contentMode = .scaleAspectFill
@@ -210,7 +210,8 @@ final class OCRResultVC: BaseVC, View {
         case .ledger:
           owner.dismiss(animated: true)
         case let .createManualLedger(agencyID, ocrModel, imageData):
-          owner.coordinator?.present(.createManualLedger(agencyID, .ocrResultEdit(ocrModel, imageData)))
+          let createManualVC = DIContainer.shared.resolve(type: LedgerFactoryInterface.self).makeCreateManual(agencyId: agencyID, type: .ocrResultEdit(ocrModel, imageData))
+          owner.navigationController?.pushViewController(createManualVC, animated: true)
         }
       }
       .disposed(by: disposeBag)
