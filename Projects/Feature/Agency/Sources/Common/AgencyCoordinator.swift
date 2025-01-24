@@ -73,13 +73,12 @@ extension AgencyCoordinator {
   }
   
   private func createAgency(universityType: UniversityType, animated: Bool) {
-    let vc = UINavigationController()
-    let coordinator = CreateAgencyCoordinator(navigationController: vc)
-    coordinator.parentCoordinator = self
-    childCoordinators.append(coordinator)
-    coordinator.start(animated: animated, universityType: universityType)
-    vc.modalPresentationStyle = .fullScreen
-    navigationController.present(vc, animated: animated)
+    
+    let inputAgencyInfoVC = DIContainer.shared.resolve(type: InputAgencyInfoFactoryInterface.self).make(universityType: universityType)
+    let navigationC = UINavigationController()
+    navigationC.viewControllers = [inputAgencyInfoVC]
+    navigationC.modalPresentationStyle = .fullScreen
+    navigationController.present(navigationC, animated: animated)
   }
   
   private func joinAgency(id: Int, name: String, animated: Bool) {
