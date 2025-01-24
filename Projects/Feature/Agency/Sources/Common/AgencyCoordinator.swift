@@ -66,9 +66,6 @@ extension AgencyCoordinator {
   private func agency(animated: Bool) {
     let factory = DIContainer.shared.resolve(type: AgencyFactoryInterface.self)
     let vc = factory.makeAgencyList()
-    if let agencyList = vc as? AgencyListVC {
-      agencyList.coordinator = self
-    }
     navigationController.viewControllers = [vc]
   }
   

@@ -1,5 +1,6 @@
 import UIKit
 
+import AgencyFeatureInterface
 import DesignSystem
 import BaseFeature
 import Utility
@@ -13,7 +14,6 @@ import FlexLayout
 
 public final class AgencyListVC: BaseVC, View {
   public var disposeBag = DisposeBag()
-  weak var coordinator: AgencyCoordinator?
   
   private let emptyView = EmptyAgencyView()
   
@@ -131,7 +131,11 @@ public final class AgencyListVC: BaseVC, View {
       .compactMap { reactor.currentState.userInfo?.universityName }
       .map { universityName -> UniversityType in universityName == "정보없음" ? .none : .exists }
       .bind(with: self) { owner, universityType in
-        owner.coordinator?.present(.createAgency(universityType))
+        let inputAgencyInfoVC = DIContainer.shared.resolve(type: InputAgencyInfoFactoryInterface.self).make(universityType: universityType)
+        let navigationC = UINavigationController()
+        navigationC.viewControllers = [inputAgencyInfoVC]
+        navigationC.modalPresentationStyle = .fullScreen
+        owner.navigationController?.present(navigationC, animated: true)
       }
       .disposed(by: disposeBag)
     
@@ -212,9 +216,13 @@ public final class AgencyListVC: BaseVC, View {
       .bind(with: self) { owner, destination in
         switch destination {
         case let .joinAgency(agency):
-          owner.coordinator?.present(.joinAgency(id: agency.id, name: agency.name))
+          let factory = DIContainer.shared.resolve(type: AgencyFactoryInterface.self)
+          let joinAgencyVC = factory.makeJoinAgency(agencyID: agency.id, agencyName: agency.name)
+          let navigationC = UINavigationController(rootViewController: joinAgencyVC)
+          navigationC.modalPresentationStyle = .fullScreen
+          owner.present(navigationC, animated: true)
         case let .web(url):
-          owner.coordinator?.present(.web(url))
+          owner.showSafari(urlString: url)
         }
       }
       .disposed(by: disposeBag)
