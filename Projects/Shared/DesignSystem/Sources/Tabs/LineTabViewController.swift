@@ -73,7 +73,6 @@ public final class LineTabViewController: UIViewController {
     
     tabView.pin.top().left().right().height(5.4%)
     pageViewController.view.pin.left().right().bottom().below(of: tabView)
-
   }
   
   private func setupView() {}
@@ -82,7 +81,6 @@ public final class LineTabViewController: UIViewController {
     view.addSubview(rootContainer)
     rootContainer.addSubview(pageViewController.view)
     rootContainer.addSubview(tabView)
-
   }
   
   @objc

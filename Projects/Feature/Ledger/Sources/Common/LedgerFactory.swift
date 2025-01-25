@@ -15,8 +15,8 @@ public struct LedgerFactory: LedgerFactoryInterface {
     self.contentFormatter = contentFormatter
   }
   
-  public func makeLedgerMain(ledgerTab: UIViewController, memberTab: UIViewController) -> UIViewController {
-    let vc = LedgerVC([ledgerTab, memberTab])
+  public func makeLedgerMain() -> UIViewController {
+    let vc = LedgerVC()
     vc.reactor = LedgerReactor(
       getMyAgencyUseCase: DIContainer.shared.resolve(type: GetMyAgencyUseCaseInterface.self),
       getSelectedAgency: DIContainer.shared.resolve(type: GetSelectedAgencyUseCaseInterface.self),
@@ -26,8 +26,9 @@ public struct LedgerFactory: LedgerFactoryInterface {
     return vc
   }
   
-  public func makeLedgerTab() -> UIViewController {
+  public func makeLedgerTab(navigationController: UINavigationController) -> UIViewController {
     let vc = LedgerTabVC()
+    vc.rootNavigationController = navigationController
     vc.reactor = LedgerTabReactor(
       getLedgerDateRangeUseCase: DIContainer.shared.resolve(type: GetLedgerDateRangeUseCaseInterface.self),
       getUserIDUseCase: DIContainer.shared.resolve(type: GetUserIDUseCaseInterface.self),
@@ -41,8 +42,10 @@ public struct LedgerFactory: LedgerFactoryInterface {
     return vc
   }
   
-  public func makeMemberTab(delegate: MemberTabVCDelegate?) -> UIViewController {
+  public func makeMemberTab(navigationController: UINavigationController, delegate: MemberTabVCDelegate) -> UIViewController {
     let vc = MemberTabVC()
+    vc.rootNavigationController = navigationController
+    vc.delegate = delegate
     vc.reactor = MemberTabReactor(
       getUserIDUseCase: DIContainer.shared.resolve(type: GetUserIDUseCaseInterface.self),
       getSelectedAgencyUseCase: DIContainer.shared.resolve(type: GetSelectedAgencyUseCaseInterface.self),
@@ -55,7 +58,6 @@ public struct LedgerFactory: LedgerFactoryInterface {
       ledgerService: ledgerService
     )
     vc.title = "맴버"
-    vc.delegate = delegate
     return vc
   }
   

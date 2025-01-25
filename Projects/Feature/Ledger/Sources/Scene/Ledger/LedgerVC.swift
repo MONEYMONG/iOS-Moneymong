@@ -4,6 +4,7 @@ import BaseFeature
 import AgencyInterface
 import DesignSystem
 import LedgerFeatureInterface
+import LedgerInterface
 
 import ReactorKit
 import PinLayout
@@ -35,11 +36,17 @@ public final class LedgerVC: BaseVC, View {
     return v
   }()
   
-  private let lineTab: LineTabViewController
+  private var lineTab: LineTabViewController?
   
-  init(_ childVC: [UIViewController]) {
-    self.lineTab = LineTabViewController(childVC)
-    super.init()
+  public override func setupUI() {
+    guard let navigationController else { return }
+    let factory = DIContainer.shared.resolve(type: LedgerFactoryInterface.self)
+    let ledgerTab = factory.makeLedgerTab(navigationController: navigationController)
+    let memberTab = factory.makeMemberTab(navigationController: navigationController, delegate: self)
+    lineTab = LineTabViewController([
+      ledgerTab,
+      memberTab
+    ])
   }
   
   public override func viewDidLayoutSubviews() {
@@ -57,7 +64,7 @@ public final class LedgerVC: BaseVC, View {
   public override func setupConstraints() {
     super.setupConstraints()
     view.addSubview(emptyView)
-    
+    guard let lineTab else { return }
     rootContainer.flex
       .define { flex in
         flex.addItem(lineTab.view)
@@ -117,6 +124,6 @@ extension LedgerVC {
 
 extension LedgerVC: MemberTabVCDelegate {
   public func deleteAgency() {
-    lineTab.currentPage = 0
+    lineTab?.currentPage = 0
   }
 }

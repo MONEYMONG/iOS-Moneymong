@@ -15,7 +15,7 @@ public final class SnackBarManager {
     impact: UINotificationFeedbackGenerator.FeedbackType = .success
   ) {
     let snackBar = MMSnackBar()
-    snackBar.configure(title: title, action: action)
+    snackBar.configure(targetView, title: title, action: action)
     HapticManager.shared.hapticNotification(type: impact)
 
     let view = targetView
@@ -52,7 +52,7 @@ public final class SnackBarManager {
       } completion: { _ in
         if action == nil {
           DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
-            remove()
+            remove(view)
           }
         }
       }
@@ -60,7 +60,7 @@ public final class SnackBarManager {
   }
   
   /// snackbar를 애니메이션과 함께 지움  (MMSnackBar에서 호출)
-  public static func remove() {
+  public static func remove(_ targetView: UIView) {
     guard let view = UIWindow.firstWindow?.rootViewController?.topViewController().view else {
       return
     }

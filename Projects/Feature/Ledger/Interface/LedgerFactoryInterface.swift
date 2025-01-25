@@ -4,9 +4,9 @@ import AgencyInterface
 import LedgerInterface
 
 public protocol LedgerFactoryInterface {
-  func makeLedgerMain(ledgerTab: UIViewController, memberTab: UIViewController) -> UIViewController
-  func makeLedgerTab() -> UIViewController
-  func makeMemberTab(delegate: MemberTabVCDelegate?) -> UIViewController
+  func makeLedgerMain() -> UIViewController
+  func makeLedgerTab(navigationController: UINavigationController) -> UIViewController
+  func makeMemberTab(navigationController: UINavigationController, delegate: MemberTabVCDelegate) -> UIViewController
   func makeCreateManual(agencyId: Int, type: ManualPresentType) -> UIViewController
   func makeOCR(agencyId: Int) -> UIViewController
   func makeOCRResult(agencyId: Int, model: OCRResult, imageData: Data) -> UIViewController

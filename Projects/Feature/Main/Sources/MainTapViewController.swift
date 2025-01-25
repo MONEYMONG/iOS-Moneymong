@@ -22,10 +22,15 @@ public final class MainTapViewController: UITabBarController {
     fatalError("init(coder:) has not been implemented")
   }
   
+  public override func viewDidLoad() {
+    super.viewDidLoad()
+    bind()
+  }
+  
   public override func viewWillAppear(_ animated: Bool) {
     super.viewWillAppear(animated)
     setupTabBar()
-    bind()
+    
     observeNotification()
   }
   
@@ -58,6 +63,21 @@ public final class MainTapViewController: UITabBarController {
         owner.tabBar.isHidden = value
       })
       .disposed(by: disposeBag)
+    
+    NotificationCenter.default.rx.notification(.moveLedger)
+      .bind(with: self) { owner, noti in
+        owner.selectedIndex = 1
+        if let id = noti.userInfo?["id"] as? Int {
+          NotificationCenter.default.post(name: .presentManualCreater, object: nil, userInfo: ["id" : id])
+        }
+      }
+      .disposed(by: disposeBag)
+    
+    NotificationCenter.default.rx.notification(.moveAgency)
+      .bind(with: self) { owner, _ in
+        owner.selectedIndex = 0
+      }
+      .disposed(by: disposeBag)
   }
   
   private func observeNotification() {
@@ -71,11 +91,13 @@ public final class MainTapViewController: UITabBarController {
       .bind(with: self) { owner, userInfo in
         switch userInfo.query {
         case "OCR":
+          owner.selectedIndex = 1
           NotificationCenter.default.post(name: .presentOCRCreater, object: nil, userInfo: ["id" : userInfo.agencyID])
         case "CreateLedger":
+          owner.selectedIndex = 1
           NotificationCenter.default.post(name: .presentManualCreater, object: nil, userInfo: ["id" : userInfo.agencyID])
         case "LedgerDetail":
-          NotificationCenter.default.post(name: .moveLedger, object: nil)
+          owner.selectedIndex = 1
         default: break
         }
         
@@ -84,7 +106,14 @@ public final class MainTapViewController: UITabBarController {
       .disposed(by: disposeBag)
     
     if let destination = DeepLinkManager.destination {
-      NotificationCenter.default.post(name: .init("deeplink"), object: nil, userInfo: ["query": destination])
+      NotificationCenter.default.post(
+        name: .init("deeplink"),
+        object: nil,
+        userInfo: [
+          "query": destination.query,
+          "agencyID": destination.agencyID
+        ]
+      )
     }
   }
 }

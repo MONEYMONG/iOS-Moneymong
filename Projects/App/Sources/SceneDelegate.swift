@@ -21,10 +21,14 @@ import SignFeature
 import SignFeatureInterface
 import CreateAgency
 import CreateAgencyInterface
+import MainFeature
+
+import RxSwift
 
 class SceneDelegate: UIResponder, UIWindowSceneDelegate {
   private let localStorage = LocalStorage()
   private let networkManager = NetworkManager()
+  private let disposeBag = DisposeBag()
   var window: UIWindow?
   
   func scene(_ scene: UIScene, willConnectTo session: UISceneSession, options connectionOptions: UIScene.ConnectionOptions) {
@@ -38,18 +42,26 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
     
     Fonts.registerFont()
     registerDependency(networkManager: networkManager, localStorage: localStorage)
-
     
-    let splashVC = DIContainer.shared.resolve(type: SignFactoryInterface.self).makeSplash()
-    let navigationController = UINavigationController(rootViewController: splashVC)
-    navigationController.isNavigationBarHidden = false
-
+    let navigationController = UINavigationController()
+    sign(navigationController: navigationController)
     guard let windowScene = (scene as? UIWindowScene) else { return }
     window = UIWindow(windowScene: windowScene)
     self.window?.makeKeyAndVisible()
     self.window?.rootViewController = navigationController
     
     self.scene(scene, openURLContexts: connectionOptions.urlContexts)
+    NotificationCenter.default.rx.notification(.moveMain)
+      .bind(with: self) { owner, _ in
+        owner.main(navigationController: navigationController)
+      }
+      .disposed(by: disposeBag)
+
+    NotificationCenter.default.rx.notification(.moveLogin)
+      .bind(with: self) { owner, _ in
+        owner.sign(navigationController: navigationController)
+      }
+      .disposed(by: disposeBag)
   }
 
   func scene(_ scene: UIScene, openURLContexts URLContexts: Set<UIOpenURLContext>) {
@@ -73,7 +85,45 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
   func sceneDidEnterBackground(_ scene: UIScene) {}
 }
 
-extension SceneDelegate {
+private extension SceneDelegate {
+  func main(navigationController: UINavigationController) {
+    if navigationController.viewControllers.first is MainTapViewController { return }
+    let mainTapVC = MainTapViewController()
+        mainTapVC.setViewControllers(
+          [
+            agencyTab(),
+            ledgerTab(),
+            myPageTab()
+          ],
+          animated: false
+        )
+        navigationController.isNavigationBarHidden = true
+        navigationController.viewControllers = [mainTapVC]
+  }
+  
+  func sign(navigationController: UINavigationController) {
+    let splashVC = DIContainer.shared.resolve(type: SignFactoryInterface.self).makeSplash()
+    navigationController.isNavigationBarHidden = false
+    navigationController.viewControllers = [splashVC]
+  }
+  
+  func agencyTab() -> UIViewController {
+    let factory = DIContainer.shared.resolve(type: AgencyFactoryInterface.self)
+    let agencyListVC = factory.makeAgencyList()
+    return UINavigationController(rootViewController: agencyListVC)
+  }
+  
+  func ledgerTab() -> UIViewController {
+    let ledgerFactory = DIContainer.shared.resolve(type: LedgerFactoryInterface.self)
+    let ledgerMainVC = ledgerFactory.makeLedgerMain()
+    return UINavigationController(rootViewController: ledgerMainVC)
+  }
+  
+  func myPageTab() -> UIViewController {
+    let myPageVC = DIContainer.shared.resolve(type: MyPageFactoryInterface.self).makeMyPageVC()
+    return UINavigationController(rootViewController: myPageVC)
+  }
+  
   func registerDependency(networkManager: NetworkManagerInterfacae, localStorage: LocalStorageInterface) {
     let ledgerService = LedgerService()
     let contentFormatter = ContentFormatter()
@@ -129,7 +179,8 @@ extension SceneDelegate {
     
     DIContainer.shared.register(type: SignUpUseCaseInterface.self) {
       let signRepo = SignRepository(networkManager: networkManager, localStorage: localStorage)
-      return SignUpUseCase(signRepo: signRepo)
+      let userRepo = UserRepository(networkManager: networkManager, localStorage: localStorage)
+      return SignUpUseCase(signRepo: signRepo, userRepo: userRepo)
     }
     
     DIContainer.shared.register(type: GetRecentLoginInfoUseCaseInterface.self) {

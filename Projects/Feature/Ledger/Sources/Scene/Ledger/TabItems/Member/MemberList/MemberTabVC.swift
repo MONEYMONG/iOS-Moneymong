@@ -10,6 +10,7 @@ import ReactorKit
 
 final class MemberTabVC: BaseVC, View {
   weak var delegate: MemberTabVCDelegate?
+  weak var rootNavigationController: UINavigationController?
   
   var disposeBag = DisposeBag()
   
@@ -170,6 +171,6 @@ extension MemberTabVC {
     let vc = DIContainer.shared.resolve(type: LedgerFactoryInterface.self).makeEditMember(agencyID: agencyID, member: member)
     vc.modalPresentationStyle = .overFullScreen
     vc.modalTransitionStyle = .crossDissolve
-    present(vc, animated: animated)
+    rootNavigationController?.present(vc, animated: animated)
   }
 }

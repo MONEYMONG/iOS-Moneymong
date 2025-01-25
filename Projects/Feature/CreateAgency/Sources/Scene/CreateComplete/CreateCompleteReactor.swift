@@ -39,14 +39,13 @@ final class CreateCompleteReactor: Reactor {
   }
   
   func mutate(action: Action) -> Observable<Mutation> {
+    updateSelectedAgencyUseCase.execute(id: currentState.agencyID)
     switch action {
     case .tapDismiss:
       return .just(.setDestination(.dismiss))
     case .tapLedger:
-      updateSelectedAgencyUseCase.execute(id: currentState.agencyID)
       return .just(.setDestination(.ledger))
     case .tapOperatingCost:
-      updateSelectedAgencyUseCase.execute(id: currentState.agencyID)
       return .just(.setDestination(.manualInput))
     }
   }

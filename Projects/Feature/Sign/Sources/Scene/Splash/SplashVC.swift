@@ -44,7 +44,7 @@ final class SplashVC: BaseVC, View {
         switch destination {
         case .login:
           let loginVC = DIContainer.shared.resolve(type: SignFactoryInterface.self).makeLogin()
-          owner.navigationController?.pushViewController(loginVC, animated: true)
+          owner.navigationController?.pushViewController(loginVC, animated: false)
         case .main:
           NotificationCenter.default.post(name: .moveMain, object: nil)
         }

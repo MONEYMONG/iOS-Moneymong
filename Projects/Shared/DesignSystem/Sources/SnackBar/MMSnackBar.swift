@@ -56,12 +56,12 @@ final class MMSnackBar: UIView {
     }
   }
   
-  func configure(title: String, action: (() -> Void)? = nil) {
+  func configure(_ targetView: UIView, title: String, action: (() -> Void)? = nil) {
     // retry 일때
     if let action {
       rightButton.addAction {
         action()
-        SnackBarManager.remove()
+        SnackBarManager.remove(targetView)
       }
       rightButton.setImage(nil, for: .normal)
       rightButton.setTitle("다시입력", for: .normal)
@@ -74,7 +74,7 @@ final class MMSnackBar: UIView {
       let image = Images.close?
         .withRenderingMode(.alwaysTemplate).withConfiguration(imageConfig)
       rightButton.addAction {
-        SnackBarManager.remove()
+        SnackBarManager.remove(targetView)
       }
       rightButton.setImage(image, for: .normal)
       rightButton.setTitle("", for: .normal)

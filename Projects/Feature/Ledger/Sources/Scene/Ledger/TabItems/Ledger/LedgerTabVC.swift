@@ -13,6 +13,7 @@ import PinLayout
 import FlexLayout
 
 final class LedgerTabVC: BaseVC, View {
+  weak var rootNavigationController: UINavigationController?
   var disposeBag = DisposeBag()
   private var cancellableBag = Set<AnyCancellable>()
 
@@ -213,20 +214,20 @@ extension LedgerTabVC {
   private func datePicker(start: DateInfo, end: DateInfo) {
     let vc = DIContainer.shared.resolve(type: LedgerFactoryInterface.self).makeDatePicker(start: start, end: end)
     vc.modalPresentationStyle = .overFullScreen
-    present(vc, animated: false)
+    rootNavigationController?.present(vc, animated: false)
   }
   
   private func presentOCR(agencyId: Int) {
     let createOCRLedgerVC = DIContainer.shared.resolve(type: LedgerFactoryInterface.self).makeOCR(agencyId: agencyId)
     let navigationController = UINavigationController(rootViewController: createOCRLedgerVC)
     navigationController.modalPresentationStyle = .fullScreen
-    present(navigationController, animated: true)
+    rootNavigationController?.present(navigationController, animated: true)
   }
   
   private func presentManual(agencyId: Int, type: ManualPresentType) {
     let createManualLedgerVC = DIContainer.shared.resolve(type: LedgerFactoryInterface.self).makeCreateManual(agencyId: agencyId, type: type)
     let navigationController = UINavigationController(rootViewController: createManualLedgerVC)
     navigationController.modalPresentationStyle = .fullScreen
-    present(navigationController, animated: true)
+    rootNavigationController?.present(navigationController, animated: true)
   }
 }

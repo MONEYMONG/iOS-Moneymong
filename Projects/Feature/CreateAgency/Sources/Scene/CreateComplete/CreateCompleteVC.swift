@@ -50,18 +50,16 @@ final class CreateCompleteVC: BaseVC, View {
       .observe(on: MainScheduler.instance)
       .compactMap { $0 }
       .bind(with: self) { owner, destination in
+        NotificationCenter.default.post(name: .moveMain, object: nil)
         switch destination {
-        case .dismiss:
-          NotificationCenter.default.post(name: .moveMain, object: nil)
-          owner.dismiss(animated: true)
+        case .dismiss: break
         case .ledger:
           NotificationCenter.default.post(name: .moveLedger, object: nil)
-          owner.dismiss(animated: true)
         case .manualInput:
           let id = reactor.currentState.agencyID
-          NotificationCenter.default.post(name: .presentManualCreater, object: nil, userInfo: ["id": id])
-          owner.dismiss(animated: true)
+          NotificationCenter.default.post(name: .moveLedger, object: nil, userInfo: ["id": id])
         }
+        owner.dismiss(animated: true)
       }
       .disposed(by: disposeBag)
     
