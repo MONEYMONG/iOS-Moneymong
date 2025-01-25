@@ -1,10 +1,7 @@
 import UIKit
 
 import DesignSystem
-
 import BaseFeature
-import BaseFeatureInterface
-
 import AgencyFeatureInterface
 import CreateAgencyInterface
 
@@ -31,7 +28,7 @@ public final class AgencyCoordinator: Coordinator {
     agency(animated: animated)
   }
   
-  public func move(to scene: BaseFeatureInterface.Scene) {
+  public func move(to scene: BaseFeature.Scene) {
     switch scene {
     case .ledger:
       parentCoordinator?.move(to: .ledger)

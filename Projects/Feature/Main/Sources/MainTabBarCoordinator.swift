@@ -1,6 +1,6 @@
 import UIKit
 
-import BaseFeatureInterface
+import BaseFeature
 import LedgerFeature
 
 public final class MainTabBarCoordinator: Coordinator {

@@ -1,7 +1,5 @@
 import UIKit
 
-import BaseFeatureInterface
-
 protocol ImagePickerPresentable {
   func imagePicker(
     target: UIViewController,

@@ -1,7 +1,6 @@
 import UIKit
 
 import BaseFeature
-import BaseFeatureInterface
 
 public final class CreateAgencyCoordinator: Coordinator {
   public var navigationController: UINavigationController

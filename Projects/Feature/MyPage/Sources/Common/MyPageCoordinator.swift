@@ -2,7 +2,6 @@ import UIKit
 import SwiftUI
 
 import BaseFeature
-import BaseFeatureInterface
 import DesignSystem
 import MyPageFeatureInterface
 

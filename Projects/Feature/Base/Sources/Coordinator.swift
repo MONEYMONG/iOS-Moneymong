@@ -25,7 +25,20 @@ public extension Coordinator {
   }
 
   func move(to scene: Scene) {
-    // empty
+    switch scene {
+    case .main:
+      parentCoordinator?.move(to: .main)
+    case .login:
+      parentCoordinator?.move(to: .login)
+    case .ledger:
+      parentCoordinator?.move(to: .ledger)
+    case let .createManualLedger(id):
+      parentCoordinator?.move(to: .createManualLedger(id))
+    case let .createOCRLedger(id):
+      parentCoordinator?.move(to: .createOCRLedger(id))
+    case .agency:
+      parentCoordinator?.move(to: .agency)
+    }
   }
   
   func web(urlString: String, animated: Bool = true) {

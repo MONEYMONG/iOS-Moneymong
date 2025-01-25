@@ -2,7 +2,6 @@ import UIKit
 
 import DesignSystem
 import BaseFeature
-import BaseFeatureInterface
 import AgencyInterface
 import LedgerInterface
 import LedgerFeatureInterface

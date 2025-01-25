@@ -1,7 +1,6 @@
 import UIKit
 
 import BaseFeature
-import BaseFeatureInterface
 import CreateAgencyInterface
 import DesignSystem
 import SignFeatureInterface

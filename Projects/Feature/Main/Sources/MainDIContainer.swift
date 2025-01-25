@@ -1,7 +1,7 @@
 import UIKit
 
 import AgencyFeature
-import BaseFeatureInterface
+import BaseFeature
 import Core
 import CreateAgencyInterface
 import LedgerFeature
