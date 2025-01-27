@@ -6,16 +6,16 @@ import LedgerInterface
 import BaseFeature
 import LedgerFeatureInterface
 
-public struct LedgerFactory: LedgerFactoryInterface {
+struct LedgerFactory {
   private let ledgerService: LedgerServiceInterface
   private let contentFormatter: ContentFormatter
   
-  public init(ledgerService: LedgerServiceInterface, contentFormatter: ContentFormatter) {
+  init(ledgerService: LedgerServiceInterface, contentFormatter: ContentFormatter) {
     self.ledgerService = ledgerService
     self.contentFormatter = contentFormatter
   }
   
-  public func makeLedgerMain(ledgerTab: UIViewController, memberTab: UIViewController) -> UIViewController {
+  func makeLedgerMain(ledgerTab: UIViewController, memberTab: UIViewController) -> LedgerVC {
     let vc = LedgerVC([ledgerTab, memberTab])
     vc.reactor = LedgerReactor(
       getMyAgencyUseCase: DIContainer.shared.resolve(type: GetMyAgencyUseCaseInterface.self),
@@ -26,7 +26,7 @@ public struct LedgerFactory: LedgerFactoryInterface {
     return vc
   }
   
-  public func makeLedgerTab() -> UIViewController {
+  func makeLedgerTab() -> LedgerTabVC {
     let vc = LedgerTabVC()
     vc.reactor = LedgerTabReactor(
       getLedgerDateRangeUseCase: DIContainer.shared.resolve(type: GetLedgerDateRangeUseCaseInterface.self),
@@ -41,7 +41,7 @@ public struct LedgerFactory: LedgerFactoryInterface {
     return vc
   }
   
-  public func makeMemberTab() -> UIViewController {
+  func makeMemberTab() -> MemberTabVC {
     let vc = MemberTabVC()
     vc.reactor = MemberTabReactor(
       getUserIDUseCase: DIContainer.shared.resolve(type: GetUserIDUseCaseInterface.self),
@@ -58,7 +58,7 @@ public struct LedgerFactory: LedgerFactoryInterface {
     return vc
   }
   
-  public func makeCreateManual(agencyId: Int, type: ManualPresentType) -> UIViewController {
+  func makeCreateManual(agencyId: Int, type: ManualPresentType) -> CreateManualLedgerVC {
     let vc = CreateManualLedgerVC()
     vc.reactor = CreateManualLedgerReactor(
       agencyId: agencyId,
@@ -73,7 +73,7 @@ public struct LedgerFactory: LedgerFactoryInterface {
     return vc
   }
   
-  public func makeOCR(agencyId: Int) -> UIViewController {
+  func makeOCR(agencyId: Int) -> CreateOCRLedgerVC {
     let vc = CreateOCRLedgerVC()
     vc.reactor = CreateOCRLedgerReactor(
       agencyId: agencyId,
@@ -82,7 +82,7 @@ public struct LedgerFactory: LedgerFactoryInterface {
     return vc
   }
   
-  public func makeOCRResult(agencyId: Int, model: OCRResult, imageData: Data) -> UIViewController {
+  func makeOCRResult(agencyId: Int, model: OCRResult, imageData: Data) -> OCRResultVC {
     let vc = OCRResultVC()
     vc.reactor = OCRResultReactor(
       agencyId: agencyId,
@@ -96,7 +96,7 @@ public struct LedgerFactory: LedgerFactoryInterface {
     return vc
   }
   
-  public func makeDatePicker(start: DateInfo, end: DateInfo) -> UIViewController {
+  func makeDatePicker(start: DateInfo, end: DateInfo) -> DatePickerSheetVC {
     let vc = DatePickerSheetVC()
     vc.reactor = DatePickerReactor(
       startDate: start,
@@ -107,7 +107,7 @@ public struct LedgerFactory: LedgerFactoryInterface {
     return vc
   }
   
-  public func makeEditMember(agencyID: Int, member: Member) -> UIViewController {
+  func makeEditMember(agencyID: Int, member: Member) -> EditMemberSheetVC {
     let vc = EditMemberSheetVC()
     vc.reactor = EditMemberReactor(
       agencyID: agencyID,
@@ -118,7 +118,7 @@ public struct LedgerFactory: LedgerFactoryInterface {
     return vc
   }
   
-  public func makeSelectAgency() -> UIViewController {
+  func makeSelectAgency() -> SelectAgencySheetVC {
     let vc = SelectAgencySheetVC()
     vc.reactor = SelectAgencySheetReactor(
       getMyAgencyUseCase: DIContainer.shared.resolve(type: GetMyAgencyUseCaseInterface.self),
@@ -130,7 +130,7 @@ public struct LedgerFactory: LedgerFactoryInterface {
     return vc
   }
   
-  public func makeDetail(ledgetID: Int, role: Member.Role) -> UIViewController {
+  func makeDetail(ledgetID: Int, role: Member.Role) -> LedgerDetailVC {
     let ledgerDetailContentsService = LedgerDetailContentsService()
     let ledgerContentReactor = LedgerContentsReactor(
       ledgerContentsService: ledgerDetailContentsService,

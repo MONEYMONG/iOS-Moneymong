@@ -81,7 +81,7 @@ public final class LedgerVC: BaseVC, View {
     
     emptyView.tapAgency
       .bind(with: self) { owner, _ in
-        owner.coordinator?.goAgency()
+        owner.coordinator?.move(to: .agency)
       }
       .disposed(by: disposeBag)
     
@@ -107,17 +107,8 @@ public final class LedgerVC: BaseVC, View {
     
     agencyButton.rx.tap
       .bind(with: self) { owner, _ in
-        owner.selectAgencySheet()
+        owner.coordinator?.selectAgencySheet()
       }
       .disposed(by: disposeBag)
-  }
-}
-
-extension LedgerVC {
-  private func selectAgencySheet() {
-    let vc = DIContainer.shared.resolve(type: LedgerFactoryInterface.self).makeSelectAgency()
-    vc.modalPresentationStyle = .overFullScreen
-    vc.modalTransitionStyle = .crossDissolve
-    present(vc, animated: false)
   }
 }

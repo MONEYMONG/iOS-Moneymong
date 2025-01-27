@@ -6,10 +6,13 @@ import AgencyInterface
 import LedgerInterface
 import LedgerFeatureInterface
 
-public final class LedgerCoordinator: Coordinator {
+public final class LedgerCoordinator: LedgerCoordinatorInterface {
   public weak var navigationController: UINavigationController?
   public weak var parentCoordinator: Coordinator?
   var moveTab: ((Int) -> Void)?
+  
+  private let ledgerService: LedgerServiceInterface
+  private let contentFormatter: ContentFormatter
   
   enum Scene {
     case alert(title: String, subTitle: String?, type: MMAlerts.`Type`)
@@ -18,8 +21,9 @@ public final class LedgerCoordinator: Coordinator {
     case detail(Ledger, Member.Role)
   }
 
-  public init(navigationController: UINavigationController) {
-    self.navigationController = navigationController
+  public init(ledgerService: LedgerServiceInterface, contentFormatter: ContentFormatter) {
+    self.ledgerService = ledgerService
+    self.contentFormatter = contentFormatter
   }
 
   public func start(animated: Bool) {
@@ -38,28 +42,18 @@ public final class LedgerCoordinator: Coordinator {
       detail(ledgerID: ledger.id, role: role)
     }
   }
-  
-  func goAgency() {
-    parentCoordinator?.move(to: .agency)
-  }
-
-  func pop(animated: Bool = true) {
-    navigationController?.popViewController(animated: animated)
-  }
 }
 
 extension LedgerCoordinator {
-  
   private func ledger(animated: Bool) {
-    let ledgerFactory = DIContainer.shared.resolve(type: LedgerFactoryInterface.self)
+    let ledgerFactory = LedgerFactory(ledgerService: ledgerService, contentFormatter: contentFormatter)
     
-    guard let ledgerTabVC = ledgerFactory.makeLedgerTab() as? LedgerTabVC,
-          let memberTabVC = ledgerFactory.makeMemberTab() as? MemberTabVC else { return }
-    
+    let ledgerTabVC = ledgerFactory.makeLedgerTab()
+    let memberTabVC = ledgerFactory.makeMemberTab()
     ledgerTabVC.coordinator = self
     memberTabVC.coordinator = self
           
-    guard let ledgerMainVC = ledgerFactory.makeLedgerMain(ledgerTab: ledgerTabVC, memberTab: memberTabVC) as? LedgerVC else { return }
+    let ledgerMainVC = ledgerFactory.makeLedgerMain(ledgerTab: ledgerTabVC, memberTab: memberTabVC)
     ledgerMainVC.coordinator = self
     navigationController?.viewControllers = [ledgerMainVC]
   }
@@ -70,7 +64,8 @@ extension LedgerCoordinator {
     animated: Bool
   ) {
     let navigationController = UINavigationController()
-    let coordinator = CreateManualLedgerCoordinator(navigationController: navigationController)
+    let coordinator = DIContainer.shared.resolve(type: CreateManualLedgerCoordinatorInterface.self)
+    coordinator.navigationController = navigationController
     coordinator.parentCoordinator = self
     navigationController.modalPresentationStyle = .fullScreen
     coordinator.start(agencyId: agencyId, type: type, animated: false)
@@ -79,7 +74,8 @@ extension LedgerCoordinator {
   
   private func createOCRLedger(agencyId: Int, animated: Bool) {
     let navigationController = UINavigationController()
-    let coordinator = CreateOCRLedgerCoordinator(navigationController: navigationController)
+    let coordinator = DIContainer.shared.resolve(type: CreateOCRLedgerCoordinatorInterface.self)
+    coordinator.navigationController = navigationController
     coordinator.parentCoordinator = self
     navigationController.modalPresentationStyle = .fullScreen
     coordinator.start(agencyId: agencyId, animated: animated)
@@ -87,8 +83,28 @@ extension LedgerCoordinator {
   }
 
   private func detail(ledgerID: Int, role: Member.Role, animated: Bool = true) {
-    guard let vc = DIContainer.shared.resolve(type: LedgerFactoryInterface.self).makeDetail(ledgetID: ledgerID, role: role) as? LedgerDetailVC else { return }
+    let vc = LedgerFactory(ledgerService: ledgerService, contentFormatter: contentFormatter).makeDetail(ledgetID: ledgerID, role: role)
     vc.coordinator = self
     navigationController?.pushViewController(vc, animated: animated)
+  }
+  
+  func editMember(agencyID: Int, member: Member) {
+    let vc = LedgerFactory(ledgerService: ledgerService, contentFormatter: contentFormatter).makeEditMember(agencyID: agencyID, member: member)
+    vc.modalPresentationStyle = .overFullScreen
+    vc.modalTransitionStyle = .crossDissolve
+    navigationController?.present(vc, animated: false)
+  }
+  
+  func selectAgencySheet() {
+    let vc = LedgerFactory(ledgerService: ledgerService, contentFormatter: contentFormatter).makeSelectAgency()
+    vc.modalPresentationStyle = .overFullScreen
+    vc.modalTransitionStyle = .crossDissolve
+    navigationController?.present(vc, animated: false)
+  }
+  
+  func datePicker(start: DateInfo, end: DateInfo) {
+    let vc = LedgerFactory(ledgerService: ledgerService, contentFormatter: contentFormatter).makeDatePicker(start: start, end: end)
+    vc.modalPresentationStyle = .overFullScreen
+    navigationController?.present(vc, animated: false)
   }
 }

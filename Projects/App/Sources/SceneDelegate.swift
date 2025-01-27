@@ -283,8 +283,16 @@ extension SceneDelegate {
 //      return AgencyFactory()
 //    }
     
-    DIContainer.shared.register(type: LedgerFactoryInterface.self) {
-      return LedgerFactory(ledgerService: ledgerService, contentFormatter: contentFormatter)
+    DIContainer.shared.register(type: LedgerCoordinatorInterface.self) {
+      return LedgerCoordinator(ledgerService: ledgerService, contentFormatter: contentFormatter)
+    }
+    
+    DIContainer.shared.register(type: CreateManualLedgerCoordinatorInterface.self) {
+      return CreateManualLedgerCoordinator(ledgerService: ledgerService, contentFormatter: contentFormatter)
+    }
+    
+    DIContainer.shared.register(type: CreateOCRLedgerCoordinatorInterface.self) {
+      return CreateOCRLedgerCoordinator(ledgerService: ledgerService, contentFormatter: contentFormatter)
     }
     
     DIContainer.shared.register(type: SignFactoryInterface.self) {

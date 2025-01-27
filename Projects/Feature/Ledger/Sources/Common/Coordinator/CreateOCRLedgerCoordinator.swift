@@ -6,9 +6,12 @@ import Core
 import LedgerInterface
 import LedgerFeatureInterface
 
-final class CreateOCRLedgerCoordinator: Coordinator {
-  weak var navigationController: UINavigationController?
-  weak var parentCoordinator: Coordinator?
+public final class CreateOCRLedgerCoordinator: CreateOCRLedgerCoordinatorInterface {
+  weak public var navigationController: UINavigationController?
+  weak public var parentCoordinator: Coordinator?
+  
+  private let ledgerService: LedgerServiceInterface
+  private let contentFormatter: ContentFormatter
   
   enum Scene {
     case alert(title: String, subTitle: String?, type: MMAlerts.`Type`)
@@ -17,12 +20,13 @@ final class CreateOCRLedgerCoordinator: Coordinator {
     case createManualLedger(Int, ManualPresentType)
   }
 
-  init(navigationController: UINavigationController) {
-    self.navigationController = navigationController
+  public init(ledgerService: LedgerServiceInterface, contentFormatter: ContentFormatter) {
+    self.ledgerService = ledgerService
+    self.contentFormatter = contentFormatter
   }
 
-  func start(agencyId: Int, animated: Bool) {
-    guard let vc = DIContainer.shared.resolve(type: LedgerFactoryInterface.self).makeOCR(agencyId: agencyId) as? CreateOCRLedgerVC else { return }
+  public func start(agencyId: Int, animated: Bool) {
+    let vc = LedgerFactory(ledgerService: ledgerService, contentFormatter: contentFormatter).makeOCR(agencyId: agencyId)
     vc.coordinator = self
     navigationController?.viewControllers = [vc]
   }
@@ -47,7 +51,7 @@ final class CreateOCRLedgerCoordinator: Coordinator {
 
 extension CreateOCRLedgerCoordinator {
   private func scanResult(agencyId: Int, model: OCRResult, imageData: Data, animated: Bool = true) {
-    guard let vc = DIContainer.shared.resolve(type: LedgerFactoryInterface.self).makeOCRResult(agencyId: agencyId, model: model, imageData: imageData) as? OCRResultVC else { return }
+    let vc = LedgerFactory(ledgerService: ledgerService, contentFormatter: contentFormatter).makeOCRResult(agencyId: agencyId, model: model, imageData: imageData)
     vc.coordinator = self
     navigationController?.pushViewController(vc, animated: animated)
   }
@@ -57,7 +61,7 @@ extension CreateOCRLedgerCoordinator {
     type: ManualPresentType,
     animated: Bool
   ) {
-    let vc = DIContainer.shared.resolve(type: LedgerFactoryInterface.self).makeCreateManual(agencyId: agencyId, type: type)
+    let vc = LedgerFactory(ledgerService: ledgerService, contentFormatter: contentFormatter).makeCreateManual(agencyId: agencyId, type: type)
     navigationController?.pushViewController(vc, animated: animated)
   }
 }
