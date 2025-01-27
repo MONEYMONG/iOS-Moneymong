@@ -13,7 +13,7 @@ final class LedgerDetailVC: BaseVC, View, ImagePickerPresentable {
 
   public var disposeBag = DisposeBag()
 
-  weak var coordinator: LedgerCoordinator?
+  var coordinator: LedgerCoordinator?
 
   private let contentsView: LedgerContentsView
 

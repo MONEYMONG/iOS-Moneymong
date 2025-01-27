@@ -3,9 +3,8 @@ import UIKit
 import BaseFeature
 
 public final class CreateAgencyCoordinator: Coordinator {
-  public var navigationController: UINavigationController
+  public weak var navigationController: UINavigationController?
   public weak var parentCoordinator: Coordinator?
-  public var childCoordinators: [Coordinator] = []
     
   public init(
     navigationController: UINavigationController
@@ -15,7 +14,7 @@ public final class CreateAgencyCoordinator: Coordinator {
 
   public func start(animated: Bool, universityType: UniversityType) {
     let vc = DIContainer.shared.resolve(type: InputAgencyInfoFactoryInterface.self).make(coordinator: self, universityType: universityType)
-    navigationController.viewControllers = [vc]
+    navigationController?.viewControllers = [vc]
   }
   
   public func move(to scene: Scene) {

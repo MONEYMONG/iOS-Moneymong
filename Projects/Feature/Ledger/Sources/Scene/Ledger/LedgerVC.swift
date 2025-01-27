@@ -11,7 +11,7 @@ import FlexLayout
 
 public final class LedgerVC: BaseVC, View {
   public var disposeBag = DisposeBag()
-  weak var coordinator: LedgerCoordinator?
+  var coordinator: LedgerCoordinator?
   
   private let emptyView: LedgerEmptyView = {
     let v = LedgerEmptyView()

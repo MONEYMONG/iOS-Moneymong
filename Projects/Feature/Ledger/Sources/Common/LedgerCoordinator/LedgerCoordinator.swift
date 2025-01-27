@@ -7,9 +7,8 @@ import LedgerInterface
 import LedgerFeatureInterface
 
 public final class LedgerCoordinator: Coordinator {
-  public var navigationController: UINavigationController
+  public weak var navigationController: UINavigationController?
   public weak var parentCoordinator: Coordinator?
-  public var childCoordinators: [Coordinator] = []
   var moveTab: ((Int) -> Void)?
   
   enum Scene {
@@ -45,7 +44,7 @@ public final class LedgerCoordinator: Coordinator {
   }
 
   func pop(animated: Bool = true) {
-    navigationController.popViewController(animated: animated)
+    navigationController?.popViewController(animated: animated)
   }
 }
 
@@ -62,7 +61,7 @@ extension LedgerCoordinator {
           
     guard let ledgerMainVC = ledgerFactory.makeLedgerMain(ledgerTab: ledgerTabVC, memberTab: memberTabVC) as? LedgerVC else { return }
     ledgerMainVC.coordinator = self
-    navigationController.viewControllers = [ledgerMainVC]
+    navigationController?.viewControllers = [ledgerMainVC]
   }
   
   private func createManualLedger(
@@ -73,25 +72,23 @@ extension LedgerCoordinator {
     let navigationController = UINavigationController()
     let coordinator = CreateManualLedgerCoordinator(navigationController: navigationController)
     coordinator.parentCoordinator = self
-    parentCoordinator?.childCoordinators.append(coordinator)
     navigationController.modalPresentationStyle = .fullScreen
     coordinator.start(agencyId: agencyId, type: type, animated: false)
-    self.navigationController.present(navigationController, animated: animated)
+    self.navigationController?.present(navigationController, animated: animated)
   }
   
   private func createOCRLedger(agencyId: Int, animated: Bool) {
     let navigationController = UINavigationController()
     let coordinator = CreateOCRLedgerCoordinator(navigationController: navigationController)
     coordinator.parentCoordinator = self
-    parentCoordinator?.childCoordinators.append(coordinator)
     navigationController.modalPresentationStyle = .fullScreen
     coordinator.start(agencyId: agencyId, animated: animated)
-    self.navigationController.present(navigationController, animated: animated)
+    self.navigationController?.present(navigationController, animated: animated)
   }
 
   private func detail(ledgerID: Int, role: Member.Role, animated: Bool = true) {
     guard let vc = DIContainer.shared.resolve(type: LedgerFactoryInterface.self).makeDetail(ledgetID: ledgerID, role: role) as? LedgerDetailVC else { return }
     vc.coordinator = self
-    navigationController.pushViewController(vc, animated: animated)
+    navigationController?.pushViewController(vc, animated: animated)
   }
 }

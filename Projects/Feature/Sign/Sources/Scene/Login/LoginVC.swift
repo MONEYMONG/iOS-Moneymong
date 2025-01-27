@@ -6,7 +6,7 @@ import ReactorKit
 
 final class LoginVC: BaseVC, View {
 
-  weak var coordinator: SignCoordinator?
+  var coordinator: SignCoordinator?
   var disposeBag = DisposeBag()
 
   private let imageView: UIImageView = {
@@ -111,7 +111,7 @@ final class LoginVC: BaseVC, View {
       .bind(with: self) { owner, destination in
         switch destination {
         case .main:
-          owner.coordinator?.main()
+          owner.coordinator?.move(to: .main)
         case .signUp:
           owner.coordinator?.createAgency()
         }

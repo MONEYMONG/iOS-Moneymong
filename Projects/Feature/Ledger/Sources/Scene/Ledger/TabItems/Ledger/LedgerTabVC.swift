@@ -15,7 +15,7 @@ import FlexLayout
 final class LedgerTabVC: BaseVC, View {
   var disposeBag = DisposeBag()
   private var cancellableBag = Set<AnyCancellable>()
-  weak var coordinator: LedgerCoordinator?
+  var coordinator: LedgerCoordinator?
 
   private let floatingButton = FloatingButton()
   private let amountGuideLabel: UILabel = {

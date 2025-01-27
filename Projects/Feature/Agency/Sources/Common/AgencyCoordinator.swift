@@ -6,9 +6,8 @@ import AgencyFeatureInterface
 import CreateAgencyInterface
 
 public final class AgencyCoordinator: Coordinator {
-  public var navigationController: UINavigationController
+  public weak var navigationController: UINavigationController?
   public weak var parentCoordinator: Coordinator?
-  public var childCoordinators: [Coordinator] = []
   
   weak var secondFlowNavigationController: UINavigationController?
   
@@ -26,16 +25,6 @@ public final class AgencyCoordinator: Coordinator {
 
   public func start(animated: Bool) {
     agency(animated: animated)
-  }
-  
-  public func move(to scene: BaseFeature.Scene) {
-    switch scene {
-    case .ledger:
-      parentCoordinator?.move(to: .ledger)
-    case .createManualLedger(let int):
-      parentCoordinator?.move(to: .createManualLedger(int))
-    default: break
-    }
   }
   
   func present(_ scene: Scene, animated: Bool = true) {
@@ -58,7 +47,7 @@ public final class AgencyCoordinator: Coordinator {
   }
   
   func dismiss(animated: Bool = true) {
-    navigationController.topViewController?.dismiss(animated: animated)
+    navigationController?.topViewController?.dismiss(animated: animated)
   }
   
   public func goLedger() {
@@ -73,17 +62,16 @@ extension AgencyCoordinator {
     if let agencyList = vc as? AgencyListVC {
       agencyList.coordinator = self
     }
-    navigationController.viewControllers = [vc]
+    navigationController?.viewControllers = [vc]
   }
   
   private func createAgency(universityType: UniversityType, animated: Bool) {
     let vc = UINavigationController()
     let coordinator = CreateAgencyCoordinator(navigationController: vc)
     coordinator.parentCoordinator = self
-    childCoordinators.append(coordinator)
     coordinator.start(animated: animated, universityType: universityType)
     vc.modalPresentationStyle = .fullScreen
-    navigationController.present(vc, animated: animated)
+    navigationController?.present(vc, animated: animated)
   }
   
   private func joinAgency(id: Int, name: String, animated: Bool) {
@@ -92,7 +80,7 @@ extension AgencyCoordinator {
     
     secondFlowNavigationController = vc as? UINavigationController
     vc.modalPresentationStyle = .fullScreen
-    navigationController.topViewController?.present(vc, animated: animated)
+    navigationController?.topViewController?.present(vc, animated: animated)
   }
   
   private func joinComplete(animated: Bool) {

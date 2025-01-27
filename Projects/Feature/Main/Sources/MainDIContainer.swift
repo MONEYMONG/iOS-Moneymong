@@ -35,7 +35,6 @@ public final class MainDIContainer {
   private func agencyTab(with coordinator: Coordinator) -> UIViewController {
     let vc = UINavigationController()
     let agencyCoordinator = AgencyCoordinator(navigationController: vc)
-    coordinator.childCoordinators.append(agencyCoordinator)
     agencyCoordinator.parentCoordinator = coordinator
     agencyCoordinator.start(animated: false)
     return vc
@@ -44,7 +43,6 @@ public final class MainDIContainer {
   private func ledgerTab(with coordinator: Coordinator) -> UIViewController {
     let vc = UINavigationController()
     let ledgerCoordinator = LedgerCoordinator(navigationController: vc)
-    coordinator.childCoordinators.append(ledgerCoordinator)
     ledgerCoordinator.parentCoordinator = coordinator
     ledgerCoordinator.start(animated: false)
     return vc
@@ -53,7 +51,6 @@ public final class MainDIContainer {
   private func myPageTab(with coordinator: Coordinator) -> UIViewController {
     let vc = UINavigationController()
     let myPageCoordinator = MyPageCoordinator(navigationController: vc)
-    coordinator.childCoordinators.append(myPageCoordinator)
     myPageCoordinator.parentCoordinator = coordinator
     myPageCoordinator.start(animated: false)
     return vc

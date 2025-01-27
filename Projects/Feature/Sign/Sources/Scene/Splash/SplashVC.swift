@@ -6,7 +6,7 @@ import ReactorKit
 
 final class SplashVC: BaseVC, View {
 
-  weak var coordinator: SignCoordinator?
+  var coordinator: SignCoordinator?
   var disposeBag = DisposeBag()
 
   private let logoImageView: UIImageView = {
@@ -44,9 +44,9 @@ final class SplashVC: BaseVC, View {
       .bind(with: self) { owner, destination in
         switch destination {
         case .login:
-          owner.coordinator?.login()
+          owner.coordinator?.move(to: .login)
         case .main:
-          owner.coordinator?.main()
+          owner.coordinator?.move(to: .main)
         }
       }
       .disposed(by: disposeBag)

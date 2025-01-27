@@ -9,7 +9,7 @@ import ReactorKit
 
 final class CongratulationsVC: BaseVC, View {
 
-  weak var coordinator: SignCoordinator?
+  var coordinator: SignCoordinator?
   var disposeBag = DisposeBag()
 
   private let imageView: UIImageView = {
@@ -83,7 +83,7 @@ final class CongratulationsVC: BaseVC, View {
       .bind(with: self) { owner, destination in
         switch destination {
         case .main:
-          owner.coordinator?.main()
+          owner.coordinator?.move(to: .main)
         }
       }
       .disposed(by: disposeBag)

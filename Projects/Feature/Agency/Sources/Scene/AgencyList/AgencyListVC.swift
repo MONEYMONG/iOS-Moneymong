@@ -13,7 +13,7 @@ import FlexLayout
 
 public final class AgencyListVC: BaseVC, View {
   public var disposeBag = DisposeBag()
-  weak var coordinator: AgencyCoordinator?
+  var coordinator: AgencyCoordinator?
   
   private let emptyView = EmptyAgencyView()
   
