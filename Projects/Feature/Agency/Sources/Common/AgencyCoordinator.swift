@@ -3,7 +3,6 @@ import UIKit
 import DesignSystem
 import BaseFeature
 import AgencyFeatureInterface
-import CreateAgencyInterface
 
 public final class AgencyCoordinator: Coordinator {
   public weak var navigationController: UINavigationController?
@@ -57,12 +56,13 @@ public final class AgencyCoordinator: Coordinator {
 
 extension AgencyCoordinator {
   private func agency(animated: Bool) {
-    let factory = DIContainer.shared.resolve(type: AgencyFactoryInterface.self)
-    let vc = factory.makeAgencyList()
-    if let agencyList = vc as? AgencyListVC {
-      agencyList.coordinator = self
-    }
-    navigationController?.viewControllers = [vc]
+#warning("TODO")
+//    let factory = DIContainer.shared.resolve(type: AgencyFactoryInterface.self)
+//    let vc = factory.makeAgencyList()
+//    if let agencyList = vc as? AgencyListVC {
+//      agencyList.coordinator = self
+//    }
+    navigationController?.viewControllers = [UIViewController()]
   }
   
   private func createAgency(universityType: UniversityType, animated: Bool) {

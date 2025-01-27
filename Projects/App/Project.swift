@@ -99,7 +99,6 @@ let project = Project(
       dependencies: [
         .project(target: "SignFeature", path: .relativeToRoot("Projects/Feature/Sign")),
         .project(target: "MainFeature", path: .relativeToRoot("Projects/Feature/Main")),
-        .project(target: "CreateAgency", path: .relativeToRoot("Projects/Feature/CreateAgency")),
         .target(name: "WidgetExtension"),
         .project(target: "User", path: .relativeToRoot("Projects/Domain/User")),
         .project(target: "Auth", path: .relativeToRoot("Projects/Domain/Auth")),

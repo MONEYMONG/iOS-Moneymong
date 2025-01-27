@@ -19,8 +19,6 @@ import LedgerFeature
 import LedgerFeatureInterface
 import SignFeature
 import SignFeatureInterface
-import CreateAgency
-import CreateAgencyInterface
 
 class SceneDelegate: UIResponder, UIWindowSceneDelegate {
   private let localStorage = LocalStorage()
@@ -280,9 +278,10 @@ extension SceneDelegate {
       return MyPageCoordinator()
     }
     
-    DIContainer.shared.register(type: AgencyFactoryInterface.self) {
-      return AgencyFactory()
-    }
+#warning("TODO")
+//    DIContainer.shared.register(type: AgencyFactoryInterface.self) {
+//      return AgencyFactory()
+//    }
     
     DIContainer.shared.register(type: LedgerFactoryInterface.self) {
       return LedgerFactory(ledgerService: ledgerService, contentFormatter: contentFormatter)
@@ -292,16 +291,16 @@ extension SceneDelegate {
       return SignFactory()
     }
     
-    DIContainer.shared.register(type: CreateCompleteFactoryInterface.self) {
-      return CreateCompleteFactory()
-    }
-    
-    DIContainer.shared.register(type: InputAgencyInfoFactoryInterface.self) {
-      return InputAgencyInfoFactory()
-    }
-    
-    DIContainer.shared.register(type: InputUniversityInfoFactoryInterface.self) {
-      return InputUniversityInfoFactory()
-    }
+//    DIContainer.shared.register(type: CreateCompleteFactoryInterface.self) {
+//      return CreateCompleteFactory()
+//    }
+//    
+//    DIContainer.shared.register(type: InputAgencyInfoFactoryInterface.self) {
+//      return InputAgencyInfoFactory()
+//    }
+//    
+//    DIContainer.shared.register(type: InputUniversityInfoFactoryInterface.self) {
+//      return InputUniversityInfoFactory()
+//    }
   }
 }

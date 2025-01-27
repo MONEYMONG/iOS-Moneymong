@@ -4,14 +4,10 @@ import BaseFeature
 
 import AgencyInterface
 import UserInterface
-
 import AgencyFeatureInterface
 
-public struct AgencyFactory: AgencyFactoryInterface {
-  
-  public init() { }
-  
-  public func makeAgencyList() -> UIViewController {
+struct AgencyFactory {
+  func makeAgencyList() -> UIViewController {
     let vc = AgencyListVC()
     
     let getAgencyListUseCase = DIContainer.shared.resolve(type: GetAgencyListUseCaseInterface.self)
@@ -29,7 +25,7 @@ public struct AgencyFactory: AgencyFactoryInterface {
     return vc
   }
   
-  public func makeJoinAgency(agencyID: Int, agencyName: String) -> UIViewController {
+  func makeJoinAgency(agencyID: Int, agencyName: String) -> UIViewController {
     let vc = JoinAgencyVC()
     
     let usecase = DIContainer.shared
@@ -43,9 +39,40 @@ public struct AgencyFactory: AgencyFactoryInterface {
     return UINavigationController(rootViewController: vc)
   }
   
-  public func makeJoinComplete() -> UIViewController {
+  func makeJoinComplete() -> UIViewController {
     let vc = JoinCompleteVC()
     vc.reactor = JoinCompleteReactor()
+    return vc
+  }
+  
+  func makeCreateComplete(id: Int) -> CreateCompleteVC {
+    let vc = CreateCompleteVC()
+    vc.reactor = CreateCompleteReactor(
+      updateSelectedAgencyUseCase: DIContainer.shared.resolve(type: UpdateSelectedAgencyUseCaseInterface.self),
+      id: id
+    )
+    return vc
+  }
+  
+  func makeInputAgencyInfo(universityType: UniversityType) -> InputAgencyInfoVC {
+    let vc = InputAgencyInfoVC()
+    vc.reactor = InputAgencyInfoReactor(
+      universityType: universityType,
+      createAgencyUseCase: DIContainer.shared.resolve(type: CreateAgencyUseCaseInterface.self),
+      registerAgencyUseCase: DIContainer.shared.resolve(type: RegisterUniversitiesUseCaseInterface.self)
+    )
+    return vc
+  }
+  
+  func makeInputUniversityInfo(agencyName: String, agencyType: AgencyType) -> InputUniversityInfoVC {
+    let vc = InputUniversityInfoVC()
+    vc.reactor = InputUniversityInfoReactor(
+      agencyName: agencyName,
+      agencyType: agencyType,
+      registerUniversitiesUseCase: DIContainer.shared.resolve(type: RegisterUniversitiesUseCaseInterface.self),
+      searchUniversitiesUseCase: DIContainer.shared.resolve(type: SearchUniversitiesUseCaseInterface.self),
+      createAgencyUseCase: DIContainer.shared.resolve(type: CreateAgencyUseCaseInterface.self)
+    )
     return vc
   }
 }

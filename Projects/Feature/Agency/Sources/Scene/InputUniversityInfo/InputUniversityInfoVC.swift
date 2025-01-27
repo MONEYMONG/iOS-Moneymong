@@ -4,7 +4,6 @@ import Combine
 import DesignSystem
 import BaseFeature
 import Core
-import CreateAgencyInterface
 import UserInterface
 
 import FlexLayout
@@ -14,9 +13,7 @@ import ReactorKit
 final class InputUniversityInfoVC: UIViewController, View {
   var disposeBag = DisposeBag()
   private var anyCancellable = Set<AnyCancellable>()
-  
-  private let completeFactory: CreateCompleteFactoryInterface
-  
+    
   var coordinator: CreateAgencyCoordinator?
   
   private var keybordShowCreateButtonConstraints: [NSLayoutConstraint] = []
@@ -72,16 +69,6 @@ final class InputUniversityInfoVC: UIViewController, View {
     button.titleLabel?.font = Fonts.body._3
     return button
   }()
-    
-  init(completeFactory: CreateCompleteFactoryInterface) {
-    self.completeFactory = completeFactory
-    super.init(nibName: nil, bundle: nil)
-  }
-  
-  @available(*, unavailable)
-  required init?(coder: NSCoder) {
-    fatalError("init(coder:) has not been implemented")
-  }
   
   override func viewDidLoad() {
     super.viewDidLoad()
@@ -201,8 +188,9 @@ final class InputUniversityInfoVC: UIViewController, View {
           owner.dismiss(animated: true)
           owner.coordinator?.move(to: .main)
         case let .complete(id):
-          let vc = owner.completeFactory.make(coordinator: owner.coordinator, id: id)
-          owner.navigationController?.pushViewController(vc, animated: true)
+#warning("TODO")
+          //let vc = owner.completeFactory.make(coordinator: owner.coordinator, id: id)
+          //owner.navigationController?.pushViewController(vc, animated: true)
         }
       }
       .disposed(by: disposeBag)

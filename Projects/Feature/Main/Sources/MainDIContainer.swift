@@ -3,7 +3,7 @@ import UIKit
 import AgencyFeature
 import BaseFeature
 import Core
-import CreateAgencyInterface
+import AgencyFeatureInterface
 import LedgerFeature
 import MyPageFeatureInterface
 

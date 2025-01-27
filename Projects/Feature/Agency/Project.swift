@@ -21,10 +21,6 @@ let project = Project(
                 path: .relativeToRoot("Projects/Feature/Base")
               ),
               .project(
-                target: "CreateAgencyInterface",
-                path: .relativeToRoot("Projects/Feature/CreateAgency")
-              ),
-              .project(
                 target: "UserInterface",
                 path: .relativeToRoot("Projects/Domain/User")
               ),

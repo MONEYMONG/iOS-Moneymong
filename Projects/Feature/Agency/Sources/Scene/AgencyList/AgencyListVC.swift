@@ -4,7 +4,7 @@ import DesignSystem
 import BaseFeature
 import Utility
 import Core
-import CreateAgencyInterface
+import AgencyFeatureInterface
 
 import ReactorKit
 import RxDataSources

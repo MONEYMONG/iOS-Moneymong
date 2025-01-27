@@ -3,7 +3,6 @@ import Combine
 
 import DesignSystem
 import BaseFeature
-import CreateAgencyInterface
 
 import RxSwift
 import RxCocoa
@@ -12,23 +11,12 @@ import ReactorKit
 public final class InputAgencyInfoVC: BaseVC, View {
   public var disposeBag = DisposeBag()
   private var cancelBag = Set<AnyCancellable>()
-  
-  private let createCompleteFactory: CreateCompleteFactoryInterface
-  private let inputUniversityInfoFactory: InputUniversityInfoFactoryInterface
+ 
   
   private var keybordShowCreateButtonConstraints: [NSLayoutConstraint] = []
   private var keybordHideCreateButtonConstraints: [NSLayoutConstraint] = []
 
   public var coordinator: CreateAgencyCoordinator?
-  
-  init(
-    createCompleteFactory: CreateCompleteFactoryInterface,
-    inputUniversityInfoFactory: InputUniversityInfoFactoryInterface
-  ) {
-    self.createCompleteFactory = createCompleteFactory
-    self.inputUniversityInfoFactory = inputUniversityInfoFactory
-    super.init()
-  }
   
   private let titleLabel: UILabel = {
     let v = UILabel()
@@ -214,17 +202,18 @@ public final class InputAgencyInfoVC: BaseVC, View {
       .observe(on: MainScheduler.instance)
       .bind(with: self) { owner, value in
         guard let coordinator = owner.coordinator else { return }
-        switch value {
-        case let .complete(id):
-          let vc = owner.createCompleteFactory.make(coordinator: coordinator, id: id)
-          owner.navigationController?.pushViewController(vc, animated: true)
-        case let .inputUniversity(agencyName, agencyType):
-          let vc = owner.inputUniversityInfoFactory.make(coordinator: coordinator, agencyName: agencyName, agencyType: agencyType)
-          owner.navigationController?.pushViewController(vc, animated: true)
-        case .main:
-          owner.dismiss(animated: true)
-          owner.coordinator?.move(to: .main)
-        }
+#warning("TODO")
+//        switch value {
+//        case let .complete(id):
+//          let vc = owner.createCompleteFactory.make(coordinator: coordinator, id: id)
+//          owner.navigationController?.pushViewController(vc, animated: true)
+//        case let .inputUniversity(agencyName, agencyType):
+//          let vc = owner.inputUniversityInfoFactory.make(coordinator: coordinator, agencyName: agencyName, agencyType: agencyType)
+//          owner.navigationController?.pushViewController(vc, animated: true)
+//        case .main:
+//          owner.dismiss(animated: true)
+//          owner.coordinator?.move(to: .main)
+//        }
       }
       .disposed(by: disposeBag)
     
