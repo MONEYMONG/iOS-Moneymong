@@ -5,13 +5,11 @@ import BaseFeature
 import DesignSystem
 import MyPageFeatureInterface
 
-public final class MyPageCoordinator: Coordinator {
+public final class MyPageCoordinator: MyPageCoordinatorInterface {
   public weak var navigationController: UINavigationController?
   public weak var parentCoordinator: Coordinator?
 
-  public init(navigationController: UINavigationController) {
-    self.navigationController = navigationController
-  }
+  public init() {}
   
   enum Scene {
     case alert(title: String, subTitle: String, okAction: () -> Void)
@@ -41,13 +39,13 @@ public final class MyPageCoordinator: Coordinator {
 
 extension MyPageCoordinator {
   private func myPage(animated: Bool) {
-    guard let vc = DIContainer.shared.resolve(type: MyPageFactoryInterface.self).makeMyPageVC() as? MyPageVC else { return }
+    let vc = MyPageFactory().makeMyPageVC()
     vc.coordinator = self
     navigationController?.setViewControllers([vc], animated: true)
   }
   
   private func withdrawl(animated: Bool = true) {
-    guard let vc = DIContainer.shared.resolve(type: MyPageFactoryInterface.self).makeWithdrawalVC() as? WithdrawalVC else { return }
+    let vc = MyPageFactory().makeWithdrawalVC()
     vc.coordinator = self
     navigationController?.pushViewController(vc, animated: animated)
   }

@@ -275,9 +275,9 @@ extension SceneDelegate {
       return UploadReceiptUseCase(ledgerRepo: ledgerRepo)
     }
     
-    // MARK: - Factory Dependency
-    DIContainer.shared.register(type: MyPageFactoryInterface.self) {
-      return MyPageFactory()
+    // MARK: - Coordinator Dependency
+    DIContainer.shared.register(type: MyPageCoordinatorInterface.self) {
+      return MyPageCoordinator()
     }
     
     DIContainer.shared.register(type: AgencyFactoryInterface.self) {
