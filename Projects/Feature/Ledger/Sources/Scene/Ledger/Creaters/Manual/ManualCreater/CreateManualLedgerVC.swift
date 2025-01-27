@@ -11,8 +11,6 @@ import RxDataSources
 import PinLayout
 import FlexLayout
 
-// TODO: 각 텍스트 필드에 조건 넣어줘야함
-
 final class CreateManualLedgerVC: BaseVC, View, ImagePickerPresentable {  
   var coordinator: CreateManualLedgerCoordinator?
   private struct ViewSize {
@@ -455,7 +453,7 @@ final class CreateManualLedgerVC: BaseVC, View, ImagePickerPresentable {
     reactor.pulse(\.$selectedSection)
       .compactMap { $0 }
       .bind(with: self) { owner, _ in
-        owner.imagePicker(target: self, animated: true, delegate: owner)
+        owner.imagePicker(target: owner, animated: true, delegate: owner)
       }
       .disposed(by: disposeBag)
     
