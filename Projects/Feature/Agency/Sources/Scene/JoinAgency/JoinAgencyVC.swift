@@ -9,7 +9,7 @@ import RxCocoa
 
 final class JoinAgencyVC: BaseVC, ReactorKit.View {
   var disposeBag = DisposeBag()
-  weak var coordinator: AgencyCoordinator?
+  var coordinator: AgencyCoordinator?
   
   private let titleLabel: UILabel = {
     let v = UILabel()

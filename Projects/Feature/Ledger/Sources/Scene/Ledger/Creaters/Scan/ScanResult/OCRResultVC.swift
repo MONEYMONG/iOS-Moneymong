@@ -9,7 +9,7 @@ import FlexLayout
 
 final class OCRResultVC: BaseVC, View {
   var disposeBag = DisposeBag()
-  weak var coordinator: CreateOCRLedgerCoordinator?
+  var coordinator: CreateOCRLedgerCoordinator?
   
   private let receiptImageView: UIImageView = {
     let v = UIImageView()

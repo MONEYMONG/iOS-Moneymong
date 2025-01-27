@@ -1,15 +1,14 @@
 import UIKit
 
-import BaseFeatureInterface
+import BaseFeature
 import MainFeature
 import SignFeature
 import DesignSystem
 
 final class AppCoordinator: Coordinator {
-  var navigationController: UINavigationController
+  weak var navigationController: UINavigationController?
   let diContainer: AppDIContainer
   weak var parentCoordinator: Coordinator?
-  var childCoordinators: [Coordinator] = []
   
   init(navigationController: UINavigationController, diContainer: AppDIContainer) {
     self.navigationController = navigationController
@@ -27,13 +26,13 @@ final class AppCoordinator: Coordinator {
     case .login:
       sign(animated: true)
     case .ledger:
-      main(animated: true)
-      let mainCoordinator = childCoordinators.first { $0 is MainTabBarCoordinator }
-      mainCoordinator?.move(to: .ledger)
+      main(animated: true) { mainCoordinator in
+        mainCoordinator.move(to: .ledger)
+      }
     case let .createManualLedger(id):
-      main(animated: true)
-      let mainCoordinator = childCoordinators.first { $0 is MainTabBarCoordinator }
-      mainCoordinator?.move(to: .createManualLedger(id))
+      main(animated: true) { mainCoordinator in
+        mainCoordinator.move(to: .createManualLedger(id))
+      }
     default: break
     }
   }
@@ -50,16 +49,15 @@ extension AppCoordinator {
     )
     signCoordinator.start(animated: true)
     signCoordinator.parentCoordinator = self
-    childCoordinators.append(signCoordinator)
   }
   
-  func main(animated: Bool) {
+  func main(animated: Bool, completion: ((Coordinator) -> Void)? = nil) {
     let mainTabCoordinator = MainTabBarCoordinator(
       navigationController: navigationController,
       diContainer: diContainer.mainDIContainer
     )
     mainTabCoordinator.start(animated: true)
     mainTabCoordinator.parentCoordinator = self
-    childCoordinators.append(mainTabCoordinator)
+    completion?(mainTabCoordinator)
   }
 }

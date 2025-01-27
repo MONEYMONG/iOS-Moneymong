@@ -12,7 +12,7 @@ import FlexLayout
 
 public final class MyPageVC: BaseVC, ReactorKit.View {
   public var disposeBag = DisposeBag()
-  weak var coordinator: MyPageCoordinator?
+  var coordinator: MyPageCoordinator?
   
   private let tableView: UITableView = {
     let v = UITableView(frame: .zero, style: .insetGrouped)
@@ -99,10 +99,6 @@ public final class MyPageVC: BaseVC, ReactorKit.View {
           subTitle: "로그인한 계정이 로그아웃됩니다",
           okAction: { reactor.action.onNext(.logout) })
         )
-      case .setting(.versionInfo):
-        #if DEBUG
-        owner.coordinator?.present(.debug)
-        #endif
       default: break
       }
     }
@@ -139,7 +135,7 @@ public final class MyPageVC: BaseVC, ReactorKit.View {
       .bind(with: self) { owner, destination in
         switch destination {
         case .login:
-          owner.coordinator?.goLogin()
+          owner.coordinator?.move(to: .login)
         }
       }
       .disposed(by: disposeBag)

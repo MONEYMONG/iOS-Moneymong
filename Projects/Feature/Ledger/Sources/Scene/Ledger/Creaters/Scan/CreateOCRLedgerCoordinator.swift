@@ -1,16 +1,14 @@
 import UIKit
 
 import BaseFeature
-import BaseFeatureInterface
 import DesignSystem
 import Core
 import LedgerInterface
 import LedgerFeatureInterface
 
 final class CreateOCRLedgerCoordinator: Coordinator {
-  unowned var navigationController: UINavigationController
+  weak var navigationController: UINavigationController?
   weak var parentCoordinator: Coordinator?
-  var childCoordinators: [Coordinator] = []
   
   enum Scene {
     case alert(title: String, subTitle: String?, type: MMAlerts.`Type`)
@@ -26,7 +24,7 @@ final class CreateOCRLedgerCoordinator: Coordinator {
   func start(agencyId: Int, animated: Bool) {
     guard let vc = DIContainer.shared.resolve(type: LedgerFactoryInterface.self).makeOCR(agencyId: agencyId) as? CreateOCRLedgerVC else { return }
     vc.coordinator = self
-    navigationController.viewControllers = [vc]
+    navigationController?.viewControllers = [vc]
   }
   
   @MainActor func present(_ scene: Scene, animated: Bool = true) {
@@ -51,7 +49,7 @@ extension CreateOCRLedgerCoordinator {
   private func scanResult(agencyId: Int, model: OCRResult, imageData: Data, animated: Bool = true) {
     guard let vc = DIContainer.shared.resolve(type: LedgerFactoryInterface.self).makeOCRResult(agencyId: agencyId, model: model, imageData: imageData) as? OCRResultVC else { return }
     vc.coordinator = self
-    navigationController.pushViewController(vc, animated: animated)
+    navigationController?.pushViewController(vc, animated: animated)
   }
   
   private func createManualLedger(
@@ -60,6 +58,6 @@ extension CreateOCRLedgerCoordinator {
     animated: Bool
   ) {
     let vc = DIContainer.shared.resolve(type: LedgerFactoryInterface.self).makeCreateManual(agencyId: agencyId, type: type)
-    navigationController.pushViewController(vc, animated: animated)
+    navigationController?.pushViewController(vc, animated: animated)
   }
 }

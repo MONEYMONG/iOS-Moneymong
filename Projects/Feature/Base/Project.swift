@@ -20,21 +20,10 @@ let project = Project(
             dependencies: [
               .project(target: "DesignSystem", path: .relativeToRoot("Projects/Shared/DesignSystem")),
               .project(target: "Core", path: .relativeToRoot("Projects/Core/Core")),
-              .target(name: "BaseFeatureInterface"),
               .project(target: "AgencyInterface", path: .relativeToRoot("Projects/Domain/Agency")),
               .project(target: "LedgerInterface", path: .relativeToRoot("Projects/Domain/Ledger")),
               .project(target: "UserInterface", path: .relativeToRoot("Projects/Domain/User")),
               .project(target: "AuthInterface", path: .relativeToRoot("Projects/Domain/Auth"))
-            ]
-        ),
-        Target(
-            name: "BaseFeatureInterface",
-            platform: .iOS,
-            product: .framework,
-            bundleId: "com.framework.moneymong.BaseFeatureInterface",
-            deploymentTarget: .iOS(targetVersion: "15.0", devices: .iphone),
-            sources: ["Interface/**"],
-            dependencies: [
             ]
         )
     ]

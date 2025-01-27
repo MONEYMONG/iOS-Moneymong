@@ -1,14 +1,12 @@
 import UIKit
 
 import BaseFeature
-import BaseFeatureInterface
 import DesignSystem
 import LedgerFeatureInterface
 
 final class CreateManualLedgerCoordinator: Coordinator {
-  unowned var navigationController: UINavigationController
+  weak var navigationController: UINavigationController?
   weak var parentCoordinator: Coordinator?
-  var childCoordinators: [Coordinator] = []
   
   enum Scene {
     case imagePicker(delegate: UIImagePickerControllerDelegate & UINavigationControllerDelegate)
@@ -22,6 +20,6 @@ final class CreateManualLedgerCoordinator: Coordinator {
   func start(agencyId: Int, type: ManualPresentType, animated: Bool) {
     guard let vc = DIContainer.shared.resolve(type: LedgerFactoryInterface.self).makeCreateManual(agencyId: agencyId, type: type) as? CreateManualLedgerVC else { return }
     vc.coordinator = self
-    navigationController.pushViewController(vc, animated: animated)
+    navigationController?.pushViewController(vc, animated: animated)
   }
 }

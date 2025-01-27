@@ -11,7 +11,7 @@ import ReactorKit
 final class CreateOCRLedgerVC: UIViewController, View {
   var disposeBag = DisposeBag()
   
-  weak var coordinator: CreateOCRLedgerCoordinator?
+  var coordinator: CreateOCRLedgerCoordinator?
   
   private let deviceHeight = UIScreen.main.bounds.height
   
@@ -78,10 +78,6 @@ final class CreateOCRLedgerVC: UIViewController, View {
   }()
   
   private let indicator = MMIndicator()
-  
-  deinit {
-    coordinator?.remove()
-  }
   
   override func viewDidLoad() {
     super.viewDidLoad()

@@ -1,6 +1,6 @@
 import UIKit
 
-import BaseFeatureInterface
+import BaseFeature
 import Core
 import DesignSystem
 
@@ -8,7 +8,7 @@ import RxSwift
 
 public final class MainTapViewController: UITabBarController {
   private let disposeBag = DisposeBag()
-  weak var coordinator: Coordinator?
+  var coordinator: Coordinator?
 
   public init() {
     super.init(nibName: nil, bundle: nil)

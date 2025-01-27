@@ -11,21 +11,28 @@ public enum Scene {
 }
 
 public protocol Coordinator: AnyObject {
-  var navigationController: UINavigationController { get set }
+  var navigationController: UINavigationController? { get set }
   var parentCoordinator: Coordinator? { get set }
-  var childCoordinators: [Coordinator] { get set }
 
-  func remove() // 자기자신을 부모의 childCoordinators 스택에서 제거
   func move(to scene: Scene) // 특정 화면으로 이동 (부모에게 요청)
 }
 
 public extension Coordinator {
-  func remove() {
-    parentCoordinator?.childCoordinators.removeAll { $0 === self }
-  }
-
   func move(to scene: Scene) {
-    // empty
+    switch scene {
+    case .main:
+      parentCoordinator?.move(to: .main)
+    case .login:
+      parentCoordinator?.move(to: .login)
+    case .ledger:
+      parentCoordinator?.move(to: .ledger)
+    case let .createManualLedger(id):
+      parentCoordinator?.move(to: .createManualLedger(id))
+    case let .createOCRLedger(id):
+      parentCoordinator?.move(to: .createOCRLedger(id))
+    case .agency:
+      parentCoordinator?.move(to: .agency)
+    }
   }
   
   func web(urlString: String, animated: Bool = true) {
@@ -34,6 +41,6 @@ public extension Coordinator {
     }
     
     let vc = SFSafariViewController(url: url)
-    navigationController.topViewController?.present(vc, animated: animated)
+    navigationController?.topViewController?.present(vc, animated: animated)
   }
 }

@@ -10,7 +10,7 @@ import ReactorKit
 
 final class MemberTabVC: BaseVC, View {
   var disposeBag = DisposeBag()
-  weak var coordinator: LedgerCoordinator?
+  var coordinator: LedgerCoordinator?
   
   private let profileHeaderLabel: UILabel = {
     let v = UILabel()

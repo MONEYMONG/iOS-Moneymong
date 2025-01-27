@@ -9,7 +9,7 @@ import PinLayout
 
 final class JoinCompleteVC: BaseVC, View {
   var disposeBag = DisposeBag()
-  weak var coordinator: AgencyCoordinator?
+  var coordinator: AgencyCoordinator?
   
   private let iconImageView = UIImageView(image: Images.congrats)
   
