@@ -136,7 +136,8 @@ extension SceneDelegate {
     
     DIContainer.shared.register(type: SignUpUseCaseInterface.self) {
       let signRepo = SignRepository(networkManager: networkManager, localStorage: localStorage)
-      return SignUpUseCase(signRepo: signRepo)
+      let userRepo = UserRepository(networkManager: networkManager, localStorage: localStorage)
+      return SignUpUseCase(signRepo: signRepo, userRepo: userRepo)
     }
     
     DIContainer.shared.register(type: GetRecentLoginInfoUseCaseInterface.self) {
