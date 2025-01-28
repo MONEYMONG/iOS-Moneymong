@@ -1,13 +1,15 @@
 import UIKit
 
-import BaseFeature
-
 import AgencyInterface
-import UserInterface
 import AgencyFeatureInterface
+import BaseFeature
+import UserInterface
 
 struct AgencyFactory {
-  func makeAgencyList() -> UIViewController {
+  
+  init() { }
+  
+  func makeAgencyList() -> AgencyListVC {
     let vc = AgencyListVC()
     
     let getAgencyListUseCase = DIContainer.shared.resolve(type: GetAgencyListUseCaseInterface.self)
@@ -25,7 +27,7 @@ struct AgencyFactory {
     return vc
   }
   
-  func makeJoinAgency(agencyID: Int, agencyName: String) -> UIViewController {
+  func makeJoinAgency(agencyID: Int, agencyName: String) -> JoinAgencyVC {
     let vc = JoinAgencyVC()
     
     let usecase = DIContainer.shared
@@ -36,10 +38,10 @@ struct AgencyFactory {
       name: agencyName,
       confirmCertificateCodeUseCase: usecase
     )
-    return UINavigationController(rootViewController: vc)
+    return vc
   }
   
-  func makeJoinComplete() -> UIViewController {
+  func makeJoinComplete() -> JoinCompleteVC {
     let vc = JoinCompleteVC()
     vc.reactor = JoinCompleteReactor()
     return vc

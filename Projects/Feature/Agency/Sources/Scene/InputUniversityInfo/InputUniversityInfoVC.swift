@@ -188,9 +188,7 @@ final class InputUniversityInfoVC: UIViewController, View {
           owner.dismiss(animated: true)
           owner.coordinator?.move(to: .main)
         case let .complete(id):
-#warning("TODO")
-          //let vc = owner.completeFactory.make(coordinator: owner.coordinator, id: id)
-          //owner.navigationController?.pushViewController(vc, animated: true)
+          owner.coordinator?.push(.createComplete(agencyID: id))
         }
       }
       .disposed(by: disposeBag)

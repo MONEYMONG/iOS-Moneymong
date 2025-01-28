@@ -1,5 +1,6 @@
 import UIKit
 
+import AgencyFeatureInterface
 import BaseFeature
 import DesignSystem
 import SignFeatureInterface
@@ -32,13 +33,14 @@ public extension SignCoordinator {
   }
 
   func createAgency(animated: Bool = true) {
-#warning("TODO")
-//    let vc = UINavigationController()
-//    let coordinator = CreateAgencyCoordinator(navigationController: vc)
-//    coordinator.parentCoordinator = self
-//    coordinator.start(animated: true, universityType: .unknown)
-//    vc.modalPresentationStyle = .fullScreen
-//    navigationController?.present(vc, animated: animated)
+    let root = UINavigationController()
+    root.modalPresentationStyle = .fullScreen
+    let coordinator = DIContainer.shared.resolve(type: CreateAgencyCoordinatorInterface.self)
+    coordinator.navigationController = root
+    coordinator.parentCoordinator = self
+    coordinator.start(universityType: .unknown, animated: animated)
+
+    navigationController?.present(root, animated: animated)
   }
 
   func congratulations(animated: Bool = true) {
