@@ -3,7 +3,6 @@ import UIKit
 import AgencyFeatureInterface
 import BaseFeature
 import DesignSystem
-import SignFeatureInterface
 
 public final class SignCoordinator: Coordinator {
   public weak var navigationController: UINavigationController?
@@ -20,14 +19,14 @@ public final class SignCoordinator: Coordinator {
 
 public extension SignCoordinator {
   func splash(animated: Bool = false) {
-    guard let vc = DIContainer.shared.resolve(type: SignFactoryInterface.self).makeSplash() as? SplashVC else { return }
+    guard let vc = SignFactory().makeSplash() as? SplashVC else { return }
     vc.coordinator = self
     navigationController?.isNavigationBarHidden = false
     navigationController?.viewControllers = [vc]
   }
 
   func login(animated: Bool = false) {
-    guard let vc = DIContainer.shared.resolve(type: SignFactoryInterface.self).makeLogin() as? LoginVC else { return }
+    guard let vc =  SignFactory().makeLogin() as? LoginVC else { return }
     vc.coordinator = self
     self.navigationController?.pushViewController(vc, animated: animated)
   }
@@ -44,7 +43,7 @@ public extension SignCoordinator {
   }
 
   func congratulations(animated: Bool = true) {
-    guard let vc = DIContainer.shared.resolve(type: SignFactoryInterface.self).makeCongratulation() as? CongratulationsVC else { return }
+    guard let vc =  SignFactory().makeCongratulation() as? CongratulationsVC else { return }
     vc.coordinator = self
     navigationController?.pushViewController(vc, animated: animated)
   }
