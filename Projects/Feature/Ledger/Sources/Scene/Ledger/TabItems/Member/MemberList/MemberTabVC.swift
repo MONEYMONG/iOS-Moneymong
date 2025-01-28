@@ -86,7 +86,7 @@ final class MemberTabVC: BaseVC, View {
     tableView.rx.modelSelected(Member.self)
       .bind(with: self) { owner, member in
         guard let id = reactor.currentState.agencyID else { return }
-        owner.editMember(agencyID: id, member: member)
+        owner.coordinator?.editMember(agencyID: id, member: member)
       }
       .disposed(by: disposeBag)
     
@@ -161,14 +161,5 @@ final class MemberTabVC: BaseVC, View {
         }
       }
       .disposed(by: disposeBag)
-  }
-}
-
-extension MemberTabVC {
-  private func editMember(agencyID: Int, member: Member, animated: Bool = false) {
-    let vc = DIContainer.shared.resolve(type: LedgerFactoryInterface.self).makeEditMember(agencyID: agencyID, member: member)
-    vc.modalPresentationStyle = .overFullScreen
-    vc.modalTransitionStyle = .crossDissolve
-    present(vc, animated: animated)
   }
 }

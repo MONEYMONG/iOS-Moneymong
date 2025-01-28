@@ -198,7 +198,7 @@ final class LedgerTabVC: BaseVC, View {
       .bind(with: self) { owner, destination in
         switch destination {
         case let .datePicker(start, end):
-          owner.datePicker(start: start, end: end)
+          owner.coordinator?.datePicker(start: start, end: end)
         case let .createManualLedger(id):
           owner.coordinator?.present(.createManualLedger(id, .createManual))
         case let .createOCRLedger(id):
@@ -206,13 +206,5 @@ final class LedgerTabVC: BaseVC, View {
         }
       }
       .disposed(by: disposeBag)
-  }
-}
-
-extension LedgerTabVC {
-  private func datePicker(start: DateInfo, end: DateInfo) {
-    let vc = DIContainer.shared.resolve(type: LedgerFactoryInterface.self).makeDatePicker(start: start, end: end)
-    vc.modalPresentationStyle = .overFullScreen
-    present(vc, animated: false)
   }
 }

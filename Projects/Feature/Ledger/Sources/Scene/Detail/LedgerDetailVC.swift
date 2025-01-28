@@ -183,7 +183,7 @@ extension LedgerDetailVC: LedgerContentsViewDelegate {
   }
   
   func pop(_ ledgerContentsView: LedgerContentsView) {
-    navigationController?.popViewController(animated: true)
+    coordinator?.pop()
   }
 }
 

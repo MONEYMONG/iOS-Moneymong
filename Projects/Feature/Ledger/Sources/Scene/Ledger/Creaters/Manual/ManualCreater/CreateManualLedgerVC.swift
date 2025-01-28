@@ -277,7 +277,7 @@ final class CreateManualLedgerVC: BaseVC, View, ImagePickerPresentable {
     case .ocrResultEdit:
       navigationItem.leftBarButtonItem?.rx.tap
         .bind(with: self, onNext: { owner, _ in
-          owner.navigationController?.popViewController(animated: true)
+          owner.coordinator?.pop()
         })
         .disposed(by: disposeBag)
       navigationItem.rightBarButtonItem?.rx.tap
