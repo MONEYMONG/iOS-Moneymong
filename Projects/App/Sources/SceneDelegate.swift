@@ -18,19 +18,15 @@ import MyPageFeatureInterface
 import LedgerFeature
 import LedgerFeatureInterface
 import SignFeature
-import SignFeatureInterface
 
 class SceneDelegate: UIResponder, UIWindowSceneDelegate {
-  private let localStorage = LocalStorage()
-  private let networkManager = NetworkManager()
-  private lazy var diContainer = AppDIContainer(localStorage: localStorage, networkManager: networkManager)
-  
+  let localStorage = LocalStorage()
   private var appCoordinator: AppCoordinator?
   var window: UIWindow?
   
   func scene(_ scene: UIScene, willConnectTo session: UISceneSession, options connectionOptions: UIScene.ConnectionOptions) {
     Fonts.registerFont()
-    registerDependency()
+    registerDependency(localStorage: localStorage)
 
     let navigationController = UINavigationController()
     
@@ -40,8 +36,7 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
     self.window?.rootViewController = navigationController
     
     self.appCoordinator = AppCoordinator(
-      navigationController: navigationController,
-      diContainer: diContainer
+      navigationController: navigationController
     )
     appCoordinator?.start(animated: false)
     
@@ -70,8 +65,7 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
 }
 
 extension SceneDelegate {
-  func registerDependency() {
-    let localStorage = LocalStorage()
+  func registerDependency(localStorage: LocalStorage) {
     let networkManager = NetworkManager()
     let ledgerService = LedgerService()
     let contentFormatter = ContentFormatter()
@@ -297,10 +291,6 @@ extension SceneDelegate {
     
     DIContainer.shared.register(type: CreateOCRLedgerCoordinatorInterface.self) {
       return CreateOCRLedgerCoordinator(ledgerService: ledgerService, contentFormatter: contentFormatter)
-    }
-    
-    DIContainer.shared.register(type: SignFactoryInterface.self) {
-      return SignFactory()
     }
   }
 }

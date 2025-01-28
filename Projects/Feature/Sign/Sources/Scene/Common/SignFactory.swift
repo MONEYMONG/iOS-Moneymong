@@ -1,10 +1,9 @@
 import UIKit
 
-import SignFeatureInterface
 import AuthInterface
 import BaseFeature
 
-public struct SignFactory: SignFactoryInterface {
+public struct SignFactory {
   public init() {}
   
   public func makeSplash() -> UIViewController {

@@ -7,12 +7,10 @@ import DesignSystem
 
 final class AppCoordinator: Coordinator {
   weak var navigationController: UINavigationController?
-  let diContainer: AppDIContainer
   weak var parentCoordinator: Coordinator?
   
-  init(navigationController: UINavigationController, diContainer: AppDIContainer) {
+  init(navigationController: UINavigationController) {
     self.navigationController = navigationController
-    self.diContainer = diContainer
   }
 
   func start(animated: Bool) {
@@ -36,10 +34,6 @@ final class AppCoordinator: Coordinator {
     default: break
     }
   }
-
-  deinit {
-    NotificationCenter.default.removeObserver(self)
-  }
 }
 
 extension AppCoordinator {
@@ -53,8 +47,7 @@ extension AppCoordinator {
   
   func main(animated: Bool, completion: ((Coordinator) -> Void)? = nil) {
     let mainTabCoordinator = MainTabBarCoordinator(
-      navigationController: navigationController,
-      diContainer: diContainer.mainDIContainer
+      navigationController: navigationController
     )
     mainTabCoordinator.start(animated: true)
     mainTabCoordinator.parentCoordinator = self
