@@ -47,6 +47,10 @@ public final class CreateOCRLedgerCoordinator: CreateOCRLedgerCoordinatorInterfa
       )
     }
   }
+  
+  func pop() {
+    navigationController?.popViewController(animated: true)
+  }
 }
 
 extension CreateOCRLedgerCoordinator {

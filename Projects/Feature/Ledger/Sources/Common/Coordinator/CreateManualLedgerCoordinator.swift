@@ -27,4 +27,8 @@ public final class CreateManualLedgerCoordinator: CreateManualLedgerCoordinatorI
     vc.coordinator = self
     navigationController?.pushViewController(vc, animated: animated)
   }
+  
+  func pop() {
+    navigationController?.popViewController(animated: true)
+  }
 }

@@ -42,6 +42,10 @@ public final class LedgerCoordinator: LedgerCoordinatorInterface {
       detail(ledgerID: ledger.id, role: role)
     }
   }
+  
+  func pop() {
+    navigationController?.popViewController(animated: true)
+  }
 }
 
 extension LedgerCoordinator {

@@ -84,7 +84,7 @@ final class LedgerDetailVC: BaseVC, View, ImagePickerPresentable {
     navigationItem.leftBarButtonItem?.rx.tap
       .observe(on: MainScheduler.instance)
       .bind(with: self) { owner, _ in
-        owner.navigationController?.popViewController(animated: true)
+        owner.coordinator?.pop()
       }
       .disposed(by: disposeBag)
 
@@ -146,7 +146,7 @@ final class LedgerDetailVC: BaseVC, View, ImagePickerPresentable {
       .compactMap { $0 }
       .observe(on: MainScheduler.instance)
       .bind(with: self) { owner, _ in
-        owner.navigationController?.popViewController(animated: true)
+        owner.coordinator?.pop()
       }
       .disposed(by: disposeBag)
   }
@@ -183,7 +183,7 @@ extension LedgerDetailVC: LedgerContentsViewDelegate {
   }
   
   func pop(_ ledgerContentsView: LedgerContentsView) {
-    navigationController?.popViewController(animated: true)
+    coordinator?.pop()
   }
 }
 
