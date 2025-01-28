@@ -11,11 +11,11 @@ import ReactorKit
 public final class InputAgencyInfoVC: BaseVC, View {
   public var disposeBag = DisposeBag()
   private var cancelBag = Set<AnyCancellable>()
- 
+  
   
   private var keybordShowCreateButtonConstraints: [NSLayoutConstraint] = []
   private var keybordHideCreateButtonConstraints: [NSLayoutConstraint] = []
-
+  
   public var coordinator: CreateAgencyCoordinator?
   
   private let titleLabel: UILabel = {
@@ -103,7 +103,7 @@ public final class InputAgencyInfoVC: BaseVC, View {
   public func bind(reactor: InputAgencyInfoReactor) {
     // Action Binding
     setRightItem(.closeBlack)
-
+    
     NotificationCenter.default.rx.notification(UIResponder.keyboardWillShowNotification)
       .bind(with: self) { owner, _ in
         UIView.animate(withDuration: 0.2) {
@@ -179,7 +179,7 @@ public final class InputAgencyInfoVC: BaseVC, View {
       .map { Reactor.Action.notRegisterButtonDidTap }
       .bind(to: reactor.action)
       .disposed(by: disposeBag)
-      
+    
     // State Binding
     reactor.pulse(\.$universityType)
       .filter { $0 == .none}
@@ -200,20 +200,16 @@ public final class InputAgencyInfoVC: BaseVC, View {
     reactor.pulse(\.$destination)
       .compactMap { $0 }
       .observe(on: MainScheduler.instance)
-      .bind(with: self) { owner, value in
-        guard let coordinator = owner.coordinator else { return }
-#warning("TODO")
-//        switch value {
-//        case let .complete(id):
-//          let vc = owner.createCompleteFactory.make(coordinator: coordinator, id: id)
-//          owner.navigationController?.pushViewController(vc, animated: true)
-//        case let .inputUniversity(agencyName, agencyType):
-//          let vc = owner.inputUniversityInfoFactory.make(coordinator: coordinator, agencyName: agencyName, agencyType: agencyType)
-//          owner.navigationController?.pushViewController(vc, animated: true)
-//        case .main:
-//          owner.dismiss(animated: true)
-//          owner.coordinator?.move(to: .main)
-//        }
+      .bind(with: self) { owner, destination in
+        switch destination {
+        case let .complete(agencyID):
+          owner.coordinator?.push(.createComplete(agencyID: agencyID))
+        case let .inputUniversity(agencyName, agencyType):
+          owner.coordinator?.push(.inputUniversity(agencyName: agencyName, agencyType: agencyType))
+        case .main:
+          owner.coordinator?.dismiss()
+          owner.coordinator?.move(to: .main)
+        }
       }
       .disposed(by: disposeBag)
     

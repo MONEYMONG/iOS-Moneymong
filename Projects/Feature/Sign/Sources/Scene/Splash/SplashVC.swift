@@ -44,7 +44,7 @@ final class SplashVC: BaseVC, View {
       .bind(with: self) { owner, destination in
         switch destination {
         case .login:
-          owner.coordinator?.move(to: .login)
+          owner.coordinator?.login()
         case .main:
           owner.coordinator?.move(to: .main)
         }

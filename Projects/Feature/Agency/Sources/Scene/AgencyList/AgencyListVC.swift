@@ -212,7 +212,7 @@ public final class AgencyListVC: BaseVC, View {
       .bind(with: self) { owner, destination in
         switch destination {
         case let .joinAgency(agency):
-          owner.coordinator?.present(.joinAgency(id: agency.id, name: agency.name))
+          owner.coordinator?.present(.joinAgency(agencyID: agency.id, agencyName: agency.name))
         case let .web(url):
           owner.coordinator?.present(.web(url))
         }

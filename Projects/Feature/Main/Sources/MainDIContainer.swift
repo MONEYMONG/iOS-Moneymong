@@ -1,9 +1,9 @@
 import UIKit
 
 import AgencyFeature
+import AgencyFeatureInterface
 import BaseFeature
 import Core
-import AgencyFeatureInterface
 import LedgerFeature
 import MyPageFeatureInterface
 
@@ -33,11 +33,12 @@ public final class MainDIContainer {
   }
 
   private func agencyTab(with coordinator: Coordinator) -> UIViewController {
-    let vc = UINavigationController()
-    let agencyCoordinator = AgencyCoordinator(navigationController: vc)
+    let navigationController = UINavigationController()
+    let agencyCoordinator = DIContainer.shared.resolve(type: AgencyCoordinatorInterface.self)
+    agencyCoordinator.navigationController = navigationController
     agencyCoordinator.parentCoordinator = coordinator
     agencyCoordinator.start(animated: false)
-    return vc
+    return navigationController
   }
   
   private func ledgerTab(with coordinator: Coordinator) -> UIViewController {

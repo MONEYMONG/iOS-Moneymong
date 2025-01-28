@@ -278,10 +278,13 @@ extension SceneDelegate {
       return MyPageCoordinator()
     }
     
-#warning("TODO")
-//    DIContainer.shared.register(type: AgencyFactoryInterface.self) {
-//      return AgencyFactory()
-//    }
+    DIContainer.shared.register(type: AgencyCoordinatorInterface.self) {
+      return AgencyCoordinator()
+    }
+    
+    DIContainer.shared.register(type: CreateAgencyCoordinatorInterface.self) {
+      return CreateAgencyCoordinator()
+    }
     
     DIContainer.shared.register(type: LedgerFactoryInterface.self) {
       return LedgerFactory(ledgerService: ledgerService, contentFormatter: contentFormatter)
@@ -290,17 +293,5 @@ extension SceneDelegate {
     DIContainer.shared.register(type: SignFactoryInterface.self) {
       return SignFactory()
     }
-    
-//    DIContainer.shared.register(type: CreateCompleteFactoryInterface.self) {
-//      return CreateCompleteFactory()
-//    }
-//    
-//    DIContainer.shared.register(type: InputAgencyInfoFactoryInterface.self) {
-//      return InputAgencyInfoFactory()
-//    }
-//    
-//    DIContainer.shared.register(type: InputUniversityInfoFactoryInterface.self) {
-//      return InputUniversityInfoFactory()
-//    }
   }
 }
