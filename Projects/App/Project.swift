@@ -8,7 +8,7 @@ let project = Project(
   ),
   settings: .settings(
     base: .init()
-      .marketingVersion("1.4.1")
+      .marketingVersion("1.4.2")
       .swiftVersion("5.7")
       .currentProjectVersion("1")
       .appleGenericVersioningSystem(),
