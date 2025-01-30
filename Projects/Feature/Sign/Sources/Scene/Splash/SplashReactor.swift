@@ -25,17 +25,17 @@ final class SplashReactor: Reactor {
 
   let initialState: State = State()
   private let signRepository: SignRepositoryInterface
-  private let tokenRepo: TokenRepositoryInterface
   private let versionRepo: VersionRepositoryInterface
+  private let userRepo: UserRepositoryInterface
 
   init(
     signRepository: SignRepositoryInterface,
-    tokenRepo: TokenRepositoryInterface,
-    versionRepo: VersionRepositoryInterface
+    versionRepo: VersionRepositoryInterface,
+    userRepo: UserRepositoryInterface
   ) {
     self.signRepository = signRepository
-    self.tokenRepo = tokenRepo
     self.versionRepo = versionRepo
+    self.userRepo = userRepo
   }
 
   func mutate(action: Action) -> Observable<Mutation> {
@@ -43,7 +43,7 @@ final class SplashReactor: Reactor {
     case .onAppear:
         .task {
           try await versionRepo.get()
-          try await tokenRepo.token()
+          _ = try await userRepo.user()
         }
         .map { .setDestination(.main) }
         .catch { error in
