@@ -66,12 +66,7 @@ final class OCRResultReactor: Reactor {
   func mutate(action: Action) -> Observable<Mutation> {
     switch action {
     case .didTapCompleteButton:
-      return .concat([
-        requestCreateLedgerRecord(),
-        service.ledgerList.createLedgerRecord().flatMap { _ in
-          Observable<Mutation>.empty()
-        }
-      ])
+      return requestCreateLedgerRecord()
     case .onAppear:
       return .just(.setSuccess(isSuccessOCR(ocrModel)))
     case .didTapEditButton:
@@ -128,7 +123,15 @@ private extension OCRResultReactor {
         documentImageUrls: []
       )
     }
-    .map { .setDestination(.ledger) }
+    .withUnretained(self)
+    .flatMap({ owner, _ -> Observable<Mutation> in
+      return .concat([
+        owner.service.ledgerList.createLedgerRecord().flatMap { _ in
+          Observable<Mutation>.empty()
+        },
+        .just(.setDestination(.ledger))
+      ])
+    })
     .catch {
       return .just(.setError($0.toMMError))
     }
