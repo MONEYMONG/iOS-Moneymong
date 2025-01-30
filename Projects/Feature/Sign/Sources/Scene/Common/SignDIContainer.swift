@@ -30,8 +30,8 @@ public final class SignDIContainer {
     let versionRepository = VersionRepository(networkManager: networkManager)
     vc.reactor = SplashReactor(
       signRepository: signRepository,
-      tokenRepo: TokenRepository(networkManager: networkManager, localStorage: localStorage),
-      versionRepo: versionRepository
+      versionRepo: versionRepository,
+      userRepo: UserRepository(networkManager: networkManager, localStorage: localStorage)
     )
     vc.coordinator = coordinator
     return vc

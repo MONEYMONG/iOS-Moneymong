@@ -28,7 +28,12 @@ final class NetworkLogger: EventMonitor {
     
     log.append("\(response.data?.toPrettyPrintedString ?? "None")")
     
-    logger.log("\(log)")
+    if (200..<300) ~= statusCode {
+      logger.log("\(log)")
+    } else {
+      logger.error("\(log)")
+      
+    }
   }
 }
 

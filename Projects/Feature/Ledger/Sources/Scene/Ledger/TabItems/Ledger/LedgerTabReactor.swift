@@ -10,6 +10,7 @@ final class LedgerTabReactor: Reactor {
     case didTapWriteButton
     case didTapScanButton
     case didPrefech(Int)
+    case didRefresh
   }
   
   enum Mutation {
@@ -126,6 +127,12 @@ final class LedgerTabReactor: Reactor {
         .just(.setLoading(true)),
         .just(.setPage(currentState.page + 1)),
         requestLedgerList(agencyID: currentState.agencyID),
+        .just(.setLoading(false))
+      ])
+    case .didRefresh:
+      return .concat([
+        .just(.setLoading(true)),
+        requestLedgerListFirstPage(agencyID: currentState.agencyID),
         .just(.setLoading(false))
       ])
     }

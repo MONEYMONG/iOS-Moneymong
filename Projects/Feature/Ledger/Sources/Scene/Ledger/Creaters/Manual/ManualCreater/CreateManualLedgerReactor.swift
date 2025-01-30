@@ -185,12 +185,7 @@ final class CreateManualLedgerReactor: Reactor {
     case .inputContent(let content):
       return .just(.setContent(content))
     case .didTapCompleteButton:
-      return .concat([
-        requestCreateLedgerRecord(),
-        service.ledgerList.createLedgerRecord().flatMap { _ in
-          Observable<Mutation>.empty()
-        }
-      ])
+      return requestCreateLedgerRecord()
     }
   }
   
@@ -339,7 +334,15 @@ private extension CreateManualLedgerReactor {
         receiptImageUrls: currentState.content.receiptImages.map(\.url),
         documentImageUrls: currentState.content.documentImages.map(\.url)
       )}
-    .map { .setDestination }
+    .withUnretained(self)
+    .flatMap({ owner, _ -> Observable<Mutation> in
+      return .concat([
+        owner.service.ledgerList.createLedgerRecord().flatMap { _ in
+          Observable<Mutation>.empty()
+        },
+        .just(.setDestination)
+      ])
+    })
     .catch {
       return .just(.setAlertContent(.error($0.toMMError)))
     }

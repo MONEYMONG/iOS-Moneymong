@@ -65,7 +65,7 @@ public final class LedgerVC: BaseVC, View {
   public func bind(reactor: LedgerReactor) {
     setTitle(agencyButton)
     
-    rx.viewWillAppear
+    rx.viewDidLoad
       .map { Reactor.Action.requestMyAgencies }
       .bind(to: reactor.action)
       .disposed(by: disposeBag)
