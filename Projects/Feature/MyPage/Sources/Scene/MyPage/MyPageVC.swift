@@ -25,7 +25,7 @@ public final class MyPageVC: BaseVC, ReactorKit.View {
     return v
   }()
   
-  private lazy var dataSource = RxTableViewSectionedReloadDataSource<MyPageSectionItemModel.Model> { dataSource, tableView, indexPath, item in
+  private lazy var dataSource = RxTableViewSectionedReloadDataSource<MyPageSectionItemModel.Model> { [weak self] dataSource, tableView, indexPath, item in
     
     switch item {
     case let .university(model):
@@ -34,7 +34,7 @@ public final class MyPageVC: BaseVC, ReactorKit.View {
       
     case .kakaoInquiry:
       return tableView.dequeue(InquiryCell.self, for: indexPath)
-        .configure { [weak self] in
+        .configure {
           self?.coordinator?.present(.web(urlString: "http://pf.kakao.com/_zDsyG"))
         }
       

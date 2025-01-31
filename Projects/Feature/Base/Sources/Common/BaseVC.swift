@@ -13,6 +13,10 @@ open class BaseVC: UIViewController {
     super.init(nibName: nil, bundle: nil)
   }
   
+  deinit {
+    print("deinit", String(describing: self))
+  }
+  
   @available(*, unavailable)
   required public init?(coder aDecoder: NSCoder) {
     fatalError("init(coder:) has not been implemented")
