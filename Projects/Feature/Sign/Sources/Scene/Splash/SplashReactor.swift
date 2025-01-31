@@ -1,4 +1,4 @@
-import Core
+import AuthInterface
 
 import ReactorKit
 
@@ -24,26 +24,20 @@ final class SplashReactor: Reactor {
   }
 
   let initialState: State = State()
-  private let signRepository: SignRepositoryInterface
-  private let versionRepo: VersionRepositoryInterface
-  private let userRepo: UserRepositoryInterface
+  
+  private let autoSignUseCase: AutoSignUseCaseInterface
 
   init(
-    signRepository: SignRepositoryInterface,
-    versionRepo: VersionRepositoryInterface,
-    userRepo: UserRepositoryInterface
+    autoSignUseCase: AutoSignUseCaseInterface
   ) {
-    self.signRepository = signRepository
-    self.versionRepo = versionRepo
-    self.userRepo = userRepo
+    self.autoSignUseCase = autoSignUseCase
   }
 
   func mutate(action: Action) -> Observable<Mutation> {
     switch action {
     case .onAppear:
         .task {
-          try await versionRepo.get()
-          _ = try await userRepo.user()
+          try await autoSignUseCase.execute()
         }
         .map { .setDestination(.main) }
         .catch { error in

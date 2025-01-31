@@ -1,8 +1,6 @@
 import UIKit
 
-import Core
-
-// import Pulse
+import BaseDomain
 
 @main
 class AppDelegate: UIResponder, UIApplicationDelegate {
@@ -11,7 +9,6 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     _ application: UIApplication,
     didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?
   ) -> Bool {
-    FirebaseManager.shared.initSDK()
     KakaoAuthManager.shared.initSDK()
     return true
   }

@@ -1,18 +1,19 @@
 import UIKit
 
+import AgencyInterface
+import BaseDomain
 import BaseFeature
 import DesignSystem
-import Core
 
 import ReactorKit
 import PinLayout
 import FlexLayout
 
-final class LedgerDetailVC: BaseVC, View {
+final class LedgerDetailVC: BaseVC, View, ImagePickerPresentable {
 
   public var disposeBag = DisposeBag()
 
-  weak var coordinator: LedgerCoordinator?
+  var coordinator: LedgerCoordinator?
 
   private let contentsView: LedgerContentsView
 
@@ -173,6 +174,16 @@ final class LedgerDetailVC: BaseVC, View {
         }
       })
       .disposed(by: disposeBag)
+  }
+}
+
+extension LedgerDetailVC: LedgerContentsViewDelegate {
+  func selectSection(_ ledgerContentsView: LedgerContentsView) {
+    imagePicker(target: self, animated: true, delegate: ledgerContentsView)
+  }
+  
+  func pop(_ ledgerContentsView: LedgerContentsView) {
+    coordinator?.pop()
   }
 }
 

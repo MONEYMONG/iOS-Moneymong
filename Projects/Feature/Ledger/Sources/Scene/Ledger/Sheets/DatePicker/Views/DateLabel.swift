@@ -1,7 +1,7 @@
 import UIKit
 
+import BaseDomain
 import DesignSystem
-import Core
 
 import PinLayout
 import FlexLayout

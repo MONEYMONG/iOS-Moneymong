@@ -1,8 +1,10 @@
 import UIKit
 
-import DesignSystem
-import Core
+import BaseDomain
 import BaseFeature
+import DesignSystem
+import LedgerInterface
+import Utility
 
 import ReactorKit
 
@@ -60,20 +62,36 @@ final class LedgerContentsReactor: Reactor {
   var initialState = State()
   let formatter: ContentFormatter
   private let ledgerContentsService: LedgerDetailContentsServiceInterface
-  private let ledgerRepo: LedgerRepositoryInterface
   
   private var valid = ContentValid()
   private var isValided: Bool {
     return valid.isValidTitle && valid.isValidAmount && valid.isValidDate && valid.isValidTime
   }
 
+  private let updateLedgerUseCase: UpdateLedgerUseCaseInterface
+  private let uploadImageUseCase: UploadImageUseCaseInterface
+  private let uploadReceiptUseCase: UploadReceiptUseCaseInterface
+  private let uploadDocumentUseCase: UploadDocumentUseCaseInterface
+  private let deleteReceiptUseCase: DeleteReceiptUseCaseInterface
+  private let deleteDocumentUseCase: DeleteDocumentUseCaseInterface
+  
   init(
     ledgerContentsService: LedgerDetailContentsServiceInterface,
-    ledgerRepo: LedgerRepositoryInterface,
+    updateLedgerUseCase: UpdateLedgerUseCaseInterface,
+    uploadImageUseCase: UploadImageUseCaseInterface,
+    uploadReceiptUseCase: UploadReceiptUseCaseInterface,
+    uploadDocumentUseCase: UploadDocumentUseCaseInterface,
+    deleteReceiptUseCase: DeleteReceiptUseCaseInterface,
+    deleteDocumentUseCase: DeleteDocumentUseCaseInterface,
     formatter: ContentFormatter
   ) {
     self.ledgerContentsService = ledgerContentsService
-    self.ledgerRepo = ledgerRepo
+    self.updateLedgerUseCase = updateLedgerUseCase
+    self.uploadImageUseCase = uploadImageUseCase
+    self.uploadReceiptUseCase = uploadReceiptUseCase
+    self.uploadDocumentUseCase = uploadDocumentUseCase
+    self.deleteReceiptUseCase = deleteReceiptUseCase
+    self.deleteDocumentUseCase = deleteDocumentUseCase
     self.formatter = formatter
   }
 
@@ -105,7 +123,7 @@ final class LedgerContentsReactor: Reactor {
         return .concat([
             .task {
               ledgerContentsService.setIsLoading(true)
-              let ledger = try await ledgerRepo.update(ledger: currentState.currentLedgerItem.toEntity)
+              let ledger = try await updateLedgerUseCase.execute(request: currentState.currentLedgerItem.toEntity)
               ledgerContentsService.setIsLoading(false)
               return ledger
             }
@@ -132,7 +150,7 @@ final class LedgerContentsReactor: Reactor {
       return .just(.setSelectedImageSection(section))
 
     case .selectedImage(let data):
-      return .task { return try await ledgerRepo.imageUpload(data) }
+      return .task { return try await uploadImageUseCase.execute(imageData: data) }
         .map { [weak self] imageInfo in
           let selectedSection = self?.currentState.selectedSection ?? .receipt
           switch selectedSection {
@@ -230,7 +248,7 @@ fileprivate extension LedgerContentsReactor {
     if currentState.currentLedgerItem.addedReceiptImages.count > 0 {
       let id = currentState.currentLedgerItem.id
       let urls = currentState.currentLedgerItem.addedReceiptImages.map { $0.url }
-      try await ledgerRepo.receiptImagesUpload(detailId: id, receiptImageUrls: urls)
+      try await uploadReceiptUseCase.execute(ledgerID: id, receiptImageUrls: urls)
     }
   }
 
@@ -238,27 +256,21 @@ fileprivate extension LedgerContentsReactor {
     if currentState.currentLedgerItem.addedDocumentImages.count > 0 {
       let id = currentState.currentLedgerItem.id
       let urls = currentState.currentLedgerItem.addedReceiptImages.map { $0.url }
-      try await ledgerRepo.documentImagesUpload(detailId: id, documentImageUrls: urls)
+      try await uploadDocumentUseCase.execute(ledgerID: id, documentUrls: urls)
     }
   }
 
   func deleteReceiptImages() async throws {
       let id = currentState.currentLedgerItem.id
       for imageInfo in currentState.currentLedgerItem.deletedReceiptImages {
-          try await ledgerRepo.receiptImageDelete(
-            detailId: id,
-            receiptId: Int(imageInfo.key) ?? 0
-          )
+        try await deleteReceiptUseCase.execute(ledgerID: id, receiptID: Int(imageInfo.key) ?? 0)
       }
   }
 
   func deleteDocumentImages() async throws {
       let id = currentState.currentLedgerItem.id
       for imageInfo in currentState.currentLedgerItem.deletedDocumentImages {
-          try await ledgerRepo.documentImageDelete(
-            detailId: id,
-            documentId: Int(imageInfo.key) ?? 0
-          )
+        try await deleteDocumentUseCase.execute(ledgerID: id, documentID: Int(imageInfo.key) ?? 0)
       }
   }
 

@@ -1,4 +1,9 @@
-import Core
+import Foundation
+
+import AgencyInterface
+import BaseDomain
+import UserInterface
+import Utility
 
 import ReactorKit
 
@@ -19,33 +24,37 @@ public final class LedgerReactor: Reactor {
   }
   
   public let initialState = State()
-  private let agencyRepo: AgencyRepositoryInterface
-  private let userRepo: UserRepositoryInterface
+  
   private let service: LedgerServiceInterface
   
+  private let getMyAgencyUseCase: GetMyAgencyUseCaseInterface
+  private let getSelectedAgency: GetSelectedAgencyUseCaseInterface
+  private let updateSelectedAgency: UpdateSelectedAgencyUseCaseInterface
+  
   init(
-    userRepo: UserRepositoryInterface,
-    agencyRepo: AgencyRepositoryInterface,
+    getMyAgencyUseCase: GetMyAgencyUseCaseInterface,
+    getSelectedAgency: GetSelectedAgencyUseCaseInterface,
+    updateSelectedAgency: UpdateSelectedAgencyUseCaseInterface,
     ledgerService: LedgerServiceInterface
   ) {
-    self.userRepo = userRepo
-    self.agencyRepo = agencyRepo
+    self.getMyAgencyUseCase = getMyAgencyUseCase
+    self.getSelectedAgency = getSelectedAgency
+    self.updateSelectedAgency = updateSelectedAgency
     self.service = ledgerService
   }
   
   public func mutate(action: Action) -> Observable<Mutation> {
     switch action {
     case .requestMyAgencies:
-      let agencyID = userRepo.fetchSelectedAgency()
-      
       return .task {
-        try await agencyRepo.fetchMyAgency()
+        try await getMyAgencyUseCase.execute()
       }
       .map { [weak self] agencies in
+        let agencyID = self?.getSelectedAgency.execute()
         let agency = agencies.first(where: { $0.id == agencyID }) ?? agencies.first
         
         if let agency {
-          self?.userRepo.updateSelectedAgency(id: agency.id)
+          self?.updateSelectedAgency.execute(id: agency.id)
           self?.service.agency.updateAgency(agency)
         }
 

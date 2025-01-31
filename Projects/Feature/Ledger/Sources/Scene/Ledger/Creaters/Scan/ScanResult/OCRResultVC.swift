@@ -9,7 +9,7 @@ import FlexLayout
 
 final class OCRResultVC: BaseVC, View {
   var disposeBag = DisposeBag()
-  weak var coordinator: CreateOCRLedgerCoordinator?
+  var coordinator: CreateOCRLedgerCoordinator?
   
   private let receiptImageView: UIImageView = {
     let v = UIImageView()
@@ -140,7 +140,7 @@ final class OCRResultVC: BaseVC, View {
     
     navigationItem.leftBarButtonItem?.rx.tap
       .bind(with: self) { owner, _ in
-        owner.navigationController?.popViewController(animated: true)
+        owner.coordinator?.pop()
       }
       .disposed(by: disposeBag)
     
@@ -157,7 +157,7 @@ final class OCRResultVC: BaseVC, View {
     
     retryView.rx.tapGesture
       .bind(with: self) { owner, _ in
-        owner.navigationController?.popViewController(animated: true)
+        owner.coordinator?.pop()
       }
       .disposed(by: disposeBag)
     

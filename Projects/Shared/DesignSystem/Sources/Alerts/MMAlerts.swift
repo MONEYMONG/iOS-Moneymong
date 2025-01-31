@@ -61,17 +61,17 @@ public final class MMAlerts: UIViewController {
     subTitleLabel.text = subTitle
     switch type {
     case .onlyOkButton(let action):
-      okButton.addAction {
-        self.dismiss(animated: true)
+      okButton.addAction { [weak self] in
+        self?.dismiss(animated: true)
         action()
       }
     case .default(let okAction, let cancelAction):
-      okButton.addAction {
-        self.dismiss(animated: true)
+      okButton.addAction { [weak self] in
+        self?.dismiss(animated: true)
         okAction()
       }
-      cancelButton.addAction {
-        self.dismiss(animated: true)
+      cancelButton.addAction { [weak self] in
+        self?.dismiss(animated: true)
         cancelAction()
       }
     }

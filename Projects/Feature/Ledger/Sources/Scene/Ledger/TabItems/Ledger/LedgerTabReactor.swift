@@ -1,6 +1,9 @@
 import ReactorKit
 
-import Core
+import BaseDomain
+import AgencyInterface
+import LedgerInterface
+import UserInterface
 
 final class LedgerTabReactor: Reactor {
   
@@ -48,29 +51,36 @@ final class LedgerTabReactor: Reactor {
   
   let initialState: State
   private let service: LedgerServiceInterface
-  private let ledgerRepo: LedgerRepositoryInterface
-  private let userRepo: UserRepositoryInterface
-  private let agencyRepo: AgencyRepositoryInterface
   let formatter: ContentFormatter
+  
+  private let getLedgerDateRangeUseCase: GetLedgerDateRangeUseCaseInterface
+  private let getUserIDUseCase: GetUserIDUseCaseInterface
+  private let saveLedgerDateRangeUseCase: SaveLedgerDateRangeUseCaseInterface
+  private let getLedgerListUseCase: GetLedgerListUseCaseInterface
+  private let getMemberListUseCase: GetMemberListUseCaseInterface
+  
   private let listLimit = 20
   
   init(
+    getLedgerDateRangeUseCase: GetLedgerDateRangeUseCaseInterface,
+    getUserIDUseCase: GetUserIDUseCaseInterface,
+    saveLedgerDateRangeUseCase: SaveLedgerDateRangeUseCaseInterface,
+    getLedgerListUseCase: GetLedgerListUseCaseInterface,
+    getMemberListUseCase: GetMemberListUseCaseInterface,
     ledgerService: LedgerServiceInterface,
-    ledgerRepo: LedgerRepositoryInterface,
-    userRepo: UserRepositoryInterface,
-    agencyRepo: AgencyRepositoryInterface,
     formatter: ContentFormatter
   ) {
+    self.getLedgerDateRangeUseCase = getLedgerDateRangeUseCase
+    self.getUserIDUseCase = getUserIDUseCase
+    self.saveLedgerDateRangeUseCase = saveLedgerDateRangeUseCase
+    self.getLedgerListUseCase = getLedgerListUseCase
+    self.getMemberListUseCase = getMemberListUseCase
     self.service = ledgerService
-    self.ledgerRepo = ledgerRepo
-    self.userRepo = userRepo
-    self.agencyRepo = agencyRepo
     self.formatter = formatter
     
-    
-    if let fetchDateRange = ledgerRepo.fetchDateRange() {
+    if let fetchDateRange = getLedgerDateRangeUseCase.excute() {
       self.initialState = State(
-        userID: userRepo.fetchUserID(),
+        userID: getUserIDUseCase.execute(),
         dateRange: fetchDateRange
       )
       return
@@ -85,7 +95,7 @@ final class LedgerTabReactor: Reactor {
     let startDate = DateInfo(year: startYear, month: startMonth)
     
     self.initialState = State(
-      userID: userRepo.fetchUserID(),
+      userID: getUserIDUseCase.execute(),
       dateRange: DateRange(start: startDate, end: endDate)
     )
   }
@@ -144,7 +154,7 @@ final class LedgerTabReactor: Reactor {
     switch mutation {
     case let .setDateRange(start, end):
       let newDateRange = DateRange(start: start, end: end)
-      ledgerRepo.saveDateRange(newDateRange)
+      saveLedgerDateRangeUseCase.excute(dateRange: newDateRange)
       newState.dateRange = newDateRange
     case let .setDestination(destination):
       newState.destination = destination
@@ -230,7 +240,7 @@ final class LedgerTabReactor: Reactor {
   private func requestLedgerList(agencyID: Int?) -> Observable<Mutation> {
     guard let agencyID else { return .empty() }
     return .task {
-      return try await ledgerRepo.fetchLedgerList(
+      return try await getLedgerListUseCase.excute(
         id: agencyID, // 소속 ID
         start: currentState.dateRange.start,
         end: currentState.dateRange.end,
@@ -264,7 +274,7 @@ final class LedgerTabReactor: Reactor {
   private func requestMembers(agencyID: Int?) -> Observable<Mutation> {
     guard let agencyID else { return .empty() }
     return .task {
-      let members = try await agencyRepo.fetchMemberList(id: agencyID)
+      let members = try await getMemberListUseCase.execute(id: agencyID)
       return members.first(where: { $0.userID == currentState.userID })?.role
     }
     .map { .setRole($0) }

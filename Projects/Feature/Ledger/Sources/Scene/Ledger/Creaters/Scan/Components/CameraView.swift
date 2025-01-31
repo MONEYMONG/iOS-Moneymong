@@ -1,7 +1,8 @@
 import UIKit
 import AVFoundation
 
-import Core
+import BaseDomain
+import Utility
 
 import RxSwift
 
@@ -88,16 +89,16 @@ final class CameraView: UIView {
     }
     
     if captureSession.canAddOutput(videoDataOutput) {
-      self.videoDataOutput.setSampleBufferDelegate(self, queue: .global())
+      videoDataOutput.setSampleBufferDelegate(self, queue: .global())
       captureSession.addOutput(videoDataOutput)
       
-      guard let connection = self.videoDataOutput.connection(with: AVMediaType.video),
+      guard let connection = videoDataOutput.connection(with: AVMediaType.video),
             connection.isVideoOrientationSupported else { return }
       
       connection.videoOrientation = .portrait
     }
     
-    self.layer.addSublayer(maskLayer)
+    layer.addSublayer(maskLayer)
     
     // 프리뷰 레이어 설정
     videoPreviewLayer.session = captureSession

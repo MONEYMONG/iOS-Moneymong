@@ -4,7 +4,6 @@ import SwiftUI
 import BaseFeature
 import Utility
 import DesignSystem
-import Core
 
 import ReactorKit
 import RxDataSources
@@ -12,7 +11,7 @@ import FlexLayout
 
 public final class MyPageVC: BaseVC, ReactorKit.View {
   public var disposeBag = DisposeBag()
-  weak var coordinator: MyPageCoordinator?
+  var coordinator: MyPageCoordinator?
   
   private let tableView: UITableView = {
     let v = UITableView(frame: .zero, style: .insetGrouped)
@@ -26,7 +25,7 @@ public final class MyPageVC: BaseVC, ReactorKit.View {
     return v
   }()
   
-  private lazy var dataSource = RxTableViewSectionedReloadDataSource<MyPageSectionItemModel.Model> { dataSource, tableView, indexPath, item in
+  private lazy var dataSource = RxTableViewSectionedReloadDataSource<MyPageSectionItemModel.Model> { [weak self] dataSource, tableView, indexPath, item in
     
     switch item {
     case let .university(model):
@@ -35,7 +34,7 @@ public final class MyPageVC: BaseVC, ReactorKit.View {
       
     case .kakaoInquiry:
       return tableView.dequeue(InquiryCell.self, for: indexPath)
-        .configure { [weak self] in
+        .configure {
           self?.coordinator?.present(.web(urlString: "http://pf.kakao.com/_zDsyG"))
         }
       
@@ -99,10 +98,6 @@ public final class MyPageVC: BaseVC, ReactorKit.View {
           subTitle: "로그인한 계정이 로그아웃됩니다",
           okAction: { reactor.action.onNext(.logout) })
         )
-      case .setting(.versionInfo):
-        #if DEBUG
-        owner.coordinator?.present(.debug)
-        #endif
       default: break
       }
     }
@@ -139,7 +134,7 @@ public final class MyPageVC: BaseVC, ReactorKit.View {
       .bind(with: self) { owner, destination in
         switch destination {
         case .login:
-          owner.coordinator?.goLogin()
+          owner.coordinator?.move(to: .login)
         }
       }
       .disposed(by: disposeBag)

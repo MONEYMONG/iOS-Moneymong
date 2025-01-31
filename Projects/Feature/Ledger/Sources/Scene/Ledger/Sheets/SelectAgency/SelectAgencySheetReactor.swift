@@ -1,6 +1,10 @@
 import Foundation
 
-import Core
+import AgencyInterface
+import BaseDomain
+import UserInterface
+import Utility
+
 import ReactorKit
 
 final class SelectAgencySheetReactor: Reactor {
@@ -27,23 +31,26 @@ final class SelectAgencySheetReactor: Reactor {
   }
   
   init(
-    agencyRepo: AgencyRepositoryInterface,
-    userRepo: UserRepositoryInterface,
+    getMyAgencyUseCase: GetMyAgencyUseCaseInterface,
+    updateSelectedAgencyUseCase: UpdateSelectedAgencyUseCaseInterface,
+    getUserIDUseCase: GetUserIDUseCaseInterface,
+    getSelectedAgencyUseCase: GetSelectedAgencyUseCaseInterface,
     service: LedgerServiceInterface
   ) {
-    self.agencyRepo = agencyRepo
-    self.userRepo = userRepo
+    self.getMyAgencyUseCase = getMyAgencyUseCase
+    self.updateSelectedAgencyUseCase = updateSelectedAgencyUseCase
     self.service = service
     self.initialState = .init(
-      userID: userRepo.fetchUserID(),
-      selectedAgencyID: userRepo.fetchSelectedAgency()!
+      userID: getUserIDUseCase.execute(),
+      selectedAgencyID: getSelectedAgencyUseCase.execute()!
     )
   }
   
   let initialState: State
-  private let agencyRepo: AgencyRepositoryInterface
-  private let userRepo: UserRepositoryInterface
   private let service: LedgerServiceInterface
+  
+  private let getMyAgencyUseCase: GetMyAgencyUseCaseInterface
+  private let updateSelectedAgencyUseCase: UpdateSelectedAgencyUseCaseInterface
   
   func mutate(action: Action) -> Observable<Mutation> {
     switch action {
@@ -51,14 +58,14 @@ final class SelectAgencySheetReactor: Reactor {
       return .concat(
         .just(.setLoading(true)),
         
-        .task { try await agencyRepo.fetchMyAgency() }
+        .task { try await getMyAgencyUseCase.execute() }
         .map { .setAgencies($0) }
         .catch { return .just(.setError($0.toMMError)) },
         
         .just(.setLoading(false))
       )
     case let .tapCell(agency):
-      userRepo.updateSelectedAgency(id: agency.id)
+      updateSelectedAgencyUseCase.execute(id: agency.id)
       service.agency.updateAgency(agency)
       return .just(.setSelectedAgencyID(agency.id))
     }

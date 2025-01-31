@@ -1,6 +1,9 @@
 import ReactorKit
 
-import Core
+import AgencyInterface
+import BaseDomain
+import UserInterface
+import Utility
 
 public final class AgencyListReactor: Reactor {
   private enum Const {
@@ -57,17 +60,24 @@ public final class AgencyListReactor: Reactor {
   
   public let initialState: State = State()
   
-  private let agencyRepo: AgencyRepositoryInterface
-  private let userRepo: UserRepositoryInterface
+  private let getAgencyListUseCase: GetAgencyListUseCaseInterface
+  private let getMyAgencyUseCase: GetMyAgencyUseCaseInterface
+  private let getMyInfoUseCase: GetMyInfoUseCaseInterface
+  private let searchAgencyUseCase: SearchAgencyUseCaseInterface
+  
   
   private let listLimit = 20
   
   init(
-    agencyRepo: AgencyRepositoryInterface,
-    userRepo: UserRepositoryInterface
+    getAgencyListUseCase: GetAgencyListUseCaseInterface,
+    getMyAgencyUseCase: GetMyAgencyUseCaseInterface,
+    getMyInfoUseCase: GetMyInfoUseCaseInterface,
+    searchAgencyUseCase: SearchAgencyUseCaseInterface
   ) {
-    self.agencyRepo = agencyRepo
-    self.userRepo = userRepo
+    self.getAgencyListUseCase = getAgencyListUseCase
+    self.getMyAgencyUseCase = getMyAgencyUseCase
+    self.getMyInfoUseCase = getMyInfoUseCase
+    self.searchAgencyUseCase = searchAgencyUseCase
   }
   
   public func mutate(action: Action) -> Observable<Mutation> {
@@ -76,14 +86,14 @@ public final class AgencyListReactor: Reactor {
       return .concat(
         .just(.setPage(0)),
         .just(.setLoading(true)),
-        .task { try await agencyRepo.fetchList(page: currentState.page, size: listLimit) }
-          .map { .agencyResponse(.success($0)) }
-          .catch { return .just(.agencyResponse(.failure($0.toMMError))) },
+        .task { try await getAgencyListUseCase.execute(page: currentState.page, size: listLimit) }
+        .map { .agencyResponse(.success($0)) }
+        .catch { return .just(.agencyResponse(.failure($0.toMMError))) },
         .just(.setLoading(false))
       )
       
     case .requestMyAgency:
-      return .task { try await agencyRepo.fetchMyAgency() }
+      return .task { try await getMyAgencyUseCase.execute() }
         .map { .myAgencyResponse(.success($0))}
         .catchAndReturn(.myAgencyResponse(.success([])))
       
@@ -102,9 +112,9 @@ public final class AgencyListReactor: Reactor {
       return .concat([
         .just(.setLoading(true)),
         .just(.setPage(currentState.page + 1)),
-        .task { try await agencyRepo.fetchList(page: currentState.page, size: listLimit) }
-          .map { .agencyResponse(.success($0)) }
-          .catch { return .just(.agencyResponse(.failure($0.toMMError))) },
+        .task { try await getAgencyListUseCase.execute(page: currentState.page, size: listLimit) }
+        .map { .agencyResponse(.success($0)) }
+        .catch { return .just(.agencyResponse(.failure($0.toMMError))) },
         .just(.setLoading(false))
       ])
       
@@ -119,9 +129,9 @@ public final class AgencyListReactor: Reactor {
       
       return .concat([
         .just(.setLoading(true)),
-        .task { try await agencyRepo.search(query: query) }
-          .map { .agencyResponse(.success($0)) }
-          .catch { return .just(.agencyResponse(.failure($0.toMMError))) },
+        .task { try await searchAgencyUseCase.execute(query: query) }
+        .map { .agencyResponse(.success($0)) }
+        .catch { return .just(.agencyResponse(.failure($0.toMMError))) },
         .just(.setLoading(false))
       ])
       
@@ -129,19 +139,17 @@ public final class AgencyListReactor: Reactor {
       return .concat([
         .just(.setQuery(nil)),
         .just(.setPage(0)),
-        .task { try await agencyRepo.fetchList(page: currentState.page, size: listLimit) }
-          .map { .agencyResponse(.success($0)) }
-          .catch { return .just(.agencyResponse(.failure($0.toMMError))) },
+        .task { try await getAgencyListUseCase.execute(page: currentState.page, size: listLimit) }
+        .map { .agencyResponse(.success($0)) }
+        .catch { return .just(.agencyResponse(.failure($0.toMMError))) },
       ])
       
     case let .searchTextChanged(query):
       return .just(.setQuery(query))
     case .viewDidLoad:
-      return .task {
-        try await userRepo.user()
-      }
-      .map { .setUserInfo(.success($0)) }
-      .catch { return .just(.setUserInfo(.failure($0.toMMError))) }
+      return .task { try await getMyInfoUseCase.execute() }
+        .map { .setUserInfo(.success($0)) }
+        .catch { return .just(.setUserInfo(.failure($0.toMMError))) }
     }
   }
   

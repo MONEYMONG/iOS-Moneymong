@@ -24,12 +24,34 @@ let project = Project(
       ]),
       sources: ["Sources/**"],
       dependencies: [
-        .project(target: "BaseFeature", path: .relativeToRoot("Projects/Feature/Base")),
-        .project(target: "CreateAgencyInterface", path: .relativeToRoot("Projects/Feature/CreateAgency"))
+        .project(target: "AgencyFeatureInterface", path: .relativeToRoot("Projects/Feature/Agency")),
+        .target(name: "SignFeatureInterface")
       ],
       settings: .settings(base: [
         "SWIFT_VERSION": "5.7"
       ])
+    ),
+    Target(
+        name: "SignFeatureInterface",
+        platform: .iOS,
+        product: .framework,
+        bundleId: "com.framework.moneymong.SignFeatureInterface",
+        deploymentTarget: .iOS(targetVersion: "15.0", devices: .iphone),
+        sources: ["Interface/**"],
+        dependencies: [
+          .project(target: "BaseFeature", path: .relativeToRoot("Projects/Feature/Base"))
+        ]
+    ),
+    Target(
+        name: "SignFeatureTesting",
+        platform: .iOS,
+        product: .staticLibrary,
+        bundleId: "com.framework.moneymong.SignFeatureTesting",
+        deploymentTarget: .iOS(targetVersion: "15.0", devices: .iphone),
+        sources: ["Testing/**"],
+        dependencies: [
+            .target(name: "SignFeatureInterface")
+        ]
     ),
     Target(
       name: "SignFeatureTests",
@@ -39,7 +61,8 @@ let project = Project(
       deploymentTarget: .iOS(targetVersion: "15.0", devices: .iphone),
       sources: ["Tests/**"],
       dependencies: [
-        .target(name: "SignFeature")
+        .target(name: "SignFeature"),
+        .target(name: "SignFeatureTesting")
       ],
       launchArguments: [
         LaunchArgument(name: "IDEPreferLogStreaming=YES", isEnabled: true),
@@ -77,7 +100,8 @@ let project = Project(
       sources: ["Demo/Sources/**"],
       resources: ["Demo/Resources/**"],
       dependencies: [
-        .target(name: "SignFeature")
+        .target(name: "SignFeature"),
+        .target(name: "SignFeatureTesting")
       ]
     )
   ]

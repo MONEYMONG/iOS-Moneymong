@@ -1,7 +1,7 @@
 import UIKit
 
-import Core
 import DesignSystem
+import BaseDomain
 
 import RxSwift
 import RxCocoa

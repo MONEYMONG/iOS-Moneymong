@@ -1,10 +1,11 @@
 import UIKit
 import Combine
 
+import BaseDomain
 import BaseFeature
 import DesignSystem
 import Utility
-import Core
+import LedgerFeatureInterface
 
 import ReactorKit
 import PinLayout
@@ -13,7 +14,7 @@ import FlexLayout
 final class LedgerTabVC: BaseVC, View {
   var disposeBag = DisposeBag()
   private var cancellableBag = Set<AnyCancellable>()
-  weak var coordinator: LedgerCoordinator?
+  var coordinator: LedgerCoordinator?
 
   private let floatingButton = FloatingButton()
   private let amountGuideLabel: UILabel = {
@@ -210,7 +211,7 @@ final class LedgerTabVC: BaseVC, View {
       .bind(with: self) { owner, destination in
         switch destination {
         case let .datePicker(start, end):
-          owner.coordinator?.present(.datePicker(start: start, end: end))
+          owner.coordinator?.datePicker(start: start, end: end)
         case let .createManualLedger(id):
           owner.coordinator?.present(.createManualLedger(id, .createManual))
         case let .createOCRLedger(id):

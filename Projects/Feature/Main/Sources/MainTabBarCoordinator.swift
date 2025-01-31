@@ -1,19 +1,18 @@
 import UIKit
 
-import BaseFeatureInterface
-import LedgerFeature
+import AgencyFeatureInterface
+import BaseFeature
+import LedgerFeatureInterface
+import MyPageFeatureInterface
 
 public final class MainTabBarCoordinator: Coordinator {
-  public var navigationController: UINavigationController
-  private let diContainer: MainDIContainer
+  public weak var navigationController: UINavigationController?
   public weak var parentCoordinator: Coordinator?
-  public var childCoordinators: [Coordinator] = []
   
   weak var tabBarController: UITabBarController?
 
-  public init(navigationController: UINavigationController, diContainer: MainDIContainer) {
+  public init(navigationController: UINavigationController?) {
     self.navigationController = navigationController
-    self.diContainer = diContainer
   }
 
   public func start(animated: Bool) {
@@ -23,10 +22,9 @@ public final class MainTabBarCoordinator: Coordinator {
   public func move(to scene: Scene) {
     switch scene {
     case .main: // 메인으로 이동
-      debugPrint("move to main")
+      break
     case .login: // 로그인으로 이동
       parentCoordinator?.move(to: .login)
-      remove()
     case .ledger: // 장부로 이동
       tabBarController?.selectedIndex = 1
     case let .createManualLedger(agencyID): // 장부 이동 &
@@ -35,22 +33,51 @@ public final class MainTabBarCoordinator: Coordinator {
     case let .createOCRLedger(agencyID):
       tabBarController?.selectedIndex = 1
       NotificationCenter.default.post(name: .presentOCRCreater, object: nil, userInfo: ["id": agencyID])
-    
     case .agency: // 소속으로 이동
       tabBarController?.selectedIndex = 0
     }
   }
-  
-  deinit {
-    debugPrint(#function)
-  }
 }
 
 public extension MainTabBarCoordinator {
-  func mainTab(animated: Bool) {
-    let vc = diContainer.mainTab(with: self)
-    navigationController.isNavigationBarHidden = true
-    navigationController.viewControllers = [vc]
-    tabBarController = vc
+  private func mainTab(animated: Bool) {
+    let tabVC = MainTapViewController()
+    tabVC.coordinator = self
+    tabVC.setViewControllers(
+      [agencyTab(),
+       ledgerTab(),
+       myPageTab()],
+      animated: false
+    )
+    navigationController?.isNavigationBarHidden = true
+    navigationController?.viewControllers = [tabVC]
+    tabBarController = tabVC
+  }
+
+  private func agencyTab() -> UIViewController {
+    let navigationC = UINavigationController()
+    let agencyCoordinator = DIContainer.shared.resolve(type: AgencyCoordinatorInterface.self)
+    agencyCoordinator.navigationController = navigationC
+    agencyCoordinator.parentCoordinator = self
+    agencyCoordinator.start(animated: false)
+    return navigationC
+  }
+  
+  private func ledgerTab() -> UIViewController {
+    let navigationC = UINavigationController()
+    let ledgerCoordinator = DIContainer.shared.resolve(type: LedgerCoordinatorInterface.self)
+    ledgerCoordinator.navigationController = navigationC
+    ledgerCoordinator.parentCoordinator = self
+    ledgerCoordinator.start(animated: false)
+    return navigationC
+  }
+  
+  private func myPageTab() -> UIViewController {
+    let navigationC = UINavigationController()
+    let myPageCoordinator = DIContainer.shared.resolve(type: MyPageCoordinatorInterface.self)
+    myPageCoordinator.navigationController = navigationC
+    myPageCoordinator.parentCoordinator = self
+    myPageCoordinator.start(animated: false)
+    return navigationC
   }
 }

@@ -3,7 +3,6 @@ import UIKit
 import BaseFeature
 import Utility
 import DesignSystem
-import Core
 
 import ReactorKit
 import PinLayout
@@ -11,7 +10,7 @@ import FlexLayout
 
 public final class WithdrawalVC: BaseVC, View {
   public var disposeBag = DisposeBag()
-  weak var coordinator: MyPageCoordinator?
+  var coordinator: MyPageCoordinator?
   
   private let titleLabel: UILabel = {
     let v = UILabel()
@@ -128,7 +127,7 @@ public final class WithdrawalVC: BaseVC, View {
       .compactMap { $0 }
       .observe(on: MainScheduler.instance)
       .bind(with: self) { owner, value in
-        owner.coordinator?.goLogin()
+        owner.coordinator?.move(to: .login)
       }
       .disposed(by: disposeBag)
   }

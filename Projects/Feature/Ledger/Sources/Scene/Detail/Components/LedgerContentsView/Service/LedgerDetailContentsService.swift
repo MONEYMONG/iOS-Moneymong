@@ -1,4 +1,4 @@
-import Core
+import BaseDomain
 
 import RxSwift
 import RxRelay

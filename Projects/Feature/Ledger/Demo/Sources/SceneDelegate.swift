@@ -2,7 +2,7 @@ import UIKit
 
 import LedgerFeature
 import DesignSystem
-import Core
+import Repository
 
 class SceneDelegate: UIResponder, UIWindowSceneDelegate {
   var coordinator: LedgerCoordinator?

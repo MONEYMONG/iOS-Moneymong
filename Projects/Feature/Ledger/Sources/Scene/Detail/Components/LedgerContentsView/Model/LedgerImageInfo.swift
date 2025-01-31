@@ -1,4 +1,4 @@
-import Core
+import BaseDomain
 
 struct LedgerImageInfo: Equatable {
   let imageSection: LedgerContentsReactor.ImageSection

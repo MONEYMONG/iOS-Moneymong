@@ -1,14 +1,17 @@
 import UIKit
 
 import BaseFeature
+import AgencyInterface
+import DesignSystem
+import LedgerFeatureInterface
+
 import ReactorKit
 import PinLayout
 import FlexLayout
-import DesignSystem
 
 public final class LedgerVC: BaseVC, View {
   public var disposeBag = DisposeBag()
-  weak var coordinator: LedgerCoordinator?
+  var coordinator: LedgerCoordinator?
   
   private let emptyView: LedgerEmptyView = {
     let v = LedgerEmptyView()
@@ -78,7 +81,7 @@ public final class LedgerVC: BaseVC, View {
     
     emptyView.tapAgency
       .bind(with: self) { owner, _ in
-        owner.coordinator?.goAgency()
+        owner.coordinator?.move(to: .agency)
       }
       .disposed(by: disposeBag)
     
@@ -104,7 +107,7 @@ public final class LedgerVC: BaseVC, View {
     
     agencyButton.rx.tap
       .bind(with: self) { owner, _ in
-        owner.coordinator?.present(.selectAgency)
+        owner.coordinator?.selectAgencySheet()
       }
       .disposed(by: disposeBag)
   }

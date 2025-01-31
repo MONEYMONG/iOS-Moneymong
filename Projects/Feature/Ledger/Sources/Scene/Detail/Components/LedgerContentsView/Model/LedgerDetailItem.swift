@@ -1,4 +1,5 @@
-import Core
+import BaseDomain
+import LedgerInterface
 
 /// 화면에 보여주기 위한 용도로 가공한 아이템
 struct LedgerDetailItem {

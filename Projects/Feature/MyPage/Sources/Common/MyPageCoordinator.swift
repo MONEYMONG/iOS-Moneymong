@@ -1,25 +1,20 @@
 import UIKit
 import SwiftUI
 
-import BaseFeatureInterface
+import BaseFeature
 import DesignSystem
+import MyPageFeatureInterface
 
-public final class MyPageCoordinator: Coordinator {
-  public var navigationController: UINavigationController
-  private let diContainer: MyPageDIContainer
+public final class MyPageCoordinator: MyPageCoordinatorInterface {
+  public weak var navigationController: UINavigationController?
   public weak var parentCoordinator: Coordinator?
-  public var childCoordinators: [Coordinator] = []
 
-  public init(navigationController: UINavigationController, diContainer: MyPageDIContainer) {
-    self.navigationController = navigationController
-    self.diContainer = diContainer
-  }
+  public init() {}
   
   enum Scene {
     case alert(title: String, subTitle: String, okAction: () -> Void)
     case web(urlString: String)
     case withrawal
-    case debug
   }
   
   public func start(animated: Bool) {
@@ -34,42 +29,28 @@ public final class MyPageCoordinator: Coordinator {
       web(urlString: urlString)
     case .withrawal:
       withdrawl()
-    case .debug:
-      //debug()
-      break
     }
   }
   
-  func goLogin() {
-    parentCoordinator?.move(to: .login)
-    remove()
-  }
-  
   func pop(animated: Bool = true) {
-    navigationController.popViewController(animated: animated)
-  }
-  
-  deinit {
-    debugPrint(#function)
+    navigationController?.popViewController(animated: animated)
   }
 }
 
 extension MyPageCoordinator {
   private func myPage(animated: Bool) {
-    let vc = diContainer.myPage(with: self)
-    navigationController.setViewControllers([vc], animated: true)
+    let vc = MyPageFactory().makeMyPageVC()
+    vc.coordinator = self
+    navigationController?.setViewControllers([vc], animated: true)
   }
   
   private func withdrawl(animated: Bool = true) {
-    let vc = diContainer.withDrawl(with: self)
-    navigationController.pushViewController(vc, animated: animated)
+    let vc = MyPageFactory().makeWithdrawalVC()
+    vc.coordinator = self
+    navigationController?.pushViewController(vc, animated: animated)
   }
   
   private func alert(title: String, subTitle: String, okAction: @escaping () -> Void) {
     AlertsManager.show(title: title, subTitle: subTitle, type: .default(okAction: okAction))
   }
-  
-//  private func debug(animated: Bool = true) {
-//    navigationController.pushViewController(UIHostingController(rootView: PulseView()), animated: animated)
-//  }
 }

@@ -1,6 +1,8 @@
 import Foundation
 
-import Core
+import AgencyInterface
+import BaseDomain
+import Utility
 
 import ReactorKit
 import RxSwift
@@ -31,17 +33,18 @@ final class EditMemberReactor: Reactor {
   
   let initialState: State
   
-  private let agencyRepo: AgencyRepositoryInterface
+  private let changeMemberRoleUseCase: ChangeMemberRoleUseCaseInterface
+  
   private let ledgerService: LedgerServiceInterface
   
   init(
     agencyID: Int,
     member: Member,
-    agencyRepo: AgencyRepositoryInterface,
+    changeMemberRoleUseCase: ChangeMemberRoleUseCaseInterface,
     ledgerService: LedgerServiceInterface
   ) {
     self.initialState = .init(agencyID: agencyID, member: member)
-    self.agencyRepo = agencyRepo
+    self.changeMemberRoleUseCase = changeMemberRoleUseCase
     self.ledgerService = ledgerService
   }
   
@@ -56,7 +59,7 @@ final class EditMemberReactor: Reactor {
     case let .tapSaveButton(role):
       let (id, userID) = (currentState.agencyID, currentState.member.userID)
       return .task {
-        try await agencyRepo.changeMemberRole(id: id, userId: userID, role: role.rawValue)
+        try await changeMemberRoleUseCase.execute(id: id, userId: userID, role: role.rawValue)
       }
       .do(onCompleted: { [weak self] in
         _ = self?.ledgerService.member.update()

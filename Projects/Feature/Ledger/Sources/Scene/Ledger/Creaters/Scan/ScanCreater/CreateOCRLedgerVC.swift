@@ -1,8 +1,9 @@
 import UIKit
 import AVFoundation
 
+import BaseDomain
 import DesignSystem
-import Core
+import Utility
 
 import FlexLayout
 import PinLayout
@@ -11,7 +12,7 @@ import ReactorKit
 final class CreateOCRLedgerVC: UIViewController, View {
   var disposeBag = DisposeBag()
   
-  weak var coordinator: CreateOCRLedgerCoordinator?
+  var coordinator: CreateOCRLedgerCoordinator?
   
   private let deviceHeight = UIScreen.main.bounds.height
   
@@ -80,14 +81,14 @@ final class CreateOCRLedgerVC: UIViewController, View {
   private let indicator = MMIndicator()
   
   deinit {
-    coordinator?.remove()
+    print("deinit", String(describing: self))
   }
   
   override func viewDidLoad() {
     super.viewDidLoad()
     setupUI()
     setupConstraints()
-    coordinator?.present(.guide, animated: false)
+    showGuide()
   }
 
   override func viewDidLayoutSubviews() {
@@ -164,7 +165,7 @@ final class CreateOCRLedgerVC: UIViewController, View {
     
     navigationItem.leftBarButtonItem?.rx.tap
       .bind(with: self) { owner, _ in
-        owner.coordinator?.present(.guide, animated: false)
+        owner.showGuide()
       }
       .disposed(by: disposeBag)
     
@@ -229,6 +230,14 @@ final class CreateOCRLedgerVC: UIViewController, View {
         }
       }
       .disposed(by: disposeBag)
+  }
+}
+
+extension CreateOCRLedgerVC {
+  func showGuide() {
+    let vc = UINavigationController(rootViewController: ScanGuideVC())
+    vc.modalPresentationStyle = .overFullScreen
+    present(vc, animated: false)
   }
 }
 

@@ -9,7 +9,7 @@ import RxCocoa
 
 final class JoinAgencyVC: BaseVC, ReactorKit.View {
   var disposeBag = DisposeBag()
-  weak var coordinator: AgencyCoordinator?
+  var coordinator: JoinAgencyCoordinator?
   
   private let titleLabel: UILabel = {
     let v = UILabel()
@@ -138,9 +138,7 @@ final class JoinAgencyVC: BaseVC, ReactorKit.View {
       .compactMap { $0 }
       .observe(on: MainScheduler.instance)
       .bind(with: self) { owner, message in
-        owner.coordinator?.present(
-          .alert(title: message, subTitle: nil, okAction: {})
-        )
+        owner.coordinator?.present(.alert(title: message))
       }
       .disposed(by: disposeBag)
     
@@ -150,7 +148,7 @@ final class JoinAgencyVC: BaseVC, ReactorKit.View {
       .bind(with: self) { owner, destination in
         switch destination {
         case .joinComplete:
-          owner.coordinator?.present(.joinComplete)
+          owner.coordinator?.push(.joinComplete)
         }
       }
       .disposed(by: disposeBag)

@@ -1,6 +1,8 @@
 import Foundation
 
-final class ContentFormatter {
+public final class ContentFormatter {
+  public init() {}
+  
   private lazy var numberFormatter: NumberFormatter = {
     let formatter = NumberFormatter()
     formatter.numberStyle = .decimal

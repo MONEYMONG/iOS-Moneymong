@@ -1,0 +1,16 @@
+import Foundation
+
+import AgencyInterface
+import BaseDomain
+
+public struct SearchAgencyUseCase: SearchAgencyUseCaseInterface {
+  private let repo: AgencyRepositoryInterface
+  
+  public init(repo: AgencyRepositoryInterface) {
+    self.repo = repo
+  }
+  
+  public func execute(query: String) async throws -> [Agency] {
+    try await repo.search(query: query)
+  }
+}

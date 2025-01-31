@@ -1,7 +1,10 @@
 import ReactorKit
 
+import AgencyInterface
+import BaseDomain
 import DesignSystem
-import Core
+import UserInterface
+import Utility
 
 final class MemberTabReactor: Reactor {
   
@@ -49,21 +52,41 @@ final class MemberTabReactor: Reactor {
   
   let initialState: State
   
-  private let userRepo: UserRepositoryInterface
-  private let agencyRepo: AgencyRepositoryInterface
+  private let getUserIDUseCase: GetUserIDUseCaseInterface
+  private let getSelectedAgencyUseCase: GetSelectedAgencyUseCaseInterface
+  private let reissueCodeUseCase: ReissueCodeUseCaseInterface
+  private let kickoutMemberUseCase: KickoutMemberUseCaseInterface
+  private let deleteAgencyUseCase: DeleteAgencyUseCaseInterface
+  private let getMyInfoUseCase: GetMyInfoUseCaseInterface
+  private let getInvitationCodeUseCase: GetInvitationCodeUseCaseInterface
+  private let getMemberListUseCase: GetMemberListUseCaseInterface
+  
   private let ledgerService: LedgerServiceInterface
   
   init(
-    userRepo: UserRepositoryInterface,
-    agencyRepo: AgencyRepositoryInterface,
+    getUserIDUseCase: GetUserIDUseCaseInterface,
+    getSelectedAgencyUseCase: GetSelectedAgencyUseCaseInterface,
+    reissueCodeUseCase: ReissueCodeUseCaseInterface,
+    kickoutMemberUseCase: KickoutMemberUseCaseInterface,
+    deleteAgencyUseCase: DeleteAgencyUseCaseInterface,
+    getMyInfoUseCase: GetMyInfoUseCaseInterface,
+    getInvitationCodeUseCase: GetInvitationCodeUseCaseInterface,
+    getMemberListUseCase: GetMemberListUseCaseInterface,
     ledgerService: LedgerServiceInterface
   ) {
-    self.userRepo = userRepo
-    self.agencyRepo = agencyRepo
+    self.getUserIDUseCase = getUserIDUseCase
+    self.getSelectedAgencyUseCase = getSelectedAgencyUseCase
+    self.reissueCodeUseCase = reissueCodeUseCase
+    self.kickoutMemberUseCase = kickoutMemberUseCase
+    self.deleteAgencyUseCase = deleteAgencyUseCase
+    self.getMyInfoUseCase = getMyInfoUseCase
+    self.getInvitationCodeUseCase = getInvitationCodeUseCase
+    self.getMemberListUseCase = getMemberListUseCase
     self.ledgerService = ledgerService
+    
     self.initialState = .init(
-      userID: userRepo.fetchUserID(),
-      agencyID: userRepo.fetchSelectedAgency()
+      userID: getUserIDUseCase.execute(),
+      agencyID: getSelectedAgencyUseCase.execute()
     )
   }
   
@@ -91,7 +114,7 @@ final class MemberTabReactor: Reactor {
         .just(.setLoading(true)),
         
         .concat(
-          .task { try await agencyRepo.reissueCode(id: agencyID) }
+          .task { try await reissueCodeUseCase.execute(id: agencyID) }
             .map { .setInvitationCode($0) }
             .catch { return .just(.setError($0.toMMError)) },
           .just(.setSnackBarMessage("초대코드가 재발급 되었습니다."))
@@ -114,8 +137,7 @@ final class MemberTabReactor: Reactor {
         .just(.setLoading(true)),
         
         .task {
-          try await agencyRepo.kickoutMember(id: agencyID, userId: memberID)
-          return try await agencyRepo.fetchMemberList(id: agencyID)
+          try await kickoutMemberUseCase.execute(id: agencyID, userId: memberID)
         }
         .map { .setMembers($0) }
         .catch { return .just(.setError($0.toMMError)) },
@@ -126,13 +148,8 @@ final class MemberTabReactor: Reactor {
       return .just(.setDestination(.agencyDeleteAlert))
     case .tapAgnecyDeleteAlertButton:
       return .task {
-        guard let id = currentState.agencyID else {
-          throw MoneyMongError.appError(.default, errorMessage: "소속을 삭제할 수 없습니다\n잠시 후 다시 시도해 주세요")
-        }
-        try await agencyRepo.deleteAgency(id: id)
-        let selectedAgency = try await agencyRepo.fetchMyAgency().first
-        userRepo.updateSelectedAgency(id: selectedAgency?.id)
-        ledgerService.agency.updateAgency(selectedAgency)
+        let newAgency = try await deleteAgencyUseCase.execute(id: currentState.agencyID)
+        ledgerService.agency.updateAgency(newAgency)
         return .setDestination(.ledgerTab)
       }
       .catch { return .just(.setError($0.toMMError)) }
@@ -220,7 +237,7 @@ final class MemberTabReactor: Reactor {
   
   /// 내정보 조회
   private func requestMyProfile() -> Observable<Mutation> {
-    return .task { try await userRepo.user() }
+    return .task { try await getMyInfoUseCase.execute() }
       .map { .setName($0.nickname) }
       .catch { .just(.setError($0.toMMError)) }
   }
@@ -231,7 +248,7 @@ final class MemberTabReactor: Reactor {
       debugPrint("agencyID가 없을 수 없음")
       return .empty()
     }
-    return .task { try await agencyRepo.fetchCode(id: agencyID) }
+    return .task { try await getInvitationCodeUseCase.execute(id: agencyID) }
       .map { .setInvitationCode($0) }
       .catch { return .just(.setError($0.toMMError)) }
   }
@@ -242,7 +259,7 @@ final class MemberTabReactor: Reactor {
       debugPrint("agencyID가 없을 수 없음")
       return .empty()
     }
-    return .task { try await agencyRepo.fetchMemberList(id: agencyID) }
+    return .task { try await getMemberListUseCase.execute(id: agencyID) }
       .flatMap { [weak self] members -> Observable<Mutation> in
         guard let role = members.first(where: { $0.userID == self?.currentState.userID })?.role
         else {

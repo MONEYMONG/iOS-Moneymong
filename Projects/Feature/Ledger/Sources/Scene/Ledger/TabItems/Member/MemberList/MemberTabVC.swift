@@ -1,14 +1,16 @@
 import UIKit
 
-import DesignSystem
+import AgencyInterface
+import BaseDomain
 import BaseFeature
-import Core
+import DesignSystem
+import LedgerFeatureInterface
 
 import ReactorKit
 
 final class MemberTabVC: BaseVC, View {
   var disposeBag = DisposeBag()
-  weak var coordinator: LedgerCoordinator?
+  var coordinator: LedgerCoordinator?
   
   private let profileHeaderLabel: UILabel = {
     let v = UILabel()
@@ -84,8 +86,7 @@ final class MemberTabVC: BaseVC, View {
     tableView.rx.modelSelected(Member.self)
       .bind(with: self) { owner, member in
         guard let id = reactor.currentState.agencyID else { return }
-        
-        owner.coordinator?.present(.editMember(id, member))
+        owner.coordinator?.editMember(agencyID: id, member: member)
       }
       .disposed(by: disposeBag)
     

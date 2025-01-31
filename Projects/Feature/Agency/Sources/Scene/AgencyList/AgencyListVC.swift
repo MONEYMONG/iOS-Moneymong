@@ -3,8 +3,7 @@ import UIKit
 import DesignSystem
 import BaseFeature
 import Utility
-import Core
-import CreateAgencyInterface
+import AgencyFeatureInterface
 
 import ReactorKit
 import RxDataSources
@@ -13,7 +12,7 @@ import FlexLayout
 
 public final class AgencyListVC: BaseVC, View {
   public var disposeBag = DisposeBag()
-  weak var coordinator: AgencyCoordinator?
+  var coordinator: AgencyCoordinator?
   
   private let emptyView = EmptyAgencyView()
   
@@ -222,7 +221,7 @@ public final class AgencyListVC: BaseVC, View {
       .bind(with: self) { owner, destination in
         switch destination {
         case let .joinAgency(agency):
-          owner.coordinator?.present(.joinAgency(id: agency.id, name: agency.name))
+          owner.coordinator?.present(.joinAgency(agencyID: agency.id, agencyName: agency.name))
         case let .web(url):
           owner.coordinator?.present(.web(url))
         }

@@ -1,7 +1,9 @@
 import Foundation
 import UIKit
 
-import Core
+import BaseDomain
+import LedgerInterface
+import Utility
 
 import ReactorKit
 
@@ -37,19 +39,23 @@ final class OCRResultReactor: Reactor {
   
   let initialState: State
   private let service: LedgerServiceInterface
-  private let repo: LedgerRepositoryInterface
   private let ocrModel: OCRResult
   private let formatter: ContentFormatter
+  
+  private let uploadImageUseCase: UploadImageUseCaseInterface
+  private let createLedgerUseCase: CreateLedgerUseCaseInterface
   
   init(
     agencyId: Int,
     model: OCRResult,
     imageData: Data,
-    repo: LedgerRepositoryInterface,
+    uploadImageUseCase: UploadImageUseCaseInterface,
+    createLedgerUseCase: CreateLedgerUseCaseInterface,
     ledgerService: LedgerServiceInterface,
     formatter: ContentFormatter
   ) {
-    self.repo = repo
+    self.uploadImageUseCase = uploadImageUseCase
+    self.createLedgerUseCase = createLedgerUseCase
     self.service = ledgerService
     self.ocrModel = model
     self.formatter = formatter
@@ -111,8 +117,8 @@ private extension OCRResultReactor {
       guard let resizeImageData = UIImage(data: currentState.receiptImageData)?.jpegData(compressionQuality: 0.027) else {
         throw MoneyMongError.appError(.default, errorMessage: "영수증 이미지를 확인해 주세요")
       }
-      let imageURL = try await repo.imageUpload(resizeImageData).url
-      return try await repo.create(
+      let imageURL = try await uploadImageUseCase.execute(imageData: resizeImageData).url
+      return try await createLedgerUseCase.execute(
         id: currentState.agencyId,
         storeInfo: currentState.source,
         fundType: .expense,
