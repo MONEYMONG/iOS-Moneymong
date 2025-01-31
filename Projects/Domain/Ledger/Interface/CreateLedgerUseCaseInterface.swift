@@ -1,4 +1,4 @@
-import Foundation
+import BaseDomain
 
 public protocol CreateLedgerUseCaseInterface {
   func execute(

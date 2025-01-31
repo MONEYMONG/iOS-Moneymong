@@ -15,10 +15,9 @@ let project = Project(
             deploymentTarget: .iOS(targetVersion: "15.0", devices: .iphone),
             sources: ["Sources/**"],
             dependencies: [
-              .project(target: "BaseFeature", path: .relativeToRoot("Projects/Feature/Base")),
-              .project(target: "MyPageFeature", path: .relativeToRoot("Projects/Feature/MyPage")),
-              .project(target: "AgencyFeature", path: .relativeToRoot("Projects/Feature/Agency")),
-              .project(target: "LedgerFeature", path: .relativeToRoot("Projects/Feature/Ledger"))
+              .project(target: "MyPageFeatureInterface", path: .relativeToRoot("Projects/Feature/MyPage")),
+              .project(target: "AgencyFeatureInterface", path: .relativeToRoot("Projects/Feature/Agency")),
+              .project(target: "LedgerFeatureInterface", path: .relativeToRoot("Projects/Feature/Ledger"))
             ],
             settings: .settings(base: [
               "SWIFT_VERSION": "5.7"

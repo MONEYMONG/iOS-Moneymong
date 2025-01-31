@@ -2,8 +2,6 @@ import UIKit
 
 import Utility
 import DesignSystem
-import Core
-
 
 final class UniversityHeader: UITableViewHeaderFooterView, ReusableView {
 

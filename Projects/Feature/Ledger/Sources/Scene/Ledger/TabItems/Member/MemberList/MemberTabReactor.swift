@@ -1,9 +1,10 @@
 import ReactorKit
 
-import DesignSystem
-import Core
 import AgencyInterface
+import BaseDomain
+import DesignSystem
 import UserInterface
+import Utility
 
 final class MemberTabReactor: Reactor {
   

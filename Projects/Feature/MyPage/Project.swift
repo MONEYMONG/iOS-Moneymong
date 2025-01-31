@@ -19,10 +19,6 @@ let project = Project(
             deploymentTarget: .iOS(targetVersion: "15.0", devices: .iphone),
             sources: ["Sources/**"],
             dependencies: [
-              .project(
-                target: "BaseFeature",
-                path: .relativeToRoot("Projects/Feature/Base")
-              ),
               .target(name: "MyPageFeatureInterface")
             ]
         ),

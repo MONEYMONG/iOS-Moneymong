@@ -2,8 +2,7 @@ import UIKit
 
 import Utility
 import DesignSystem
-import Core
-import UserInterface
+import BaseDomain
 
 final class UniversityCell: UITableViewCell, ReusableView {
   private let schoolImageView: UIImageView = {

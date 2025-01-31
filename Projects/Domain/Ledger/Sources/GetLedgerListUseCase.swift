@@ -1,6 +1,6 @@
 import Foundation
 
-import Core
+import BaseDomain
 import LedgerInterface
 
 public struct GetLedgerListUseCase: GetLedgerListUseCaseInterface {

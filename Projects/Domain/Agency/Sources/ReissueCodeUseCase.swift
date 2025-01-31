@@ -1,7 +1,7 @@
 import Foundation
 
-import Core
 import AgencyInterface
+import BaseDomain
 
 public struct ReissueCodeUseCase: ReissueCodeUseCaseInterface {
   private let repo: AgencyRepositoryInterface

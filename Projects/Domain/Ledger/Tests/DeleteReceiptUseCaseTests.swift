@@ -1,7 +1,7 @@
 import XCTest
 @testable import Ledger
-@testable import Core
-@testable import CoreTesting
+@testable import Repository
+@testable import RepositoryTesting
 @testable import LedgerInterface
 
 final class DeleteReceiptUseCaseTests: XCTestCase {

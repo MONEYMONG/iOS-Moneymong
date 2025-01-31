@@ -103,7 +103,13 @@ let project = Project(
         .project(target: "User", path: .relativeToRoot("Projects/Domain/User")),
         .project(target: "Auth", path: .relativeToRoot("Projects/Domain/Auth")),
         .project(target: "Agency", path: .relativeToRoot("Projects/Domain/Agency")),
-        .project(target: "Ledger", path: .relativeToRoot("Projects/Domain/Ledger"))
+        .project(target: "Ledger", path: .relativeToRoot("Projects/Domain/Ledger")),
+        .project(target: "Repository", path: .relativeToRoot("Projects/Core/Repository")),
+        .project(target: "MMNetwork", path: .relativeToRoot("Projects/Core/MMNetwork")),
+        .project(target: "MMStorage", path: .relativeToRoot("Projects/Core/MMStorage")),
+        .project(target: "MyPageFeature", path: .relativeToRoot("Projects/Feature/MyPage")),
+        .project(target: "AgencyFeature", path: .relativeToRoot("Projects/Feature/Agency")),
+        .project(target: "LedgerFeature", path: .relativeToRoot("Projects/Feature/Ledger"))
       ],
       settings: .settings(
         base: [

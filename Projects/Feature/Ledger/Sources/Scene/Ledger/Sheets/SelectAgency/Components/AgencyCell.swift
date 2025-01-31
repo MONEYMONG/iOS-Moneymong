@@ -2,8 +2,7 @@ import UIKit
 
 import Utility
 import DesignSystem
-import Core
-import AgencyInterface
+import BaseDomain
 
 final class AgencyCell: UITableViewCell, ReusableView {
   

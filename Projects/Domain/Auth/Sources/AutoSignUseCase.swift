@@ -1,5 +1,5 @@
 import AuthInterface
-import Core
+import BaseDomain
 
 public struct AutoSignUseCase: AutoSignUseCaseInterface {
   private let userRepo: UserRepositoryInterface

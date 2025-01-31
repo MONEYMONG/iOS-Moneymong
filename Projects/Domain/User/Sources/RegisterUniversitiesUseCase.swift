@@ -1,10 +1,10 @@
-import Core
+import BaseDomain
 import UserInterface
 
 public struct RegisterUniversitiesUseCase: RegisterUniversitiesUseCaseInterface {
-  private let universityRepo: UniversityRepository
+  private let universityRepo: UniversityRepositoryInterface
   
-  public init(universityRepo: UniversityRepository) {
+  public init(universityRepo: UniversityRepositoryInterface) {
     self.universityRepo = universityRepo
   }
   

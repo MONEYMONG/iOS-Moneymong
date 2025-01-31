@@ -1,6 +1,6 @@
 import ReactorKit
 
-import Core
+import BaseDomain
 import AgencyInterface
 import LedgerInterface
 import UserInterface

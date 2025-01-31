@@ -1,4 +1,4 @@
-import Core
+import BaseDomain
 import UserInterface
 
 public struct GetSelectedAgencyUseCase: GetSelectedAgencyUseCaseInterface {

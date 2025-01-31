@@ -1,9 +1,8 @@
 import UIKit
 
+import BaseDomain
 import DesignSystem
-import Core
 import Utility
-import AgencyInterface
 
 import PinLayout
 import FlexLayout

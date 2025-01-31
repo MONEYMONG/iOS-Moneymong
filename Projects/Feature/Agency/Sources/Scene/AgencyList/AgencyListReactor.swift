@@ -1,8 +1,9 @@
 import ReactorKit
 
-import Core
-import UserInterface
 import AgencyInterface
+import BaseDomain
+import UserInterface
+import Utility
 
 public final class AgencyListReactor: Reactor {
   private enum Const {

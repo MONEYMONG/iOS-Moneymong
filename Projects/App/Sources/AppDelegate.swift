@@ -1,6 +1,6 @@
 import UIKit
 
-import Core
+import BaseDomain
 
 @main
 class AppDelegate: UIResponder, UIApplicationDelegate {

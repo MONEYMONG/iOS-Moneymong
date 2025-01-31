@@ -1,8 +1,10 @@
 import Foundation
 
-import Core
 import AgencyInterface
+import BaseDomain
 import UserInterface
+import Utility
+
 import ReactorKit
 
 final class SelectAgencySheetReactor: Reactor {

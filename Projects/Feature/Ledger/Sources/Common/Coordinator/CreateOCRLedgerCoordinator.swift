@@ -1,8 +1,8 @@
 import UIKit
 
+import BaseDomain
 import BaseFeature
 import DesignSystem
-import Core
 import LedgerInterface
 import LedgerFeatureInterface
 

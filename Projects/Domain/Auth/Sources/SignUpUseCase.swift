@@ -1,5 +1,5 @@
 import AuthInterface
-import Core
+import BaseDomain
 
 public struct SignUpUseCase: SignUpUseCaseInterface {
   private let signRepo: SignRepositoryInterface

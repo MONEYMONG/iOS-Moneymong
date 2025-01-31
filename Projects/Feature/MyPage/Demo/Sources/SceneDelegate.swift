@@ -1,6 +1,6 @@
 import UIKit
 
-import Core
+import Repository
 import MyPageFeature
 import DesignSystem
 
