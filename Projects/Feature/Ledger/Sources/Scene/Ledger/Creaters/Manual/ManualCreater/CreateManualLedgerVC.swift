@@ -69,7 +69,7 @@ final class CreateManualLedgerVC: BaseVC, View, ImagePickerPresentable {
       .setKeyboardType(to: .numberPad)
       .setError() { text in
         guard let value = Int(text.replacingOccurrences(of: ",", with: "")) else {
-          return (false, "999,999,999원 이내로 입력해주세요")
+          return (false, "금액을 입력해주세요")
         }
         
         return (value <= 999_999_999, "999,999,999원 이내로 입력해주세요")
@@ -105,9 +105,10 @@ final class CreateManualLedgerVC: BaseVC, View, ImagePickerPresentable {
   private let timeTextField: MMTextField = {
     MMTextField(title: "시간")
       .setPlaceholder(to: "00:00:00(24시 단위)")
-      .setRequireMark()
+      .setRequireMark(to: false)
       .setKeyboardType(to: .numberPad)
       .setError() { text in
+        if text.isEmpty { return (true, nil) }
         let pattern = "^([01]?[0-9]|2[0-3]):[0-5][0-9]:[0-5][0-9]$"
         let regex = try! NSRegularExpression(pattern: pattern)
         
@@ -180,6 +181,7 @@ final class CreateManualLedgerVC: BaseVC, View, ImagePickerPresentable {
     }
     
     dateTextField.setError() { [weak self] text in
+      if text.isEmpty { return (false, "날짜를 입력해주세요") }
       let pattern = "^\\d{4}/(0[1-9]|1[012])/(0[1-9]|[12]\\d|3[01])$"
       let regex = try! NSRegularExpression(pattern: pattern)
       
@@ -196,7 +198,7 @@ final class CreateManualLedgerVC: BaseVC, View, ImagePickerPresentable {
         let inputDateList = text.split(separator: "/")
         for i in 0..<3 {
           if Int(inputDateList[i])! > Int(currentDateList[i])! {
-            return (false, "올바른 날짜를 입력해 주세요")
+            return (false, "미래 날짜는 입력이 불가능합니다")
           } else if Int(inputDateList[i])! == Int(currentDateList[i])! {
             continue
           } else {
@@ -237,7 +239,6 @@ final class CreateManualLedgerVC: BaseVC, View, ImagePickerPresentable {
               flex.addItem(documentCollectionView).marginBottom(24).marginRight(-8)
             default:
               flex.addItem(UILabel().text("영수증 (최대 12장)", font: Fonts.body._2, color: Colors.Gray._6))
-              flex.addItem(UILabel().text("*지출일 경우 영수증을 꼭 제출해주세요", font: Fonts.body._2, color: Colors.Blue._4))
               flex.addItem(receiptCollectionView).marginBottom(24).marginRight(-8)
               
               flex.addItem(UILabel().text("증빙 자료 (최대 12장)", font: Fonts.body._2, color: Colors.Gray._6))
@@ -318,56 +319,66 @@ final class CreateManualLedgerVC: BaseVC, View, ImagePickerPresentable {
       .disposed(by: disposeBag)
     
     sourceTextField.textField.rx.text
+      .skip(1)
       .compactMap { $0 }
-      .map { Reactor.Action.inputContent($0, type: .source) }
+      .map { [weak self] in Reactor.Action.inputContent(.source($0, self?.sourceTextField.state != .error)) }
       .bind(to: reactor.action)
       .disposed(by: disposeBag)
     
     sourceTextField.clearButton.rx.tap
-      .map { Reactor.Action.inputContent("", type: .source) }
+      .map { Reactor.Action.inputContent(.source("", false)) }
       .bind(to: reactor.action)
       .disposed(by: disposeBag)
     
     amountTextField.textField.rx.text
+      .skip(1)
       .compactMap { $0 }
-      .map { Reactor.Action.inputContent($0, type: .amount) }
+      .map { [weak self] in Reactor.Action.inputContent(.amount($0, self?.amountTextField.state != .error)) }
       .bind(to: reactor.action)
       .disposed(by: disposeBag)
     
     amountTextField.clearButton.rx.tap
-      .map { Reactor.Action.inputContent("", type: .amount) }
+      .map { Reactor.Action.inputContent(.amount("", false)) }
       .bind(to: reactor.action)
       .disposed(by: disposeBag)
     
     timeTextField.textField.rx.text
+      .skip(1)
       .compactMap { $0 }
-      .map { Reactor.Action.inputContent($0, type: .time) }
+      .map { [weak self] in Reactor.Action.inputContent(.time($0, self?.timeTextField.state != .error)) }
       .bind(to: reactor.action)
       .disposed(by: disposeBag)
     
     timeTextField.clearButton.rx.tap
-      .map { Reactor.Action.inputContent("", type: .time) }
+      .map { Reactor.Action.inputContent(.time("", true)) }
       .bind(to: reactor.action)
       .disposed(by: disposeBag)
     
     fundTypeSelection.$selectedIndex
       .removeDuplicates()
       .sink {
-        reactor.action.onNext(.inputContent("\($0)", type: .fundType))
+        reactor.action.onNext(.inputContent(.fundType($0)))
       }
       .store(in: &cancelBag)
     
     dateTextField.textField.rx.text
+      .skip(1)
       .compactMap { $0 }
-      .map { Reactor.Action.inputContent($0, type: .date) }
+      .map { [weak self] in Reactor.Action.inputContent(.date($0, self?.dateTextField.state != .error)) }
+      .bind(to: reactor.action)
+      .disposed(by: disposeBag)
+    
+    dateTextField.clearButton.rx.tap
+      .map { Reactor.Action.inputContent(.date("", false)) }
       .bind(to: reactor.action)
       .disposed(by: disposeBag)
     
     memoTextView.textView.rx.text
+      .skip(1)
       .compactMap { $0 }
       .bind(with: self) { owner, value in
         owner.view.setNeedsLayout()
-        reactor.action.onNext(.inputContent(value, type: .memo))
+        reactor.action.onNext(.inputContent(.memo(value)))
       }
       .disposed(by: disposeBag)
     

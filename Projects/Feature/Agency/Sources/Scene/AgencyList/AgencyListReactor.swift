@@ -93,13 +93,9 @@ public final class AgencyListReactor: Reactor {
       )
       
     case .requestMyAgency:
-      return .concat(
-        .just(.setLoading(true)),
-        .task { try await getMyAgencyUseCase.execute() }
-          .map { .myAgencyResponse(.success($0))}
-          .catchAndReturn(.myAgencyResponse(.success([]))),
-          .just(.setLoading(false))
-      )
+      return .task { try await getMyAgencyUseCase.execute() }
+        .map { .myAgencyResponse(.success($0))}
+        .catchAndReturn(.myAgencyResponse(.success([])))
       
     case let .tap(agency):
       if currentState.myAgency.contains(agency) {

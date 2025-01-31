@@ -67,6 +67,8 @@ final class LedgerTabVC: BaseVC, View {
     v.isHidden = true
     return v
   }()
+  
+  private let refreshControl = UIRefreshControl()
 
   override func setupUI() {
     super.setupUI()
@@ -79,6 +81,7 @@ final class LedgerTabVC: BaseVC, View {
     }
     
     ledgerList.backgroundView = emptyView
+    ledgerList.refreshControl = refreshControl
   }
   
   override func setupConstraints() {
@@ -150,6 +153,17 @@ final class LedgerTabVC: BaseVC, View {
       .compactMap { $0.last?.row }
       .map { Reactor.Action.didPrefech($0) }
       .bind(to: reactor.action)
+      .disposed(by: disposeBag)
+    
+    refreshControl.rx.controlEvent(.valueChanged)
+      .map { Reactor.Action.didRefresh }
+      .bind(to: reactor.action)
+      .disposed(by: disposeBag)
+    
+    reactor.pulse(\.$isLoading)
+      .filter { !$0 }
+      .observe(on: MainScheduler.instance)
+      .bind(to: refreshControl.rx.isRefreshing)
       .disposed(by: disposeBag)
 
     reactor.pulse(\.$role)

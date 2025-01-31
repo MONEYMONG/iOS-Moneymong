@@ -6,7 +6,6 @@ import Utility
 import Alamofire
 
 public final class NetworkManager: NetworkManagerInterfacae {
-  
   public var tokenIntercepter: (any RequestInterceptor)?
   
   private let session = Session(eventMonitors: [NetworkLogger()])
@@ -51,7 +50,15 @@ public final class NetworkManager: NetworkManagerInterfacae {
     assertionFailure("잘못됬거나, 서버에러!")
   }
   
-  public func request<DTO: Responsable>(target: TargetType, of type: DTO.Type) async throws -> DTO {
+  public func request<DTO>(target: TargetType, of type: DTO.Type) async throws -> DTO where DTO : Responsable {
+    return try await request(target: target, of: type, cache: nil)
+  }
+  
+  public func request<DTO: Responsable>(target: TargetType, of type: DTO.Type, cache: Cacheable?) async throws -> DTO {
+    if let cacheData = cache?.read(key: target.path), let dto = try? JSONDecoder().decode(type, from: cacheData) {
+      return dto
+    }
+    
     let dataRequest: DataRequest
     switch target.task {
     case .upload(let multipartFormData):
@@ -82,6 +89,7 @@ public final class NetworkManager: NetworkManagerInterfacae {
       if let dto = try? JSONDecoder().decode(type, from: data),
          (200..<300) ~= statusCode
       {
+        cache?.save(data: data, key: target.path)
         return dto
       }
       // CommonError로 디코딩

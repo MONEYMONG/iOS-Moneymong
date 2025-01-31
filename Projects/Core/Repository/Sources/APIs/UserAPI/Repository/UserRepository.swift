@@ -7,19 +7,22 @@ import MMStorageInterface
 public struct UserRepository: UserRepositoryInterface {
   private let networkManager: NetworkManagerInterfacae
   private let localStorage: LocalStorageInterface
+  private let memoryCache: Cacheable
 
   public init(
     networkManager: NetworkManagerInterfacae,
-    localStorage: LocalStorageInterface
+    localStorage: LocalStorageInterface,
+    memoryCache: Cacheable
   ) {
     self.networkManager = networkManager
     self.localStorage = localStorage
+    self.memoryCache = memoryCache
   }
 
   /// Get: 내정보조회
   public func user() async throws -> UserInfo {
     let targetType = UserAPI.user
-    let dto = try await networkManager.request(target: targetType, of: UserResponseDTO.self)
+    let dto = try await networkManager.request(target: targetType, of: UserResponseDTO.self, cache: memoryCache)
     let entity = dto.toEntity
 
     localStorage.userID = entity.id
@@ -55,6 +58,7 @@ public struct UserRepository: UserRepositoryInterface {
     localStorage.socialAccessToken = nil
     localStorage.userID = nil
     localStorage.selectedAgency = nil
+    memoryCache.deleteAll()
   }
   
   /// Delete: 회원탈퇴
@@ -68,5 +72,6 @@ public struct UserRepository: UserRepositoryInterface {
     localStorage.recentLoginType = nil
     localStorage.userID = nil
     localStorage.selectedAgency = nil
+    memoryCache.deleteAll()
   }
 }

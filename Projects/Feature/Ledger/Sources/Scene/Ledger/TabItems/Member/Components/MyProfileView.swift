@@ -23,7 +23,7 @@ final class MyProfileView: UIView {
   
   private let tagView: TagView = {
     let v = TagView()
-    v.configure(title: "운영진", titleColor: Colors.White._1, backgroundColor: Colors.Blue._4)
+    v.configure(title: "총무", titleColor: Colors.White._1, backgroundColor: Colors.Blue._4)
     return v
   }()
   
@@ -133,13 +133,13 @@ final class MyProfileView: UIView {
     switch role {
     case .staff:
       tagView.configure(
-        title: "운영진",
+        title: "총무",
         titleColor: Colors.White._1,
         backgroundColor: Colors.Blue._4
       )
     case .member:
       tagView.configure(
-        title: "일반멤버",
+        title: "회원",
         titleColor: Colors.White._1,
         backgroundColor: Colors.Mint._3
       )

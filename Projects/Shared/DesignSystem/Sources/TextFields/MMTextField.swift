@@ -19,7 +19,7 @@ public class MMTextField: UIView {
     }
   }
   
-  private var state: State {
+  public var state: State {
     didSet { updateState() }
   }
   
@@ -151,7 +151,7 @@ public class MMTextField: UIView {
     }
     
     guard let text = textField.text else { return }
-    
+    clearButton.isHidden = text.isEmpty
     // 유효성에 문제가 있다면 에러처리
     let (isSuccess, message) = condition(text)
     if !isSuccess {

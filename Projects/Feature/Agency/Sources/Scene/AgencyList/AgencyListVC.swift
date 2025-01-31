@@ -35,10 +35,13 @@ public final class AgencyListVC: BaseVC, View {
     return v
   }()
   
+  private let refreshControl = UIRefreshControl()
+  
   public override func setupUI() {
     super.setupUI()
     setTitle("소속찾기")
     collectionView.backgroundView = emptyView
+    collectionView.refreshControl = refreshControl
   }
   
   public override func setupConstraints() {
@@ -105,8 +108,9 @@ public final class AgencyListVC: BaseVC, View {
       .bind(to: reactor.action)
       .disposed(by: disposeBag)
     
-    rx.viewWillAppear
-      .bind {
+    Observable.of(refreshControl.rx.controlEvent(.valueChanged), rx.viewDidLoad)
+      .merge()
+      .bind { _ in
         reactor.action.onNext(.requestAgencyList)
         reactor.action.onNext(.requestMyAgency)
       }
@@ -195,6 +199,12 @@ public final class AgencyListVC: BaseVC, View {
     reactor.pulse(\.$isLoading)
       .observe(on: MainScheduler.instance)
       .bind(to: rx.isLoading)
+      .disposed(by: disposeBag)
+    
+    reactor.pulse(\.$isLoading)
+      .filter { !$0 }
+      .observe(on: MainScheduler.instance)
+      .bind(to: refreshControl.rx.isRefreshing)
       .disposed(by: disposeBag)
     
     reactor.pulse(\.$error)
