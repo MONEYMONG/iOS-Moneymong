@@ -2,6 +2,7 @@ import Foundation
 
 import AgencyInterface
 import BaseDomain
+import Utility
 
 public struct DeleteAgencyUseCase: DeleteAgencyUseCaseInterface {
   private let agencyRepo: AgencyRepositoryInterface

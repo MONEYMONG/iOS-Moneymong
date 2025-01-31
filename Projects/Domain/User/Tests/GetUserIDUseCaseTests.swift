@@ -1,6 +1,6 @@
 import XCTest
-@testable import CoreTesting
-@testable import Core
+@testable import RepositoryTesting
+@testable import Repository
 @testable import User
 @testable import UserInterface
 

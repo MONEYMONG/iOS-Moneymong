@@ -1,5 +1,6 @@
 import Foundation
 
+import Utility
 import KakaoSDKCommon
 import KakaoSDKAuth
 import KakaoSDKUser

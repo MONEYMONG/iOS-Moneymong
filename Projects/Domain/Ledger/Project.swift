@@ -38,8 +38,7 @@ let project = Project(
             sources: ["Tests/**"],
             dependencies: [
                 .target(name: "Ledger"),
-                .target(name: "LedgerTesting"),
-                .project(target: "CoreTesting", path: .relativeToRoot("Projects/Core/Core"))
+                .target(name: "LedgerTesting")
             ]
         ),
         Target(
