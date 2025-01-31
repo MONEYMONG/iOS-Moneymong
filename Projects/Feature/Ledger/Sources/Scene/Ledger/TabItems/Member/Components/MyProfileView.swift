@@ -1,8 +1,8 @@
 import UIKit
 
-import DesignSystem
-import Core
 import AgencyInterface
+import BaseDomain
+import DesignSystem
 
 import RxSwift
 import RxCocoa

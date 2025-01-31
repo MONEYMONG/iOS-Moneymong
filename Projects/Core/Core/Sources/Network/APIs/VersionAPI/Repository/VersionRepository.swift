@@ -1,8 +1,6 @@
 import Foundation
 
-public protocol VersionRepositoryInterface {
-  func get() async throws
-}
+import BaseDomain
 
 public struct VersionRepository: VersionRepositoryInterface {
   private let networkManager: NetworkManagerInterfacae

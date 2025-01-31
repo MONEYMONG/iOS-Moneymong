@@ -1,3 +1,5 @@
+import BaseDomain
+
 public protocol GetLedgerListUseCaseInterface {
   func excute(
     id: Int,

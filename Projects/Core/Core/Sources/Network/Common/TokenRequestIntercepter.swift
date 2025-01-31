@@ -1,5 +1,7 @@
 import UIKit
 
+import BaseDomain
+
 import Alamofire
 
 public final class TokenRequestIntercepter: RequestInterceptor {

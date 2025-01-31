@@ -1,4 +1,4 @@
-import AuthInterface
+import BaseDomain
 
 public struct SignResponseDTO: Responsable {
   public let accessToken: String?

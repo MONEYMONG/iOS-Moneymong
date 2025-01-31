@@ -103,7 +103,8 @@ let project = Project(
         .project(target: "User", path: .relativeToRoot("Projects/Domain/User")),
         .project(target: "Auth", path: .relativeToRoot("Projects/Domain/Auth")),
         .project(target: "Agency", path: .relativeToRoot("Projects/Domain/Agency")),
-        .project(target: "Ledger", path: .relativeToRoot("Projects/Domain/Ledger"))
+        .project(target: "Ledger", path: .relativeToRoot("Projects/Domain/Ledger")),
+        .project(target: "Core", path: .relativeToRoot("Projects/Core/Core"))
       ],
       settings: .settings(
         base: [

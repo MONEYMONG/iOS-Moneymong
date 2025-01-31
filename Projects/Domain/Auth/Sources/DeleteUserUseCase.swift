@@ -1,5 +1,5 @@
 import AuthInterface
-import Core
+import BaseDomain
 
 public struct DeleteUserUseCase: DeleteUserUseCaseInterface {
   private let userRepo: UserRepositoryInterface

@@ -1,7 +1,6 @@
 import UIKit
 
 import BaseFeature
-import Core
 import DesignSystem
 
 import RxSwift

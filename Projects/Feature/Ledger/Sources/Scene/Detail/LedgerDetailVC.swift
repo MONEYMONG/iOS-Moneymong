@@ -1,9 +1,9 @@
 import UIKit
 
+import AgencyInterface
+import BaseDomain
 import BaseFeature
 import DesignSystem
-import Core
-import AgencyInterface
 
 import ReactorKit
 import PinLayout

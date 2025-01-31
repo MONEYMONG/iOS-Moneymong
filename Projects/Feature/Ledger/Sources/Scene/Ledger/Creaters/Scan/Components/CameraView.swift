@@ -1,7 +1,7 @@
 import UIKit
 import AVFoundation
 
-import Core
+import BaseDomain
 
 import RxSwift
 

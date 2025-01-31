@@ -1,5 +1,4 @@
-import Core
-import LedgerInterface
+import BaseDomain
 
 import RxSwift
 import RxRelay

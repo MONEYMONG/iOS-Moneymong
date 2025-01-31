@@ -6,6 +6,7 @@ import Agency
 import AgencyInterface
 import AgencyFeature
 import AgencyFeatureInterface
+import BaseDomain
 import BaseFeature
 import User
 import UserInterface

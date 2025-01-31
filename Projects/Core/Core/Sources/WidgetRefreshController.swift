@@ -1,8 +1,6 @@
 import WidgetKit
 
-public protocol WidgetRefreshable {
-  func refresh()
-}
+import BaseDomain
 
 public final class WidgetRefreshController: WidgetRefreshable {
   public init() {}

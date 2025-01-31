@@ -1,9 +1,6 @@
 import Foundation
-import Alamofire
 
-public protocol TokenRepositoryInterface {
-  func token() async throws
-}
+import BaseDomain
 
 public final class TokenRepository: TokenRepositoryInterface {
   private let networkManager: NetworkManagerInterfacae

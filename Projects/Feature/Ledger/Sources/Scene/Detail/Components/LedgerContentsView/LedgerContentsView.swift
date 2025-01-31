@@ -3,7 +3,6 @@ import UIKit
 import BaseFeature
 import DesignSystem
 import Utility
-import Core
 
 import ReactorKit
 import RxDataSources

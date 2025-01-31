@@ -1,8 +1,7 @@
 import UIKit
 
+import BaseDomain
 import DesignSystem
-import Core
-import LedgerInterface
 
 import PinLayout
 import FlexLayout

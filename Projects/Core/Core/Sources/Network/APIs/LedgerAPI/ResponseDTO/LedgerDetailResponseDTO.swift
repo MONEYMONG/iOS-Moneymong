@@ -1,6 +1,6 @@
 import Foundation
 
-import LedgerInterface
+import BaseDomain
 
 struct LedgerDetailResponseDTO: Responsable {
   let id: Int

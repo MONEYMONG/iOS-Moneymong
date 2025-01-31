@@ -1,6 +1,6 @@
 import Foundation
 
-import UserInterface
+import BaseDomain
 
 /// 유저정보
 public struct UserResponseDTO: Responsable {

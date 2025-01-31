@@ -3,8 +3,7 @@ import Combine
 
 import DesignSystem
 import BaseFeature
-import Core
-import UserInterface
+import BaseDomain
 
 import FlexLayout
 import PinLayout

@@ -15,8 +15,7 @@ let project = Project(
             deploymentTarget: .iOS(targetVersion: "15.0", devices: .iphone),
             sources: ["Sources/**"],
             dependencies: [
-                .target(name: "AgencyInterface"),
-                .project(target: "Core", path: .relativeToRoot("Projects/Core/Core"))
+                .target(name: "AgencyInterface")
             ]
         ),
         Target(
@@ -27,6 +26,7 @@ let project = Project(
             deploymentTarget: .iOS(targetVersion: "15.0", devices: .iphone),
             sources: ["Interface/**"],
             dependencies: [
+              .project(target: "BaseDomain", path: .relativeToRoot("Projects/Domain/BaseDomain"))
             ]
         ),
         Target(

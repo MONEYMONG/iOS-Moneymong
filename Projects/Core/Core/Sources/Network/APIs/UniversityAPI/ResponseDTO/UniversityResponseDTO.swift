@@ -1,4 +1,4 @@
-import UserInterface
+import BaseDomain
 
 public struct UniversityResponseDTO: Responsable {
   public let id: Int?

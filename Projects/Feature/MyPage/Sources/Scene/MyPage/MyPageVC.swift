@@ -4,7 +4,6 @@ import SwiftUI
 import BaseFeature
 import Utility
 import DesignSystem
-import Core
 
 import ReactorKit
 import RxDataSources

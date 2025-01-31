@@ -1,13 +1,6 @@
 import Foundation
 
-import UserInterface
-
-import Alamofire
-
-public protocol UniversityRepositoryInterface {
-  func university(name: String?, grade: Int?) async throws
-  func universities(keyword: String) async throws -> [University]
-}
+import BaseDomain
 
 public struct UniversityRepository: UniversityRepositoryInterface {
   private let networkManager: NetworkManagerInterfacae

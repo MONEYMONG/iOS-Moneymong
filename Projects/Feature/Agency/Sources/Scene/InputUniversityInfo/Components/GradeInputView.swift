@@ -1,9 +1,8 @@
 import UIKit
 
 import DesignSystem
-import Core
 
-import UserInterface
+import BaseDomain
 
 import RxSwift
 

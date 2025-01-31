@@ -1,7 +1,7 @@
 import ReactorKit
 
-import Core
 import AgencyInterface
+import BaseDomain
 
 final class JoinAgencyReactor: Reactor {
   struct State {

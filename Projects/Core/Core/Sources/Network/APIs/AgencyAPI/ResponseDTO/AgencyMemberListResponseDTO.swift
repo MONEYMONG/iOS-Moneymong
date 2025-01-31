@@ -1,6 +1,6 @@
 import Foundation
 
-import AgencyInterface
+import BaseDomain
 
 /// 소속 멤버리스트 조회
 struct AgencyMemberListResponseDTO: Responsable {

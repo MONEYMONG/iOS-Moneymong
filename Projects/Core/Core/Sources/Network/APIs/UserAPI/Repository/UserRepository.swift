@@ -1,15 +1,6 @@
 import Foundation
 
-import UserInterface
-
-public protocol UserRepositoryInterface {
-  func user() async throws -> UserInfo
-  func fetchUserID() -> Int
-  func fetchSelectedAgency() -> Int?
-  func updateSelectedAgency(id: Int?)
-  func logout() async throws
-  func withdrawl() async throws
-}
+import BaseDomain
 
 public struct UserRepository: UserRepositoryInterface {
   private let networkManager: NetworkManagerInterfacae

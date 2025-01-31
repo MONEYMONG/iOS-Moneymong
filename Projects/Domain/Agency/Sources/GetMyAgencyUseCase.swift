@@ -1,7 +1,7 @@
 import Foundation
 
-import Core
 import AgencyInterface
+import BaseDomain
 
 public struct GetMyAgencyUseCase: GetMyAgencyUseCaseInterface {
   private let repo: AgencyRepositoryInterface

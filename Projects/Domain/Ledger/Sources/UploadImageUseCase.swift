@@ -1,6 +1,6 @@
 import Foundation
 
-import Core
+import BaseDomain
 import LedgerInterface
 
 public struct UploadImageUseCase: UploadImageUseCaseInterface {

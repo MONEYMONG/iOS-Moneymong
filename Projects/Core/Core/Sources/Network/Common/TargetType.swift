@@ -1,5 +1,7 @@
 import Foundation
 
+import BaseDomain
+
 import Alamofire
 
 public enum HTTPTask {

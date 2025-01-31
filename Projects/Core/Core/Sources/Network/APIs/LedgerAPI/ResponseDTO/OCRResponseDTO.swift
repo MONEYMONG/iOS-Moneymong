@@ -1,6 +1,6 @@
 import Foundation
 
-import LedgerInterface
+import BaseDomain
 
 struct OCRResponseDTO: Responsable {
   let version : String

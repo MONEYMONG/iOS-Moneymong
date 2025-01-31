@@ -15,7 +15,8 @@ let project = Project(
             deploymentTarget: .iOS(targetVersion: "15.0", devices: .iphone),
             sources: ["Sources/**"],
             dependencies: [
-                
+              .project(target: "Utility", path: .relativeToRoot("Projects/Core/Utility")),
+              .project(target: "ThirdPartyLips", path: .relativeToRoot("Projects/Shared/ThirdPartyLips"))
             ]
         )
     ]

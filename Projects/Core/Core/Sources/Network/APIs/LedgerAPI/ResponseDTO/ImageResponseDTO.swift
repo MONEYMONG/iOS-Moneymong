@@ -1,6 +1,6 @@
 import Foundation
 
-import LedgerInterface
+import BaseDomain
 
 struct ImageResponseDTO: Responsable {
   let key: String

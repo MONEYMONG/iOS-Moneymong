@@ -1,7 +1,7 @@
 import ReactorKit
 
 import DesignSystem
-import Core
+import BaseDomain
 import AgencyInterface
 import UserInterface
 

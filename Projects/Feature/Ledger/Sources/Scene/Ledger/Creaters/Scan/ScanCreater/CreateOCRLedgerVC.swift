@@ -1,8 +1,8 @@
 import UIKit
 import AVFoundation
 
+import BaseDomain
 import DesignSystem
-import Core
 
 import FlexLayout
 import PinLayout

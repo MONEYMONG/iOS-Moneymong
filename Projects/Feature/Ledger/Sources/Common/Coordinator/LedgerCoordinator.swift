@@ -1,8 +1,9 @@
 import UIKit
 
-import DesignSystem
-import BaseFeature
 import AgencyInterface
+import BaseDomain
+import BaseFeature
+import DesignSystem
 import LedgerInterface
 import LedgerFeatureInterface
 
