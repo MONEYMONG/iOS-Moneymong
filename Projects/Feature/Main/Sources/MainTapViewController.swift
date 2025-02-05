@@ -81,7 +81,7 @@ public final class MainTapViewController: UITabBarController {
       .disposed(by: disposeBag)
     
     if let destination = DeepLinkManager.destination {
-      NotificationCenter.default.post(name: .init("deeplink"), object: nil, userInfo: ["query": destination])
+      NotificationCenter.default.post(name: .init("deeplink"), object: nil, userInfo: destination)
     }
   }
 }
