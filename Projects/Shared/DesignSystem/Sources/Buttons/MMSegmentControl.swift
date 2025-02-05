@@ -127,6 +127,7 @@ public final class MMSegmentControl: UIView {
   }
   
   private func unselection(with button: UIButton) {
+    if !button.isUserInteractionEnabled { return }
     button.configuration?.baseBackgroundColor = Colors.White._1
     button.configuration?.baseForegroundColor = Colors.Gray._5
     button.layer.borderColor = Colors.Gray._3.cgColor
