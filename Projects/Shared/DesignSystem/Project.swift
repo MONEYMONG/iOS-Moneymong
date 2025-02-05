@@ -29,6 +29,7 @@ let project = Project(
       sources: ["Sources/**"],
       resources: ["Resources/**"],
       dependencies: [
+        .project(target: "Utility", path: .relativeToRoot("Projects/Shared/Utility")),
         .package(product: "FlexLayout"),
         .package(product: "PinLayout")
       ],

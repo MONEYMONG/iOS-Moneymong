@@ -3,7 +3,6 @@ import UIKit
 import DesignSystem
 import Utility
 import BaseFeature
-import ThirdPartyLips
 
 import Kingfisher
 import ReactorKit
