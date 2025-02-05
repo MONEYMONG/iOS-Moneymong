@@ -61,7 +61,7 @@ struct AgencyFactory {
     vc.reactor = InputAgencyInfoReactor(
       universityType: universityType,
       createAgencyUseCase: DIContainer.shared.resolve(type: CreateAgencyUseCaseInterface.self),
-      registerAgencyUseCase: DIContainer.shared.resolve(type: RegisterUniversitiesUseCaseInterface.self)
+      registerUniversitiesUseCase: DIContainer.shared.resolve(type: RegisterUniversitiesUseCaseInterface.self)
     )
     return vc
   }

@@ -45,16 +45,16 @@ public final class InputAgencyInfoReactor: Reactor {
   
   public let initialState: State
   private let createAgencyUseCase: CreateAgencyUseCaseInterface
-  private let registerAgencyUseCase: RegisterUniversitiesUseCaseInterface
+  private let registerUniversitiesUseCase: RegisterUniversitiesUseCaseInterface
   
   init(
     universityType: UniversityType,
     createAgencyUseCase: CreateAgencyUseCaseInterface,
-    registerAgencyUseCase: RegisterUniversitiesUseCaseInterface
+    registerUniversitiesUseCase: RegisterUniversitiesUseCaseInterface
   ) {
     self.initialState = State(universityType: universityType)
     self.createAgencyUseCase = createAgencyUseCase
-    self.registerAgencyUseCase = registerAgencyUseCase
+    self.registerUniversitiesUseCase = registerUniversitiesUseCase
   }
   
   public func mutate(action: Action) -> Observable<Mutation> {
@@ -76,7 +76,7 @@ public final class InputAgencyInfoReactor: Reactor {
           .just(.setLoading(true)),
           .task {
             if currentState.universityType == .unknown {
-              try await registerAgencyUseCase.execute(name: nil, grade: nil)
+              try await registerUniversitiesUseCase.execute(name: nil, grade: nil)
             }
             return try await createAgencyUseCase.execute(
               name: currentState.text,
@@ -92,7 +92,7 @@ public final class InputAgencyInfoReactor: Reactor {
     case .notRegisterButtonDidTap:
       return .task {
         if currentState.universityType == .unknown {
-          try await registerAgencyUseCase.execute(name: nil, grade: nil)
+          try await registerUniversitiesUseCase.execute(name: nil, grade: nil)
         }
       }
       .map { .setDestination(.main) }
