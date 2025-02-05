@@ -1,5 +1,6 @@
 import AgencyFeatureInterface
 import AgencyInterface
+import AuthInterface
 import BaseDomain
 import UserInterface
 import Utility
@@ -24,6 +25,7 @@ public final class InputAgencyInfoReactor: Reactor {
       case complete(Int)
       case inputUniversity(String, AgencyType)
       case main
+      case dismiss
     }
   }
   
@@ -32,6 +34,7 @@ public final class InputAgencyInfoReactor: Reactor {
     case selectedIndexDidChange(Int)
     case tapCreateButton
     case notRegisterButtonDidTap
+    case dismiss
   }
   
   public enum Mutation {
@@ -46,15 +49,18 @@ public final class InputAgencyInfoReactor: Reactor {
   public let initialState: State
   private let createAgencyUseCase: CreateAgencyUseCaseInterface
   private let registerUniversitiesUseCase: RegisterUniversitiesUseCaseInterface
+  private let deleteUserUseCase: DeleteUserUseCaseInterface
   
   init(
     universityType: UniversityType,
     createAgencyUseCase: CreateAgencyUseCaseInterface,
-    registerUniversitiesUseCase: RegisterUniversitiesUseCaseInterface
+    registerUniversitiesUseCase: RegisterUniversitiesUseCaseInterface,
+    deleteUserUseCase: DeleteUserUseCaseInterface
   ) {
     self.initialState = State(universityType: universityType)
     self.createAgencyUseCase = createAgencyUseCase
     self.registerUniversitiesUseCase = registerUniversitiesUseCase
+    self.deleteUserUseCase = deleteUserUseCase
   }
   
   public func mutate(action: Action) -> Observable<Mutation> {
@@ -96,6 +102,12 @@ public final class InputAgencyInfoReactor: Reactor {
         }
       }
       .map { .setDestination(.main) }
+    case .dismiss:
+      return .task {
+        if currentState.universityType == .unknown {
+          try await deleteUserUseCase.execute()
+        }
+      }.map { _ in .setDestination(.dismiss) }
     }
   }
   
