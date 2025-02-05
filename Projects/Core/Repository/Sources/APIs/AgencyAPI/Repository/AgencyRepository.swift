@@ -3,6 +3,7 @@ import Foundation
 import BaseDomain
 import MMNetworkInterface
 import MMStorageInterface
+import Utility
 
 public struct AgencyRepository: AgencyRepositoryInterface {
   private let networkManager: NetworkManagerInterfacae
@@ -27,7 +28,17 @@ public struct AgencyRepository: AgencyRepositoryInterface {
   
   public func create(name: String, type: String) async throws -> Int {
     let targetType = AgencyAPI.create(param: .init(name: name, agencyType: type))
-    return try await networkManager.request(target: targetType, of: AgencyIDResponseDTO.self).id
+    let agencyID = try await networkManager.request(target: targetType, of: AgencyIDResponseDTO.self).id
+    FirebaseManager.shared.logEvent(
+      event: .createAgency,
+      parameters: [
+        "agency_name" : name,
+        "agency_id" : agencyID,
+        "agency_type" : type,
+        "user_id" : localStorage.userID ?? "unknown"
+      ]
+    )
+    return agencyID
   }
   
   public func fetchMemberList(id: Int) async throws -> [Member] {
@@ -44,6 +55,14 @@ public struct AgencyRepository: AgencyRepositoryInterface {
   public func kickoutMember(id: Int, userId: Int) async throws {
     let targetType = AgencyAPI.kickout(id: id, param: .init(userId: userId))
     try await networkManager.request(target: targetType)
+    FirebaseManager.shared.logEvent(
+      event: .kickoutMember,
+      parameters: [
+        "agency_id" : id,
+        "kickout_user_id" : userId,
+        "user_id" : localStorage.userID ?? "unknown"
+      ]
+    )
   }
   
   public func fetchMyAgency() async throws -> [Agency] {
@@ -61,6 +80,14 @@ public struct AgencyRepository: AgencyRepositoryInterface {
   public func certificateCode(id: Int, code: String) async throws -> Bool {
     let targetType = AgencyAPI.certificateCode(id: id, param: .init(invitationCode: code))
     let dto = try await networkManager.request(target: targetType, of: CertificateCodeRequestDTO.self)
+    FirebaseManager.shared.logEvent(
+      event: .joinAgency,
+      parameters: [
+        "agency_id" : id,
+        "code" : code,
+        "user_id" : localStorage.userID ?? "unknown"
+      ]
+    )
     return dto.toEntity
   }
   
@@ -73,6 +100,13 @@ public struct AgencyRepository: AgencyRepositoryInterface {
   public func deleteAgency(id: Int) async throws {
     let targetType = AgencyAPI.delete(id: id)
     try await networkManager.request(target: targetType)
+    FirebaseManager.shared.logEvent(
+      event: .deleteAgency,
+      parameters: [
+        "agency_id" : id,
+        "user_id" : localStorage.userID ?? "unknown"
+      ]
+    )
     localStorage.deleteCurrentLedgerInfo()
   }
 }

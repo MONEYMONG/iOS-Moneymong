@@ -27,7 +27,7 @@ public final class LocalStorage: LocalStorageInterface {
   public var socialAccessToken: String?
   
   public func removeAll() {
-    selectedAgency = nil
+    ledgerDateRange = nil
     userID = nil
 
     recentLoginType = nil
@@ -35,6 +35,7 @@ public final class LocalStorage: LocalStorageInterface {
 
     accessToken = nil
     refreshToken = nil
+    socialAccessToken = nil
   }
   
   public func saveCurrentLedgerInfo(agencyName: String, totalBalance: Int) {

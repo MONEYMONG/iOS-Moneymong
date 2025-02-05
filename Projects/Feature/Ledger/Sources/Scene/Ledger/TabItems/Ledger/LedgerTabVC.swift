@@ -75,9 +75,11 @@ final class LedgerTabVC: BaseVC, View {
     
     floatingButton.addWriteAction { [weak self] in
       self?.reactor?.action.onNext(.didTapWriteButton)
+      FirebaseManager.shared.logEvent(event: .didTapManualInput)
     }
     floatingButton.addScanAction { [weak self] in
       self?.reactor?.action.onNext(.didTapScanButton)
+      FirebaseManager.shared.logEvent(event: .didTapOCR)
     }
     
     ledgerList.backgroundView = emptyView
@@ -130,6 +132,7 @@ final class LedgerTabVC: BaseVC, View {
       .disposed(by: disposeBag)
     
     dateRangeView.rx.tapGesture
+      .do { _ in FirebaseManager.shared.logEvent(event: .didTapSelectDate) }
       .map { _ in Reactor.Action.didTapDateRangeView }
       .bind(to: reactor.action)
       .disposed(by: disposeBag)

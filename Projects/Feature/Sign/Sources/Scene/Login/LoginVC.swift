@@ -3,6 +3,7 @@ import UIKit
 import DesignSystem
 import BaseFeature
 import ReactorKit
+import Utility
 
 final class LoginVC: BaseVC, View {
 
@@ -173,12 +174,14 @@ final class LoginVC: BaseVC, View {
 
     appleLoginButton.rx.tap
       .throttle(.seconds(1), latest: false, scheduler: MainScheduler.instance)
+      .do { _ in FirebaseManager.shared.logEvent(event: .appleLogin) }
       .map { Reactor.Action.login(.apple) }
       .bind(to: reactor.action)
       .disposed(by: disposeBag)
 
     kakaoLoginButton.rx.tap
       .throttle(.seconds(1), latest: false, scheduler: MainScheduler.instance)
+      .do { _ in FirebaseManager.shared.logEvent(event: .kakaoLogin) }
       .map { Reactor.Action.login(.kakao) }
       .bind(to: reactor.action)
       .disposed(by: disposeBag)
