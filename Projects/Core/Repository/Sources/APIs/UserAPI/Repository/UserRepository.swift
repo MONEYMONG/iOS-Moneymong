@@ -3,6 +3,7 @@ import Foundation
 import BaseDomain
 import MMNetworkInterface
 import MMStorageInterface
+import Utility
 
 public struct UserRepository: UserRepositoryInterface {
   private let networkManager: NetworkManagerInterfacae
@@ -52,26 +53,17 @@ public struct UserRepository: UserRepositoryInterface {
     
     let targetType = UserAPI.logout(.init(refreshToken: refreshToken))
     try await networkManager.request(target: targetType)
-    
-    localStorage.refreshToken = nil
-    localStorage.accessToken = nil
-    localStorage.socialAccessToken = nil
-    localStorage.userID = nil
-    localStorage.selectedAgency = nil
+    FirebaseManager.shared.logEvent(event: .logout, parameters: ["user_id" : localStorage.userID ?? "unknown"])
     memoryCache.deleteAll()
+    localStorage.removeAll()
   }
   
   /// Delete: 회원탈퇴
   public func withdrawl() async throws {
     let targetType = UserAPI.withdrawl
     try await networkManager.request(target: targetType)
-    
-    localStorage.refreshToken = nil
-    localStorage.accessToken = nil
-    localStorage.socialAccessToken = nil
-    localStorage.recentLoginType = nil
-    localStorage.userID = nil
-    localStorage.selectedAgency = nil
+    FirebaseManager.shared.logEvent(event: .deleteAccount, parameters: ["user_id" : localStorage.userID ?? "unknown"])
+    localStorage.removeAll()
     memoryCache.deleteAll()
   }
 }

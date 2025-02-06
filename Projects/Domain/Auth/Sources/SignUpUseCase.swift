@@ -1,5 +1,6 @@
 import AuthInterface
 import BaseDomain
+import Utility
 
 public struct SignUpUseCase: SignUpUseCaseInterface {
   private let signRepo: SignRepositoryInterface
@@ -30,7 +31,32 @@ public struct SignUpUseCase: SignUpUseCaseInterface {
         code: authInfo.authorizationCode
       )
     }
-    _ = try await userRepo.user()
+    let userInfo = try await userRepo.user()
+    
+    if signInfo.schoolInfoExist {
+      FirebaseManager.shared.logEvent(
+        event: .login,
+        parameters: [
+          "user_id" : userInfo.id,
+          "nickname" : userInfo.nickname,
+          "email" : userInfo.email,
+          "university_name" : userInfo.universityName,
+          "grade" : userInfo.grade,
+          "provider" : signInfo.schoolInfoExist ? "APPLE" : "KAKAO"
+        ]
+      )
+    } else {
+      FirebaseManager.shared.logEvent(
+        event: .signUp,
+        parameters: [
+          "user_id" : userInfo.id,
+          "nickname" : userInfo.nickname,
+          "email" : userInfo.email,
+          "provider" : signInfo.schoolInfoExist ? "APPLE" : "KAKAO"
+        ]
+      )
+    }
+    
     return signInfo
   }
 }

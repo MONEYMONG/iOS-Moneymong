@@ -19,7 +19,6 @@ let project = Project(
       bundleId: "com.framework.moneymong.Repository",
       deploymentTarget: .iOS(targetVersion: "15.0", devices: .iphone),
       sources: ["Sources/**"],
-      resources: ["Resources/**"],
       dependencies: [
         .project(target: "BaseDomain", path: .relativeToRoot("Projects/Domain/BaseDomain")),
         .project(target: "MMNetworkInterface", path: .relativeToRoot("Projects/Core/MMNetwork")),

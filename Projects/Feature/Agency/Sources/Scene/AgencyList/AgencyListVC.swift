@@ -131,6 +131,7 @@ public final class AgencyListVC: BaseVC, View {
     
     createAgencyButton.rx.tap
       .throttle(.seconds(1), latest: false, scheduler: MainScheduler.instance)
+      .do { _ in FirebaseManager.shared.logEvent(event: .didTapCreateAgency) }
       .compactMap { reactor.currentState.userInfo?.universityName }
       .map { universityName -> UniversityType in universityName == "정보없음" ? .none : .exists }
       .bind(with: self) { owner, universityType in

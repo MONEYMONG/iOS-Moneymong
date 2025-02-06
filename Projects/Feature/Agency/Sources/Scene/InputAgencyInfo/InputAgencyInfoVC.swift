@@ -12,7 +12,6 @@ public final class InputAgencyInfoVC: BaseVC, View {
   public var disposeBag = DisposeBag()
   private var cancelBag = Set<AnyCancellable>()
   
-  
   private var keybordShowCreateButtonConstraints: [NSLayoutConstraint] = []
   private var keybordHideCreateButtonConstraints: [NSLayoutConstraint] = []
   
@@ -139,7 +138,7 @@ public final class InputAgencyInfoVC: BaseVC, View {
           title: "정말 나가시겠습니까?",
           subTitle: "입력하신 내용은 저장되지 않습니다.",
           type: .default(okAction: {
-            owner.dismiss(animated: true)
+            owner.reactor?.action.onNext(.dismiss)
           }, cancelAction: {
             
           })
@@ -209,6 +208,8 @@ public final class InputAgencyInfoVC: BaseVC, View {
         case .main:
           owner.coordinator?.dismiss()
           owner.coordinator?.move(to: .main)
+        case .dismiss:
+          owner.coordinator?.dismiss()
         }
       }
       .disposed(by: disposeBag)

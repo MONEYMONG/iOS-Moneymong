@@ -3,6 +3,7 @@ import Foundation
 import BaseDomain
 import MMNetworkInterface
 import MMStorageInterface
+import Utility
 
 public final class LedgerRepository: LedgerRepositoryInterface {
   private let networkManager: NetworkManagerInterfacae
@@ -38,7 +39,22 @@ public final class LedgerRepository: LedgerRepositoryInterface {
         documentImageUrls: documentImageUrls
       )
     )
-    _ = try await networkManager.request(target: targetType, of: LedgerDetailResponseDTO.self)
+    let ledger = try await networkManager.request(target: targetType, of: LedgerDetailResponseDTO.self)
+    FirebaseManager.shared.logEvent(
+      event: .createLedgerItem,
+      parameters: [
+        "ledger_id" : ledger.id,
+        "store_info" : ledger.storeInfo,
+        "fund_type" : ledger.fundType,
+        "amount" : ledger.amount,
+        "memo" : ledger.description,
+        "payment_date": ledger.paymentDate,
+        "receipt_image_urls": ledger.receiptImageUrls,
+        "document_image_urls": ledger.documentImageUrls,
+        "author_name" : ledger.authorName,
+        "user_id" : localStorage.userID ?? "unknown"
+      ]
+    )
   }
 
   public func update(ledger: LedgerDetail) async throws -> LedgerDetail {
@@ -54,13 +70,35 @@ public final class LedgerRepository: LedgerRepositoryInterface {
         documentImageUrls: ledger.documentImageUrls.map { $0.url }
       )
     )
-    let dto = try await networkManager.request(target: targetType, of: LedgerDetailResponseDTO.self)
-    return dto.toEntity
+    let entity = try await networkManager.request(target: targetType, of: LedgerDetailResponseDTO.self).toEntity
+    FirebaseManager.shared.logEvent(
+      event: .updateLedgerItem,
+      parameters: [
+        "ledger_id" : entity.id,
+        "store_info" : entity.storeInfo,
+        "fund_type" : entity.fundType.rawValue,
+        "amount" : entity.amount,
+        "memo" : entity.description,
+        "payment_date": entity.paymentDate,
+        "receipt_image_urls": entity.receiptImageUrls,
+        "document_image_urls": entity.documentImageUrls,
+        "author_name" : entity.authorName,
+        "user_id" : localStorage.userID ?? "unknown"
+      ]
+    )
+    return entity
   }
 
   public func delete(id: Int) async throws {
     let targetType = LedgerAPI.delete(id: id)
     try await networkManager.request(target: targetType)
+    FirebaseManager.shared.logEvent(
+      event: .deleteLedgerItem,
+      parameters: [
+        "ledger_id" : id,
+        "user_id" : localStorage.userID ?? "unknown"
+      ]
+    )
   }
 
   public func imageUpload(_ data: Data) async throws -> ImageInfo {

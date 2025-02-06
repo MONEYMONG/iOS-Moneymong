@@ -6,6 +6,12 @@ let project = Project(
       disableBundleAccessors: true,
       disableSynthesizedResourceAccessors: true
     ),
+    packages: [
+      .remote(
+        url: "https://github.com/onevcat/Kingfisher",
+        requirement: .upToNextMajor(from: "8.0.1")
+      )
+    ],
     settings: .settings(base: [
       "SWIFT_VERSION": "5.7"
     ]),
@@ -22,7 +28,8 @@ let project = Project(
               .project(target: "AgencyInterface", path: .relativeToRoot("Projects/Domain/Agency")),
               .project(target: "LedgerInterface", path: .relativeToRoot("Projects/Domain/Ledger")),
               .project(target: "UserInterface", path: .relativeToRoot("Projects/Domain/User")),
-              .project(target: "AuthInterface", path: .relativeToRoot("Projects/Domain/Auth"))
+              .project(target: "AuthInterface", path: .relativeToRoot("Projects/Domain/Auth")),
+              .package(product: "Kingfisher")
             ]
         )
     ]

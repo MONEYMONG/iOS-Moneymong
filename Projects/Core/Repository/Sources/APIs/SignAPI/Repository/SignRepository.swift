@@ -69,17 +69,4 @@ public struct SignRepository: SignRepositoryInterface {
 
     return entity
   }
-
-  public func logout() async throws {
-    guard let refreshToken = localStorage.refreshToken else {
-      return debugPrint("Refresh Token이 없음")
-    }
-    
-    let targetType = UserAPI.logout(.init(refreshToken: refreshToken))
-    try await networkManager.request(target: targetType)
-
-    localStorage.refreshToken = nil
-    localStorage.accessToken = nil
-    localStorage.socialAccessToken = nil
-  }
 }

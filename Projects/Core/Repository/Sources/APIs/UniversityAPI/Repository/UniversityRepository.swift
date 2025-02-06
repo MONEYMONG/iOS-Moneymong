@@ -2,6 +2,7 @@ import Foundation
 
 import BaseDomain
 import MMNetworkInterface
+import Utility
 
 public struct UniversityRepository: UniversityRepositoryInterface {
   private let networkManager: NetworkManagerInterfacae
@@ -20,6 +21,12 @@ public struct UniversityRepository: UniversityRepositoryInterface {
     let request = UniversityRequestDTO(universityName: name, grade: grade)
     let targetType = UniversityAPI.university(request)
     try await networkManager.request(target: targetType)
+    FirebaseManager.shared.logEvent(
+      event: .registerUniversity,
+      parameters: [
+        "university_name" : name ?? "unknown"
+      ]
+    )
   }
 }
 

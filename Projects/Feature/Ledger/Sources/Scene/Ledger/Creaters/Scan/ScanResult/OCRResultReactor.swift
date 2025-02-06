@@ -74,7 +74,33 @@ final class OCRResultReactor: Reactor {
     case .didTapCompleteButton:
       return requestCreateLedgerRecord()
     case .onAppear:
-      return .just(.setSuccess(isSuccessOCR(ocrModel)))
+      let isSuccessOCR = isSuccessOCR(ocrModel)
+      
+      if isSuccessOCR {
+        FirebaseManager.shared.logEvent(
+          event: .successOCR,
+          parameters: [
+            "infer_result" : ocrModel.inferResult,
+            "source" : ocrModel.source,
+            "amount" : ocrModel.amount,
+            "date" : ocrModel.date.joined(separator: "/"),
+            "time" : ocrModel.time.joined(separator: ":")
+          ]
+        )
+      } else {
+        FirebaseManager.shared.logEvent(
+          event: .failOCR,
+          parameters: [
+            "infer_result" : ocrModel.inferResult,
+            "source" : ocrModel.source.isEmpty ? "unknown" : ocrModel.source,
+            "amount" : ocrModel.amount.isEmpty ? "unknown" : ocrModel.amount,
+            "date" : ocrModel.date.isEmpty ? "unknown" : ocrModel.date.joined(separator: "/"),
+            "time" : ocrModel.time.isEmpty ? "unknown" : ocrModel.time.joined(separator: ":")
+          ]
+        )
+      }
+      
+      return .just(.setSuccess(isSuccessOCR))
     case .didTapEditButton:
       return .just(.setDestination(
         .createManualLedger(

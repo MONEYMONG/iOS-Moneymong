@@ -2,6 +2,7 @@ import UIKit
 
 import AgencyInterface
 import AgencyFeatureInterface
+import AuthInterface
 import BaseFeature
 import UserInterface
 
@@ -61,7 +62,8 @@ struct AgencyFactory {
     vc.reactor = InputAgencyInfoReactor(
       universityType: universityType,
       createAgencyUseCase: DIContainer.shared.resolve(type: CreateAgencyUseCaseInterface.self),
-      registerAgencyUseCase: DIContainer.shared.resolve(type: RegisterUniversitiesUseCaseInterface.self)
+      registerUniversitiesUseCase: DIContainer.shared.resolve(type: RegisterUniversitiesUseCaseInterface.self),
+      deleteUserUseCase: DIContainer.shared.resolve(type: DeleteUserUseCaseInterface.self)
     )
     return vc
   }
