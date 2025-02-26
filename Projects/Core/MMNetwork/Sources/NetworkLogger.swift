@@ -25,7 +25,12 @@ final class NetworkLogger: EventMonitor {
     log.append("Body: \(request.request?.httpBody?.toPrettyPrintedString ?? "None")\n\n")
     
     log.append("------------------- Response --------------------------\n\n")
-    
+    log.append("---Headers---\n")
+    response.response?.allHeaderFields.forEach { key, value in
+      log.append("\(key): \(value)\n")
+    }
+    log.append("\n")
+    log.append("---Body---\n")
     log.append("\(response.data?.toPrettyPrintedString ?? "None")")
     
     if (200..<300) ~= statusCode {
