@@ -30,7 +30,6 @@ public final class LocalStorage: LocalStorageInterface {
     ledgerDateRange = nil
     userID = nil
 
-    recentLoginType = nil
     selectedAgency = nil
 
     accessToken = nil

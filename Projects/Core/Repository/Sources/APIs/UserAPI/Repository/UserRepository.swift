@@ -64,6 +64,7 @@ public struct UserRepository: UserRepositoryInterface {
     try await networkManager.request(target: targetType)
     FirebaseManager.shared.logEvent(event: .deleteAccount, parameters: ["user_id" : localStorage.userID ?? "unknown"])
     localStorage.removeAll()
+    localStorage.refreshToken = nil
     memoryCache.deleteAll()
   }
 }
