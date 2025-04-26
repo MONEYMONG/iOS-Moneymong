@@ -22,10 +22,11 @@ public enum Images {
   public static let mongSplash = UIImage(named: "mong.splash", in: Bundle.module, with: nil)
   public static let mongCode = UIImage(named: "mong.code", in: Bundle.module, with: nil)
   public static let mongParty = UIImage(named: "mong.party", in: Bundle.module, with: nil)
-  public static let mongLedgerEmpty = UIImage(named: "mong.ledger.empty", in: Bundle.module, with: nil)
+  public static let ledgerEmpty = UIImage(named: "ledger.empty", in: Bundle.module, with: nil)
+  public static let expensesEmpty = UIImage(named: "expenses.empty", in: Bundle.module, with: nil)
+  public static let importEmpty = UIImage(named: "import.empty", in: Bundle.module, with: nil)
   public static let mongInquiry = UIImage(named: "mong.inquiry", in: .module, with: nil)
   
-  public static let scanPhone = UIImage(named: "scan.phone", in: Bundle.module, with: nil)
   public static let accountRecord = UIImage(named: "accountRecord", in: Bundle.module, with: nil)
   public static let agency = UIImage(named: "agency", in: Bundle.module, with: nil)
   public static let agencyCongrats = UIImage(named: "agency.congrats", in: Bundle.module, with: nil)
@@ -63,7 +64,6 @@ public enum Images {
   public static let apple = UIImage(named: "apple", in: Bundle.module, with: nil)
   public static let congrats = UIImage(named: "congrats", in: Bundle.module, with: nil)
   
-  
   public static let closeCircleFill = UIImage(named: "close.circle.fill", in: Bundle.module, with: nil)
   public static let plusCircleFillGreen = UIImage(named: "plus.circle.fill.green", in: Bundle.module, with: nil)
   public static let plusCircleFillRed = UIImage(named: "plus.circle.fill.red", in: Bundle.module, with: nil)
@@ -74,7 +74,6 @@ public enum Images {
   public static let warningFill = UIImage(named: "warning.fill", in: Bundle.module, with: nil)
   public static let warning = UIImage(named: "warning", in: Bundle.module, with: nil)
  
-
   public static let kakaoLogo = UIImage(named: "kakaoLogo", in: Bundle.module, with: nil)
   public static let appleLogo = UIImage(named: "appleLogo", in: Bundle.module, with: nil)
 
