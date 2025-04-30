@@ -31,6 +31,20 @@ let project = Project(
               .project(target: "AuthInterface", path: .relativeToRoot("Projects/Domain/Auth")),
               .package(product: "Kingfisher")
             ]
+        ),
+        Target(
+            name: "BaseFeatureTesting",
+            platform: .iOS,
+            product: .staticLibrary,
+            bundleId: "com.framework.moneymong.BaseFeatureTesting",
+            deploymentTarget: .iOS(targetVersion: "15.0", devices: .iphone),
+            sources: ["Testing/**"],
+            dependencies: [
+              .project(target: "AgencyTesting", path: .relativeToRoot("Projects/Domain/Agency")),
+              .project(target: "LedgerTesting", path: .relativeToRoot("Projects/Domain/Ledger")),
+              .project(target: "UserTesting", path: .relativeToRoot("Projects/Domain/User")),
+              .project(target: "AuthTesting", path: .relativeToRoot("Projects/Domain/Auth"))
+            ]
         )
     ]
 )

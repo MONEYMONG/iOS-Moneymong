@@ -10,13 +10,14 @@ final class LedgerListEmptyView: UIView {
   
   private let contentLabel: UILabel = {
     let v = UILabel()
-    v.textColor = Colors.Gray._7
+    v.textColor = Colors.Gray._5
     v.numberOfLines = 2
     v.textAlignment = .center
+    v.font = Fonts.body._3
     return v
   }()
   
-  private let iconImageView = UIImageView(image: Images.mongLedgerEmpty)
+  private let iconImageView = UIImageView(image: Images.ledgerEmpty)
   
   init() {
     super.init(frame: .zero)
@@ -38,7 +39,7 @@ final class LedgerListEmptyView: UIView {
   private func setupConstraints() {
     addSubview(rootContainer)
     rootContainer.flex.justifyContent(.center).alignItems(.center).define { flex in
-      flex.addItem(iconImageView)
+      flex.addItem(iconImageView).marginBottom(4)
       flex.addItem(contentLabel)
     }
   }
@@ -46,17 +47,14 @@ final class LedgerListEmptyView: UIView {
   func configure(_ index: Int) {
     switch index {
     case 0:
-      iconImageView.image = Images.scanPhone
-      contentLabel.font = Fonts.body._3
-      contentLabel.setTextWithLineHeight(text: "카메라로 영수증을 스캔해서\n  손쉽게 장부를 기록하세요", lineHeight: 24)
+      iconImageView.image = Images.ledgerEmpty
+      contentLabel.text = "장부 내역을 기록하세요"
     case 1:
-      iconImageView.image = Images.mongLedgerEmpty
-      contentLabel.font = Fonts.body._3
-      contentLabel.setTextWithLineHeight(text: "지출 기록이 없어요", lineHeight: 20)
+      iconImageView.image = Images.expensesEmpty
+      contentLabel.text = "지출 기록이 없어요"
     case 2:
-      iconImageView.image = Images.mongLedgerEmpty
-      contentLabel.font = Fonts.body._3
-      contentLabel.setTextWithLineHeight(text: "수입 기록이 없어요", lineHeight: 20)
+      iconImageView.image = Images.importEmpty
+      contentLabel.text = "수입 기록이 없어요"
     default: break
     }
     

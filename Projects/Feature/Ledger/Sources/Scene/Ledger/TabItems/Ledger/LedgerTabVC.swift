@@ -104,7 +104,7 @@ final class LedgerTabVC: BaseVC, View {
       }.justifyContent(.center).alignItems(.center)
       flex.addItem(filterControl).alignSelf(.start).marginTop(20).marginBottom(16)
       flex.addItem(ledgerList).grow(1)
-    }.marginHorizontal(20).marginTop(8)
+    }.marginHorizontal(16).marginTop(8)
     
     rootContainer.addSubview(floatingButton)
     floatingButton.translatesAutoresizingMaskIntoConstraints = false
