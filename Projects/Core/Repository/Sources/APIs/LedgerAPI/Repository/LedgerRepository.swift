@@ -150,16 +150,6 @@ public final class LedgerRepository: LedgerRepositoryInterface {
     let targetType = LedgerAPI.ledgerDetail(id: id)
     return try await networkManager.request(target: targetType, of: LedgerDetailResponseDTO.self).toEntity
   }
-  
-  public func fetchOCR(_ data: Data) async throws -> OCRResult {
-    let dto = OCRRequestDTO(
-      requestId: UUID().uuidString,
-      images: [
-        .init(format: "jpeg", name: "receipt")
-      ])
-    let targetType = LedgerAPI.receiptOCR(param: dto, data: data)
-    return try await networkManager.request(target: targetType, of: OCRResponseDTO.self).toEntity
-  }
 
   public func receiptImagesUpload(detailId: Int, receiptImageUrls: [String]) async throws {
     let targetType = LedgerAPI.receiptImagesUpload(

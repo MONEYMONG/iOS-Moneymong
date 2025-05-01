@@ -13,7 +13,6 @@ enum LedgerAPI {
   case ledgerList(id: Int, param: LedgerListRequestDTO)
   case ledgerFilterList(id: Int, param: LedgerListRequestDTO)
   case ledgerDetail(id: Int)
-  case receiptOCR(param: OCRRequestDTO, data: Data)
   case receiptImagesUpload(detailId: Int, receiptImageUrls: ReceiptUploadRequestDTO) // 영수증 이미지 등록
   case receiptImageDelete(detailId: Int, receiptId: Int) // 영수증 이미지 제거
   case documentImagesUpload(detailId: Int, documentImageUrls: DocumentUploadRequestDTO) // 증빙자료 이미지 등록
@@ -22,12 +21,7 @@ enum LedgerAPI {
 
 extension LedgerAPI: TargetType {
   var baseURL: URL? {
-    switch self {
-    case .receiptOCR:
-      return try? "https://q527hvfohd.apigw.ntruss.com/custom/v1/34593/567a6406461afde2a1d5836d6df3ca9b71cbf451c76dc5df6d2a2bc3f16446f7/".asURL()
-    default:
-      return try? Config.base.asURL()
-    }
+    return try? Config.base.asURL()
   }
   
   var path: String {
@@ -40,7 +34,6 @@ extension LedgerAPI: TargetType {
     case .ledgerList(let id, _): return "v2/ledger/\(id)"
     case .ledgerFilterList(let id, _): return "v2/ledger/\(id)/filter"
     case .ledgerDetail(let id): return "v1/ledger-detail/\(id)"
-    case .receiptOCR: return "document/receipt"
     case .receiptImagesUpload(let detailId, _): return "v1/ledger-detail/\(detailId)/ledger-receipt"
     case .receiptImageDelete(let detailId, let receiptId): return "v1/ledger-detail/\(detailId)/ledger-receipt/\(receiptId)"
     case .documentImagesUpload(let detailId, _): return "v1/ledger-detail/\(detailId)/ledger-document"
@@ -57,7 +50,6 @@ extension LedgerAPI: TargetType {
     case .ledgerList: return .get
     case .ledgerFilterList: return .get
     case .ledgerDetail: return .get
-    case .receiptOCR: return .post
     case .receiptImagesUpload: return .post
     case .receiptImageDelete: return .delete
     case .documentImagesUpload: return .post
@@ -85,16 +77,6 @@ extension LedgerAPI: TargetType {
       return .requestJSONEncodable(query: query)
     case .ledgerDetail:
       return .plain
-    case let .receiptOCR(param, data):
-      let multipartFormData = MultipartFormData()
-      multipartFormData.append(data, withName: "file", fileName: "\(data).jpeg", mimeType: "image/jpeg")
-      guard let object = try? JSONEncoder().encode(param) else {
-        return .upload(data: multipartFormData)
-      }
-
-      multipartFormData.append(object, withName: "message")
-      
-      return .upload(data: multipartFormData)
     case .receiptImagesUpload(_, let receiptImageUrls):
       return .requestJSONEncodable(params: receiptImageUrls)
     case .receiptImageDelete:
@@ -110,12 +92,6 @@ extension LedgerAPI: TargetType {
     switch self {
     case .uploadImage: return ["Content-Type": "multipart/form-data"]
     case .deleteImage: return ["Content-Type": "application/json"]
-    case .receiptOCR:
-      let key = Bundle.main.infoDictionary?["NAVER_OCR_KEY"] as? String
-      return [
-        "Content-Type": "multipart/form-data",
-        "X-OCR-SECRET": key ?? ""
-      ]
     default: return ["Content-Type": "application/json;charset=UTF-8"]
     }
   }

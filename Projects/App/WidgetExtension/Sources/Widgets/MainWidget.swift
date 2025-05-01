@@ -43,19 +43,6 @@ struct MainWidgetEntryView: View {
       
       Spacer()
       HStack {
-        Link(destination: LinkManager.ocr.url) {
-          HStack {
-            Spacer()
-            Text("영수증 스캔")
-              .bold()
-              .font(.system(size: 16))
-              .foregroundStyle(Color(uiColor: Colors.Gray._5))
-            Spacer()
-          }
-        }
-        
-        Divider()
-          .background(Color(uiColor: Colors.Gray._5))
         Link(destination: LinkManager.ledgerDetail.url) {
           HStack {
             Spacer()

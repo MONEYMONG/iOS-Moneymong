@@ -16,7 +16,12 @@ final class LedgerTabVC: BaseVC, View {
   private var cancellableBag = Set<AnyCancellable>()
   var coordinator: LedgerCoordinator?
 
-  private let floatingButton = FloatingButton()
+  private let plusButton: UIButton = {
+    let v = UIButton()
+    v.setBackgroundImage(Images.plusCircleFillGreen, for: .normal)
+    return v
+  }()
+  
   private let amountGuideLabel: UILabel = {
     let v = UILabel()
     v.text = "이만큼 남았어요"
@@ -73,15 +78,6 @@ final class LedgerTabVC: BaseVC, View {
   override func setupUI() {
     super.setupUI()
     
-    floatingButton.addWriteAction { [weak self] in
-      self?.reactor?.action.onNext(.didTapWriteButton)
-      FirebaseManager.shared.logEvent(event: .didTapManualInput)
-    }
-    floatingButton.addScanAction { [weak self] in
-      self?.reactor?.action.onNext(.didTapScanButton)
-      FirebaseManager.shared.logEvent(event: .didTapOCR)
-    }
-    
     ledgerList.backgroundView = emptyView
     ledgerList.refreshControl = refreshControl
   }
@@ -106,11 +102,11 @@ final class LedgerTabVC: BaseVC, View {
       flex.addItem(ledgerList).grow(1)
     }.marginHorizontal(16).marginTop(8)
     
-    rootContainer.addSubview(floatingButton)
-    floatingButton.translatesAutoresizingMaskIntoConstraints = false
+    rootContainer.addSubview(plusButton)
+    plusButton.translatesAutoresizingMaskIntoConstraints = false
     NSLayoutConstraint.activate([
-      floatingButton.bottomAnchor.constraint(equalTo: rootContainer.bottomAnchor, constant: -20),
-      floatingButton.rightAnchor.constraint(equalTo: rootContainer.rightAnchor, constant: 10)
+      plusButton.bottomAnchor.constraint(equalTo: rootContainer.bottomAnchor, constant: -20),
+      plusButton.rightAnchor.constraint(equalTo: rootContainer.rightAnchor, constant: 10)
     ])
   }
   
@@ -122,13 +118,11 @@ final class LedgerTabVC: BaseVC, View {
         owner.coordinator?.present(.createManualLedger(id, .operatingCost))
       }
       .disposed(by: disposeBag)
-    
-    NotificationCenter.default.rx.notification(.presentOCRCreater)
-      .compactMap { $0.userInfo?["id"] as? Int }
-      .observe(on: MainScheduler.instance)
-      .bind(with: self) { owner, id in
-        owner.coordinator?.present(.createOCRLedger(id))
-      }
+
+    plusButton.rx.tap
+      .do { _ in FirebaseManager.shared.logEvent(event: .didTapManualInput) }
+      .map { Reactor.Action.didTapWriteButton }
+      .bind(to: reactor.action)
       .disposed(by: disposeBag)
     
     dateRangeView.rx.tapGesture
@@ -173,7 +167,7 @@ final class LedgerTabVC: BaseVC, View {
       .compactMap { $0 }
       .observe(on: MainScheduler.instance)
       .bind(with: self) { owner, role in
-        owner.floatingButton.isHidden = role == .member
+        owner.plusButton.isHidden = role == .member
       }
       .disposed(by: disposeBag)
 
@@ -217,8 +211,6 @@ final class LedgerTabVC: BaseVC, View {
           owner.coordinator?.datePicker(start: start, end: end)
         case let .createManualLedger(id):
           owner.coordinator?.present(.createManualLedger(id, .createManual))
-        case let .createOCRLedger(id):
-          owner.coordinator?.present(.createOCRLedger(id))
         }
       }
       .disposed(by: disposeBag)

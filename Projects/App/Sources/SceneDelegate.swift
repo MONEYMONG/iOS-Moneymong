@@ -241,11 +241,6 @@ extension SceneDelegate {
       return GetLedgerListUseCase(ledgerRepo: ledgerRepo, widgetRefreshController: widgetRefreshController)
     }
 
-    DIContainer.shared.register(type: ReceiptOCRUseCaseInterface.self) {
-      let ledgerRepo = LedgerRepository(networkManager: networkManager, localStorage: localStorage)
-      return ReceiptOCRUseCase(ledgerRepo: ledgerRepo)
-    }
-
     DIContainer.shared.register(type: SaveLedgerDateRangeUseCaseInterface.self) {
       let ledgerRepo = LedgerRepository(networkManager: networkManager, localStorage: localStorage)
       return SaveLedgerDateRangeUseCase(ledgerRepo: ledgerRepo)
@@ -290,10 +285,6 @@ extension SceneDelegate {
     
     DIContainer.shared.register(type: CreateManualLedgerCoordinatorInterface.self) {
       return CreateManualLedgerCoordinator(ledgerService: ledgerService, contentFormatter: contentFormatter)
-    }
-    
-    DIContainer.shared.register(type: CreateOCRLedgerCoordinatorInterface.self) {
-      return CreateOCRLedgerCoordinator(ledgerService: ledgerService, contentFormatter: contentFormatter)
     }
   }
 }

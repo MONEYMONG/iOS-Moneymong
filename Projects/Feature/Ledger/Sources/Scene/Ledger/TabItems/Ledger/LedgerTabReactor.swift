@@ -11,7 +11,6 @@ final class LedgerTabReactor: Reactor {
     case didTapDateRangeView
     case selectedFilter(Int)
     case didTapWriteButton
-    case didTapScanButton
     case didPrefech(Int)
     case didRefresh
   }
@@ -45,7 +44,6 @@ final class LedgerTabReactor: Reactor {
     enum Destination {
       case datePicker(start: DateInfo, end: DateInfo)
       case createManualLedger(Int)
-      case createOCRLedger(Int)
     }
   }
   
@@ -128,9 +126,6 @@ final class LedgerTabReactor: Reactor {
     case .didTapWriteButton:
       guard let agencyID = currentState.agencyID else { return .empty() }
       return .just(.setDestination(.createManualLedger(agencyID)))
-    case .didTapScanButton:
-      guard let agencyID = currentState.agencyID else { return .empty() }
-      return .just(.setDestination(.createOCRLedger(agencyID)))
     case let .didPrefech(row):
       guard isPageable(row: row) else { return .empty() }
       return .concat([
