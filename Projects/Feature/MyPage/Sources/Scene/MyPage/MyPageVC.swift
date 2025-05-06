@@ -20,7 +20,6 @@ public final class MyPageVC: BaseVC, ReactorKit.View {
     v.register(UniversityCell.self)
     v.register(InquiryCell.self)
     v.register(SettingCell.self)
-    v.registerHeaderFooter(SettingHeader.self)
     v.registerHeaderFooter(UniversityHeader.self)
     return v
   }()
