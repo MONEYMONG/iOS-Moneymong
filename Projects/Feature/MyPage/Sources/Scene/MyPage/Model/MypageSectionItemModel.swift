@@ -10,13 +10,11 @@ struct MyPageSectionItemModel {
   typealias Model = SectionModel<Section, Item>
   
   enum Section: Equatable {
-    case account(UserInfo)
-    case inquiry
+    case inquiry(UserInfo)
     case setting(String)
   }
   
   enum Item: Equatable {
-    case university(UserInfo)
     case kakaoInquiry
     case setting(SettingItem)
   }
