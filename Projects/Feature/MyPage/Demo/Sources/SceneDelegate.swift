@@ -3,37 +3,27 @@ import UIKit
 import Repository
 import MyPageFeature
 import DesignSystem
+import BaseFeature
+import UserInterface
+import UserTesting
+import AuthInterface
+import AuthTesting
 
 class SceneDelegate: UIResponder, UIWindowSceneDelegate {
   var window: UIWindow?
-  var coordinator: MyPageCoordinator!
-  var diContainer: MyPageDIContainer!
-  
-  private let localStorage: LocalStorageInterface = LocalStorage()
-  
-  private lazy var networkManager: NetworkManagerInterfacae = {
-    let manager = NetworkManager()
-    manager.tokenIntercepter = .init(
-      localStorage: localStorage,
-      tokenRepository: TokenRepository(networkManager: manager, localStorage: localStorage))
-    
-    return manager
-  }()
-  
   func scene(_ scene: UIScene, willConnectTo session: UISceneSession, options connectionOptions: UIScene.ConnectionOptions) {
     guard let windowScene = (scene as? UIWindowScene) else { return }
 
     Fonts.registerFont()
+    registerDependency()
     let rootNavigation = UINavigationController()
-    
-    self.diContainer = MyPageDIContainer(localStorage: LocalStorage(), networkManager: NetworkManager())
-    self.coordinator = MyPageCoordinator(navigationController: rootNavigation, diContainer: diContainer)
-    
+    let coordinator = MyPageCoordinator()
+    coordinator.navigationController = rootNavigation
     window = UIWindow(windowScene: windowScene)
     window?.rootViewController = rootNavigation
     window?.makeKeyAndVisible()
     
-    self.coordinator.start(animated: true)
+    coordinator.start(animated: true)
   }
   
   func sceneDidDisconnect(_ scene: UIScene) {}
@@ -45,4 +35,16 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
   func sceneWillEnterForeground(_ scene: UIScene) {}
   
   func sceneDidEnterBackground(_ scene: UIScene) {}
+}
+
+extension SceneDelegate {
+  func registerDependency() {
+    DIContainer.shared.register(type: GetMyInfoUseCaseInterface.self) {
+      return MockGetMyInfoUseCase()
+    }
+    
+    DIContainer.shared.register(type: LogoutUseCaseInterface.self) {
+      return MockLogoutUseCase()
+    }
+  }
 }

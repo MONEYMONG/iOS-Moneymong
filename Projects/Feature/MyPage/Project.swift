@@ -85,7 +85,8 @@ let project = Project(
             sources: ["Demo/Sources/**"],
             resources: ["Demo/Resources/**"],
             dependencies: [
-                .target(name: "MyPageFeature")
+                .target(name: "MyPageFeature"),
+                .project(target: "BaseFeatureTesting", path: .relativeToRoot("Projects/Feature/Base"))
             ]
         )
     ]
