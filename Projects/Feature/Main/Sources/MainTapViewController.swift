@@ -67,8 +67,6 @@ public final class MainTapViewController: UITabBarController {
       }
       .bind(with: self) { owner, userInfo in
         switch userInfo.query {
-        case "OCR":
-          owner.coordinator?.move(to: .createOCRLedger(userInfo.agencyID))
         case "CreateLedger":
           owner.coordinator?.move(to: .createManualLedger(userInfo.agencyID))
         case "LedgerDetail":

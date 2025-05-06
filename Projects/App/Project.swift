@@ -11,11 +11,7 @@ let project = Project(
       .marketingVersion("1.4.4")
       .swiftVersion("5.7")
       .currentProjectVersion("1")
-      .appleGenericVersioningSystem(),
-    configurations: [
-      .debug(name: .debug, xcconfig: "Resources/APIKey.xcconfig"),
-      .release(name: .release, xcconfig: "Resources/APIKey.xcconfig")
-    ]
+      .appleGenericVersioningSystem()
   ),
   targets: [
     .init(

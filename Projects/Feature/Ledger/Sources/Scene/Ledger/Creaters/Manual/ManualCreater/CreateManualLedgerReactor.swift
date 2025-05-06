@@ -13,7 +13,6 @@ import ReactorKit
 final class CreateManualLedgerReactor: Reactor {
   enum `Type` {
     case operatingCost // 운영비 등록화면
-    case ocrResultEdit(OCRResult, Data) // ocr 결과 수정화면
     case createManual
   }
   
@@ -66,7 +65,6 @@ final class CreateManualLedgerReactor: Reactor {
     case addImageURL(ImageInfo, Section)
     case setDestination
     case setAlertContent(AlertType)
-    case setOCRResult(OCRResult)
   }
   
   struct State {
@@ -143,13 +141,6 @@ final class CreateManualLedgerReactor: Reactor {
       case .createManual:
         return .task { try await getMyInfoUseCase.execute().nickname }
           .map { .setName($0) }
-      case let .ocrResultEdit(model, imageData):
-        let image = ImageData(id: .init(), data: imageData)
-        return .merge([
-          .task { try await getMyInfoUseCase.execute().nickname }.map { .setName($0) },
-          uploadImage(image: image, section: .receipt),
-          .just(.setOCRResult(model))
-        ])
       }
       
     case let .selectedImage(item, section):
@@ -257,12 +248,6 @@ final class CreateManualLedgerReactor: Reactor {
       case .end:
         newState.alertMessage = ("정말 나가시겠습니까?", "작성한 내용이 저장되지 않았습니다", type)
       }
-    case let .setOCRResult(model):
-      newState.content.source = model.source
-      newState.content.amount = model.amount
-      newState.content.date = model.date.joined(separator: "/")
-      newState.content.time = model.time.joined(separator: ":")
-      newState.content.fundType = 0
     }
     return newState
   }

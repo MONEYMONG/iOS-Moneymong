@@ -6,7 +6,6 @@ public enum Scene {
   case login // 로그인화면
   case ledger // 장부화면
   case createManualLedger(Int) // 운영비 등록화면
-  case createOCRLedger(Int) // OCR 스캔화면
   case agency // 소속화면
 }
 
@@ -28,8 +27,6 @@ public extension Coordinator {
       parentCoordinator?.move(to: .ledger)
     case let .createManualLedger(id):
       parentCoordinator?.move(to: .createManualLedger(id))
-    case let .createOCRLedger(id):
-      parentCoordinator?.move(to: .createOCRLedger(id))
     case .agency:
       parentCoordinator?.move(to: .agency)
     }

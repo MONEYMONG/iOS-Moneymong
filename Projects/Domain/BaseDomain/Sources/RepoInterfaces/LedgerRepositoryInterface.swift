@@ -24,7 +24,6 @@ public protocol LedgerRepositoryInterface {
     limit: Int,
     fundType: FundType?
   ) async throws -> LedgerList
-  func fetchOCR(_ data: Data) async throws -> OCRResult
   func receiptImagesUpload(detailId: Int, receiptImageUrls: [String]) async throws
   func receiptImageDelete(detailId: Int, receiptId: Int) async throws
   func documentImagesUpload(detailId: Int, documentImageUrls: [String]) async throws

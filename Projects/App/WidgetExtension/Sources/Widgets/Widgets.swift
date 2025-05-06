@@ -7,6 +7,5 @@ struct Widgets: WidgetBundle {
   var body: some Widget {
     MainWidget()
     SecondWidget()
-    OCRWidget()
   }
 }

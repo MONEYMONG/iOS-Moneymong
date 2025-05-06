@@ -18,9 +18,6 @@ public class FirebaseManager: NSObject {
     case createAgency = "create_agency" /// 소속 생성 *
     case joinAgency = "join_agency" /// 소속 가입 *
 
-    case didTapOCR = "did_tap_ocr" /// OCR 버튼 클릭 *
-    case failOCR = "fail_ocr" /// OCR 실패 *
-    case successOCR = "success_ocr" /// OCR 성공 *
     case didTapManualInput = "did_tap_manual_input" /// 장부 수동 입력 버튼 클릭 *
     case createLedgerItem = "create_ledger_item" /// 장부 내역 생성 *
     case updateLedgerItem = "update_ledger_item" /// 장부 내역 수정 *
