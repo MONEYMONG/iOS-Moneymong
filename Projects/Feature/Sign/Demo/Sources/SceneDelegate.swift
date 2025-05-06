@@ -1,6 +1,10 @@
 import UIKit
 
+import AuthInterface
+import AuthTesting
+import BaseFeature
 import SignFeature
+
 
 final class SceneDelegate: UIResponder, UIWindowSceneDelegate {
   var window: UIWindow?
@@ -11,23 +15,17 @@ final class SceneDelegate: UIResponder, UIWindowSceneDelegate {
     options connectionOptions: UIScene.ConnectionOptions
   ) {
     let navigationController = UINavigationController()
-
+    registerDependency()
     guard let windowScene = (scene as? UIWindowScene) else { return }
     window = UIWindow(windowScene: windowScene)
     self.window?.makeKeyAndVisible()
     self.window?.rootViewController = navigationController
 
-    self.appCoordinator = SignCoordinator(
-      navigationController: navigationController,
-      diContainer: SignDIContainer()
-    )
+    self.appCoordinator = SignCoordinator(navigationController: navigationController)
     appCoordinator?.start(animated: false)
   }
 
-  func scene(_ scene: UIScene, openURLContexts URLContexts: Set<UIOpenURLContext>) {
-    guard let url = URLContexts.first?.url else { return }
-    KakaoAuthManager.shared.openURL(url)
-  }
+  func scene(_ scene: UIScene, openURLContexts URLContexts: Set<UIOpenURLContext>) {}
 
   func sceneDidDisconnect(_ scene: UIScene) {}
 
@@ -38,4 +36,20 @@ final class SceneDelegate: UIResponder, UIWindowSceneDelegate {
   func sceneWillEnterForeground(_ scene: UIScene) {}
 
   func sceneDidEnterBackground(_ scene: UIScene) {}
+}
+
+extension SceneDelegate {
+  func registerDependency() {
+    DIContainer.shared.register(type: AutoSignUseCaseInterface.self) {
+      return MockAutoSignUseCase()
+    }
+    
+    DIContainer.shared.register(type: SignUpUseCaseInterface.self) {
+      return MockSignUpUseCase()
+    }
+    
+    DIContainer.shared.register(type: GetRecentLoginInfoUseCaseInterface.self) {
+      return MockGetRecentLoginInfoUseCase()
+    }
+  }
 }

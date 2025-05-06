@@ -84,5 +84,10 @@ public enum Images {
   public static let mongCoin = UIImage(named: "mong.coin", in: Bundle.module, with: nil)
   public static let mongLedgerWidget = UIImage(named: "mong.ledger.widget", in: Bundle.module, with: nil)
   public static let mongLedgerWidgetMini = UIImage(named: "mong.ledger.widget.mini", in: Bundle.module, with: nil)
+  
+  //MARK: - Onboarding
+  public static let onboardingFirst = UIImage(named: "onboarding.first", in: Bundle.module, with: nil)!
+  public static let onboardingSecond = UIImage(named: "onboarding.second", in: Bundle.module, with: nil)!
+  public static let onboardingThird = UIImage(named: "onboarding.third", in: Bundle.module, with: nil)!
 }
 
