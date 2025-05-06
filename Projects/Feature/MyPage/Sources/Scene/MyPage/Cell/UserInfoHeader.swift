@@ -3,7 +3,7 @@ import UIKit
 import Utility
 import DesignSystem
 
-final class UniversityHeader: UITableViewHeaderFooterView, ReusableView {
+final class UserInfoHeader: UITableViewHeaderFooterView, ReusableView {
 
   private let profileImageView: UIImageView = {
     let v = UIImageView()
@@ -80,7 +80,7 @@ final class UniversityHeader: UITableViewHeaderFooterView, ReusableView {
   }
   
   func configure(with item: MyPageSectionItemModel.Section) -> Self {
-    guard case let .account(model) = item else { return self}
+    guard case let .inquiry(model) = item else { return self}
     
     nameLabel.setTextWithLineHeight(text: model.nickname, lineHeight: 28)
     emailLabel.setTextWithLineHeight(text: model.email, lineHeight: 18)

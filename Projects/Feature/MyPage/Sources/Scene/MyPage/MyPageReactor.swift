@@ -48,7 +48,6 @@ public final class MyPageReactor: Reactor {
     case .onappear:
       return .concat(
         .just(.setLoading(true)),
-
         .task { try await getMyInfoUseCase.execute() }
         .map { .setItem($0) }
         .catch { return .just(.setError($0.toMMError))},
@@ -74,8 +73,7 @@ public final class MyPageReactor: Reactor {
     switch mutation {
     case let .setItem(userInfo):
       newState.item = [
-        .init(model: .account(userInfo), items: [.university(userInfo)]),
-        .init(model: .inquiry, items: [.kakaoInquiry]),
+        .init(model: .inquiry(userInfo), items: [.kakaoInquiry]),
         .init(model: .setting("내 설정"), items: [
           .setting(.service),
           .setting(.privacy),

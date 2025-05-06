@@ -17,20 +17,16 @@ public final class MyPageVC: BaseVC, ReactorKit.View {
     let v = UITableView(frame: .zero, style: .insetGrouped)
     v.separatorInset = .init(top: 0, left: 16, bottom: 0, right: 20)
     v.sectionFooterHeight = 0
-    v.register(UniversityCell.self)
     v.register(InquiryCell.self)
     v.register(SettingCell.self)
-    v.registerHeaderFooter(UniversityHeader.self)
+    v.registerHeaderFooter(UserInfoHeader.self)
+    v.isScrollEnabled = false
     return v
   }()
   
   private lazy var dataSource = RxTableViewSectionedReloadDataSource<MyPageSectionItemModel.Model> { [weak self] dataSource, tableView, indexPath, item in
     
     switch item {
-    case let .university(model):
-      return tableView.dequeue(UniversityCell.self, for: indexPath)
-        .configure(with: .university(model))
-      
     case .kakaoInquiry:
       return tableView.dequeue(InquiryCell.self, for: indexPath)
         .configure {
@@ -150,7 +146,7 @@ extension MyPageVC: UITableViewDelegate {
     switch section {
     case 0:
       guard let sectionModel = dataSource.sectionModels.first?.model else { return nil }
-      return tableView.dequeueHeaderFooter(UniversityHeader.self)
+      return tableView.dequeueHeaderFooter(UserInfoHeader.self)
         .configure(with: sectionModel)
     default: return nil
     }
