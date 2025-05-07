@@ -114,9 +114,7 @@ struct LedgerFactory {
       ledgerContentsService: ledgerDetailContentsService,
       updateLedgerUseCase: DIContainer.shared.resolve(type: UpdateLedgerUseCaseInterface.self),
       uploadImageUseCase: DIContainer.shared.resolve(type: UploadImageUseCaseInterface.self),
-      uploadReceiptUseCase: DIContainer.shared.resolve(type: UploadReceiptUseCaseInterface.self),
       uploadDocumentUseCase: DIContainer.shared.resolve(type: UploadDocumentUseCaseInterface.self),
-      deleteReceiptUseCase: DIContainer.shared.resolve(type: DeleteReceiptUseCaseInterface.self),
       deleteDocumentUseCase: DIContainer.shared.resolve(type: DeleteDocumentUseCaseInterface.self),
       formatter: contentFormatter
     )

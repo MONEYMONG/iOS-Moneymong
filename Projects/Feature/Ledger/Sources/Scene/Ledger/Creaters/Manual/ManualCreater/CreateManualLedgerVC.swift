@@ -125,20 +125,6 @@ final class CreateManualLedgerVC: BaseVC, View, ImagePickerPresentable {
     return v
   }()
   
-  private lazy var receiptCollectionView: UICollectionView = {
-    let layout = UICollectionViewFlowLayout()
-    layout.itemSize = ViewSize.cell
-    layout.minimumLineSpacing = ViewSize.cellSpacing
-    layout.minimumInteritemSpacing = ViewSize.cellSpacing
-    layout.sectionInset = UIEdgeInsets(top: 8, left: 0, bottom: 0, right: 8)
-    let v = UICollectionView(frame: .zero, collectionViewLayout: layout)
-    v.register(AddImageCell.self)
-    v.register(ImageCell.self)
-    v.isScrollEnabled = false
-    v.tag = 0
-    return v
-  }()
-  
   private lazy var documentCollectionView: UICollectionView = {
     let layout = UICollectionViewFlowLayout()
     layout.itemSize = ViewSize.cell
@@ -215,9 +201,7 @@ final class CreateManualLedgerVC: BaseVC, View, ImagePickerPresentable {
             flex.addItem(dateTextField).marginBottom(24)
             flex.addItem(timeTextField).marginBottom(24)
             flex.addItem(memoTextView).marginBottom(24)
-            flex.addItem(UILabel().text("영수증 (최대 12장)", font: Fonts.body._2, color: Colors.Gray._6))
-            flex.addItem(receiptCollectionView).marginBottom(24).marginRight(-8)
-            flex.addItem(UILabel().text("증빙 자료 (최대 12장)", font: Fonts.body._2, color: Colors.Gray._6))
+            flex.addItem(UILabel().text("사진 첨부 (최대 12장)", font: Fonts.body._2, color: Colors.Gray._6))
             flex.addItem(documentCollectionView).marginBottom(24).marginRight(-8)
             flex.addItem().alignItems(.start).define { flex in
               flex.addItem(writerTitleLabel).marginBottom(8)
@@ -256,16 +240,10 @@ final class CreateManualLedgerVC: BaseVC, View, ImagePickerPresentable {
       .bind { $0.endEditing(true) }
       .disposed(by: disposeBag)
     
-    receiptCollectionView.rx.modelSelected(ImageData.Item.self)
-      .filter { $0 == .button }
-      .bind(with: self) { owner, _ in
-        reactor.action.onNext(.didTapImageAddButton(.receipt))
-    }.disposed(by: disposeBag)
-    
     documentCollectionView.rx.modelSelected(ImageData.Item.self)
       .filter { $0 == .button }
       .bind(with: self) { owner, _ in
-        reactor.action.onNext(.didTapImageAddButton(.document))
+        owner.imagePicker(target: owner, animated: true, delegate: owner)
     }.disposed(by: disposeBag)
     
     completeButton.rx.tap
@@ -351,33 +329,6 @@ final class CreateManualLedgerVC: BaseVC, View, ImagePickerPresentable {
   }
   
   private func bindState(reactor: CreateManualLedgerReactor) {
-    reactor.pulse(\.$receiptImages)
-      .bind(to: receiptCollectionView.rx.items) { [weak self] view, row, element in
-        let indexPath = IndexPath(row: row, section: 0)
-        switch element {
-        case .button:
-          return view.dequeueCell(AddImageCell.self, for: indexPath)
-        case .image:
-          return view.dequeueCell(ImageCell.self, for: indexPath)
-            .configure(with: element) {
-              self?.reactor?.action.onNext(
-                .didTapImageDeleteButton(element, .receipt)
-              )
-            }
-        }
-      }
-      .disposed(by: disposeBag)
-    
-    reactor.pulse(\.$receiptImages)
-      .observe(on: MainScheduler.instance)
-      .bind(with: self) { owner, value in
-        owner.updateCollectionHeigh(
-          collectionView: owner.receiptCollectionView,
-          images: value
-        )
-      }
-      .disposed(by: disposeBag)
-    
     reactor.pulse(\.$documentImages)
       .bind(to: documentCollectionView.rx.items) { [weak self] view, row, element in
         let indexPath = IndexPath(row: row, section: 0)
@@ -388,7 +339,7 @@ final class CreateManualLedgerVC: BaseVC, View, ImagePickerPresentable {
           return view.dequeueCell(ImageCell.self, for: indexPath)
             .configure(with: element) {
               self?.reactor?.action.onNext(
-                .didTapImageDeleteButton(element, .document)
+                .didTapImageDeleteButton(element)
               )
             }
         }
@@ -402,13 +353,6 @@ final class CreateManualLedgerVC: BaseVC, View, ImagePickerPresentable {
           collectionView: owner.documentCollectionView,
           images: value
         )
-      }
-      .disposed(by: disposeBag)
-    
-    reactor.pulse(\.$selectedSection)
-      .compactMap { $0 }
-      .bind(with: self) { owner, _ in
-        owner.imagePicker(target: owner, animated: true, delegate: owner)
       }
       .disposed(by: disposeBag)
     
@@ -461,9 +405,9 @@ final class CreateManualLedgerVC: BaseVC, View, ImagePickerPresentable {
         switch type {
         case .error(_):
           alert = .onlyOkButton()
-        case let .deleteImage(item, section):
+        case let .deleteImage(item):
           alert = .default(okAction: { [weak reactor] in
-            reactor?.action.onNext(.didTapImageDeleteAlertButton(item, section))
+            reactor?.action.onNext(.didTapImageDeleteAlertButton(item))
           })
         case .end:
           alert = .default(okAction: { [weak owner] in
@@ -501,21 +445,9 @@ extension CreateManualLedgerVC: UIImagePickerControllerDelegate, UINavigationCon
     if let image = info[.originalImage] as? UIImage {
       Task {
         guard let data = image.jpegData(compressionQuality: 1.0) else { return }
-        if reactor?.currentState.selectedSection == .receipt {
-          reactor?.action.onNext(
-            .selectedImage(
-              ImageData.Item.image(.init(id: .init(), data: data)),
-              .receipt
-            )
-          )
-        } else {
-          reactor?.action.onNext(
-            .selectedImage(
-              ImageData.Item.image(.init(id: .init(), data: data)),
-              .document
-            )
-          )
-        }
+        reactor?.action.onNext(
+          .selectedImage(ImageData.Item.image(.init(id: .init(), data: data)))
+        )
       }
     }
     dismiss(animated: true, completion: nil)

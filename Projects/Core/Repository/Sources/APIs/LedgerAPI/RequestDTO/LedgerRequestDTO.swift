@@ -6,6 +6,5 @@ struct LedgerRequestDTO: Encodable {
   let amount: Int
   let description: String
   let paymentDate: String
-  let receiptImageUrls: [String]
   let documentImageUrls: [String]
 }
