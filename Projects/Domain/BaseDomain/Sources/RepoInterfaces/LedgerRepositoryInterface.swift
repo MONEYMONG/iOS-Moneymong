@@ -11,7 +11,6 @@ public protocol LedgerRepositoryInterface {
     amount: Int,
     description: String,
     paymentDate: String,
-    receiptImageUrls: [String],
     documentImageUrls: [String]
   ) async throws
   func update(ledger: LedgerDetail) async throws -> LedgerDetail
@@ -24,8 +23,8 @@ public protocol LedgerRepositoryInterface {
     limit: Int,
     fundType: FundType?
   ) async throws -> LedgerList
-  func receiptImagesUpload(detailId: Int, receiptImageUrls: [String]) async throws
-  func receiptImageDelete(detailId: Int, receiptId: Int) async throws
+//  func receiptImagesUpload(detailId: Int, receiptImageUrls: [String]) async throws
+//  func receiptImageDelete(detailId: Int, receiptId: Int) async throws
   func documentImagesUpload(detailId: Int, documentImageUrls: [String]) async throws
   func documentImageDelete(detailId: Int, documentId: Int) async throws
   func saveDateRange(_ dateRange: DateRange)

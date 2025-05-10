@@ -95,12 +95,6 @@ final class LedgerContentsView: BaseView, View, UIScrollViewDelegate {
     return v
   }()
 
-  lazy var receiptCollectionView: LedgerContentsCollectionView = {
-    let v = LedgerContentsCollectionView()
-    v.reactor = reactor
-    return v
-  }()
-
   lazy var documentCollentionView: LedgerContentsCollectionView = {
     let v = LedgerContentsCollectionView()
     v.reactor = reactor
@@ -217,22 +211,6 @@ final class LedgerContentsView: BaseView, View, UIScrollViewDelegate {
       .disposed(by: disposeBag)
 
     reactor.pulse(\.$currentLedgerItem)
-      .map { [$0.receiptImages] }
-      .distinctUntilChanged()
-      .bind(to: receiptCollectionView.rx.items(dataSource: receiptCollectionView.dataSources))
-      .disposed(by: disposeBag)
-
-    reactor.pulse(\.$currentLedgerItem)
-      .map { $0.receiptImages }
-      .distinctUntilChanged()
-      .observe(on: MainScheduler.instance)
-      .bind(with: self) { owner, items in
-        owner.receiptCollectionView.updateCollectionHeigh(items: items)
-        owner.setNeedsLayout()
-      }
-      .disposed(by: disposeBag)
-
-    reactor.pulse(\.$currentLedgerItem)
       .map { [$0.documentImages] }
       .distinctUntilChanged()
       .bind(to: documentCollentionView.rx.items(dataSource: documentCollentionView.dataSources))
@@ -252,14 +230,6 @@ final class LedgerContentsView: BaseView, View, UIScrollViewDelegate {
       .distinctUntilChanged()
       .map { $0.authorName }
       .bind(to: authorNameTextField.textField.rx.text)
-      .disposed(by: disposeBag)
-
-    reactor.pulse(\.$selectedSection)
-      .compactMap { $0 }
-      .observe(on: MainScheduler.instance)
-      .bind(with: self) { owner, _ in
-        owner.delegate?.selectSection(owner)
-      }
       .disposed(by: disposeBag)
 
     reactor.pulse(\.$error)
@@ -395,16 +365,11 @@ final class LedgerContentsView: BaseView, View, UIScrollViewDelegate {
       .bind(to: reactor.action)
       .disposed(by: disposeBag)
 
-    receiptCollectionView.rx.modelSelected(LedgerImageSectionModel.Item.self)
-      .filter { $0 == .imageAddButton }
-      .map { _ in Reactor.Action.selectedImageSection(.receipt) }
-      .bind(to: reactor.action)
-      .disposed(by: disposeBag)
-
     documentCollentionView.rx.modelSelected(LedgerImageSectionModel.Item.self)
       .filter { $0 == .imageAddButton }
-      .map { _ in Reactor.Action.selectedImageSection(.document) }
-      .bind(to: reactor.action)
+      .bind(with: self) { owner, _ in
+        owner.delegate?.selectSection(owner)
+      }
       .disposed(by: disposeBag)
   }
 
@@ -465,13 +430,6 @@ final class LedgerContentsView: BaseView, View, UIScrollViewDelegate {
                 .marginTop(20)
                 .marginBottom(2)
                 .marginHorizontal(16)
-
-              flex.addItem(LineDashDivider())
-                .height(1)
-                .marginHorizontal(16)
-
-              flex.addItem(receiptCollectionView)
-                .marginVertical(20)
 
               flex.addItem(LineDashDivider())
                 .height(1)
@@ -539,8 +497,6 @@ final class LedgerContentsView: BaseView, View, UIScrollViewDelegate {
               flex.addItem(LineDashDivider()).height(1).marginHorizontal(16)
               flex.addItem(memoTextView).margin(20, 16)
               flex.addItem(LineDashDivider()).height(1).marginHorizontal(16)
-              flex.addItem(receiptCollectionView).marginVertical(20)
-              flex.addItem(LineDashDivider()).height(1).marginHorizontal(16)
               flex.addItem(documentCollentionView).marginVertical(20)
               flex.addItem(LineDashDivider()).height(1).marginHorizontal(16)
               flex.addItem(authorNameTextField).margin(20, 16)
@@ -580,7 +536,7 @@ extension LedgerContentsView: UIImagePickerControllerDelegate, UINavigationContr
   ) {
     Task {
       guard let image = info[.originalImage] as? UIImage else { return }
-      let scale = (receiptCollectionView.frame.width * 0.28) / image.size.width
+      let scale = (documentCollentionView.frame.width * 0.28) / image.size.width
       guard let data = image.jpegData(compressionQuality: scale) else { return }
       reactor?.action.onNext(.selectedImage(data))
     }
@@ -608,7 +564,5 @@ fileprivate enum Const {
   static var paymentTimePlaceholder: String { "00:00:00(24시 단위)" }
   static var memoTitle: String { "메모" }
   static var memoPlaceholder: String { "메모할 내용을 입력하세요" }
-  static var receiptImagesTitle: String { "영수증" }
-  static var documentImagesTitle: String { "증빙자료 (최대12장)" }
   static var authorNameTitle: String { "작성자" }
 }

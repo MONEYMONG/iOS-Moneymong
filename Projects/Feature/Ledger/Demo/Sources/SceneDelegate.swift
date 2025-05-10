@@ -1,6 +1,7 @@
 import UIKit
 
 import LedgerFeature
+import LedgerFeatureInterface
 import DesignSystem
 import BaseFeature
 import AgencyInterface
@@ -14,13 +15,13 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
   var coordinator: LedgerCoordinator?
   var window: UIWindow?
   func scene(_ scene: UIScene, willConnectTo session: UISceneSession, options connectionOptions: UIScene.ConnectionOptions) {
+    let ledgerService = LedgerService()
+    let contentFormatter = ContentFormatter()
     Fonts.registerFont()
-    registerDependency()
+    registerDependency(ledgerService: ledgerService, contentFormatter: contentFormatter)
     let navigationController = UINavigationController()
     guard let windowScene = (scene as? UIWindowScene) else { return }
     window = UIWindow(windowScene: windowScene)
-    let ledgerService = LedgerService()
-    let contentFormatter = ContentFormatter()
     coordinator = LedgerCoordinator(
       ledgerService: ledgerService,
       contentFormatter: contentFormatter
@@ -43,8 +44,11 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
 }
 
 extension SceneDelegate {
-  // MARK: LedgerTab
-  func registerDependency() {
+  func registerDependency(
+    ledgerService: LedgerServiceInterface,
+    contentFormatter: ContentFormatter
+  ) {
+    // MARK: LedgerTab
     DIContainer.shared.register(type: GetLedgerDateRangeUseCaseInterface.self) {
       return MockGetLedgerDateRangeUseCase()
     }
@@ -97,6 +101,47 @@ extension SceneDelegate {
     
     DIContainer.shared.register(type: UpdateSelectedAgencyUseCaseInterface.self) {
       return MockUpdateSelectedAgencyUseCase()
+    }
+    
+    //MARK: Creater
+    DIContainer.shared.register(type: CreateManualLedgerCoordinatorInterface.self) {
+      return CreateManualLedgerCoordinator(
+        ledgerService: ledgerService,
+        contentFormatter: contentFormatter
+      )
+    }
+    
+    DIContainer.shared.register(type: DeleteImageUseCaseInterface.self) {
+      return MockDeleteImageUseCase()
+    }
+    
+    DIContainer.shared.register(type: CreateLedgerUseCaseInterface.self) {
+      return MockCreateLedgerUseCase()
+    }
+    
+    DIContainer.shared.register(type: UploadImageUseCaseInterface.self) {
+      return MockUploadImageUseCase()
+    }
+    
+    // MARK: - Detail
+    DIContainer.shared.register(type: UpdateLedgerUseCaseInterface.self) {
+      return MockUpdateLedgerUseCase()
+    }
+    
+    DIContainer.shared.register(type: UploadDocumentUseCaseInterface.self) {
+      return MockUploadDocumentUseCase()
+    }
+    
+    DIContainer.shared.register(type: DeleteDocumentUseCaseInterface.self) {
+      return MockDeleteDocumentUseCase()
+    }
+    
+    DIContainer.shared.register(type: GetLedgerDetailUseCaseInterface.self) {
+      return MockGetLedgerDetailUseCase()
+    }
+    
+    DIContainer.shared.register(type: DeleteLedgerUseCaseInterface.self) {
+      return MockDeleteLedgerUseCase()
     }
   }
 }

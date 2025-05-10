@@ -8,7 +8,6 @@ public protocol CreateLedgerUseCaseInterface {
     amount: Int,
     description: String,
     paymentDate: String,
-    receiptImageUrls: [String],
     documentImageUrls: [String]
   ) async throws
 }

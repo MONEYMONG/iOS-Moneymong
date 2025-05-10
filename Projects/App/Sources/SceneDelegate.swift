@@ -221,10 +221,10 @@ extension SceneDelegate {
       return DeleteLedgerUseCase(ledgerRepo: ledgerRepo)
     }
 
-    DIContainer.shared.register(type: DeleteReceiptUseCaseInterface.self) {
-      let ledgerRepo = LedgerRepository(networkManager: networkManager, localStorage: localStorage)
-      return DeleteReceiptUseCase(ledgerRepo: ledgerRepo)
-    }
+//    DIContainer.shared.register(type: DeleteReceiptUseCaseInterface.self) {
+//      let ledgerRepo = LedgerRepository(networkManager: networkManager, localStorage: localStorage)
+//      return DeleteReceiptUseCase(ledgerRepo: ledgerRepo)
+//    }
 
     DIContainer.shared.register(type: GetLedgerDateRangeUseCaseInterface.self) {
       let ledgerRepo = LedgerRepository(networkManager: networkManager, localStorage: localStorage)
@@ -261,10 +261,10 @@ extension SceneDelegate {
       return UploadImageUseCase(ledgerRepo: ledgerRepo)
     }
 
-    DIContainer.shared.register(type: UploadReceiptUseCaseInterface.self) {
-      let ledgerRepo = LedgerRepository(networkManager: networkManager, localStorage: localStorage)
-      return UploadReceiptUseCase(ledgerRepo: ledgerRepo)
-    }
+//    DIContainer.shared.register(type: UploadReceiptUseCaseInterface.self) {
+//      let ledgerRepo = LedgerRepository(networkManager: networkManager, localStorage: localStorage)
+//      return UploadReceiptUseCase(ledgerRepo: ledgerRepo)
+//    }
     
     // MARK: - Coordinator Dependency
     DIContainer.shared.register(type: MyPageCoordinatorInterface.self) {
