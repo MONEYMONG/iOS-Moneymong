@@ -2,6 +2,7 @@ import AgencyFeatureInterface
 import AgencyInterface
 import AuthInterface
 import BaseDomain
+import BaseFeature
 import UserInterface
 import Utility
 
@@ -10,20 +11,13 @@ import ReactorKit
 public final class InputAgencyInfoReactor: Reactor {
   
   public struct State {
-    @Pulse var agencyType: AgencyType = .inSchoolClub // 소속 종류: 동아리 or 학생회
     @Pulse var text = "" // 소속 이름
     @Pulse var isButtonEnabled = false
-    
     @Pulse var isLoading = false
     @Pulse var error: MoneyMongError?
-    
-    @Pulse var universityType: UniversityType
-    
     @Pulse var destination: Destination?
     
     public enum Destination {
-      case complete(Int)
-      case inputUniversity(String, AgencyType)
       case main
       case dismiss
     }
@@ -31,9 +25,7 @@ public final class InputAgencyInfoReactor: Reactor {
   
   public enum Action {
     case textFieldDidChange(String)
-    case selectedIndexDidChange(Int)
     case tapCreateButton
-    case notRegisterButtonDidTap
     case dismiss
   }
   
@@ -41,26 +33,24 @@ public final class InputAgencyInfoReactor: Reactor {
     case setText(String)
     case setError(MoneyMongError)
     case setLoading(Bool)
-    case setAgencyType(Int)
     case setButtonEnabled(Bool)
     case setDestination(State.Destination)
   }
   
   public let initialState: State
   private let createAgencyUseCase: CreateAgencyUseCaseInterface
-  private let registerUniversitiesUseCase: RegisterUniversitiesUseCaseInterface
   private let deleteUserUseCase: DeleteUserUseCaseInterface
+  private let updateSelectedAgencyUseCase: UpdateSelectedAgencyUseCaseInterface
   
   init(
-    universityType: UniversityType,
     createAgencyUseCase: CreateAgencyUseCaseInterface,
-    registerUniversitiesUseCase: RegisterUniversitiesUseCaseInterface,
-    deleteUserUseCase: DeleteUserUseCaseInterface
+    deleteUserUseCase: DeleteUserUseCaseInterface,
+    updateSelectedAgencyUseCase: UpdateSelectedAgencyUseCaseInterface = DIContainer.shared.resolve(type: UpdateSelectedAgencyUseCaseInterface.self)
   ) {
-    self.initialState = State(universityType: universityType)
+    self.initialState = State()
     self.createAgencyUseCase = createAgencyUseCase
-    self.registerUniversitiesUseCase = registerUniversitiesUseCase
     self.deleteUserUseCase = deleteUserUseCase
+    self.updateSelectedAgencyUseCase = updateSelectedAgencyUseCase
   }
   
   public func mutate(action: Action) -> Observable<Mutation> {
@@ -70,44 +60,19 @@ public final class InputAgencyInfoReactor: Reactor {
         .just(.setText(text)),
         .just(.setButtonEnabled((1...20) ~= text.count))
       )
-      
-    case let .selectedIndexDidChange(index):
-      return .just(.setAgencyType(index))
-      
     case .tapCreateButton:
-      if currentState.universityType == .unknown, currentState.agencyType != .general {
-        return .just(.setDestination(.inputUniversity(currentState.text, currentState.agencyType)))
-      } else {
-        return .concat(
-          .just(.setLoading(true)),
-          .task {
-            if currentState.universityType == .unknown {
-              try await registerUniversitiesUseCase.execute(name: nil, grade: nil)
-            }
-            return try await createAgencyUseCase.execute(
-              name: currentState.text,
-              type: currentState.agencyType.rawValue
-            )
-          }
-            .map { .setDestination(.complete($0)) }
-            .catch { return .just(.setError($0.toMMError)) },
-          .just(.setLoading(false))
-        )
-      }
-      
-    case .notRegisterButtonDidTap:
-      return .task {
-        if currentState.universityType == .unknown {
-          try await registerUniversitiesUseCase.execute(name: nil, grade: nil)
+      return .concat(
+        .just(.setLoading(true)),
+        .task {
+          let agenctID = try await createAgencyUseCase.execute(name: currentState.text)
+          updateSelectedAgencyUseCase.execute(id: agenctID)
         }
-      }
-      .map { .setDestination(.main) }
+          .map { .setDestination(.main) }
+          .catch { return .just(.setError($0.toMMError)) },
+        .just(.setLoading(false))
+      )
     case .dismiss:
-      return .task {
-        if currentState.universityType == .unknown {
-          try await deleteUserUseCase.execute()
-        }
-      }.map { _ in .setDestination(.dismiss) }
+      return .just(.setDestination(.main))
     }
   }
   
@@ -119,8 +84,6 @@ public final class InputAgencyInfoReactor: Reactor {
       newState.text = text
     case let .setButtonEnabled(value):
       newState.isButtonEnabled = value
-    case let .setAgencyType(index):
-      newState.agencyType = parsingAgencyType(with: index) ?? .inSchoolClub
     case let .setDestination(value):
       newState.destination = value
     case let .setError(value):

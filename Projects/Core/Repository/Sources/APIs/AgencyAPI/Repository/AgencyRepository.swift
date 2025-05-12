@@ -14,27 +14,14 @@ public struct AgencyRepository: AgencyRepositoryInterface {
     self.localStorage = localStorage
   }
   
-  public func fetchList(page: Int, size: Int) async throws -> [Agency] {
-    let targetType = AgencyAPI.list(param: .init(page: page, size: size, sort: nil))
-    let dto = try await networkManager.request(target: targetType, of: AgencyListResponseDTO.self)
-    return dto.toEntity
-  }
-  
-  public func search(query: String) async throws -> [Agency] {
-    let targetType = AgencyAPI.search(query: query)
-    let dto = try await networkManager.request(target: targetType, of: [AgencyResponseDTO].self)
-    return dto.toEntity
-  }
-  
-  public func create(name: String, type: String) async throws -> Int {
-    let targetType = AgencyAPI.create(param: .init(name: name, agencyType: type))
+  public func create(name: String) async throws -> Int {
+    let targetType = AgencyAPI.create(param: .init(name: name))
     let agencyID = try await networkManager.request(target: targetType, of: AgencyIDResponseDTO.self).id
     FirebaseManager.shared.logEvent(
       event: .createAgency,
       parameters: [
         "agency_name" : name,
         "agency_id" : agencyID,
-        "agency_type" : type,
         "user_id" : localStorage.userID ?? "unknown"
       ]
     )

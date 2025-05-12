@@ -8,9 +8,7 @@ public final class JoinAgencyCoordinator: JoinAgencyCoordinatorInterface {
   public weak var navigationController: UINavigationController?
   public weak var parentCoordinator: Coordinator?
   
-  public init(navigationController: UINavigationController) {
-    self.navigationController = navigationController
-  }
+  public init() {}
   
   enum Destination {
     case joinComplete
