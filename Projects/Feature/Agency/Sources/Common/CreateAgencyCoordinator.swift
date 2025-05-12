@@ -20,8 +20,7 @@ public final class CreateAgencyCoordinator: CreateAgencyCoordinatorInterface {
 
 private extension CreateAgencyCoordinator {
   func inputAgencyInfo(animated: Bool) {
-    let factory = AgencyFactory()
-    let vc = factory.makeInputAgencyInfo()
+    let vc = AgencyFactory().makeInputAgencyInfo()
     vc.coordinator = self
     navigationController?.pushViewController(vc, animated: animated)
   }

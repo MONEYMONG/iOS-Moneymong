@@ -100,4 +100,14 @@ extension LedgerCoordinator {
     vc.modalPresentationStyle = .overFullScreen
     navigationController?.present(vc, animated: false)
   }
+  
+  func createAgency() {
+    let navigationController = UINavigationController()
+    let coordinator = DIContainer.shared.resolve(type: CreateAgencyCoordinatorInterface.self)
+    coordinator.parentCoordinator = self
+    coordinator.navigationController = navigationController
+    coordinator.start(animated: false)
+    navigationController.modalPresentationStyle = .overFullScreen
+    self.navigationController?.present(navigationController, animated: true)
+  }
 }
