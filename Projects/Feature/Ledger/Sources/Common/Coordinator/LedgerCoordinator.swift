@@ -89,6 +89,7 @@ extension LedgerCoordinator {
   
   func selectAgencySheet() {
     let vc = LedgerFactory(ledgerService: ledgerService, contentFormatter: contentFormatter).makeSelectAgency()
+    vc.coordinator = self
     vc.modalPresentationStyle = .overFullScreen
     vc.modalTransitionStyle = .crossDissolve
     navigationController?.present(vc, animated: false)
