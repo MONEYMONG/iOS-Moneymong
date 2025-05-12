@@ -1,6 +1,5 @@
 import UIKit
 
-import AgencyFeatureInterface
 import BaseFeature
 import LedgerFeatureInterface
 import MyPageFeatureInterface

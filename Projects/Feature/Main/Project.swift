@@ -16,7 +16,6 @@ let project = Project(
             sources: ["Sources/**"],
             dependencies: [
               .project(target: "MyPageFeatureInterface", path: .relativeToRoot("Projects/Feature/MyPage")),
-              .project(target: "AgencyFeatureInterface", path: .relativeToRoot("Projects/Feature/Agency")),
               .project(target: "LedgerFeatureInterface", path: .relativeToRoot("Projects/Feature/Ledger"))
             ],
             settings: .settings(base: [
