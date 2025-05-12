@@ -46,7 +46,6 @@ public enum Images {
   public static let more = UIImage(named: "more", in: Bundle.module, with: nil)
   public static let paper = UIImage(named: "paper", in: Bundle.module, with: nil)
   public static let pencil = UIImage(named: "pencil", in: Bundle.module, with: nil)
-  public static let pencilGray = UIImage(named: "pencil.gray", in: Bundle.module, with: nil)
   public static let photo = UIImage(named: "photo", in: Bundle.module, with: nil)
   public static let plan = UIImage(named: "plan", in: Bundle.module, with: nil)
 
@@ -66,6 +65,7 @@ public enum Images {
   public static let plusCircleFillGreen = UIImage(named: "plus.circle.fill.green", in: Bundle.module, with: nil)
   public static let plusCircleFillRed = UIImage(named: "plus.circle.fill.red", in: Bundle.module, with: nil)
   public static let plusCircleFillBlue = UIImage(named: "plus.circle.fill.blue", in: Bundle.module, with: nil)
+  public static let plusCircleLineWhite = UIImage(named: "plus.circle.line.white", in: Bundle.module, with: nil)
 
   public static let warningFill = UIImage(named: "warning.fill", in: Bundle.module, with: nil)
   public static let warning = UIImage(named: "warning", in: Bundle.module, with: nil)
