@@ -4,12 +4,16 @@ import LedgerFeature
 import LedgerFeatureInterface
 import DesignSystem
 import BaseFeature
+import AgencyFeatureInterface
+import AgencyFeature
 import AgencyInterface
+import AgencyTesting
 import LedgerInterface
 import UserInterface
-import AgencyTesting
 import LedgerTesting
 import UserTesting
+import AuthInterface
+import AuthTesting
 
 class SceneDelegate: UIResponder, UIWindowSceneDelegate {
   var coordinator: LedgerCoordinator?
@@ -142,6 +146,32 @@ extension SceneDelegate {
     
     DIContainer.shared.register(type: DeleteLedgerUseCaseInterface.self) {
       return MockDeleteLedgerUseCase()
+    }
+    
+    //MARK: - CreateAgency
+    DIContainer.shared.register(type: CreateAgencyCoordinatorInterface.self) {
+      return CreateAgencyCoordinator()
+    }
+    
+    DIContainer.shared.register(type: CreateAgencyUseCaseInterface.self) {
+      return MockCreateAgencyUseCase()
+    }
+    
+    DIContainer.shared.register(type: DeleteUserUseCaseInterface.self) {
+      return MockDeleteUserUseCase()
+    }
+    
+    DIContainer.shared.register(type: UpdateSelectedAgencyUseCaseInterface.self) {
+      return MockUpdateSelectedAgencyUseCase()
+    }
+    
+    //MARK: - JoinAgency
+    DIContainer.shared.register(type: JoinAgencyCoordinatorInterface.self) {
+      return JoinAgencyCoordinator()
+    }
+    
+    DIContainer.shared.register(type: ConfirmCertificateCodeUseCaseInterface.self) {
+      return MockConfirmCertificateCodeUseCase()
     }
   }
 }
