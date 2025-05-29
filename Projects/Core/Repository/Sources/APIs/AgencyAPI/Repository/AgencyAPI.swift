@@ -9,7 +9,7 @@ enum AgencyAPI {
   case kickout(id: Int, param: KickoutMemberRequestDTO) // 멤버 강제퇴장
   case myAgency // 내가 속한 소속 목록 조회
   case code(id: Int) // 초대코드 조회
-  case certificateCode(id: Int, param: InvitationCodeCertificationRequestDTO) // 초대코드 인증
+  case certificateCode(param: InvitationCodeCertificationRequestDTO) // 초대코드 인증
   case reissueCode(id: Int) // 초대코드 재발급
   case delete(id: Int) // 소속삭제
 }
@@ -27,7 +27,7 @@ extension AgencyAPI: TargetType {
     case let .kickout(id, _): return "v1/agencies/\(id)/agency-users/roles/block"
     case .myAgency: return "v1/agencies/me"
     case let .code(id): return "v1/agencies/\(id)/invitation-code"
-    case let .certificateCode(id, _): return "v1/agencies/\(id)/invitation-code"
+    case .certificateCode: return "v1/agencies/invitation-code"
     case let .reissueCode(id): return "v1/agencies/\(id)/invitation-code"
     case let .delete(id): return "v1/agencies/\(id)"
     }
@@ -55,7 +55,7 @@ extension AgencyAPI: TargetType {
     case let .kickout(_, param): return .requestJSONEncodable(params: param)
     case .myAgency: return .plain
     case .code: return .plain
-    case let .certificateCode(_, param): return .requestJSONEncodable(params: param)
+    case let .certificateCode(param): return .requestJSONEncodable(params: param)
     case .reissueCode: return .plain
     case .delete: return .plain
     }

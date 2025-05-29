@@ -5,7 +5,7 @@ public protocol AgencyRepositoryInterface {
   func kickoutMember(id: Int, userId: Int) async throws
   func fetchMyAgency() async throws -> [Agency]
   func fetchCode(id: Int) async throws -> String
-  func certificateCode(id: Int, code: String) async throws -> Bool
+  func certificateCode(code: String) async throws -> CertificationResult
   func reissueCode(id: Int) async throws -> String
   func deleteAgency(id: Int) async throws
 }

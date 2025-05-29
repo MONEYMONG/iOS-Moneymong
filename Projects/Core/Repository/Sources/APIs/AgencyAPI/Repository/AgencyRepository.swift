@@ -64,13 +64,12 @@ public struct AgencyRepository: AgencyRepositoryInterface {
     return dto.toEntity
   }
   
-  public func certificateCode(id: Int, code: String) async throws -> Bool {
-    let targetType = AgencyAPI.certificateCode(id: id, param: .init(invitationCode: code))
+  public func certificateCode(code: String) async throws -> CertificationResult {
+    let targetType = AgencyAPI.certificateCode(param: .init(invitationCode: code))
     let dto = try await networkManager.request(target: targetType, of: CertificateCodeRequestDTO.self)
     FirebaseManager.shared.logEvent(
       event: .joinAgency,
       parameters: [
-        "agency_id" : id,
         "code" : code,
         "user_id" : localStorage.userID ?? "unknown"
       ]

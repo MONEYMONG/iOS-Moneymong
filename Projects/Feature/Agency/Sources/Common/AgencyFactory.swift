@@ -10,16 +10,10 @@ struct AgencyFactory {
   
   init() { }
   
-  func makeJoinAgency(agencyID: Int, agencyName: String) -> JoinAgencyVC {
+  func makeJoinAgency() -> JoinAgencyVC {
     let vc = JoinAgencyVC()
-    
-    let usecase = DIContainer.shared
-      .resolve(type: ConfirmCertificateCodeUseCaseInterface.self)
-    
     vc.reactor = JoinAgencyReactor(
-      id: agencyID,
-      name: agencyName,
-      confirmCertificateCodeUseCase: usecase
+      confirmCertificateCodeUseCase: DIContainer.shared.resolve(type: ConfirmCertificateCodeUseCaseInterface.self)
     )
     return vc
   }
