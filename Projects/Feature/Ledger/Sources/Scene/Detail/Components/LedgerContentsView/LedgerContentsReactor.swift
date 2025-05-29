@@ -18,15 +18,9 @@ final class LedgerContentsReactor: Reactor {
     case date(String, Bool)
     case time(String, Bool)
     case authorName(String)
-    case receiptImage(LedgerImageInfo, Bool)
     case documentImage(LedgerImageInfo, Bool)
   }
 
-  enum ImageSection {
-    case receipt
-    case document
-  }
-  
   struct ContentValid {
     var isValidTitle = true
     var isValidAmount = true
@@ -37,7 +31,6 @@ final class LedgerContentsReactor: Reactor {
   enum Action {
     case didStateChanged(LedgerContentsView.State)
     case didValueChanged(ContentType)
-    case selectedImageSection(ImageSection)
     case selectedImage(Data)
     case deleteImage(LedgerImageInfo)
     case registrationLedger(LedgerDetail)
@@ -46,7 +39,6 @@ final class LedgerContentsReactor: Reactor {
   enum Mutation {
     case setLedger(LedgerDetailItem)
     case setValueChanged(ContentType)
-    case setSelectedImageSection(ImageSection)
     case setState(LedgerContentsView.State)
     case setError(MoneyMongError)
   }
@@ -54,7 +46,6 @@ final class LedgerContentsReactor: Reactor {
   struct State {
     var prevLedgerItem: LedgerDetailItem = .empty
     @Pulse var currentLedgerItem: LedgerDetailItem = .empty
-    @Pulse var selectedSection: ImageSection?
     @Pulse var error: MoneyMongError?
     @Pulse var state: LedgerContentsView.State = .read
   }
@@ -70,27 +61,21 @@ final class LedgerContentsReactor: Reactor {
 
   private let updateLedgerUseCase: UpdateLedgerUseCaseInterface
   private let uploadImageUseCase: UploadImageUseCaseInterface
-  private let uploadReceiptUseCase: UploadReceiptUseCaseInterface
   private let uploadDocumentUseCase: UploadDocumentUseCaseInterface
-  private let deleteReceiptUseCase: DeleteReceiptUseCaseInterface
   private let deleteDocumentUseCase: DeleteDocumentUseCaseInterface
   
   init(
     ledgerContentsService: LedgerDetailContentsServiceInterface,
     updateLedgerUseCase: UpdateLedgerUseCaseInterface,
     uploadImageUseCase: UploadImageUseCaseInterface,
-    uploadReceiptUseCase: UploadReceiptUseCaseInterface,
     uploadDocumentUseCase: UploadDocumentUseCaseInterface,
-    deleteReceiptUseCase: DeleteReceiptUseCaseInterface,
     deleteDocumentUseCase: DeleteDocumentUseCaseInterface,
     formatter: ContentFormatter
   ) {
     self.ledgerContentsService = ledgerContentsService
     self.updateLedgerUseCase = updateLedgerUseCase
     self.uploadImageUseCase = uploadImageUseCase
-    self.uploadReceiptUseCase = uploadReceiptUseCase
     self.uploadDocumentUseCase = uploadDocumentUseCase
-    self.deleteReceiptUseCase = deleteReceiptUseCase
     self.deleteDocumentUseCase = deleteDocumentUseCase
     self.formatter = formatter
   }
@@ -146,23 +131,12 @@ final class LedgerContentsReactor: Reactor {
       ledgerContentsService.didValidChanged(isValided)
       return .just(.setValueChanged(convertedFormValue))
 
-    case .selectedImageSection(let section):
-      return .just(.setSelectedImageSection(section))
-
     case .selectedImage(let data):
       return .task { return try await uploadImageUseCase.execute(imageData: data) }
-        .map { [weak self] imageInfo in
-          let selectedSection = self?.currentState.selectedSection ?? .receipt
-          switch selectedSection {
-          case .receipt:
-            return .setValueChanged(
-              .receiptImage(.init(imageSection: .receipt, key: imageInfo.key, url: imageInfo.url), true)
-            )
-          case .document:
-            return .setValueChanged(
-              .documentImage(.init(imageSection: .document, key: imageInfo.key, url: imageInfo.url), true)
-            )
-          }
+        .map { imageInfo in
+          return .setValueChanged(
+            .documentImage(.init(key: imageInfo.key, url: imageInfo.url), true)
+          )
         }
         .catch { [weak self] error in
           self?.ledgerContentsService.setIsLoading(false)
@@ -170,12 +144,7 @@ final class LedgerContentsReactor: Reactor {
         }
 
     case .deleteImage(let item):
-      switch item.imageSection {
-      case .receipt:
-        return .just(.setValueChanged(.receiptImage(item, false)))
-      case .document:
-        return .just(.setValueChanged(.documentImage(item, false)))
-      }
+      return .just(.setValueChanged(.documentImage(item, false)))
     }
   }
 
@@ -206,23 +175,13 @@ final class LedgerContentsReactor: Reactor {
       case .authorName(let authorName):
         newState.currentLedgerItem.authorName = authorName
 
-      case .receiptImage(let imageInfo, let isAdd):
-        if isAdd {
-          newState.currentLedgerItem.addImageItem(section: .receipt, imageInfo: imageInfo)
-        } else {
-          newState.currentLedgerItem.deleteImageItem(section: .receipt, imageInfo: imageInfo)
-        }
-
       case .documentImage(let imageInfo, let isAdd):
         if isAdd {
-          newState.currentLedgerItem.addImageItem(section: .document, imageInfo: imageInfo)
+          newState.currentLedgerItem.addImageItem(imageInfo: imageInfo)
         } else {
-          newState.currentLedgerItem.deleteImageItem(section: .document, imageInfo: imageInfo)
+          newState.currentLedgerItem.deleteImageItem(imageInfo: imageInfo)
         }
       }
-
-    case .setSelectedImageSection(let section):
-      newState.selectedSection = section
 
     case .setError(let error):
       newState.error = error
@@ -244,27 +203,12 @@ final class LedgerContentsReactor: Reactor {
 }
 
 fileprivate extension LedgerContentsReactor {
-  func registrationReceiptImages() async throws {
-    if currentState.currentLedgerItem.addedReceiptImages.count > 0 {
-      let id = currentState.currentLedgerItem.id
-      let urls = currentState.currentLedgerItem.addedReceiptImages.map { $0.url }
-      try await uploadReceiptUseCase.execute(ledgerID: id, receiptImageUrls: urls)
-    }
-  }
-
   func registrationDocumentImages() async throws {
     if currentState.currentLedgerItem.addedDocumentImages.count > 0 {
       let id = currentState.currentLedgerItem.id
-      let urls = currentState.currentLedgerItem.addedReceiptImages.map { $0.url }
+      let urls = currentState.currentLedgerItem.addedDocumentImages.map { $0.url }
       try await uploadDocumentUseCase.execute(ledgerID: id, documentUrls: urls)
     }
-  }
-
-  func deleteReceiptImages() async throws {
-      let id = currentState.currentLedgerItem.id
-      for imageInfo in currentState.currentLedgerItem.deletedReceiptImages {
-        try await deleteReceiptUseCase.execute(ledgerID: id, receiptID: Int(imageInfo.key) ?? 0)
-      }
   }
 
   func deleteDocumentImages() async throws {

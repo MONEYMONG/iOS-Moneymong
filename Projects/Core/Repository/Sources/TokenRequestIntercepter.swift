@@ -58,12 +58,6 @@ public final class TokenRequestIntercepter: RequestInterceptor {
       return
     }
     
-    //OCR
-    if urlRequest.url?.absoluteString.hasSuffix("/document/receipt") == true {
-      completion(.success(urlRequest))
-      return
-    }
-    
     //Check Version
     if urlRequest.url?.absoluteString.hasSuffix("/version") == true {
       completion(.success(urlRequest))

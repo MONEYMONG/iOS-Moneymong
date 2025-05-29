@@ -4,7 +4,7 @@ public struct DeepLinkManager {
   
   public static var destination: [String : Any]?
   
-  // OCR, CreateLedger, LedgerDetail
+  // CreateLedger, LedgerDetail
   public static func setDestination(_ urlString: String, agencyID: Int?) {
     let query = urlString.replacingOccurrences(of: "widget://", with: "")
     

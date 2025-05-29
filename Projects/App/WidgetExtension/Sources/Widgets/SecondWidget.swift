@@ -47,18 +47,7 @@ struct SecondWidgetEntryView: View {
           .offset(y: -10)
       }
 
-      HStack(spacing: 10) {
-        Link(destination: LinkManager.ocr.url) {
-          Text("영수증 스캔")
-            .font(.system(size: 12, weight: .bold))
-            .foregroundColor(Color(uiColor: Colors.White._1))
-            .frame(height: 18)
-            .frame(maxWidth: .infinity)
-            .padding(10)
-            .background(Color(uiColor: Colors.Blue._4))
-            .cornerRadius(10)
-        }
-        
+      HStack(spacing: 10) {        
         Link(destination: LinkManager.ledgerDetail.url) {
           Text("회비 내역 확인")
             .font(.system(size: 12, weight: .bold))

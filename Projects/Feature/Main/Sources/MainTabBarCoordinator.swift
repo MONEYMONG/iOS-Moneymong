@@ -1,6 +1,5 @@
 import UIKit
 
-import AgencyFeatureInterface
 import BaseFeature
 import LedgerFeatureInterface
 import MyPageFeatureInterface
@@ -30,9 +29,6 @@ public final class MainTabBarCoordinator: Coordinator {
     case let .createManualLedger(agencyID): // 장부 이동 &
       tabBarController?.selectedIndex = 1
       NotificationCenter.default.post(name: .presentManualCreater, object: nil, userInfo: ["id": agencyID])
-    case let .createOCRLedger(agencyID):
-      tabBarController?.selectedIndex = 1
-      NotificationCenter.default.post(name: .presentOCRCreater, object: nil, userInfo: ["id": agencyID])
     case .agency: // 소속으로 이동
       tabBarController?.selectedIndex = 0
     }
@@ -44,23 +40,13 @@ public extension MainTabBarCoordinator {
     let tabVC = MainTapViewController()
     tabVC.coordinator = self
     tabVC.setViewControllers(
-      [agencyTab(),
-       ledgerTab(),
+      [ledgerTab(),
        myPageTab()],
       animated: false
     )
     navigationController?.isNavigationBarHidden = true
     navigationController?.viewControllers = [tabVC]
     tabBarController = tabVC
-  }
-
-  private func agencyTab() -> UIViewController {
-    let navigationC = UINavigationController()
-    let agencyCoordinator = DIContainer.shared.resolve(type: AgencyCoordinatorInterface.self)
-    agencyCoordinator.navigationController = navigationC
-    agencyCoordinator.parentCoordinator = self
-    agencyCoordinator.start(animated: false)
-    return navigationC
   }
   
   private func ledgerTab() -> UIViewController {

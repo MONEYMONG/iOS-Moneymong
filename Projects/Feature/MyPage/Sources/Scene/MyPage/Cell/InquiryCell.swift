@@ -10,7 +10,7 @@ final class InquiryCell: UITableViewCell, ReusableView {
   private let titleLabel: UILabel = {
     let v = UILabel()
     v.textColor = Colors.Gray._8
-    v.font = Fonts.bold16
+    v.font = Fonts.heading._1
     v.setTextWithLineHeight(text: "머니몽에게\n자유롭게 문의 해보세요!", lineHeight: 24)
     v.numberOfLines = 2
     return v

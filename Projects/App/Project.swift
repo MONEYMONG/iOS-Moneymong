@@ -8,14 +8,10 @@ let project = Project(
   ),
   settings: .settings(
     base: .init()
-      .marketingVersion("1.4.4")
+      .marketingVersion("2.0.0")
       .swiftVersion("5.7")
       .currentProjectVersion("1")
-      .appleGenericVersioningSystem(),
-    configurations: [
-      .debug(name: .debug, xcconfig: "Resources/APIKey.xcconfig"),
-      .release(name: .release, xcconfig: "Resources/APIKey.xcconfig")
-    ]
+      .appleGenericVersioningSystem()
   ),
   targets: [
     .init(

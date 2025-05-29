@@ -74,29 +74,6 @@ struct LedgerFactory {
     return vc
   }
   
-  func makeOCR(agencyId: Int) -> CreateOCRLedgerVC {
-    let vc = CreateOCRLedgerVC()
-    vc.reactor = CreateOCRLedgerReactor(
-      agencyId: agencyId,
-      receiptOCRUseCase: DIContainer.shared.resolve(type: ReceiptOCRUseCaseInterface.self)
-    )
-    return vc
-  }
-  
-  func makeOCRResult(agencyId: Int, model: OCRResult, imageData: Data) -> OCRResultVC {
-    let vc = OCRResultVC()
-    vc.reactor = OCRResultReactor(
-      agencyId: agencyId,
-      model: model,
-      imageData: imageData,
-      uploadImageUseCase: DIContainer.shared.resolve(type: UploadImageUseCaseInterface.self),
-      createLedgerUseCase: DIContainer.shared.resolve(type: CreateLedgerUseCaseInterface.self),
-      ledgerService: ledgerService,
-      formatter: contentFormatter
-    )
-    return vc
-  }
-  
   func makeDatePicker(start: DateInfo, end: DateInfo) -> DatePickerSheetVC {
     let vc = DatePickerSheetVC()
     vc.reactor = DatePickerReactor(
@@ -137,9 +114,7 @@ struct LedgerFactory {
       ledgerContentsService: ledgerDetailContentsService,
       updateLedgerUseCase: DIContainer.shared.resolve(type: UpdateLedgerUseCaseInterface.self),
       uploadImageUseCase: DIContainer.shared.resolve(type: UploadImageUseCaseInterface.self),
-      uploadReceiptUseCase: DIContainer.shared.resolve(type: UploadReceiptUseCaseInterface.self),
       uploadDocumentUseCase: DIContainer.shared.resolve(type: UploadDocumentUseCaseInterface.self),
-      deleteReceiptUseCase: DIContainer.shared.resolve(type: DeleteReceiptUseCaseInterface.self),
       deleteDocumentUseCase: DIContainer.shared.resolve(type: DeleteDocumentUseCaseInterface.self),
       formatter: contentFormatter
     )

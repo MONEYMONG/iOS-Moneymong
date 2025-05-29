@@ -89,11 +89,6 @@ extension SceneDelegate {
       return GetMyInfoUseCase(userRepo: userRepo)
     }
     
-    DIContainer.shared.register(type: SearchUniversitiesUseCaseInterface.self) {
-      let universityRepo = UniversityRepository(networkManager: networkManager)
-      return SearchUniversitiesUseCase(universityRepo: universityRepo)
-    }
-    
     DIContainer.shared.register(type: GetSelectedAgencyUseCaseInterface.self) {
       let userRepo = UserRepository(networkManager: networkManager, localStorage: localStorage, memoryCache: MemoryCache.shared)
       return GetSelectedAgencyUseCase(userRepo: userRepo)
@@ -107,11 +102,6 @@ extension SceneDelegate {
     DIContainer.shared.register(type: GetUserIDUseCaseInterface.self) {
       let userRepo = UserRepository(networkManager: networkManager, localStorage: localStorage, memoryCache: MemoryCache.shared)
       return GetUserIDUseCase(userRepo: userRepo)
-    }
-    
-    DIContainer.shared.register(type: RegisterUniversitiesUseCaseInterface.self) {
-      let universityRepo = UniversityRepository(networkManager: networkManager)
-      return RegisterUniversitiesUseCase(universityRepo: universityRepo)
     }
     
     // MARK: - Auth UseCase Dependency
@@ -165,11 +155,6 @@ extension SceneDelegate {
       return DeleteAgencyUseCase(agencyRepo: agencyRepo, userRepo: userRepo, widgetRefreshController: widgetRefreshController)
     }
 
-    DIContainer.shared.register(type: GetAgencyListUseCaseInterface.self) {
-      let agencyRepo = AgencyRepository(networkManager: networkManager, localStorage: localStorage)
-      return GetAgencyListUseCase(repo: agencyRepo)
-    }
-
     DIContainer.shared.register(type: GetInvitationCodeUseCaseInterface.self) {
       let agencyRepo = AgencyRepository(networkManager: networkManager, localStorage: localStorage)
       return GetInvitationCodeUseCase(repo: agencyRepo)
@@ -194,11 +179,6 @@ extension SceneDelegate {
       let agencyRepo = AgencyRepository(networkManager: networkManager, localStorage: localStorage)
       return ReissueCodeUseCase(repo: agencyRepo)
     }
-
-    DIContainer.shared.register(type: SearchAgencyUseCaseInterface.self) {
-      let agencyRepo = AgencyRepository(networkManager: networkManager, localStorage: localStorage)
-      return SearchAgencyUseCase(repo: agencyRepo)
-    }
     
     // MARK: - Ledger UseCase Dependency
     DIContainer.shared.register(type: CreateLedgerUseCaseInterface.self) {
@@ -221,11 +201,6 @@ extension SceneDelegate {
       return DeleteLedgerUseCase(ledgerRepo: ledgerRepo)
     }
 
-    DIContainer.shared.register(type: DeleteReceiptUseCaseInterface.self) {
-      let ledgerRepo = LedgerRepository(networkManager: networkManager, localStorage: localStorage)
-      return DeleteReceiptUseCase(ledgerRepo: ledgerRepo)
-    }
-
     DIContainer.shared.register(type: GetLedgerDateRangeUseCaseInterface.self) {
       let ledgerRepo = LedgerRepository(networkManager: networkManager, localStorage: localStorage)
       return GetLedgerDateRangeUseCase(ledgerRepo: ledgerRepo)
@@ -239,11 +214,6 @@ extension SceneDelegate {
     DIContainer.shared.register(type: GetLedgerListUseCaseInterface.self) {
       let ledgerRepo = LedgerRepository(networkManager: networkManager, localStorage: localStorage)
       return GetLedgerListUseCase(ledgerRepo: ledgerRepo, widgetRefreshController: widgetRefreshController)
-    }
-
-    DIContainer.shared.register(type: ReceiptOCRUseCaseInterface.self) {
-      let ledgerRepo = LedgerRepository(networkManager: networkManager, localStorage: localStorage)
-      return ReceiptOCRUseCase(ledgerRepo: ledgerRepo)
     }
 
     DIContainer.shared.register(type: SaveLedgerDateRangeUseCaseInterface.self) {
@@ -265,23 +235,18 @@ extension SceneDelegate {
       let ledgerRepo = LedgerRepository(networkManager: networkManager, localStorage: localStorage)
       return UploadImageUseCase(ledgerRepo: ledgerRepo)
     }
-
-    DIContainer.shared.register(type: UploadReceiptUseCaseInterface.self) {
-      let ledgerRepo = LedgerRepository(networkManager: networkManager, localStorage: localStorage)
-      return UploadReceiptUseCase(ledgerRepo: ledgerRepo)
-    }
     
     // MARK: - Coordinator Dependency
     DIContainer.shared.register(type: MyPageCoordinatorInterface.self) {
       return MyPageCoordinator()
     }
     
-    DIContainer.shared.register(type: AgencyCoordinatorInterface.self) {
-      return AgencyCoordinator()
-    }
-    
     DIContainer.shared.register(type: CreateAgencyCoordinatorInterface.self) {
       return CreateAgencyCoordinator()
+    }
+    
+    DIContainer.shared.register(type: JoinAgencyCoordinatorInterface.self) {
+      return JoinAgencyCoordinator()
     }
     
     DIContainer.shared.register(type: LedgerCoordinatorInterface.self) {
@@ -290,10 +255,6 @@ extension SceneDelegate {
     
     DIContainer.shared.register(type: CreateManualLedgerCoordinatorInterface.self) {
       return CreateManualLedgerCoordinator(ledgerService: ledgerService, contentFormatter: contentFormatter)
-    }
-    
-    DIContainer.shared.register(type: CreateOCRLedgerCoordinatorInterface.self) {
-      return CreateOCRLedgerCoordinator(ledgerService: ledgerService, contentFormatter: contentFormatter)
     }
   }
 }

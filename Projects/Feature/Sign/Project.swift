@@ -101,7 +101,8 @@ let project = Project(
       resources: ["Demo/Resources/**"],
       dependencies: [
         .target(name: "SignFeature"),
-        .target(name: "SignFeatureTesting")
+        .target(name: "SignFeatureTesting"),
+        .project(target: "BaseFeatureTesting", path: .relativeToRoot("Projects/Feature/Base"))
       ]
     )
   ]

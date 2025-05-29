@@ -17,8 +17,8 @@ final class LedgerCell: UICollectionViewCell, ReusableView {
 
   private let titleLabel: UILabel = {
     let v = UILabel()
-    v.font = Fonts.body._4
-    v.textColor = Colors.Gray._10
+    v.font = Fonts.heading._1
+    v.textColor = Colors.Gray._7
     return v
   }()
   
@@ -31,14 +31,14 @@ final class LedgerCell: UICollectionViewCell, ReusableView {
   
   private let amountLabel: UILabel = {
     let v = UILabel()
-    v.font = Fonts.body._4
+    v.font = Fonts.heading._1
     return v
   }()
   
   private let balanceLabel: UILabel = {
     let v = UILabel()
     v.font = Fonts.body._2
-    v.textColor = Colors.Gray._6
+    v.textColor = Colors.Gray._4
     return v
   }()
 
@@ -98,7 +98,7 @@ final class LedgerCell: UICollectionViewCell, ReusableView {
     let amount = formatter.convertToAmount(with: String(item.amount)) ?? "0"
     switch item.fundType {
     case .income:
-      amountLabel.textColor = Colors.Gray._10
+      amountLabel.textColor = Colors.Gray._7
       amountLabel.text = "+\(amount)원"
     case .expense:
       amountLabel.textColor = Colors.Red._3

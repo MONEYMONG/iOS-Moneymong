@@ -6,9 +6,6 @@ import Utility
 
 final class JoinAgencyReactor: Reactor {
   struct State {
-    let agencyID: Int
-    let agencyName: String
-    
     @Pulse var codes: [String] = ["","","","","",""]
     
     @Pulse var destination: Destination?
@@ -36,11 +33,9 @@ final class JoinAgencyReactor: Reactor {
   private let confirmCertificateCodeUseCase: ConfirmCertificateCodeUseCaseInterface
   
   init(
-    id: Int,
-    name: String,
     confirmCertificateCodeUseCase: ConfirmCertificateCodeUseCaseInterface
   ) {
-    self.initialState = .init(agencyID: id, agencyName: name)
+    self.initialState = .init()
     self.confirmCertificateCodeUseCase = confirmCertificateCodeUseCase
   }
   
@@ -54,10 +49,9 @@ final class JoinAgencyReactor: Reactor {
       }
       
     case .requestJoinAgency:
-      let id = currentState.agencyID
       let codes = currentState.codes
       return .task {
-        return try await confirmCertificateCodeUseCase.execute(id: id, code: codes)
+        return try await confirmCertificateCodeUseCase.execute(code: codes)
       }
       .map { .joinAgencyResponse(.success($0)) }
       .catch { return .just(.joinAgencyResponse(.failure($0.toMMError))) }

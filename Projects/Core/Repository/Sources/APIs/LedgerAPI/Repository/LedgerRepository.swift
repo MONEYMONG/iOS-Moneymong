@@ -24,7 +24,6 @@ public final class LedgerRepository: LedgerRepositoryInterface {
     amount: Int,
     description: String,
     paymentDate: String,
-    receiptImageUrls: [String],
     documentImageUrls: [String]
   ) async throws {
     let targetType = LedgerAPI.create(
@@ -35,7 +34,6 @@ public final class LedgerRepository: LedgerRepositoryInterface {
         amount: amount,
         description: description,
         paymentDate: paymentDate,
-        receiptImageUrls: receiptImageUrls,
         documentImageUrls: documentImageUrls
       )
     )
@@ -49,7 +47,6 @@ public final class LedgerRepository: LedgerRepositoryInterface {
         "amount" : ledger.amount,
         "memo" : ledger.description,
         "payment_date": ledger.paymentDate,
-        "receipt_image_urls": ledger.receiptImageUrls,
         "document_image_urls": ledger.documentImageUrls,
         "author_name" : ledger.authorName,
         "user_id" : localStorage.userID ?? "unknown"
@@ -66,7 +63,6 @@ public final class LedgerRepository: LedgerRepositoryInterface {
         amount: ledger.amount,
         description: ledger.description,
         paymentDate: ledger.paymentDate,
-        receiptImageUrls: ledger.receiptImageUrls.map { $0.url },
         documentImageUrls: ledger.documentImageUrls.map { $0.url }
       )
     )
@@ -80,7 +76,6 @@ public final class LedgerRepository: LedgerRepositoryInterface {
         "amount" : entity.amount,
         "memo" : entity.description,
         "payment_date": entity.paymentDate,
-        "receipt_image_urls": entity.receiptImageUrls,
         "document_image_urls": entity.documentImageUrls,
         "author_name" : entity.authorName,
         "user_id" : localStorage.userID ?? "unknown"
@@ -149,29 +144,6 @@ public final class LedgerRepository: LedgerRepositoryInterface {
   public func fetchLedgerDetail(id: Int) async throws -> LedgerDetail {
     let targetType = LedgerAPI.ledgerDetail(id: id)
     return try await networkManager.request(target: targetType, of: LedgerDetailResponseDTO.self).toEntity
-  }
-  
-  public func fetchOCR(_ data: Data) async throws -> OCRResult {
-    let dto = OCRRequestDTO(
-      requestId: UUID().uuidString,
-      images: [
-        .init(format: "jpeg", name: "receipt")
-      ])
-    let targetType = LedgerAPI.receiptOCR(param: dto, data: data)
-    return try await networkManager.request(target: targetType, of: OCRResponseDTO.self).toEntity
-  }
-
-  public func receiptImagesUpload(detailId: Int, receiptImageUrls: [String]) async throws {
-    let targetType = LedgerAPI.receiptImagesUpload(
-      detailId: detailId,
-      receiptImageUrls: ReceiptUploadRequestDTO(receiptImageUrls: receiptImageUrls)
-    )
-    return try await networkManager.request(target: targetType)
-  }
-
-  public func receiptImageDelete(detailId: Int, receiptId: Int) async throws {
-    let targetType = LedgerAPI.receiptImageDelete(detailId: detailId, receiptId: receiptId)
-    return try await networkManager.request(target: targetType)
   }
 
   public func documentImagesUpload(detailId: Int, documentImageUrls: [String]) async throws {

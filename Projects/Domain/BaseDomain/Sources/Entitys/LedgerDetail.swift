@@ -7,7 +7,6 @@ public struct LedgerDetail: Equatable {
   public let fundType: FundType
   public let description: String
   public let paymentDate: String
-  public let receiptImageUrls: [ImageURL]
   public let documentImageUrls: [ImageURL]
   public let authorName: String
 
@@ -18,7 +17,6 @@ public struct LedgerDetail: Equatable {
     fundType: FundType,
     description: String,
     paymentDate: String,
-    receiptImageUrls: [ImageURL],
     documentImageUrls: [ImageURL],
     authorName: String
   ) {
@@ -28,7 +26,6 @@ public struct LedgerDetail: Equatable {
     self.fundType = fundType
     self.description = description
     self.paymentDate = paymentDate
-    self.receiptImageUrls = receiptImageUrls
     self.documentImageUrls = documentImageUrls
     self.authorName = authorName
   }

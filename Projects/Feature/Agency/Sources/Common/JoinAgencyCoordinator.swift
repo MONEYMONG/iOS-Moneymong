@@ -8,17 +8,15 @@ public final class JoinAgencyCoordinator: JoinAgencyCoordinatorInterface {
   public weak var navigationController: UINavigationController?
   public weak var parentCoordinator: Coordinator?
   
-  public init(navigationController: UINavigationController) {
-    self.navigationController = navigationController
-  }
+  public init() {}
   
   enum Destination {
     case joinComplete
     case alert(title: String)
   }
   
-  public func start(agencyId: Int, agencyName: String, animated: Bool) {
-    joinAgency(id: agencyId, name: agencyName, animated: animated)
+  public func start(animated: Bool) {
+    joinAgency(animated: animated)
   }
   
   func push(_ destination: Destination, animated: Bool = true) {
@@ -46,16 +44,14 @@ public final class JoinAgencyCoordinator: JoinAgencyCoordinatorInterface {
 }
 
 private extension JoinAgencyCoordinator {
-  private func joinAgency(id: Int, name: String, animated: Bool) {
-    let factory = AgencyFactory()
-    let vc = factory.makeJoinAgency(agencyID: id, agencyName: name)
+  private func joinAgency(animated: Bool) {
+    let vc = AgencyFactory().makeJoinAgency()
     vc.coordinator = self
-    navigationController?.pushViewController(vc, animated: true)
+    navigationController?.pushViewController(vc, animated: animated)
   }
   
   private func joinComplete(animated: Bool) {
-    let factory = AgencyFactory()
-    let vc = factory.makeJoinComplete()
+    let vc = AgencyFactory().makeJoinComplete()
     vc.coordinator = self
     navigationController?.pushViewController(vc, animated: animated)
   }

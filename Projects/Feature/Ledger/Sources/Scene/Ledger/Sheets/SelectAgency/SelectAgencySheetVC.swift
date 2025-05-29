@@ -11,8 +11,8 @@ import RxSwift
 import RxCocoa
 
 final class SelectAgencySheetVC: BottomSheetVC, View {
-  
   var disposeBag = DisposeBag()
+  var coordinator: LedgerCoordinator?
   
   private let tableView: UITableView = {
     let v = UITableView()
@@ -22,12 +22,23 @@ final class SelectAgencySheetVC: BottomSheetVC, View {
     return v
   }()
   
+  private let registerCodeInputButton: MMButton = MMButton(title: "초대 코드 입력하기", image: Images.pencil, type: .tertiary)
+  private let createAgencyButton: MMButton = MMButton(title: "새로운 장부 만들기", image: Images.plusCircleLineWhite, type: .primary)
+  
   override func setupConstraints() {
     super.setupConstraints()
     
     contentView.flex.define { flex in
-      flex.addItem(tableView).height(3 * (80 + 12) + 12)
-        .margin(20, 20, 20, 20)
+      flex.addItem(tableView).height(3 * (80) + 12 * 2)
+        .margin(16)
+      flex.addItem(registerCodeInputButton)
+        .marginHorizontal(16)
+        .height(56)
+        .marginBottom(12)
+      flex.addItem(createAgencyButton)
+        .height(56)
+        .marginHorizontal(16)
+        .marginBottom(44)
     }
   }
   
@@ -44,6 +55,22 @@ final class SelectAgencySheetVC: BottomSheetVC, View {
       })
       .map { Reactor.Action.tapCell($0) }
       .bind(to: reactor.action)
+      .disposed(by: disposeBag)
+    
+    createAgencyButton.rx.tap
+      .throttle(.seconds(1), latest: false, scheduler: MainScheduler.instance)
+      .bind(with: self) { owner, _ in
+        owner.dismiss(animated: false)
+        owner.coordinator?.createAgency()
+      }
+      .disposed(by: disposeBag)
+    
+    registerCodeInputButton.rx.tap
+      .throttle(.seconds(1), latest: false, scheduler: MainScheduler.instance)
+      .bind(with: self) { owner, _ in
+        owner.dismiss(animated: false)
+        owner.coordinator?.joinAgency()
+      }
       .disposed(by: disposeBag)
     
     reactor.pulse(\.$isLoading)
@@ -72,7 +99,7 @@ final class SelectAgencySheetVC: BottomSheetVC, View {
         
         let count = agencies.count
         
-        let height = min(CGFloat(count * (80 + 12)), 3 * (80 + 12)) + 12
+        let height = min(CGFloat(count * 80 + (count - 1) * 12), 3 * (80) + 2 * 12)
         owner.tableView.isScrollEnabled = count > 3
         owner.tableView.flex.height(height)
         owner.view.setNeedsLayout()

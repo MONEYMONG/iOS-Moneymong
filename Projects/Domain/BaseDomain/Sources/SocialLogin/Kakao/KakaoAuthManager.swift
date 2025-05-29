@@ -5,8 +5,8 @@ import KakaoSDKCommon
 import KakaoSDKAuth
 import KakaoSDKUser
 
-public final class KakaoAuthManager {
-  public static var shared = KakaoAuthManager()
+public final class KakaoAuthManager: @unchecked Sendable {
+  public static let shared = KakaoAuthManager()
 
   private let nativeKey = "5412cf7a0e53089ab63f4e04b10622c5"
 
@@ -15,7 +15,8 @@ public final class KakaoAuthManager {
   public func initSDK() {
     KakaoSDK.initSDK(appKey: nativeKey)
   }
-
+  
+  @MainActor
   public func openURL(_ url: URL) {
     if AuthApi.isKakaoTalkLoginUrl(url) {
       _ = AuthController.handleOpenUrl(url: url)

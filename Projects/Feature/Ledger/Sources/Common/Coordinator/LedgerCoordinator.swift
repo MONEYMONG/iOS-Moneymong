@@ -1,6 +1,7 @@
 import UIKit
 
 import AgencyInterface
+import AgencyFeatureInterface
 import BaseDomain
 import BaseFeature
 import DesignSystem
@@ -18,7 +19,6 @@ public final class LedgerCoordinator: LedgerCoordinatorInterface {
   enum Scene {
     case alert(title: String, subTitle: String?, type: MMAlerts.`Type`)
     case createManualLedger(Int, ManualPresentType)
-    case createOCRLedger(Int)
     case detail(Ledger, Member.Role)
   }
 
@@ -37,8 +37,6 @@ public final class LedgerCoordinator: LedgerCoordinatorInterface {
       createManualLedger(agencyId: agencyId, type: type, animated: animated)
     case let .alert(title, subTitle, type):
       AlertsManager.show(title: title, subTitle: subTitle, type: type)
-    case let .createOCRLedger(id):
-      createOCRLedger(agencyId: id, animated: animated)
     case let .detail(ledger, role):
       detail(ledgerID: ledger.id, role: role)
     }
@@ -76,16 +74,6 @@ extension LedgerCoordinator {
     coordinator.start(agencyId: agencyId, type: type, animated: false)
     self.navigationController?.present(navigationController, animated: animated)
   }
-  
-  private func createOCRLedger(agencyId: Int, animated: Bool) {
-    let navigationController = UINavigationController()
-    let coordinator = DIContainer.shared.resolve(type: CreateOCRLedgerCoordinatorInterface.self)
-    coordinator.navigationController = navigationController
-    coordinator.parentCoordinator = self
-    navigationController.modalPresentationStyle = .fullScreen
-    coordinator.start(agencyId: agencyId, animated: animated)
-    self.navigationController?.present(navigationController, animated: animated)
-  }
 
   private func detail(ledgerID: Int, role: Member.Role, animated: Bool = true) {
     let vc = LedgerFactory(ledgerService: ledgerService, contentFormatter: contentFormatter).makeDetail(ledgetID: ledgerID, role: role)
@@ -102,6 +90,7 @@ extension LedgerCoordinator {
   
   func selectAgencySheet() {
     let vc = LedgerFactory(ledgerService: ledgerService, contentFormatter: contentFormatter).makeSelectAgency()
+    vc.coordinator = self
     vc.modalPresentationStyle = .overFullScreen
     vc.modalTransitionStyle = .crossDissolve
     navigationController?.present(vc, animated: false)
@@ -111,5 +100,25 @@ extension LedgerCoordinator {
     let vc = LedgerFactory(ledgerService: ledgerService, contentFormatter: contentFormatter).makeDatePicker(start: start, end: end)
     vc.modalPresentationStyle = .overFullScreen
     navigationController?.present(vc, animated: false)
+  }
+  
+  func createAgency() {
+    let navigationController = UINavigationController()
+    let coordinator = DIContainer.shared.resolve(type: CreateAgencyCoordinatorInterface.self)
+    coordinator.parentCoordinator = self
+    coordinator.navigationController = navigationController
+    coordinator.start(animated: false)
+    navigationController.modalPresentationStyle = .overFullScreen
+    self.navigationController?.present(navigationController, animated: true)
+  }
+  
+  func joinAgency() {
+    let navigationController = UINavigationController()
+    let coordinator = DIContainer.shared.resolve(type: JoinAgencyCoordinatorInterface.self)
+    coordinator.parentCoordinator = self
+    coordinator.navigationController = navigationController
+    coordinator.start(animated: false)
+    navigationController.modalPresentationStyle = .overFullScreen
+    self.navigationController?.present(navigationController, animated: true)
   }
 }

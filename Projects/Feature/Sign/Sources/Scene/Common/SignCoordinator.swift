@@ -37,7 +37,7 @@ public extension SignCoordinator {
     let coordinator = DIContainer.shared.resolve(type: CreateAgencyCoordinatorInterface.self)
     coordinator.navigationController = root
     coordinator.parentCoordinator = self
-    coordinator.start(universityType: .unknown, animated: animated)
+    coordinator.start(animated: animated)
 
     navigationController?.present(root, animated: animated)
   }

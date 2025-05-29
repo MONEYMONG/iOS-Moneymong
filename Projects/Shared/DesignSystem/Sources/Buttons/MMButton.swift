@@ -5,6 +5,7 @@ public final class MMButton: UIButton {
   public enum `Type` {
     case primary
     case secondary
+    case tertiary
     case disable
     case negative
     
@@ -12,6 +13,7 @@ public final class MMButton: UIButton {
       switch self {
       case .primary: return Colors.White._1
       case .secondary: return Colors.Blue._4
+      case .tertiary: return .white
       case .disable: return Colors.Gray._4
       case .negative: return Colors.Gray._5
       }
@@ -21,6 +23,7 @@ public final class MMButton: UIButton {
       switch self {
       case .primary: return Colors.Blue._4
       case .secondary: return Colors.Blue._1
+      case .tertiary: return Colors.Gray._8
       case .disable: return Colors.Gray._3
       case .negative: return Colors.Gray._2
       }
@@ -35,11 +38,11 @@ public final class MMButton: UIButton {
     }
   }
 
-  public init(title: String, type: `Type`) {
+  public init(title: String, image: UIImage? = nil, type: `Type`) {
     self.type = type
     super.init(frame: .zero)
     updateState()
-    setupView(with: title)
+    setupView(with: title, image: image)
   }
 
   @available(*, unavailable)
@@ -47,7 +50,7 @@ public final class MMButton: UIButton {
     fatalError("init(coder:) has not been implemented")
   }
 
-  private func setupView(with title: String) {
+  private func setupView(with title: String, image: UIImage?) {
     clipsToBounds = true
     layer.cornerRadius = 12
     
@@ -58,7 +61,10 @@ public final class MMButton: UIButton {
     configuration.attributedTitle = attributedTitle
     configuration.baseForegroundColor = type.titleColor
     configuration.baseBackgroundColor = type.backgroundColor
-    
+    configuration.image = image
+    configuration.imagePlacement = .trailing
+    configuration.imagePadding = 6
+
     self.configuration = configuration
   }
   

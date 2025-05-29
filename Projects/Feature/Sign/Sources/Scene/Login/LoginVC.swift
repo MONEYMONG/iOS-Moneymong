@@ -6,39 +6,32 @@ import ReactorKit
 import Utility
 
 final class LoginVC: BaseVC, View {
-
   var coordinator: SignCoordinator?
   var disposeBag = DisposeBag()
+  let pages: [UIViewController] = [OnboardingVC(pageNumber: 0), OnboardingVC(pageNumber: 1), OnboardingVC(pageNumber: 2)]
+  
+  private let pageViewController: UIPageViewController = {
+    let pageView = UIPageViewController(transitionStyle: .scroll, navigationOrientation: .horizontal, options: nil)
 
-  private let imageView: UIImageView = {
-    let imageView = UIImageView()
-    imageView.image = Images.mongStudy
-    return imageView
+    return pageView
   }()
-
-  private let titleLabel: UILabel = {
-    let label = UILabel()
-    label.text = Const.title
-    label.font = Fonts.heading._2
-    label.textColor = .white
-    return label
-  }()
-
-  private let descriptionLabel: UILabel = {
-    let label = UILabel()
-    label.text = Const.description
-    label.font = Fonts.body._3
-    label.textColor = .white
-    return label
+  
+  private let pageControl: UIPageControl = {
+    let pageControl = UIPageControl()
+    pageControl.currentPage = 0
+    pageControl.currentPageIndicatorTintColor = Colors.Blue._4
+    pageControl.pageIndicatorTintColor = Colors.Gray._3
+    pageControl.backgroundStyle = .minimal
+    return pageControl
   }()
 
   private let recentProviderToolTip: ToolTip = {
     let tooltip = ToolTip(type: .bottom)
     tooltip.setTitle(with: Const.bubbleTitle)
-    tooltip.setBackgroundColor(with: Colors.White._1)
+    tooltip.setBackgroundColor(with: Colors.Blue._4)
     tooltip.setCorneradius(8)
     tooltip.setFonts(with: Fonts.body._3)
-    tooltip.setTitleColor(with: Colors.Blue._4)
+    tooltip.setTitleColor(with: .white)
     tooltip.isHidden = true
     return tooltip
   }()
@@ -55,17 +48,23 @@ final class LoginVC: BaseVC, View {
   override func setupUI() {
     super.setupUI()
     setLeftItem(.none)
+    pageViewController.dataSource = self
+    pageViewController.delegate = self
+    pageViewController.setViewControllers(
+      [pages[0]],
+      direction: .forward,
+      animated: true
+    )
+    pageControl.numberOfPages = pages.count
   }
 
   override func setupConstraints() {
     super.setupConstraints()
 
     rootContainer.flex
-      .backgroundColor(Colors.Blue._4)
+      .backgroundColor(Colors.Gray._1)
       .define { flex in
-
         flex.addItem().grow(1)
-
         flex.addItem()
           .direction(.column)
           .alignSelf(.center)
@@ -73,13 +72,12 @@ final class LoginVC: BaseVC, View {
           .marginTop(46)
           .justifyContent(.center)
           .define { flex in
-            flex.addItem(imageView)
-            flex.addItem().height(12)
-            flex.addItem(titleLabel)
-            flex.addItem().height(2)
-            flex.addItem(descriptionLabel)
+            flex.addItem(pageViewController.view)
+              .height(442)
+              .marginBottom(20)
+            flex.addItem(pageControl)
           }
-
+        
         flex.addItem().grow(1)
 
         flex.addItem()
@@ -157,7 +155,6 @@ final class LoginVC: BaseVC, View {
       .disposed(by: disposeBag)
 
     // Action Binding
-    
     rx.viewDidAppear
       .do(onNext: { [weak self] _ in
         self?.navigationController?.interactivePopGestureRecognizer?.isEnabled = false
@@ -188,9 +185,41 @@ final class LoginVC: BaseVC, View {
   }
 }
 
+extension LoginVC: UIPageViewControllerDataSource, UIPageViewControllerDelegate {
+  func pageViewController(
+    _ pageViewController: UIPageViewController,
+    viewControllerBefore viewController: UIViewController
+  ) -> UIViewController? {
+    guard let index = pages.firstIndex(of: viewController as! OnboardingVC) else { return nil }
+    let nextIndex = (index - 1 + pages.count) % pages.count
+
+    return pages[nextIndex]
+  }
+  
+  func pageViewController(
+    _ pageViewController: UIPageViewController,
+    viewControllerAfter viewController: UIViewController
+  ) -> UIViewController? {
+    guard let index = pages.firstIndex(of: viewController) else { return nil }
+    let nextIndex = (index + 1) % pages.count
+
+    return pages[nextIndex]
+  }
+  
+  func pageViewController(
+    _ pageViewController: UIPageViewController,
+    didFinishAnimating finished: Bool,
+    previousViewControllers: [UIViewController],
+    transitionCompleted completed: Bool
+  ) {
+    guard let viewControllers = pageViewController.viewControllers,
+          let currentIndex = pages.firstIndex(of: viewControllers[0]) else { return }
+    
+    pageControl.currentPage = currentIndex
+  }
+}
+
 fileprivate enum Const {
-  static var title: String { "교내 회계 관리를 편리하게" }
-  static var description: String { "수기 기록은 이제 그만! 간단하게 기록해요." }
   static var bubbleTitle: String { "마지막으로 로그인한 계정이에요" }
   static var kakaoButtonTitle: String { "카카오 로그인" }
   static var appleButtonTitle: String { "Apple로 로그인" }

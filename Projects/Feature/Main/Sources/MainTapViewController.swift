@@ -35,8 +35,8 @@ public final class MainTapViewController: UITabBarController {
     let attributes = [NSAttributedString.Key.font: Fonts.body._2]
     appearance.setTitleTextAttributes(attributes as [NSAttributedString.Key : Any], for: .normal)
     
-    let titles = ["소속", "장부", "마이몽"]
-    let images: [UIImage?] = [Images.mongParty, Images.record, Images.mongGray]
+    let titles = ["장부", "마이몽"]
+    let images: [UIImage?] = [Images.record, Images.mongGray]
     
     tabBar.items?.enumerated().forEach { (index, item) in
       item.title = titles[index]
@@ -67,8 +67,6 @@ public final class MainTapViewController: UITabBarController {
       }
       .bind(with: self) { owner, userInfo in
         switch userInfo.query {
-        case "OCR":
-          owner.coordinator?.move(to: .createOCRLedger(userInfo.agencyID))
         case "CreateLedger":
           owner.coordinator?.move(to: .createManualLedger(userInfo.agencyID))
         case "LedgerDetail":

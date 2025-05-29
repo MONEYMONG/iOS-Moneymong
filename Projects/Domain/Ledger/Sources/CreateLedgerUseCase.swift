@@ -17,7 +17,6 @@ public struct CreateLedgerUseCase: CreateLedgerUseCaseInterface {
     amount: Int,
     description: String,
     paymentDate: String,
-    receiptImageUrls: [String],
     documentImageUrls: [String]
   ) async throws {
     try await ledgerRepo.create(
@@ -27,7 +26,6 @@ public struct CreateLedgerUseCase: CreateLedgerUseCaseInterface {
       amount: amount,
       description: description,
       paymentDate: paymentDate,
-      receiptImageUrls: receiptImageUrls,
       documentImageUrls: documentImageUrls
     )
   }

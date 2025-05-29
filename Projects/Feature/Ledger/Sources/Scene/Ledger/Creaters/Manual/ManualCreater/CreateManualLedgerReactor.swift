@@ -13,7 +13,6 @@ import ReactorKit
 final class CreateManualLedgerReactor: Reactor {
   enum `Type` {
     case operatingCost // 운영비 등록화면
-    case ocrResultEdit(OCRResult, Data) // ocr 결과 수정화면
     case createManual
   }
   
@@ -35,47 +34,37 @@ final class CreateManualLedgerReactor: Reactor {
   
   enum AlertType {
     case error(MoneyMongError)
-    case deleteImage(ImageData.Item, Section)
+    case deleteImage(ImageData.Item)
     case end
-  }
-  
-  enum Section: Int, Equatable {
-    case receipt
-    case document
   }
   
   enum Action {
     case onAppear
     case didTapCompleteButton
     case didTapCancelButton
-    case didTapImageDeleteButton(ImageData.Item, Section)
-    case didTapImageDeleteAlertButton(ImageData.Item, Section)
-    case didTapImageAddButton(Section)
-    case selectedImage(ImageData.Item, Section)
+    case didTapImageDeleteButton(ImageData.Item)
+    case didTapImageDeleteAlertButton(ImageData.Item)
+    case selectedImage(ImageData.Item)
     case inputContent(_ content: InputContent)
   }
   
   enum Mutation {
     case setOperatingCostValues // 동아리 운영비 등록하러 가기 일때의 고정값
     case setName(String)
-    case addImage(ImageData.Item, Section)
-    case deleteImage(UUID, Section)
-    case deleteImageURL(Int, Section)
+    case addImage(ImageData.Item)
+    case deleteImage(UUID)
+    case deleteImageURL(Int)
     case setContent(InputContent)
-    case setSection(Section)
-    case addImageURL(ImageInfo, Section)
+    case addImageURL(ImageInfo)
     case setDestination
     case setAlertContent(AlertType)
-    case setOCRResult(OCRResult)
   }
   
   struct State {
     let agencyId: Int
     let type: ManualPresentType
     @Pulse var userName: String = ""
-    @Pulse var receiptImages: [ImageData.Item] = [.button]
     @Pulse var documentImages: [ImageData.Item] = [.button]
-    @Pulse var selectedSection: Section? = nil
     @Pulse var alertMessage: (String, String?, AlertType)? = nil
     @Pulse var isButtonEnabled = false
     @Pulse var destination: Destination?
@@ -93,7 +82,6 @@ final class CreateManualLedgerReactor: Reactor {
     @Pulse var date: String = ""
     @Pulse var time: String = ""
     @Pulse var memo: String = ""
-    @Pulse var receiptImages = [ImageInfo]()
     @Pulse var documentImages = [ImageInfo]()
   }
   
@@ -143,56 +131,36 @@ final class CreateManualLedgerReactor: Reactor {
       case .createManual:
         return .task { try await getMyInfoUseCase.execute().nickname }
           .map { .setName($0) }
-      case let .ocrResultEdit(model, imageData):
-        let image = ImageData(id: .init(), data: imageData)
-        return .merge([
-          .task { try await getMyInfoUseCase.execute().nickname }.map { .setName($0) },
-          uploadImage(image: image, section: .receipt),
-          .just(.setOCRResult(model))
-        ])
       }
       
-    case let .selectedImage(item, section):
+    case let .selectedImage(item):
       guard case let .image(image) = item else { return .empty() }
-      return uploadImage(image: image, section: section)
+      return uploadImage(image: image)
         .catch { .just(.setAlertContent(.error($0.toMMError))) }
-    case let .didTapImageDeleteButton(item, section):
-      return .just(.setAlertContent(.deleteImage(item, section)))
+    case let .didTapImageDeleteButton(item):
+      return .just(.setAlertContent(.deleteImage(item)))
     case .didTapCancelButton:
       if isEmptyContent() {
         return .just(.setDestination)
       } else {
         return .just(.setAlertContent(.end))
       }
-    case let .didTapImageDeleteAlertButton(item, section):
+    case let .didTapImageDeleteAlertButton(item):
       guard case let .image(image) = item else { return .empty() }
       return .task {
-        var index: Int?
         let imageURL: ImageInfo
-        switch section {
-        case .receipt:
-          index = currentState.content.receiptImages.firstIndex(where: {
-            $0.id == image.id
-          })
-          guard let index else { throw MoneyMongError.appError(.default, errorMessage: "이미지 삭제가 정상적으로 이뤄지지 않았습니다") }
-          imageURL = currentState.content.receiptImages[index]
-        case .document:
-          index = currentState.content.documentImages.firstIndex(where: {
-            $0.id == image.id
-          })
-          guard let index else { throw MoneyMongError.appError(.default, errorMessage: "이미지 삭제가 정상적으로 이뤄지지 않았습니다") }
-          imageURL = currentState.content.documentImages[index]
-        }
+        guard let index = currentState.content.documentImages.firstIndex(where: {
+          $0.id == image.id
+        }) else { throw MoneyMongError.appError(.default, errorMessage: "이미지 삭제가 정상적으로 이뤄지지 않았습니다") }
+        imageURL = currentState.content.documentImages[index]
         try await deleteImageUseCase.execute(imageURL)
-        return index!
+        return index
       }
       .flatMap { Observable<Mutation>.concat([
-        .just(.deleteImage(image.id, section)),
-        .just(.deleteImageURL($0, section))
+        .just(.deleteImage(image.id)),
+        .just(.deleteImageURL($0))
       ]) }
       .catch { .just(.setAlertContent(.error($0.toMMError))) }
-    case .didTapImageAddButton(let section):
-      return .just(.setSection(section))
     case .inputContent(let content):
       return .just(.setContent(content))
     case .didTapCompleteButton:
@@ -212,42 +180,20 @@ final class CreateManualLedgerReactor: Reactor {
     case let .setName(name):
       newState.userName = name
       
-    case let .addImage(item, section):
-      switch section {
-      case .receipt:
-        addImage(images: &newState.receiptImages, item: item)
-      case .document:
-        addImage(images: &newState.documentImages, item: item)
-      }
-    case .deleteImage(let id, let section):
-      switch section {
-      case .receipt:
-        deleteImage(images: &newState.receiptImages, id: id)
-      case .document:
-        deleteImage(images: &newState.documentImages, id: id)
-      }
-    case .setSection(let section):
-      newState.selectedSection = section
+    case let .addImage(item):
+      addImage(images: &newState.documentImages, item: item)
+    case .deleteImage(let id):
+      deleteImage(images: &newState.documentImages, id: id)
     case .setContent(let inputContent):
       setContent(&newState.content, inputContent: inputContent)
       setVaild(&valid, inputContent: inputContent)
       newState.isButtonEnabled = isValided && newState.content.fundType != -1
     case .setDestination:
       newState.destination = .ledger
-    case .addImageURL(let imageURL, let section):
-      switch section {
-      case .receipt:
-        newState.content.receiptImages.append(imageURL)
-      case .document:
-        newState.content.documentImages.append(imageURL)
-      }
-    case .deleteImageURL(let index, let section):
-      switch section {
-      case .receipt:
-        newState.content.receiptImages.remove(at: index)
-      case .document:
-        newState.content.documentImages.remove(at: index)
-      }
+    case .addImageURL(let imageURL):
+      newState.content.documentImages.append(imageURL)
+    case .deleteImageURL(let index):
+      newState.content.documentImages.remove(at: index)
     case .setAlertContent(let type):
       switch type {
       case .error(let moneyMongError):
@@ -257,12 +203,6 @@ final class CreateManualLedgerReactor: Reactor {
       case .end:
         newState.alertMessage = ("정말 나가시겠습니까?", "작성한 내용이 저장되지 않았습니다", type)
       }
-    case let .setOCRResult(model):
-      newState.content.source = model.source
-      newState.content.amount = model.amount
-      newState.content.date = model.date.joined(separator: "/")
-      newState.content.time = model.time.joined(separator: ":")
-      newState.content.fundType = 0
     }
     return newState
   }
@@ -342,7 +282,6 @@ private extension CreateManualLedgerReactor {
         amount: amount,
         description: memo,
         paymentDate: date,
-        receiptImageUrls: currentState.content.receiptImages.map(\.url),
         documentImageUrls: currentState.content.documentImages.map(\.url)
       )}
     .withUnretained(self)
@@ -359,7 +298,7 @@ private extension CreateManualLedgerReactor {
     }
   }
   
-  func uploadImage(image: ImageData, section: Section) -> Observable<Mutation> {
+  func uploadImage(image: ImageData) -> Observable<Mutation> {
     return .task {
       guard let resizeImateData = UIImage(data: image.data)?.jpegData(compressionQuality: 0.027) else {
         throw MoneyMongError.appError(.default, errorMessage: "첨부 이미지를 확인해 주세요")
@@ -369,8 +308,8 @@ private extension CreateManualLedgerReactor {
       return entity
     }
     .flatMap { Observable<Mutation>.merge([
-      .just(.addImage(.image(image), section)),
-      .just(.addImageURL($0, section))
+      .just(.addImage(.image(image))),
+      .just(.addImageURL($0))
     ])}
     .catch {
       return .just(.setAlertContent(.error($0.toMMError)))
@@ -386,6 +325,5 @@ private extension CreateManualLedgerReactor {
     && content.memo == ""
     && content.fundType == -1
     && content.documentImages.isEmpty
-    && content.receiptImages.isEmpty
   }
 }
