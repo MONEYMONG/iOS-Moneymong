@@ -1,12 +1,29 @@
 import UIKit
 
+import AgencyInterface
+import AgencyTesting
+import AgencyFeature
+import AgencyFeatureInterface
+import DesignSystem
+import BaseFeature
+import AuthInterface
+import AuthTesting
+import UserInterface
+import UserTesting
+
 class SceneDelegate: UIResponder, UIWindowSceneDelegate {
-  
+  var coordinator: CreateAgencyCoordinator?
   var window: UIWindow?
   func scene(_ scene: UIScene, willConnectTo session: UISceneSession, options connectionOptions: UIScene.ConnectionOptions) {
+    Fonts.registerFont()
+    registerDependency()
+    let navigationController = UINavigationController()
     guard let windowScene = (scene as? UIWindowScene) else { return }
     window = UIWindow(windowScene: windowScene)
-    window?.rootViewController = AgencyFeatureViewController()
+    coordinator = CreateAgencyCoordinator()
+    coordinator?.navigationController = navigationController
+    coordinator?.start(animated: false)
+    window?.rootViewController = navigationController
     window?.makeKeyAndVisible()
   }
   
@@ -19,4 +36,20 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
   func sceneWillEnterForeground(_ scene: UIScene) {}
   
   func sceneDidEnterBackground(_ scene: UIScene) {}
+}
+
+extension SceneDelegate {
+  func registerDependency() {
+    DIContainer.shared.register(type: CreateAgencyUseCaseInterface.self) {
+      return MockCreateAgencyUseCase()
+    }
+    
+    DIContainer.shared.register(type: DeleteUserUseCaseInterface.self) {
+      return MockDeleteUserUseCase()
+    }
+    
+    DIContainer.shared.register(type: UpdateSelectedAgencyUseCaseInterface.self) {
+      return MockUpdateSelectedAgencyUseCase()
+    }
+  }
 }

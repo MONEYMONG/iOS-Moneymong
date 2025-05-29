@@ -19,7 +19,8 @@ let project = Project(
             deploymentTarget: .iOS(targetVersion: "15.0", devices: .iphone),
             sources: ["Sources/**"],
             dependencies: [
-              .target(name: "LedgerFeatureInterface")
+              .target(name: "LedgerFeatureInterface"),
+              .project(target: "AgencyFeatureInterface", path: .relativeToRoot("Projects/Feature/Agency"))
             ]
         ),
         Target(
@@ -88,7 +89,8 @@ let project = Project(
             dependencies: [
                 .target(name: "LedgerFeature"),
                 .target(name: "LedgerFeatureTesting"),
-                .project(target: "BaseFeatureTesting", path: .relativeToRoot("Projects/Feature/Base"))
+                .project(target: "BaseFeatureTesting", path: .relativeToRoot("Projects/Feature/Base")),
+                .project(target: "AgencyFeature", path: .relativeToRoot("Projects/Feature/Agency")),
             ]
         )
     ]

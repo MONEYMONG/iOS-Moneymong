@@ -1,6 +1,5 @@
 import UIKit
 
-import AgencyFeatureInterface
 import BaseFeature
 import LedgerFeatureInterface
 import MyPageFeatureInterface
@@ -41,23 +40,13 @@ public extension MainTabBarCoordinator {
     let tabVC = MainTapViewController()
     tabVC.coordinator = self
     tabVC.setViewControllers(
-      [agencyTab(),
-       ledgerTab(),
+      [ledgerTab(),
        myPageTab()],
       animated: false
     )
     navigationController?.isNavigationBarHidden = true
     navigationController?.viewControllers = [tabVC]
     tabBarController = tabVC
-  }
-
-  private func agencyTab() -> UIViewController {
-    let navigationC = UINavigationController()
-    let agencyCoordinator = DIContainer.shared.resolve(type: AgencyCoordinatorInterface.self)
-    agencyCoordinator.navigationController = navigationC
-    agencyCoordinator.parentCoordinator = self
-    agencyCoordinator.start(animated: false)
-    return navigationC
   }
   
   private func ledgerTab() -> UIViewController {

@@ -109,7 +109,6 @@ open class BottomSheetVC: UIViewController {
       self.view.backgroundColor = Colors.Gray._10.withAlphaComponent(0.0)
       self.view.layoutIfNeeded()
     } completion: { _ in
-      
       self.dismiss(animated: false) {
         completion?()
       }

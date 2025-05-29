@@ -10,7 +10,7 @@ public struct CreateAgencyUseCase: CreateAgencyUseCaseInterface {
     self.repo = repo
   }
   
-  public func execute(name: String, type: String) async throws -> Int {
-    try await repo.create(name: name, type: type)
+  public func execute(name: String) async throws -> Int {
+    try await repo.create(name: name)
   }
 }

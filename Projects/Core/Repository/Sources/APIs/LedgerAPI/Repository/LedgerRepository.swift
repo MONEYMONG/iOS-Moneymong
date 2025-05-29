@@ -47,7 +47,6 @@ public final class LedgerRepository: LedgerRepositoryInterface {
         "amount" : ledger.amount,
         "memo" : ledger.description,
         "payment_date": ledger.paymentDate,
-        "receipt_image_urls": ledger.receiptImageUrls,
         "document_image_urls": ledger.documentImageUrls,
         "author_name" : ledger.authorName,
         "user_id" : localStorage.userID ?? "unknown"

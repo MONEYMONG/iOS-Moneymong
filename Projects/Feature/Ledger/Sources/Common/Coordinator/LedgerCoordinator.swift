@@ -1,6 +1,7 @@
 import UIKit
 
 import AgencyInterface
+import AgencyFeatureInterface
 import BaseDomain
 import BaseFeature
 import DesignSystem
@@ -89,6 +90,7 @@ extension LedgerCoordinator {
   
   func selectAgencySheet() {
     let vc = LedgerFactory(ledgerService: ledgerService, contentFormatter: contentFormatter).makeSelectAgency()
+    vc.coordinator = self
     vc.modalPresentationStyle = .overFullScreen
     vc.modalTransitionStyle = .crossDissolve
     navigationController?.present(vc, animated: false)
@@ -98,5 +100,25 @@ extension LedgerCoordinator {
     let vc = LedgerFactory(ledgerService: ledgerService, contentFormatter: contentFormatter).makeDatePicker(start: start, end: end)
     vc.modalPresentationStyle = .overFullScreen
     navigationController?.present(vc, animated: false)
+  }
+  
+  func createAgency() {
+    let navigationController = UINavigationController()
+    let coordinator = DIContainer.shared.resolve(type: CreateAgencyCoordinatorInterface.self)
+    coordinator.parentCoordinator = self
+    coordinator.navigationController = navigationController
+    coordinator.start(animated: false)
+    navigationController.modalPresentationStyle = .overFullScreen
+    self.navigationController?.present(navigationController, animated: true)
+  }
+  
+  func joinAgency() {
+    let navigationController = UINavigationController()
+    let coordinator = DIContainer.shared.resolve(type: JoinAgencyCoordinatorInterface.self)
+    coordinator.parentCoordinator = self
+    coordinator.navigationController = navigationController
+    coordinator.start(animated: false)
+    navigationController.modalPresentationStyle = .overFullScreen
+    self.navigationController?.present(navigationController, animated: true)
   }
 }

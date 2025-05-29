@@ -13,6 +13,7 @@ final class JoinAgencyVC: BaseVC, ReactorKit.View {
   
   private let titleLabel: UILabel = {
     let v = UILabel()
+    v.setTextWithLineHeight(text: "초대코드를 입력해주세요", lineHeight: 30)
     v.numberOfLines = 0
     v.textColor = Colors.Gray._10
     v.textAlignment = .left
@@ -37,16 +38,6 @@ final class JoinAgencyVC: BaseVC, ReactorKit.View {
     CodeView(state: .plain),
     CodeView(state: .plain)
   ]
-  
-  override func setupUI() {
-    super.setupUI()
-    
-    if let agencyName = reactor?.currentState.agencyName {
-      titleLabel.setTextWithLineHeight(text: "\(agencyName)에서 받은\n초대코드를 입력해주세요", lineHeight: 30)
-      titleLabel.flex.markDirty()
-      titleLabel.setNeedsLayout()
-    }
-  }
   
   override func setupConstraints() {
     super.setupConstraints()

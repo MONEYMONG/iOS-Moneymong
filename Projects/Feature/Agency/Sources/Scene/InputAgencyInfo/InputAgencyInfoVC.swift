@@ -17,74 +17,33 @@ public final class InputAgencyInfoVC: BaseVC, View {
   
   public var coordinator: CreateAgencyCoordinator?
   
-  private let titleLabel: UILabel = {
-    let v = UILabel()
-    v.setTextWithLineHeight(text: "회비 관리가 필요한\n소속 정보를 알려주세요!", lineHeight: 28)
-    v.numberOfLines = 2
-    v.textColor = Colors.Gray._10
-    v.font = Fonts.heading._2
-    return v
-  }()
-  
-  private let segmentTitleLabel: UILabel = {
-    let v = UILabel()
-    v.setTextWithLineHeight(text: "소속 유형", lineHeight: 18)
-    v.textColor = Colors.Gray._6
-    v.font = Fonts.body._2
-    return v
-  }()
-  
-  private let agencySegmentControl: MMSegmentControl = {
-    let v = MMSegmentControl(titles: [ "기타모임", "동아리", "학생회"], type: .round)
-    v.selectedIndex = 0
-    return v
-  }()
-  
   private let agencyTextField: MMTextField = {
-    let v = MMTextField(charactorLimitCount: 20, title: "소속 이름")
-    v.setPlaceholder(to: "소속 이름을 입력해주세요.")
+    let v = MMTextField(charactorLimitCount: 20, title: "장부")
+    v.setPlaceholder(to: "ex) 제주도 여행")
     return v
   }()
   
   private let registerButton: MMButton = MMButton(title: "등록하기", type: .disable)
   
-  private let notRegisterButton: UIButton = {
-    let button = UIButton()
-    button.setTitle("총무에게 초대받았어요", for: .normal)
-    button.setTitleColor(Colors.Blue._4, for: .normal)
-    button.titleLabel?.font = Fonts.body._3
-    return button
-  }()
-  
   public override func setupConstraints() {
     super.setupConstraints()
     
     rootContainer.flex.paddingHorizontal(20).define { flex in
-      flex.addItem(titleLabel).marginBottom(40)
-      flex.addItem(segmentTitleLabel).marginBottom(8)
-      flex.addItem(agencySegmentControl).marginBottom(40)
-      flex.addItem(agencyTextField)
+      flex.addItem(UILabel().text("장부 생성하기", font: Fonts.heading._5, color: Colors.Gray._10))
+        .marginTop(16)
+        .marginBottom(12)
+      flex.addItem(UILabel().text("사용할 장부는 언제든지 추가로 만들 수 있어요", font: Fonts.body._3, color: Colors.Gray._5))
+        .marginBottom(16)
+      flex.addItem(agencyTextField).marginTop(28)
       flex.addItem().grow(1)
     }
     
     view.addSubview(registerButton)
-    view.addSubview(notRegisterButton)
     registerButton.translatesAutoresizingMaskIntoConstraints = false
-    notRegisterButton.translatesAutoresizingMaskIntoConstraints = false
-    
-    NSLayoutConstraint.activate([
-      notRegisterButton.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor),
-      notRegisterButton.centerXAnchor.constraint(equalTo: view.centerXAnchor)
-    ])
-    
-    if reactor?.currentState.universityType != .unknown {
-      notRegisterButton.isHidden = true
-      notRegisterButton.heightAnchor.constraint(equalToConstant: 0).isActive = true
-    }
     
     keybordHideCreateButtonConstraints = [
       registerButton.heightAnchor.constraint(equalToConstant: 56),
-      registerButton.bottomAnchor.constraint(equalTo: notRegisterButton.topAnchor, constant: -16),
+      registerButton.bottomAnchor.constraint(equalTo: view.keyboardLayoutGuide.topAnchor),
       registerButton.trailingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.trailingAnchor, constant: -12),
       registerButton.leadingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.leadingAnchor, constant: 12)
     ]
@@ -161,35 +120,13 @@ public final class InputAgencyInfoVC: BaseVC, View {
       .bind(to: reactor.action)
       .disposed(by: disposeBag)
     
-    agencySegmentControl.$selectedIndex
-      .sink { [weak self] in
-        self?.reactor?.action.onNext(.selectedIndexDidChange($0))
-      }
-      .store(in: &cancelBag)
-    
     registerButton.rx.tap
       .throttle(.seconds(1), latest: false, scheduler: MainScheduler.instance)
       .map { Reactor.Action.tapCreateButton }
       .bind(to: reactor.action)
       .disposed(by: disposeBag)
     
-    notRegisterButton.rx.tap
-      .throttle(.seconds(1), latest: false, scheduler: MainScheduler.instance)
-      .map { Reactor.Action.notRegisterButtonDidTap }
-      .bind(to: reactor.action)
-      .disposed(by: disposeBag)
-    
     // State Binding
-    reactor.pulse(\.$universityType)
-      .filter { $0 == .none}
-      .observe(on: MainScheduler.instance)
-      .bind(with: self) { owner, _ in
-        owner.agencySegmentControl.selectedIndex = 0
-        owner.agencySegmentControl.disableButtons(with: 1,2)
-        owner.agencySegmentControl.flex.layout()
-      }
-      .disposed(by: disposeBag)
-    
     reactor.pulse(\.$isButtonEnabled)
       .bind(with: self) { owner, value in
         owner.registerButton.setState(value ? .primary : .disable)
@@ -201,10 +138,6 @@ public final class InputAgencyInfoVC: BaseVC, View {
       .observe(on: MainScheduler.instance)
       .bind(with: self) { owner, destination in
         switch destination {
-        case let .complete(agencyID):
-          owner.coordinator?.push(.createComplete(agencyID: agencyID))
-        case let .inputUniversity(agencyName, agencyType):
-          owner.coordinator?.push(.inputUniversity(agencyName: agencyName, agencyType: agencyType))
         case .main:
           owner.coordinator?.dismiss()
           owner.coordinator?.move(to: .main)
@@ -228,14 +161,6 @@ public final class InputAgencyInfoVC: BaseVC, View {
     
     reactor.pulse(\.$isLoading)
       .bind(to: rx.isLoading)
-      .disposed(by: disposeBag)
-    
-    reactor.pulse(\.$agencyType)
-      .filter { [weak reactor] _ in reactor?.currentState.universityType == .unknown }
-      .map { $0 == .general ? "등록하기" : "다음으로" }
-      .bind(with: self) { owner, title in
-        owner.registerButton.setTitle(to: title)
-      }
       .disposed(by: disposeBag)
   }
 }
