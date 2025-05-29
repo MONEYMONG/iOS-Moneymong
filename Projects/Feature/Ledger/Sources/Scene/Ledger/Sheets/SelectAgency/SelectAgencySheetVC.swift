@@ -64,6 +64,15 @@ final class SelectAgencySheetVC: BottomSheetVC, View {
         owner.coordinator?.createAgency()
       }
       .disposed(by: disposeBag)
+    
+    registerCodeInputButton.rx.tap
+      .throttle(.seconds(1), latest: false, scheduler: MainScheduler.instance)
+      .bind(with: self) { owner, _ in
+        owner.dismiss(animated: false)
+        owner.coordinator?.joinAgency()
+      }
+      .disposed(by: disposeBag)
+    
     reactor.pulse(\.$isLoading)
       .bind(to: rx.isLoading)
       .disposed(by: disposeBag)

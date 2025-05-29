@@ -1,6 +1,7 @@
 import UIKit
 
 import AgencyInterface
+import AgencyFeatureInterface
 import BaseDomain
 import BaseFeature
 import DesignSystem
@@ -104,6 +105,16 @@ extension LedgerCoordinator {
   func createAgency() {
     let navigationController = UINavigationController()
     let coordinator = DIContainer.shared.resolve(type: CreateAgencyCoordinatorInterface.self)
+    coordinator.parentCoordinator = self
+    coordinator.navigationController = navigationController
+    coordinator.start(animated: false)
+    navigationController.modalPresentationStyle = .overFullScreen
+    self.navigationController?.present(navigationController, animated: true)
+  }
+  
+  func joinAgency() {
+    let navigationController = UINavigationController()
+    let coordinator = DIContainer.shared.resolve(type: JoinAgencyCoordinatorInterface.self)
     coordinator.parentCoordinator = self
     coordinator.navigationController = navigationController
     coordinator.start(animated: false)
