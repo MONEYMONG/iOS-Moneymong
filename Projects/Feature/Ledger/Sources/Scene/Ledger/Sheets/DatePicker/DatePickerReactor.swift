@@ -1,4 +1,5 @@
 import BaseDomain
+import LedgerFeatureInterface
 import LedgerInterface
 
 import ReactorKit

@@ -1,5 +1,6 @@
 import Foundation
 
+import LedgerFeatureInterface
 import AgencyInterface
 import BaseDomain
 import Utility

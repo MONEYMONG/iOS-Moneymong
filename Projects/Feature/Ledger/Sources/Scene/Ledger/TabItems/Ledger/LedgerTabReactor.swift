@@ -1,5 +1,6 @@
 import ReactorKit
 
+import LedgerFeatureInterface
 import BaseDomain
 import AgencyInterface
 import LedgerInterface
