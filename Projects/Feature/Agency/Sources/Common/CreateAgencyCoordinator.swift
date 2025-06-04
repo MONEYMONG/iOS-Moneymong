@@ -2,12 +2,17 @@ import UIKit
 
 import AgencyFeatureInterface
 import BaseFeature
+import LedgerFeatureInterface
 
 public final class CreateAgencyCoordinator: CreateAgencyCoordinatorInterface {
   public weak var navigationController: UINavigationController?
   public weak var parentCoordinator: Coordinator?
   
-  public init() { }
+  private let ledgerService: LedgerServiceInterface?
+  
+  public init(ledgerService: LedgerServiceInterface?) {
+    self.ledgerService = ledgerService
+  }
 
   public func start(animated: Bool) {
     inputAgencyInfo(animated: animated)
@@ -20,7 +25,7 @@ public final class CreateAgencyCoordinator: CreateAgencyCoordinatorInterface {
 
 private extension CreateAgencyCoordinator {
   func inputAgencyInfo(animated: Bool) {
-    let vc = AgencyFactory().makeInputAgencyInfo()
+    let vc = AgencyFactory().makeInputAgencyInfo(ledgerService: ledgerService)
     vc.coordinator = self
     navigationController?.pushViewController(vc, animated: animated)
   }
