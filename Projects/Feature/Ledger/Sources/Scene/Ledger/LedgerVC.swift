@@ -81,7 +81,7 @@ public final class LedgerVC: BaseVC, View {
     
     emptyView.tapAgency
       .bind(with: self) { owner, _ in
-        owner.coordinator?.move(to: .agency)
+        owner.coordinator?.createAgency()
       }
       .disposed(by: disposeBag)
     

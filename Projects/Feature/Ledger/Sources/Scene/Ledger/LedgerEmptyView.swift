@@ -18,11 +18,11 @@ final class LedgerEmptyView: UIView {
     let v = UILabel()
     v.textColor = Colors.Gray._8
     v.font = Fonts.body._4
-    v.setTextWithLineHeight(text: "소속에 가입후 장부를 사용할 수 있습니다", lineHeight: 24)
+    v.setTextWithLineHeight(text: "기록한 장부를 만들어보세요", lineHeight: 24)
     return v
   }()
   
-  private let agencyButton = MMButton(title: "내 소속 찾으러 가기", type: .primary)
+  private let agencyButton = MMButton(title: "장부 생성하기", type: .primary)
   
   init() {
     super.init(frame: .zero)
@@ -46,7 +46,7 @@ final class LedgerEmptyView: UIView {
       .backgroundColor(Colors.White._1)
       .define { flex in
       flex.addItem(iconImageView).height(100).marginBottom(12)
-      flex.addItem(contentLabel).marginBottom(16)
+      flex.addItem(contentLabel).marginBottom(24)
       flex.addItem(agencyButton).height(44)
     }
   }
