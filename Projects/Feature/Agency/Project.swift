@@ -15,7 +15,8 @@ let project = Project(
             deploymentTarget: .iOS(targetVersion: "15.0", devices: .iphone),
             sources: ["Sources/**"],
             dependencies: [
-              .target(name: "AgencyFeatureInterface")
+              .target(name: "AgencyFeatureInterface"),
+              .project(target: "LedgerFeatureInterface", path: .relativeToRoot("Projects/Feature/Ledger"))
             ],
             settings: .settings(base: [
               "SWIFT_VERSION": "5.7"

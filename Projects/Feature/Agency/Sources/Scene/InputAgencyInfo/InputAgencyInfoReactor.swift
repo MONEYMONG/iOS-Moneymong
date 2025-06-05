@@ -1,3 +1,5 @@
+import Foundation
+
 import AgencyFeatureInterface
 import AgencyInterface
 import AuthInterface
@@ -5,6 +7,7 @@ import BaseDomain
 import BaseFeature
 import UserInterface
 import Utility
+import LedgerFeatureInterface
 
 import ReactorKit
 
@@ -41,16 +44,19 @@ public final class InputAgencyInfoReactor: Reactor {
   private let createAgencyUseCase: CreateAgencyUseCaseInterface
   private let deleteUserUseCase: DeleteUserUseCaseInterface
   private let updateSelectedAgencyUseCase: UpdateSelectedAgencyUseCaseInterface
+  private let ledgerService: LedgerServiceInterface?
   
   init(
     createAgencyUseCase: CreateAgencyUseCaseInterface,
     deleteUserUseCase: DeleteUserUseCaseInterface,
-    updateSelectedAgencyUseCase: UpdateSelectedAgencyUseCaseInterface = DIContainer.shared.resolve(type: UpdateSelectedAgencyUseCaseInterface.self)
+    updateSelectedAgencyUseCase: UpdateSelectedAgencyUseCaseInterface = DIContainer.shared.resolve(type: UpdateSelectedAgencyUseCaseInterface.self),
+    ledgerService: LedgerServiceInterface?
   ) {
     self.initialState = State()
     self.createAgencyUseCase = createAgencyUseCase
     self.deleteUserUseCase = deleteUserUseCase
     self.updateSelectedAgencyUseCase = updateSelectedAgencyUseCase
+    self.ledgerService = ledgerService
   }
   
   public func mutate(action: Action) -> Observable<Mutation> {
@@ -65,6 +71,7 @@ public final class InputAgencyInfoReactor: Reactor {
         .just(.setLoading(true)),
         .task {
           let agenctID = try await createAgencyUseCase.execute(name: currentState.text)
+          ledgerService?.agency.updateAgency(Agency(id: agenctID, name: currentState.text, count: 1))
           updateSelectedAgencyUseCase.execute(id: agenctID)
         }
           .map { .setDestination(.main) }

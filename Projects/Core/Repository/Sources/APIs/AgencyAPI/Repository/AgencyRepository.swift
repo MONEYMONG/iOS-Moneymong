@@ -15,7 +15,7 @@ public struct AgencyRepository: AgencyRepositoryInterface {
   }
   
   public func create(name: String) async throws -> Int {
-    let targetType = AgencyAPI.create(param: .init(name: name))
+    let targetType = AgencyAPI.create(param: .init(name: name, agencyType: "GENERAL"))
     let agencyID = try await networkManager.request(target: targetType, of: AgencyIDResponseDTO.self).id
     FirebaseManager.shared.logEvent(
       event: .createAgency,

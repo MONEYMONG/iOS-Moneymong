@@ -4,5 +4,5 @@ import BaseDomain
 public struct MockConfirmCertificateCodeUseCase: ConfirmCertificateCodeUseCaseInterface {
   public init() {}
   
-  public func execute(id: Int, code: [String]) async throws -> Bool { return true }
+  public func execute(code: [String]) async throws -> Bool { return true }
 }

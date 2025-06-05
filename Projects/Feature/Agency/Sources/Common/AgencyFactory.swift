@@ -5,6 +5,7 @@ import AgencyFeatureInterface
 import AuthInterface
 import BaseFeature
 import UserInterface
+import LedgerFeatureInterface
 
 struct AgencyFactory {
   
@@ -24,11 +25,12 @@ struct AgencyFactory {
     return vc
   }
   
-  func makeInputAgencyInfo() -> InputAgencyInfoVC {
+  func makeInputAgencyInfo(ledgerService: LedgerServiceInterface?) -> InputAgencyInfoVC {
     let vc = InputAgencyInfoVC()
     vc.reactor = InputAgencyInfoReactor(
       createAgencyUseCase: DIContainer.shared.resolve(type: CreateAgencyUseCaseInterface.self),
-      deleteUserUseCase: DIContainer.shared.resolve(type: DeleteUserUseCaseInterface.self)
+      deleteUserUseCase: DIContainer.shared.resolve(type: DeleteUserUseCaseInterface.self),
+      ledgerService: ledgerService
     )
     return vc
   }

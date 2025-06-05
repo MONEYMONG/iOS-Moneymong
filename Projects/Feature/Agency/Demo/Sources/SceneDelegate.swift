@@ -20,7 +20,7 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
     let navigationController = UINavigationController()
     guard let windowScene = (scene as? UIWindowScene) else { return }
     window = UIWindow(windowScene: windowScene)
-    coordinator = CreateAgencyCoordinator()
+    coordinator = CreateAgencyCoordinator(ledgerService: nil)
     coordinator?.navigationController = navigationController
     coordinator?.start(animated: false)
     window?.rootViewController = navigationController

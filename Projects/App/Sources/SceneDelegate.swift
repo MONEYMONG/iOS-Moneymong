@@ -242,7 +242,7 @@ extension SceneDelegate {
     }
     
     DIContainer.shared.register(type: CreateAgencyCoordinatorInterface.self) {
-      return CreateAgencyCoordinator()
+      return CreateAgencyCoordinator(ledgerService: ledgerService)
     }
     
     DIContainer.shared.register(type: JoinAgencyCoordinatorInterface.self) {

@@ -4,6 +4,7 @@ import AuthInterface
 import AuthTesting
 import BaseFeature
 import SignFeature
+import DesignSystem
 
 
 final class SceneDelegate: UIResponder, UIWindowSceneDelegate {
@@ -15,6 +16,7 @@ final class SceneDelegate: UIResponder, UIWindowSceneDelegate {
     options connectionOptions: UIScene.ConnectionOptions
   ) {
     let navigationController = UINavigationController()
+    Fonts.registerFont()
     registerDependency()
     guard let windowScene = (scene as? UIWindowScene) else { return }
     window = UIWindow(windowScene: windowScene)
