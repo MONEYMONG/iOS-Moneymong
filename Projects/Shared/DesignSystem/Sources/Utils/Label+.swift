@@ -16,10 +16,11 @@ public extension UILabel {
     }
   }
   
-  func text(_ text: String?, font: UIFont, color: UIColor) -> Self {
+  func text(_ text: String?, font: UIFont, color: UIColor, numberOfLines: Int = 0) -> Self {
     self.text = text
     self.font = font
     self.textColor = color
+    self.numberOfLines = numberOfLines
     return self
   }
 }
