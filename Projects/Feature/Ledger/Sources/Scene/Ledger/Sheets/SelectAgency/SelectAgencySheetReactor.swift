@@ -58,11 +58,9 @@ final class SelectAgencySheetReactor: Reactor {
     case .onAppear:
       return .concat(
         .just(.setLoading(true)),
-        
         .task { try await getMyAgencyUseCase.execute() }
-        .map { .setAgencies($0) }
-        .catch { return .just(.setError($0.toMMError)) },
-        
+          .map { .setAgencies($0) }
+          .catch { return .just(.setError($0.toMMError)) },
         .just(.setLoading(false))
       )
     case let .tapCell(agency):
