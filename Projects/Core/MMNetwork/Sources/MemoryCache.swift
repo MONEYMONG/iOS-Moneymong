@@ -4,9 +4,7 @@ import MMNetworkInterface
 
 public final class MemoryCache: Cacheable {
   private let cache = NSCache<NSString, NSData>()
-  
-  public static let shared = MemoryCache(memoryPercent: 0.05)
-  
+    
   public init(totalCostLimit: Int) {
     cache.totalCostLimit = totalCostLimit
   }
