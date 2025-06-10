@@ -27,7 +27,7 @@ extension AgencyAPI: TargetType {
     case let .kickout(id, _): return "v1/agencies/\(id)/agency-users/roles/block"
     case .myAgency: return "v1/agencies/me"
     case let .code(id): return "v1/agencies/\(id)/invitation-code"
-    case .certificateCode: return "v1/agencies/invitation-code"
+    case .certificateCode: return "v2/agencies/invitation-code"
     case let .reissueCode(id): return "v1/agencies/\(id)/invitation-code"
     case let .delete(id): return "v1/agencies/\(id)"
     }

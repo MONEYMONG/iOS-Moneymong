@@ -15,13 +15,14 @@ public struct ConfirmCertificateCodeUseCase: ConfirmCertificateCodeUseCaseInterf
     self.userRepo = userRepo
   }
   
-  public func execute(code: [String]) async throws -> Bool {
+  public func execute(code: [String]) async throws -> Agency? {
     let codes = code.compactMap { $0 }.map { String($0) }.joined()
     
     let response = try await agencyRepo.certificateCode(code: codes)
     if response.certified {
       userRepo.updateSelectedAgency(id: response.agencyId)
+      return try await agencyRepo.fetchMyAgency().first { $0.id == response.agencyId }
     }
-    return response.certified
+    return nil
   }
 }

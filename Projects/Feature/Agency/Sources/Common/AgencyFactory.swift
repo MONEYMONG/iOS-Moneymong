@@ -11,10 +11,10 @@ struct AgencyFactory {
   
   init() { }
   
-  func makeJoinAgency() -> JoinAgencyVC {
+  func makeJoinAgency(ledgerService: LedgerServiceInterface?) -> JoinAgencyVC {
     let vc = JoinAgencyVC()
     vc.reactor = JoinAgencyReactor(
-      confirmCertificateCodeUseCase: DIContainer.shared.resolve(type: ConfirmCertificateCodeUseCaseInterface.self)
+      confirmCertificateCodeUseCase: DIContainer.shared.resolve(type: ConfirmCertificateCodeUseCaseInterface.self), ledgerService: ledgerService
     )
     return vc
   }
