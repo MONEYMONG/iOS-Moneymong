@@ -3,6 +3,7 @@ import ReactorKit
 import AgencyInterface
 import BaseDomain
 import Utility
+import LedgerFeatureInterface
 
 final class JoinAgencyReactor: Reactor {
   struct State {
@@ -25,18 +26,21 @@ final class JoinAgencyReactor: Reactor {
   
   enum Mutation {
     case setCode(code: String, index: Int)
-    case joinAgencyResponse(Result<Bool, MoneyMongError>)
+    case joinAgencyResponse(Result<Agency?, MoneyMongError>)
   }
   
   let initialState: State
   
   private let confirmCertificateCodeUseCase: ConfirmCertificateCodeUseCaseInterface
-  
+  private let ledgerService: LedgerServiceInterface?
+
   init(
-    confirmCertificateCodeUseCase: ConfirmCertificateCodeUseCaseInterface
+    confirmCertificateCodeUseCase: ConfirmCertificateCodeUseCaseInterface,
+    ledgerService: LedgerServiceInterface?
   ) {
     self.initialState = .init()
     self.confirmCertificateCodeUseCase = confirmCertificateCodeUseCase
+    self.ledgerService = ledgerService
   }
   
   func mutate(action: Action) -> Observable<Mutation> {
@@ -53,7 +57,7 @@ final class JoinAgencyReactor: Reactor {
       return .task {
         return try await confirmCertificateCodeUseCase.execute(code: codes)
       }
-      .map { .joinAgencyResponse(.success($0)) }
+      .map { agency in .joinAgencyResponse(.success(agency)) }
       .catch { return .just(.joinAgencyResponse(.failure($0.toMMError))) }
       
     case .tapRetryButton:
@@ -74,11 +78,10 @@ final class JoinAgencyReactor: Reactor {
     case let .setCode(code, index):
       newState.codes[index] = code
     case let .joinAgencyResponse(.success(value)):
-      switch value {
-      case true:
-        
+      if let agency = value {
+        ledgerService?.agency.updateAgency(agency)
         newState.destination = .joinComplete
-      case false:
+      } else {
         newState.snackBarMessage = "잘못된 초대코드입니다"
       }
       

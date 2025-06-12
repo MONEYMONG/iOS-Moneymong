@@ -8,15 +8,18 @@ import Utility
 public struct AgencyRepository: AgencyRepositoryInterface {
   private let networkManager: NetworkManagerInterfacae
   private let localStorage: LocalStorageInterface
+  private let memoryCache: Cacheable
 
-  public init(networkManager: NetworkManagerInterfacae, localStorage: LocalStorageInterface) {
+  public init(networkManager: NetworkManagerInterfacae, localStorage: LocalStorageInterface, memoryCache: Cacheable) {
     self.networkManager = networkManager
     self.localStorage = localStorage
+    self.memoryCache = memoryCache
   }
   
   public func create(name: String) async throws -> Int {
     let targetType = AgencyAPI.create(param: .init(name: name, agencyType: "GENERAL"))
     let agencyID = try await networkManager.request(target: targetType, of: AgencyIDResponseDTO.self).id
+    memoryCache.delete(key: "v1/agencies/me")
     FirebaseManager.shared.logEvent(
       event: .createAgency,
       parameters: [
@@ -54,7 +57,7 @@ public struct AgencyRepository: AgencyRepositoryInterface {
   
   public func fetchMyAgency() async throws -> [Agency] {
     let targetType = AgencyAPI.myAgency
-    let dto = try await networkManager.request(target: targetType, of: [AgencyResponseDTO].self)
+    let dto = try await networkManager.request(target: targetType, of: [AgencyResponseDTO].self, cache: memoryCache)
     return dto.toEntity
   }
   
@@ -67,6 +70,7 @@ public struct AgencyRepository: AgencyRepositoryInterface {
   public func certificateCode(code: String) async throws -> CertificationResult {
     let targetType = AgencyAPI.certificateCode(param: .init(invitationCode: code))
     let dto = try await networkManager.request(target: targetType, of: CertificateCodeRequestDTO.self)
+    memoryCache.delete(key: "v1/agencies/me")
     FirebaseManager.shared.logEvent(
       event: .joinAgency,
       parameters: [
@@ -94,5 +98,6 @@ public struct AgencyRepository: AgencyRepositoryInterface {
       ]
     )
     localStorage.deleteCurrentLedgerInfo()
+    memoryCache.delete(key: "v1/agencies/me")
   }
 }

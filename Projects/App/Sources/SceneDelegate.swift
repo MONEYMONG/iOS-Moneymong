@@ -72,6 +72,7 @@ extension SceneDelegate {
     let networkManager = NetworkManager()
     let ledgerService = LedgerService()
     let contentFormatter = ContentFormatter()
+    let memoryCache = MemoryCache()
     
     networkManager.tokenIntercepter = TokenRequestIntercepter(
       localStorage: localStorage,
@@ -85,45 +86,45 @@ extension SceneDelegate {
     
     // MARK: - User UseCase Dependency
     DIContainer.shared.register(type: GetMyInfoUseCaseInterface.self) {
-      let userRepo = UserRepository(networkManager: networkManager, localStorage: localStorage, memoryCache: MemoryCache.shared)
+      let userRepo = UserRepository(networkManager: networkManager, localStorage: localStorage, memoryCache: memoryCache)
       return GetMyInfoUseCase(userRepo: userRepo)
     }
     
     DIContainer.shared.register(type: GetSelectedAgencyUseCaseInterface.self) {
-      let userRepo = UserRepository(networkManager: networkManager, localStorage: localStorage, memoryCache: MemoryCache.shared)
+      let userRepo = UserRepository(networkManager: networkManager, localStorage: localStorage, memoryCache: memoryCache)
       return GetSelectedAgencyUseCase(userRepo: userRepo)
     }
     
     DIContainer.shared.register(type: UpdateSelectedAgencyUseCaseInterface.self) {
-      let userRepo = UserRepository(networkManager: networkManager, localStorage: localStorage, memoryCache: MemoryCache.shared)
+      let userRepo = UserRepository(networkManager: networkManager, localStorage: localStorage, memoryCache: memoryCache)
       return UpdateSelectedAgencyUseCase(userRepo: userRepo)
     }
     
     DIContainer.shared.register(type: GetUserIDUseCaseInterface.self) {
-      let userRepo = UserRepository(networkManager: networkManager, localStorage: localStorage, memoryCache: MemoryCache.shared)
+      let userRepo = UserRepository(networkManager: networkManager, localStorage: localStorage, memoryCache: memoryCache)
       return GetUserIDUseCase(userRepo: userRepo)
     }
     
     // MARK: - Auth UseCase Dependency
     DIContainer.shared.register(type: AutoSignUseCaseInterface.self) {
-      let userRepo = UserRepository(networkManager: networkManager, localStorage: localStorage, memoryCache: MemoryCache.shared)
+      let userRepo = UserRepository(networkManager: networkManager, localStorage: localStorage, memoryCache: memoryCache)
       let versionRepo = VersionRepository(networkManager: networkManager)
       return AutoSignUseCase(userRepo: userRepo, versionRepo: versionRepo)
     }
     
     DIContainer.shared.register(type: DeleteUserUseCaseInterface.self) {
-      let userRepo = UserRepository(networkManager: networkManager, localStorage: localStorage, memoryCache: MemoryCache.shared)
+      let userRepo = UserRepository(networkManager: networkManager, localStorage: localStorage, memoryCache: memoryCache)
       return DeleteUserUseCase(userRepo: userRepo)
     }
     
     DIContainer.shared.register(type: LogoutUseCaseInterface.self) {
-      let userRepo = UserRepository(networkManager: networkManager, localStorage: localStorage, memoryCache: MemoryCache.shared)
+      let userRepo = UserRepository(networkManager: networkManager, localStorage: localStorage, memoryCache: memoryCache)
       return LogoutUseCase(userRepo: userRepo)
     }
     
     DIContainer.shared.register(type: SignUpUseCaseInterface.self) {
       let signRepo = SignRepository(networkManager: networkManager, localStorage: localStorage)
-      let userRepo = UserRepository(networkManager: networkManager, localStorage: localStorage, memoryCache: MemoryCache.shared)
+      let userRepo = UserRepository(networkManager: networkManager, localStorage: localStorage, memoryCache: memoryCache)
       return SignUpUseCase(signRepo: signRepo, userRepo: userRepo)
     }
     
@@ -134,49 +135,49 @@ extension SceneDelegate {
     
     // MARK: - Agency UseCase Dependency
     DIContainer.shared.register(type: ChangeMemberRoleUseCaseInterface.self) {
-      let agencyRepo = AgencyRepository(networkManager: networkManager, localStorage: localStorage)
+      let agencyRepo = AgencyRepository(networkManager: networkManager, localStorage: localStorage, memoryCache: memoryCache)
       return ChangeMemberRoleUseCase(repo: agencyRepo)
     }
 
     DIContainer.shared.register(type: ConfirmCertificateCodeUseCaseInterface.self) {
-      let agencyRepo = AgencyRepository(networkManager: networkManager, localStorage: localStorage)
-      let userRepo = UserRepository(networkManager: networkManager, localStorage: localStorage, memoryCache: MemoryCache.shared)
+      let agencyRepo = AgencyRepository(networkManager: networkManager, localStorage: localStorage, memoryCache: memoryCache)
+      let userRepo = UserRepository(networkManager: networkManager, localStorage: localStorage, memoryCache: memoryCache)
       return ConfirmCertificateCodeUseCase(agencyRepo: agencyRepo, userRepo: userRepo)
     }
 
     DIContainer.shared.register(type: CreateAgencyUseCaseInterface.self) {
-      let agencyRepo = AgencyRepository(networkManager: networkManager, localStorage: localStorage)
+      let agencyRepo = AgencyRepository(networkManager: networkManager, localStorage: localStorage, memoryCache: memoryCache)
       return CreateAgencyUseCase(repo: agencyRepo)
     }
 
     DIContainer.shared.register(type: DeleteAgencyUseCaseInterface.self) {
-      let agencyRepo = AgencyRepository(networkManager: networkManager, localStorage: localStorage)
-      let userRepo = UserRepository(networkManager: networkManager, localStorage: localStorage, memoryCache: MemoryCache.shared)
+      let agencyRepo = AgencyRepository(networkManager: networkManager, localStorage: localStorage, memoryCache: memoryCache)
+      let userRepo = UserRepository(networkManager: networkManager, localStorage: localStorage, memoryCache: memoryCache)
       return DeleteAgencyUseCase(agencyRepo: agencyRepo, userRepo: userRepo, widgetRefreshController: widgetRefreshController)
     }
 
     DIContainer.shared.register(type: GetInvitationCodeUseCaseInterface.self) {
-      let agencyRepo = AgencyRepository(networkManager: networkManager, localStorage: localStorage)
+      let agencyRepo = AgencyRepository(networkManager: networkManager, localStorage: localStorage, memoryCache: memoryCache)
       return GetInvitationCodeUseCase(repo: agencyRepo)
     }
 
     DIContainer.shared.register(type: GetMemberListUseCaseInterface.self) {
-      let agencyRepo = AgencyRepository(networkManager: networkManager, localStorage: localStorage)
+      let agencyRepo = AgencyRepository(networkManager: networkManager, localStorage: localStorage, memoryCache: memoryCache)
       return GetMemberListUseCase(repo: agencyRepo)
     }
 
     DIContainer.shared.register(type: GetMyAgencyUseCaseInterface.self) {
-      let agencyRepo = AgencyRepository(networkManager: networkManager, localStorage: localStorage)
+      let agencyRepo = AgencyRepository(networkManager: networkManager, localStorage: localStorage, memoryCache: memoryCache)
       return GetMyAgencyUseCase(repo: agencyRepo)
     }
 
     DIContainer.shared.register(type: KickoutMemberUseCaseInterface.self) {
-      let agencyRepo = AgencyRepository(networkManager: networkManager, localStorage: localStorage)
+      let agencyRepo = AgencyRepository(networkManager: networkManager, localStorage: localStorage, memoryCache: memoryCache)
       return KickoutMemberUseCase(repo: agencyRepo)
     }
 
     DIContainer.shared.register(type: ReissueCodeUseCaseInterface.self) {
-      let agencyRepo = AgencyRepository(networkManager: networkManager, localStorage: localStorage)
+      let agencyRepo = AgencyRepository(networkManager: networkManager, localStorage: localStorage, memoryCache: memoryCache)
       return ReissueCodeUseCase(repo: agencyRepo)
     }
     
@@ -246,7 +247,7 @@ extension SceneDelegate {
     }
     
     DIContainer.shared.register(type: JoinAgencyCoordinatorInterface.self) {
-      return JoinAgencyCoordinator()
+      return JoinAgencyCoordinator(ledgerService: ledgerService)
     }
     
     DIContainer.shared.register(type: LedgerCoordinatorInterface.self) {

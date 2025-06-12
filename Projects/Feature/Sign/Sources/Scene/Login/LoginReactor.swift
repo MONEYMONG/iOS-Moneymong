@@ -1,5 +1,7 @@
 import AuthInterface
+import AgencyInterface
 import BaseDomain
+import BaseFeature
 
 import ReactorKit
 
@@ -33,13 +35,16 @@ final class LoginReactor: Reactor {
   
   private let signUpUseCase: SignUpUseCaseInterface
   private let getRecentLoginInfoUseCase: GetRecentLoginInfoUseCaseInterface
+  private let getMyAgencyUseCase: GetMyAgencyUseCaseInterface
 
   init(
     signUpUseCase: SignUpUseCaseInterface,
-    getRecentLoginInfoUseCase: GetRecentLoginInfoUseCaseInterface
+    getRecentLoginInfoUseCase: GetRecentLoginInfoUseCaseInterface,
+    getMyAgencyUseCase: GetMyAgencyUseCaseInterface = DIContainer.shared.resolve(type: GetMyAgencyUseCaseInterface.self)
   ) {
     self.signUpUseCase = signUpUseCase
     self.getRecentLoginInfoUseCase = getRecentLoginInfoUseCase
+    self.getMyAgencyUseCase = getMyAgencyUseCase
   }
 
   func mutate(action: Action) -> Observable<Mutation> {
@@ -51,9 +56,10 @@ final class LoginReactor: Reactor {
 
     case .login(let loginType):
       return .task {
-        return try await signUpUseCase.execute(loginType: loginType)
+        _ = try await signUpUseCase.execute(loginType: loginType)
+        return try await !getMyAgencyUseCase.execute().isEmpty
       }
-      .map { .setDestination($0.schoolInfoExist ? .main : .signUp) }
+      .map { .setDestination($0 ? .main : .signUp) }
       .catch { .just(.setErrorMessage($0.localizedDescription)) }
     }
   }

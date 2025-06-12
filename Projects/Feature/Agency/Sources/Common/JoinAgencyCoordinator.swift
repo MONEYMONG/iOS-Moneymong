@@ -3,12 +3,17 @@ import UIKit
 import AgencyFeatureInterface
 import BaseFeature
 import DesignSystem
+import LedgerFeatureInterface
 
 public final class JoinAgencyCoordinator: JoinAgencyCoordinatorInterface {
   public weak var navigationController: UINavigationController?
   public weak var parentCoordinator: Coordinator?
   
-  public init() {}
+  private let ledgerService: LedgerServiceInterface?
+  
+  public init(ledgerService: LedgerServiceInterface?) {
+    self.ledgerService = ledgerService
+  }
   
   enum Destination {
     case joinComplete
@@ -45,7 +50,7 @@ public final class JoinAgencyCoordinator: JoinAgencyCoordinatorInterface {
 
 private extension JoinAgencyCoordinator {
   private func joinAgency(animated: Bool) {
-    let vc = AgencyFactory().makeJoinAgency()
+    let vc = AgencyFactory().makeJoinAgency(ledgerService: ledgerService)
     vc.coordinator = self
     navigationController?.pushViewController(vc, animated: animated)
   }
