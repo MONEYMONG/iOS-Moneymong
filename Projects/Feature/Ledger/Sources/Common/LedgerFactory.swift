@@ -55,7 +55,7 @@ struct LedgerFactory {
       getMemberListUseCase: DIContainer.shared.resolve(type: GetMemberListUseCaseInterface.self),
       ledgerService: ledgerService
     )
-    vc.title = "맴버"
+    vc.title = "멤버"
     return vc
   }
   

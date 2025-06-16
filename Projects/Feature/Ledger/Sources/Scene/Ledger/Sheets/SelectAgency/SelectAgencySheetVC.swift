@@ -99,9 +99,9 @@ final class SelectAgencySheetVC: BottomSheetVC, View {
         
         let count = agencies.count
         
-        let height = min(CGFloat(count * 80 + (count - 1) * 12), 3 * (80) + 2 * 12)
+        let height = min(CGFloat(count * 72 + (count - 1) * 12), 3 * (72) + 2 * 12)
         owner.tableView.isScrollEnabled = count > 3
-        owner.tableView.flex.height(height)
+        owner.tableView.flex.height(height + 6)
         owner.view.setNeedsLayout()
         
         if let index = agencies.firstIndex(where: { $0.id == reactor.currentState.selectedAgencyID }) {
@@ -119,3 +119,4 @@ final class SelectAgencySheetVC: BottomSheetVC, View {
       .disposed(by: disposeBag)
   }
 }
+

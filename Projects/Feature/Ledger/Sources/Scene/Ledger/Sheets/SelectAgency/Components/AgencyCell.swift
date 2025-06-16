@@ -5,10 +5,9 @@ import DesignSystem
 import BaseDomain
 
 final class AgencyCell: UITableViewCell, ReusableView {
-  
-  private let iconImageView: UIImageView = {
-    let v = UIImageView()
-    v.image = Images.mongClubFill
+  private let circleView: UIView = {
+    let v = UIView()
+    v.layer.cornerRadius = 24
     return v
   }()
   
@@ -43,7 +42,6 @@ final class AgencyCell: UITableViewCell, ReusableView {
   
   override func layoutSubviews() {
     super.layoutSubviews()
-    
     rootContainer.pin.all()
     rootContainer.flex.layout()
   }
@@ -62,10 +60,15 @@ final class AgencyCell: UITableViewCell, ReusableView {
     contentView.addSubview(rootContainer)
     
     rootContainer.flex.direction(.row).alignItems(.center)
-      .padding(16).cornerRadius(16).border(1, Colors.Gray._2).backgroundColor(Colors.White._1)
+      .padding(12).cornerRadius(16).border(1, Colors.Gray._2).backgroundColor(Colors.White._1)
       .define { flex in
         
-        flex.addItem(iconImageView).size(48).marginRight(12)
+        flex.addItem(circleView).size(48).marginRight(10)
+          .justifyContent(.center)
+          .alignItems(.center)
+          .define { flex in
+            flex.addItem(UIImageView(image: Images.mongLedgerWidgetMini)).size(28)
+          }
         
         flex.addItem().define { flex in
           flex.addItem(titleLabel).marginBottom(4)
@@ -73,8 +76,7 @@ final class AgencyCell: UITableViewCell, ReusableView {
         }.grow(1).shrink(1)
         
         flex.addItem(checkMarkImageView).size(24)
-    }
-      .marginBottom(12)
+      }.marginVertical(6)
   }
   
   func configure(with item: Agency, selectedID: Int) -> Self {
@@ -88,10 +90,12 @@ final class AgencyCell: UITableViewCell, ReusableView {
       rootContainer.flex.backgroundColor(Colors.Blue._1).border(1, Colors.Blue._4)
       checkMarkImageView.image = Images.check?.withTintColor(Colors.Blue._4)
       titleLabel.textColor = Colors.Blue._4
+      circleView.backgroundColor = Colors.Blue._3
     } else {
       rootContainer.flex.backgroundColor(Colors.White._1).border(1, Colors.Gray._2)
       checkMarkImageView.image = Images.check?.withTintColor(Colors.Gray._3)
       titleLabel.textColor = Colors.Gray._9
+      circleView.backgroundColor = Colors.SkyBlue._1
     }
     
     contentView.setNeedsLayout()

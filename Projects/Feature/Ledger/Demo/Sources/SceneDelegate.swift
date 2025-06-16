@@ -150,7 +150,7 @@ extension SceneDelegate {
     
     //MARK: - CreateAgency
     DIContainer.shared.register(type: CreateAgencyCoordinatorInterface.self) {
-      return CreateAgencyCoordinator()
+      return CreateAgencyCoordinator(ledgerService: nil)
     }
     
     DIContainer.shared.register(type: CreateAgencyUseCaseInterface.self) {
@@ -167,7 +167,7 @@ extension SceneDelegate {
     
     //MARK: - JoinAgency
     DIContainer.shared.register(type: JoinAgencyCoordinatorInterface.self) {
-      return JoinAgencyCoordinator()
+      return JoinAgencyCoordinator(ledgerService: nil)
     }
     
     DIContainer.shared.register(type: ConfirmCertificateCodeUseCaseInterface.self) {
