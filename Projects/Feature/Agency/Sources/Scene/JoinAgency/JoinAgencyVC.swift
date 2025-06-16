@@ -138,8 +138,9 @@ final class JoinAgencyVC: BaseVC, ReactorKit.View {
       .observe(on: MainScheduler.instance)
       .bind(with: self) { owner, destination in
         switch destination {
-        case .joinComplete:
-          owner.coordinator?.push(.joinComplete)
+        case .ledger:
+          owner.coordinator?.dismiss()
+          owner.coordinator?.move(to: .ledger)
         }
       }
       .disposed(by: disposeBag)

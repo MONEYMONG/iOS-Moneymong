@@ -14,7 +14,7 @@ final class JoinAgencyReactor: Reactor {
     @Pulse var snackBarMessage: String?
     
     enum Destination {
-      case joinComplete
+      case ledger
     }
   }
   
@@ -80,7 +80,7 @@ final class JoinAgencyReactor: Reactor {
     case let .joinAgencyResponse(.success(value)):
       if let agency = value {
         ledgerService?.agency.updateAgency(agency)
-        newState.destination = .joinComplete
+        newState.destination = .ledger
       } else {
         newState.snackBarMessage = "잘못된 초대코드입니다"
       }
