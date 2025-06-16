@@ -21,31 +21,39 @@ public enum Fonts {
   
   public var _2: UIFont {
     switch self {
-    case .heading: return UIFont.custom(.bold, size: 20)
+    case .heading: return UIFont.custom(.bold, size: 18)
     case .body: return UIFont.custom(.medium, size: 12)
     }
   }
   
   public var _3: UIFont {
     switch self {
-    case .heading: return UIFont.custom(.bold, size: 22)
+    case .heading: return UIFont.custom(.bold, size: 18)
     case .body: return UIFont.custom(.medium, size: 14)
     }
   }
   
   public var _4: UIFont {
     switch self {
-    case .heading: return UIFont.custom(.bold, size: 24)
+    case .heading: return UIFont.custom(.bold, size: 20)
     case .body: return UIFont.custom(.medium, size: 16)
     }
   }
   
   public var _5: UIFont {
     switch self {
+    case .heading: return UIFont.custom(.bold, size: 24)
+    case .body: return UIFont.custom(.medium, size: 18)
+    }
+  }
+  
+  public var _6: UIFont {
+    switch self {
     case .heading: return UIFont.custom(.bold, size: 28)
     case .body: return UIFont.custom(.medium, size: 18)
     }
   }
+  
   
   public static var caption: UIFont {
     return UIFont.custom(.regular, size: 10)

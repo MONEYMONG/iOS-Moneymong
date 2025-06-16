@@ -1,6 +1,8 @@
 import UIKit
 
 import AuthInterface
+import AgencyInterface
+import AgencyTesting
 import AuthTesting
 import BaseFeature
 import SignFeature
@@ -52,6 +54,10 @@ extension SceneDelegate {
     
     DIContainer.shared.register(type: GetRecentLoginInfoUseCaseInterface.self) {
       return MockGetRecentLoginInfoUseCase()
+    }
+    
+    DIContainer.shared.register(type: GetMyAgencyUseCaseInterface.self) {
+      return MockGetMyAgencyUseCase()
     }
   }
 }
