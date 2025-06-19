@@ -6,7 +6,7 @@ public enum Scene {
   case login // 로그인화면
   case ledger // 장부화면
   case createManualLedger(Int) // 운영비 등록화면
-  case agency // 소속화면
+  case createAgency // 소속 생성
 }
 
 public protocol Coordinator: AnyObject {
@@ -27,8 +27,8 @@ public extension Coordinator {
       parentCoordinator?.move(to: .ledger)
     case let .createManualLedger(id):
       parentCoordinator?.move(to: .createManualLedger(id))
-    case .agency:
-      parentCoordinator?.move(to: .agency)
+    case .createAgency:
+      parentCoordinator?.move(to: .createAgency)
     }
   }
   

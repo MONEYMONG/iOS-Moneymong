@@ -24,9 +24,9 @@ struct SecondWidgetEntryView: View {
   var entry: AgencyProvider.Entry
   
   var body: some View {
-    VStack {
+    VStack(spacing: 25) {
       HStack(alignment: .top, spacing: 0) {
-        VStack(alignment: .leading, spacing: 4) {
+        VStack(alignment: .leading, spacing: 10) {
           Text("\(entry.name)에 이만큼 남았어요")
             .font(.system(size: 12, weight: .semibold))
             .foregroundColor(Color(uiColor: Colors.Gray._6))
@@ -47,7 +47,18 @@ struct SecondWidgetEntryView: View {
           .offset(y: -10)
       }
 
-      HStack(spacing: 10) {        
+      HStack(spacing: 10) {
+        Link(destination: LinkManager.createAgency.url) {
+          Text("장부 추가")
+            .font(.system(size: 12, weight: .bold))
+            .foregroundColor(.white)
+            .frame(height: 18)
+            .frame(maxWidth: .infinity)
+            .padding(10)
+            .background(Color(uiColor: Colors.Blue._4))
+            .cornerRadius(10)
+        }
+        
         Link(destination: LinkManager.ledgerDetail.url) {
           Text("회비 내역 확인")
             .font(.system(size: 12, weight: .bold))
@@ -65,3 +76,12 @@ struct SecondWidgetEntryView: View {
     .widgetBackground(Color(uiColor: Colors.Gray._1))
   }
 }
+
+#if DEBUG
+struct SecondWidgetEntryView_Previews: PreviewProvider {
+  static var previews: some View {
+    SecondWidgetEntryView(entry: .init(date: .now, name: "Test", amount: 1))
+      .previewContext(WidgetPreviewContext(family: .systemMedium))
+  }
+}
+#endif

@@ -20,6 +20,7 @@ public final class LedgerCoordinator: LedgerCoordinatorInterface {
     case alert(title: String, subTitle: String?, type: MMAlerts.`Type`)
     case createManualLedger(Int, ManualPresentType)
     case detail(Ledger, Member.Role)
+    case createAgency
   }
 
   public init(ledgerService: LedgerServiceInterface, contentFormatter: ContentFormatter) {
@@ -39,6 +40,8 @@ public final class LedgerCoordinator: LedgerCoordinatorInterface {
       AlertsManager.show(title: title, subTitle: subTitle, type: type)
     case let .detail(ledger, role):
       detail(ledgerID: ledger.id, role: role)
+    case .createAgency:
+      createAgency()
     }
   }
   

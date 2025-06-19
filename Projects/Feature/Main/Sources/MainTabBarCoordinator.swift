@@ -25,12 +25,13 @@ public final class MainTabBarCoordinator: Coordinator {
     case .login: // 로그인으로 이동
       parentCoordinator?.move(to: .login)
     case .ledger: // 장부로 이동
-      tabBarController?.selectedIndex = 1
-    case let .createManualLedger(agencyID): // 장부 이동 &
-      tabBarController?.selectedIndex = 1
-      NotificationCenter.default.post(name: .presentManualCreater, object: nil, userInfo: ["id": agencyID])
-    case .agency: // 소속으로 이동
       tabBarController?.selectedIndex = 0
+    case let .createManualLedger(agencyID): // 장부 이동 &
+      tabBarController?.selectedIndex = 0
+      NotificationCenter.default.post(name: .presentManualCreater, object: nil, userInfo: ["id": agencyID])
+    case .createAgency:
+      tabBarController?.selectedIndex = 0
+      NotificationCenter.default.post(name: .presentAgencyCreater, object: nil, userInfo: nil)
     }
   }
 }

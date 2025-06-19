@@ -71,6 +71,8 @@ public final class MainTapViewController: UITabBarController {
           owner.coordinator?.move(to: .createManualLedger(userInfo.agencyID))
         case "LedgerDetail":
           owner.coordinator?.move(to: .ledger)
+        case "CreateAgency":
+          owner.coordinator?.move(to: .createAgency)
         default: break
         }
         

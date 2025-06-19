@@ -73,6 +73,7 @@ extension SceneDelegate {
     let ledgerService = LedgerService()
     let contentFormatter = ContentFormatter()
     let memoryCache = MemoryCache()
+    let widgetRefreshController = WidgetRefreshController()
     
     networkManager.tokenIntercepter = TokenRequestIntercepter(
       localStorage: localStorage,
@@ -81,8 +82,6 @@ extension SceneDelegate {
         localStorage: localStorage
       )
     )
-    
-    let widgetRefreshController = WidgetRefreshController()
     
     // MARK: - User UseCase Dependency
     DIContainer.shared.register(type: GetMyInfoUseCaseInterface.self) {
