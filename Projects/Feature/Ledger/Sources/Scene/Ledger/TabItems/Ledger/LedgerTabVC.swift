@@ -118,7 +118,14 @@ final class LedgerTabVC: BaseVC, View {
         owner.coordinator?.present(.createManualLedger(id, .operatingCost))
       }
       .disposed(by: disposeBag)
-
+    
+    NotificationCenter.default.rx.notification(.presentAgencyCreater)
+      .observe(on: MainScheduler.instance)
+      .bind(with: self) { owner, _ in
+        owner.coordinator?.present(.createAgency)
+      }
+      .disposed(by: disposeBag)
+    
     plusButton.rx.tap
       .do { _ in FirebaseManager.shared.logEvent(event: .didTapManualInput) }
       .map { Reactor.Action.didTapWriteButton }

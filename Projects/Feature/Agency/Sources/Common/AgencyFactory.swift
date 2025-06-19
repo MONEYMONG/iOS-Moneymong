@@ -19,12 +19,6 @@ struct AgencyFactory {
     return vc
   }
   
-  func makeJoinComplete() -> JoinCompleteVC {
-    let vc = JoinCompleteVC()
-    vc.reactor = JoinCompleteReactor()
-    return vc
-  }
-  
   func makeInputAgencyInfo(ledgerService: LedgerServiceInterface?) -> InputAgencyInfoVC {
     let vc = InputAgencyInfoVC()
     vc.reactor = InputAgencyInfoReactor(

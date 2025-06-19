@@ -43,6 +43,18 @@ struct MainWidgetEntryView: View {
       
       Spacer()
       HStack {
+        Link(destination: LinkManager.createAgency.url) {
+          HStack {
+            Spacer()
+            Text("장부 추가")
+              .bold()
+              .font(.system(size: 16))
+              .foregroundStyle(Color(uiColor: Colors.Gray._5))
+            Spacer()
+          }
+        }
+        Divider()
+          .background(Color(uiColor: Colors.Gray._5))
         Link(destination: LinkManager.ledgerDetail.url) {
           HStack {
             Spacer()
@@ -60,3 +72,12 @@ struct MainWidgetEntryView: View {
     .widgetBackground(Color(uiColor: Colors.Gray._1))
   }
 }
+
+#if DEBUG
+struct MainWidgetEntryView_Previews: PreviewProvider {
+  static var previews: some View {
+    MainWidgetEntryView(entry: .init(date: .now, name: "Test", amount: 1))
+      .previewContext(WidgetPreviewContext(family: .systemMedium))
+  }
+}
+#endif

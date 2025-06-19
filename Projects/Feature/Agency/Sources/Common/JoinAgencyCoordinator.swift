@@ -16,7 +16,6 @@ public final class JoinAgencyCoordinator: JoinAgencyCoordinatorInterface {
   }
   
   enum Destination {
-    case joinComplete
     case alert(title: String)
   }
   
@@ -24,22 +23,10 @@ public final class JoinAgencyCoordinator: JoinAgencyCoordinatorInterface {
     joinAgency(animated: animated)
   }
   
-  func push(_ destination: Destination, animated: Bool = true) {
-    switch destination {
-    case .joinComplete:
-      joinComplete(animated: animated)
-    case .alert:
-      break
-    }
-  }
-  
   func present(_ destination: Destination, animated: Bool = true) {
     switch destination {
-    case .joinComplete:
-      break
     case let .alert(title):
       AlertsManager.show(title: title)
-        
     }
   }
   
@@ -51,12 +38,6 @@ public final class JoinAgencyCoordinator: JoinAgencyCoordinatorInterface {
 private extension JoinAgencyCoordinator {
   private func joinAgency(animated: Bool) {
     let vc = AgencyFactory().makeJoinAgency(ledgerService: ledgerService)
-    vc.coordinator = self
-    navigationController?.pushViewController(vc, animated: animated)
-  }
-  
-  private func joinComplete(animated: Bool) {
-    let vc = AgencyFactory().makeJoinComplete()
     vc.coordinator = self
     navigationController?.pushViewController(vc, animated: animated)
   }
