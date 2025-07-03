@@ -4,7 +4,7 @@ import DesignSystem
 import Utility
 import BaseFeature
 
-import Kingfisher
+import Feather
 import ReactorKit
 import FlexLayout
 import PinLayout
@@ -12,12 +12,11 @@ import PinLayout
 final class DefaultImageCell: UICollectionViewCell, ReusableView {
   private let rootContainer = UIView()
 
-  private let imageView: UIImageView = {
-    let v = UIImageView()
+  private let imageView: FTImageView = {
+    let v = FTImageView()
     v.layer.cornerRadius = 8
     v.clipsToBounds = true
     v.contentMode = .scaleAspectFill
-    v.kf.indicatorType = .activity
     return v
   }()
 
@@ -106,13 +105,7 @@ final class DefaultImageCell: UICollectionViewCell, ReusableView {
 
     self.item = item
 
-    imageView.kf.setImage(
-      with: KF.ImageResource(
-        downloadURL: url,
-        cacheKey: item.url
-      )
-    )
-
+    imageView.setImageURL(url)
     imageView.flex.layout()
     imageView.flex.markDirty()
     setNeedsLayout()

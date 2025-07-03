@@ -8,8 +8,8 @@ let project = Project(
     ),
     packages: [
       .remote(
-        url: "https://github.com/onevcat/Kingfisher",
-        requirement: .upToNextMajor(from: "8.0.1")
+        url: "https://github.com/Siwon-L/Feather",
+        requirement: .upToNextMajor(from: "1.1.0")
       )
     ],
     settings: .settings(base: [
@@ -29,7 +29,7 @@ let project = Project(
               .project(target: "LedgerInterface", path: .relativeToRoot("Projects/Domain/Ledger")),
               .project(target: "UserInterface", path: .relativeToRoot("Projects/Domain/User")),
               .project(target: "AuthInterface", path: .relativeToRoot("Projects/Domain/Auth")),
-              .package(product: "Kingfisher")
+              .package(product: "Feather")
             ]
         ),
         Target(
