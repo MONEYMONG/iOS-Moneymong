@@ -59,6 +59,11 @@ final class JoinAgencyVC: BaseVC, ReactorKit.View {
     }
   }
   
+  override func viewDidAppear(_ animated: Bool) {
+    super.viewDidAppear(animated)
+    codeviews[0].numberTextField.becomeFirstResponder()
+  }
+  
   func bind(reactor: JoinAgencyReactor) {
     setRightItem(.closeBlack)
     
@@ -74,45 +79,18 @@ final class JoinAgencyVC: BaseVC, ReactorKit.View {
       .disposed(by: disposeBag)
     
     codeviews.enumerated().forEach { index, codeView in
-      codeView.numberTextField.rx.text
-        .orEmpty.skip(1)
-        .map { Reactor.Action.textFieldDidChange(text: $0, index: index)}
-        .bind(to: reactor.action)
-        .disposed(by: disposeBag)
-    }
-    
-    codeviews.indices.forEach { index in
-      reactor.pulse(\.$codes)
-        .map { $0[index] }
-        .distinctUntilChanged()
-        .observe(on: MainScheduler.instance)
-        .bind(with: self) { owner, code in
-          owner.codeviews[index].numberTextField.text = code
-          
-          if code.isEmpty {
-            owner.codeviews[index].setState(.plain)
-          } else {
-            DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
-              owner.codeviews[index].setState(.done)
-              owner.codeviews[safe: index+1]?.setState(.focused)
-  
-              if !owner.codeviews.indices.contains(index+1) {
-                owner.view.endEditing(true)
-              }
-            }
-          }
-        }
-        .disposed(by: disposeBag)
+      codeView.delegate = self
     }
     
     reactor.pulse(\.$codes)
       .distinctUntilChanged()
       .filter { $0.joined().count == 6 }
       .delay(.seconds(1), scheduler: MainScheduler.instance)
+      .do { [weak self] _ in self?.view.endEditing(true) }
       .map { _ in Reactor.Action.requestJoinAgency}
       .bind(to: reactor.action)
       .disposed(by: disposeBag)
-      
+    
     reactor.pulse(\.$snackBarMessage)
       .compactMap { $0 }
       .observe(on: MainScheduler.instance)
@@ -121,10 +99,15 @@ final class JoinAgencyVC: BaseVC, ReactorKit.View {
         
         SnackBarManager.show(title: message) {
           owner.reactor?.action.onNext(.tapRetryButton)
+          owner.codeviews.enumerated().forEach { index, codeView in
+            codeView.numberTextField.text = ""
+            codeView.setState(index == 0 ? .focused : .plain)
+          }
+          owner.codeviews[0].numberTextField.becomeFirstResponder()
         }
       }
       .disposed(by: disposeBag)
-      
+    
     reactor.pulse(\.$errorMessage)
       .compactMap { $0 }
       .observe(on: MainScheduler.instance)
@@ -144,5 +127,73 @@ final class JoinAgencyVC: BaseVC, ReactorKit.View {
         }
       }
       .disposed(by: disposeBag)
+  }
+}
+
+extension JoinAgencyVC: UITextFieldDelegate {
+  func textFieldDidBeginEditing(_ textField: UITextField) {
+    textField.selectedTextRange = nil
+  }
+  
+  func textField(
+    _ textField: UITextField,
+    shouldChangeCharactersIn range: NSRange,
+    replacementString string: String
+  ) -> Bool {
+    guard Int(string) != nil else { return false }
+    guard let idx = codeviews.map(\.numberTextField).firstIndex(of: textField) else { return false }
+    
+    if let text = textField.text, !text.isEmpty, !string.isEmpty {
+      guard idx < codeviews.count - 1 else { return false }
+      codeviews[idx+1].numberTextField.becomeFirstResponder()
+      codeviews[idx+1].numberTextField.text = string
+      reactor?.action.onNext(.textFieldDidChange(text: string, index: idx+1))
+      codeviews[idx+1].setState(.done)
+      if idx < codeviews.count - 2 {
+        codeviews[idx+2].setState(.focused)
+      }
+      return false
+    }
+    
+    if string.isEmpty {
+      textField.text = ""
+      reactor?.action.onNext(.textFieldDidChange(text: "", index: idx))
+      codeviews.forEach {
+        if $0.state == .focused {
+          $0.setState(.plain)
+        }
+      }
+      codeviews[idx].setState(.focused)
+      
+      if idx > 0 {
+        let prevField = codeviews[idx-1].numberTextField
+        prevField.becomeFirstResponder()
+        prevField.selectedTextRange = prevField.textRange(from: prevField.endOfDocument, to: prevField.endOfDocument)
+      }
+      return false
+    } else if string.count > 1 {
+      let numbers = string.compactMap { $0.isNumber ? String($0) : nil }
+      guard !numbers.isEmpty else { return false }
+      
+      for (index, number) in numbers.prefix(6).enumerated() {
+        let codeview = codeviews[index]
+        codeview.numberTextField.text = number
+        reactor?.action.onNext(.textFieldDidChange(text: number, index: index))
+        codeview.setState(.done)
+      }
+      
+      let nextIndex = min(codeviews.count - 1, idx + numbers.count)
+      let lastTextField = codeviews[nextIndex].numberTextField
+      lastTextField.becomeFirstResponder()
+      lastTextField.selectedTextRange = lastTextField.textRange(from: lastTextField.endOfDocument, to: lastTextField.endOfDocument)
+      return false
+    }
+    
+    codeviews[idx].setState(.done)
+    if idx < codeviews.count - 1 {
+      codeviews[idx+1].setState(.focused)
+    }
+    reactor?.action.onNext(.textFieldDidChange(text: string, index: idx))
+    return true
   }
 }

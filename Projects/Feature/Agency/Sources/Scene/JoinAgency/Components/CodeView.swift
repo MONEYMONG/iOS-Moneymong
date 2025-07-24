@@ -8,6 +8,12 @@ import PinLayout
 import FlexLayout
 
 final class CodeView: UIView {
+  weak var delegate: UITextFieldDelegate? {
+    didSet {
+      numberTextField.delegate = delegate
+    }
+  }
+  
   enum State {
     case plain // 입력대기
     case focused // 입력중
@@ -15,6 +21,7 @@ final class CodeView: UIView {
     case error // 에러
   }
   
+  private(set) var state: State
   private var disposeBag = DisposeBag()
   private let rootContainer = UIView()
   private let mongCodeImageView: UIImageView = {
@@ -33,6 +40,7 @@ final class CodeView: UIView {
   }()
   
   init(state: State) {
+    self.state = state
     super.init(frame: .zero)
     setupConstraints()
     setState(state)
@@ -64,17 +72,20 @@ final class CodeView: UIView {
   }
   
   func setState(_ state: State) {
+    self.state = state
     switch state {
     case .plain:
       rootContainer.flex.border(1, Colors.Gray._3).backgroundColor(Colors.White._1)
       mongCodeImageView.isHidden = true
     case .focused:
       rootContainer.flex.border(1, Colors.Blue._4).backgroundColor(Colors.White._1)
-      numberTextField.becomeFirstResponder()
       mongCodeImageView.isHidden = true
     case .done:
-      rootContainer.flex.border(0, Colors.White._1).backgroundColor(Colors.White._1)
-      mongCodeImageView.isHidden = false
+      DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) { [weak self] in
+        guard let self else { return }
+        rootContainer.flex.border(0, Colors.White._1).backgroundColor(Colors.White._1)
+        mongCodeImageView.isHidden = false
+      }
     case .error:
       rootContainer.flex.border(1, Colors.Red._3).backgroundColor(Colors.Gray._1)
       mongCodeImageView.isHidden = true
