@@ -44,7 +44,7 @@ extension AppleAuthManager: ASAuthorizationControllerDelegate {
           let name = appIDCredntial.fullName
     else {
       continuation?
-        .resume(throwing: MoneyMongError.unknown("유저 정보를 가져오지 못했습니다."))
+        .resume(throwing: MoneyMongError.default("유저 정보를 가져오지 못했습니다."))
       return
     }
     guard let familyName = name.familyName,
@@ -75,6 +75,6 @@ extension AppleAuthManager: ASAuthorizationControllerDelegate {
       return
     }
     continuation?
-      .resume(throwing: MoneyMongError.unknown(error.localizedDescription))
+      .resume(throwing: MoneyMongError.default(error.localizedDescription))
   }
 }

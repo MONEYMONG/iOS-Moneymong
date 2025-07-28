@@ -33,7 +33,7 @@ public struct SignRepository: SignRepositoryInterface {
     do {
       return try await kakaoAuthManager.sign()
     } catch {
-      throw MoneyMongError.unknown(error.localizedDescription)
+      throw MoneyMongError.default(error.localizedDescription)
     }
   }
 
@@ -41,7 +41,7 @@ public struct SignRepository: SignRepositoryInterface {
     do {
       return try await appleAuthManager.sign()
     } catch {
-      throw MoneyMongError.unknown(error.localizedDescription)
+      throw MoneyMongError.default(error.localizedDescription)
     }
   }
 

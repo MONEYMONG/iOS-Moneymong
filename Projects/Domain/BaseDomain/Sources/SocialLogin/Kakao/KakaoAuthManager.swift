@@ -43,7 +43,7 @@ extension KakaoAuthManager {
       if let kakaoError = error as? SdkError {
         let reason = kakaoError.getClientError().reason
         if reason == .Cancelled { return }
-        continuation.resume(throwing: MoneyMongError.unknown(kakaoError.localizedDescription))
+        continuation.resume(throwing: MoneyMongError.default(kakaoError.localizedDescription))
       }
       if let accessToken = oauthToken?.accessToken {
         continuation.resume(returning: KakaoAuthInfo(accessToken: accessToken))
@@ -56,7 +56,7 @@ extension KakaoAuthManager {
       if let kakaoError = error as? SdkError {
         let reason = kakaoError.getClientError().reason
         if reason == .Cancelled { return }
-        continuation.resume(throwing: MoneyMongError.unknown(kakaoError.localizedDescription))
+        continuation.resume(throwing: MoneyMongError.default(kakaoError.localizedDescription))
       }
       if let accessToken = oauthToken?.accessToken {
         continuation.resume(returning: KakaoAuthInfo(accessToken: accessToken))

@@ -85,8 +85,14 @@ final class JoinAgencyReactor: Reactor {
         newState.snackBarMessage = "잘못된 초대코드입니다"
       }
       
-    case let .joinAgencyResponse(.failure(value)):
-      newState.errorMessage = value.errorDescription
+    case let .joinAgencyResponse(.failure(error)):
+      if error == MoneyMongError.appError(.invitation_001) ||
+          error == MoneyMongError.appError(.invitation_002) ||
+          error == MoneyMongError.appError(.invitation_003) {
+        newState.snackBarMessage = "잘못된 초대코드입니다"
+      } else {
+        newState.errorMessage = error.errorDescription
+      }
     }
     return newState
   }
