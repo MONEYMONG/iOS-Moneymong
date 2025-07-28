@@ -29,15 +29,13 @@ public final class NetworkManager: NetworkManagerInterfacae {
     {
       if let message = errorResponse.message {
         throw MoneyMongError.appError(
-          MoneyMongError.Code(rawValue: errorResponse.code) ?? .default,
-          errorMessage: message
+          MoneyMongError.Code(rawValue: errorResponse.code) ?? .default
         )
       }
       
       if let messages = errorResponse.messages {
         throw MoneyMongError.appError(
-          MoneyMongError.Code(rawValue: errorResponse.code) ?? .default,
-          errorMessage: messages.joined(separator: "\n")
+          MoneyMongError.Code(rawValue: errorResponse.code) ?? .default
         )
       }
     }
@@ -98,22 +96,20 @@ public final class NetworkManager: NetworkManagerInterfacae {
       {
         if let message = errorResponse.message {
           throw MoneyMongError.appError(
-            MoneyMongError.Code(rawValue: errorResponse.code) ?? .default,
-            errorMessage: message
+            MoneyMongError.Code(rawValue: errorResponse.code) ?? .default
           )
         }
         
         if let messages = errorResponse.messages {
           throw MoneyMongError.appError(
-            MoneyMongError.Code(rawValue: errorResponse.code) ?? .default,
-            errorMessage: messages.joined(separator: "\n")
+            MoneyMongError.Code(rawValue: errorResponse.code) ?? .default
           )
         }
       }
       
       assertionFailure("dto디코딩, error디코딩 모두 실패 이러면 안되요 디버깅 해주세요")
       
-      throw MoneyMongError.appError(.default, errorMessage: "디코딩 실패")
+      throw MoneyMongError.appError(.default)
     case let .failure(error):
       throw error
     }

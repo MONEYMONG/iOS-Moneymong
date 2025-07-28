@@ -151,7 +151,7 @@ final class CreateManualLedgerReactor: Reactor {
         let imageURL: ImageInfo
         guard let index = currentState.content.documentImages.firstIndex(where: {
           $0.id == image.id
-        }) else { throw MoneyMongError.appError(.default, errorMessage: "이미지 삭제가 정상적으로 이뤄지지 않았습니다") }
+        }) else { throw MoneyMongError.default("이미지 삭제가 정상적으로 이뤄지지 않았습니다") }
         imageURL = currentState.content.documentImages[index]
         try await deleteImageUseCase.execute(imageURL)
         return index
@@ -265,14 +265,14 @@ private extension CreateManualLedgerReactor {
   func requestCreateLedgerRecord() -> Observable<Mutation> {
     return .task {
       guard let amount = Int(currentState.content.amount.filter { $0.isNumber }) else {
-        throw MoneyMongError.appError(.default, errorMessage: "금액을 확인해 주세요")
+        throw MoneyMongError.default("금액을 확인해 주세요")
       }
       guard let date = formatter.mergeWithISO8601(
         date: currentState.content.date,
         time: currentState.content.time != "" ? currentState.content.time : formatter.convertToTime(date: .now)
       )
       else {
-        throw MoneyMongError.appError(.default, errorMessage: "날짜 및 시간을 확인해 주세요")
+        throw MoneyMongError.default("날짜 및 시간을 확인해 주세요")
       }
       let memo = currentState.content.memo.isEmpty ? "내용없음" : currentState.content.memo
       return try await createLedgerUseCase.execute(
@@ -301,7 +301,7 @@ private extension CreateManualLedgerReactor {
   func uploadImage(image: ImageData) -> Observable<Mutation> {
     return .task {
       guard let resizeImateData = UIImage(data: image.data)?.jpegData(compressionQuality: 0.027) else {
-        throw MoneyMongError.appError(.default, errorMessage: "첨부 이미지를 확인해 주세요")
+        throw MoneyMongError.default("첨부 이미지를 확인해 주세요")
       }
       var entity = try await uploadImageUseCase.execute(imageData: resizeImateData)
       entity.id = image.id

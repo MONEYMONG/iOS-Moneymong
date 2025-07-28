@@ -55,7 +55,7 @@ final class SplashVC: BaseVC, View {
       .observe(on: MainScheduler.instance)
       .filter { $0 }
       .bind(with: self) { owner, value in
-        owner.coordinator?.alert(title: "안정적인 머니몽 사용을 위해\n최신 버전으로 업데이트가 필요해요!") {
+        owner.coordinator?.alert(title: "최적의 사용 환경을 위해\n머니몽 업데이트가 필요해요") {
           if let url = URL(string: "itms-apps://itunes.apple.com/app/id6503661220"),
                        UIApplication.shared.canOpenURL(url)
           {
