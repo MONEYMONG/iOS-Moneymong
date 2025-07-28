@@ -140,7 +140,7 @@ extension JoinAgencyVC: UITextFieldDelegate {
     shouldChangeCharactersIn range: NSRange,
     replacementString string: String
   ) -> Bool {
-    guard Int(string) != nil else { return false }
+    guard string.isEmpty || Int(string) != nil else { return false }
     guard let idx = codeviews.map(\.numberTextField).firstIndex(of: textField) else { return false }
     
     if let text = textField.text, !text.isEmpty, !string.isEmpty {
