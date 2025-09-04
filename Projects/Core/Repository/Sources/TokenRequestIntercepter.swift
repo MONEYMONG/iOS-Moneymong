@@ -76,7 +76,8 @@ public final class TokenRequestIntercepter: RequestInterceptor {
     completion: @escaping (RetryResult) -> Void
   ) {
     guard let response = request.task?.response as? HTTPURLResponse,
-          response.statusCode == 401 else {
+          response.statusCode == 401,
+          request.request?.url?.absoluteString.hasSuffix("/tokens") == false else {
       completion(.doNotRetryWithError(error))
       return
     }
