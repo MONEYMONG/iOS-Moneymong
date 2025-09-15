@@ -33,6 +33,10 @@ public final class JoinAgencyCoordinator: JoinAgencyCoordinatorInterface {
   func dismiss(animated: Bool = true) {
     navigationController?.topViewController?.dismiss(animated: animated)
   }
+  
+  func pop(animated: Bool = true) {
+    navigationController?.popViewController(animated: animated)
+  }
 }
 
 private extension JoinAgencyCoordinator {

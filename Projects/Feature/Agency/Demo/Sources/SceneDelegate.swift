@@ -51,5 +51,9 @@ extension SceneDelegate {
     DIContainer.shared.register(type: UpdateSelectedAgencyUseCaseInterface.self) {
       return MockUpdateSelectedAgencyUseCase()
     }
+    
+    DIContainer.shared.register(type: ConfirmCertificateCodeUseCaseInterface.self) {
+      return MockConfirmCertificateCodeUseCase()
+    }
   }
 }
