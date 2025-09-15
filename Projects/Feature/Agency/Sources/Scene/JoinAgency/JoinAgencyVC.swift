@@ -39,6 +39,13 @@ final class JoinAgencyVC: BaseVC, ReactorKit.View {
     CodeView(state: .plain)
   ]
   
+  private let navigationType: NavigationType
+  
+  init(navigationType: NavigationType) {
+    self.navigationType = navigationType
+    super.init()
+  }
+  
   override func setupConstraints() {
     super.setupConstraints()
     
@@ -65,12 +72,23 @@ final class JoinAgencyVC: BaseVC, ReactorKit.View {
   }
   
   func bind(reactor: JoinAgencyReactor) {
-    setRightItem(.closeBlack)
+    if navigationType == .present {
+      setRightItem(.closeBlack)
+    } else {
+      setLeftItem(.back)
+    }
     
     navigationItem.rightBarButtonItem?.rx.tap
       .throttle(.seconds(1), latest: false, scheduler: MainScheduler.instance)
       .bind(with: self) { owner, _ in
         owner.coordinator?.dismiss()
+      }
+      .disposed(by: disposeBag)
+    
+    navigationItem.leftBarButtonItem?.rx.tap
+      .throttle(.seconds(1), latest: false, scheduler: MainScheduler.instance)
+      .bind(with: self) { owner, _ in
+        owner.coordinator?.pop()
       }
       .disposed(by: disposeBag)
     

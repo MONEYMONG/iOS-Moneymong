@@ -22,6 +22,7 @@ public final class InputAgencyInfoReactor: Reactor {
     
     public enum Destination {
       case main
+      case code
       case dismiss
     }
   }
@@ -29,6 +30,7 @@ public final class InputAgencyInfoReactor: Reactor {
   public enum Action {
     case textFieldDidChange(String)
     case tapCreateButton
+    case tapCodeInputButton
     case dismiss
   }
   
@@ -78,6 +80,8 @@ public final class InputAgencyInfoReactor: Reactor {
           .catch { return .just(.setError($0.toMMError)) },
         .just(.setLoading(false))
       )
+    case .tapCodeInputButton:
+      return .just(.setDestination(.code))
     case .dismiss:
       return .just(.setDestination(.main))
     }

@@ -5,6 +5,11 @@ import RxCocoa
 import PinLayout
 import FlexLayout
 
+public enum NavigationType {
+  case present
+  case push
+}
+
 /// BaseViewController
 open class BaseVC: UIViewController {
   public let rootContainer = UIView()

@@ -11,8 +11,8 @@ struct AgencyFactory {
   
   init() { }
   
-  func makeJoinAgency(ledgerService: LedgerServiceInterface?) -> JoinAgencyVC {
-    let vc = JoinAgencyVC()
+  func makeJoinAgency(navigationType: NavigationType = .present, ledgerService: LedgerServiceInterface?) -> JoinAgencyVC {
+    let vc = JoinAgencyVC(navigationType: navigationType)
     vc.reactor = JoinAgencyReactor(
       confirmCertificateCodeUseCase: DIContainer.shared.resolve(type: ConfirmCertificateCodeUseCaseInterface.self), ledgerService: ledgerService
     )

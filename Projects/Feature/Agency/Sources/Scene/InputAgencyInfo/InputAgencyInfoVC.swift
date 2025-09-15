@@ -25,6 +25,20 @@ public final class InputAgencyInfoVC: BaseVC, View {
   
   private let registerButton: MMButton = MMButton(title: "등록하기", type: .disable)
   
+  private let codeInputButton: UIButton = {
+    let v = UIButton()
+    let attributedString = NSAttributedString(
+      string: "초대코드를 받았어요 >",
+      attributes: [
+        .underlineStyle: NSUnderlineStyle.single.rawValue,
+        .font: Fonts.body._1,
+        .foregroundColor: Colors.Gray._5
+      ]
+    )
+    v.setAttributedTitle(attributedString, for: .normal)
+    return v
+  }()
+  
   public override func setupConstraints() {
     super.setupConstraints()
     
@@ -35,6 +49,7 @@ public final class InputAgencyInfoVC: BaseVC, View {
       flex.addItem(UILabel().text("사용할 장부는 언제든지 추가로 만들 수 있어요", font: Fonts.body._3, color: Colors.Gray._5))
         .marginBottom(16)
       flex.addItem(agencyTextField).marginTop(28)
+      flex.addItem(codeInputButton).marginTop(14)
       flex.addItem().grow(1)
     }
     
@@ -126,6 +141,13 @@ public final class InputAgencyInfoVC: BaseVC, View {
       .bind(to: reactor.action)
       .disposed(by: disposeBag)
     
+    codeInputButton.rx.tap
+      .throttle(.seconds(1), latest: false, scheduler: MainScheduler.instance)
+      .map { Reactor.Action.tapCodeInputButton }
+      .bind(to: reactor.action)
+      .disposed(by: disposeBag)
+      
+    
     // State Binding
     reactor.pulse(\.$isButtonEnabled)
       .bind(with: self) { owner, value in
@@ -141,6 +163,8 @@ public final class InputAgencyInfoVC: BaseVC, View {
         case .main:
           owner.coordinator?.dismiss()
           owner.coordinator?.move(to: .main)
+        case .code:
+          owner.coordinator?.present(.code)
         case .dismiss:
           owner.coordinator?.dismiss()
         }
