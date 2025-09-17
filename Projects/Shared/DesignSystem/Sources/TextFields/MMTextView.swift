@@ -36,6 +36,7 @@ public class MMTextView: UIView {
   public var textView: UITextView = {
     let textView = UITextView()
     textView.font = Fonts.body._3
+    textView.contentInset.left = -4
     textView.selectedTextRange = nil
     textView.isScrollEnabled = false
     textView.textColor = Colors.Gray._8
@@ -91,9 +92,9 @@ public class MMTextView: UIView {
   private func setupConstraints() {
     rootContainer.flex.backgroundColor(.white).define { flex in
       flex.addItem(titleLabel)
-      flex.addItem(textView).backgroundColor(.white).minHeight(150)
-      flex.addItem(placeholderLabel).position(.absolute).top(23).left(6)
-      flex.addItem().height(10)
+      flex.addItem(textView).backgroundColor(.white)
+      flex.addItem(placeholderLabel).position(.absolute).top(23)
+      flex.addItem().height(5)
       flex.addItem(colorLineView).height(1).backgroundColor(state.color)
       flex.addItem().height(2)
       flex.addItem(charactorLimitView)
