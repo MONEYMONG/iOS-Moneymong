@@ -3,6 +3,7 @@ import Combine
 
 import DesignSystem
 import BaseFeature
+import LedgerFeatureInterface
 
 import RxSwift
 import RxCocoa
@@ -71,6 +72,13 @@ public final class InputAgencyInfoVC: BaseVC, View {
     ]
     
     NSLayoutConstraint.activate(keybordHideCreateButtonConstraints)
+  }
+  
+  override public func viewWillAppear(_ animated: Bool) {
+    super.viewWillAppear(animated)
+    if coordinator?.parentCoordinator is LedgerCoordinatorInterface {
+      codeInputButton.isHidden = true
+    }
   }
   
   public func bind(reactor: InputAgencyInfoReactor) {
