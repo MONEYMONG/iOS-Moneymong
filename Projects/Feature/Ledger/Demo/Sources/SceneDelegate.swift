@@ -165,6 +165,10 @@ extension SceneDelegate {
       return MockUpdateSelectedAgencyUseCase()
     }
     
+    DIContainer.shared.register(type: GetCategoriesUseCaseInterface.self) {
+      return MockGetCategoriesUseCase()
+    }
+    
     //MARK: - JoinAgency
     DIContainer.shared.register(type: JoinAgencyCoordinatorInterface.self) {
       return JoinAgencyCoordinator(ledgerService: nil)
