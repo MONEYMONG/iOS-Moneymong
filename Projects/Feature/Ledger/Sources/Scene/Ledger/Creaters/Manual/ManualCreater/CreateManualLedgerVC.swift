@@ -143,6 +143,21 @@ final class CreateManualLedgerVC: BaseVC, View, ImagePickerPresentable {
     MMTextView(charactorLimitCount: 300, title: "메모")
       .setPlaceholder(to: "메모할 내용을 입력하세요")
   }()
+  
+  private let categoryEditButton: UIButton = {
+    let v = UIButton()
+    let attributedString = NSAttributedString(
+      string: "수정",
+      attributes: [
+        .font: Fonts.body._2,
+        .foregroundColor: Colors.Blue._4
+      ]
+    )
+    v.setAttributedTitle(attributedString, for: .normal)
+    return v
+  }()
+  
+  private let chipListView: ChipListView = ChipListView()
 
   override func viewDidLayoutSubviews() {
     super.viewDidLayoutSubviews()
@@ -201,6 +216,13 @@ final class CreateManualLedgerVC: BaseVC, View, ImagePickerPresentable {
             flex.addItem(dateTextField).marginBottom(24)
             flex.addItem(timeTextField).marginBottom(24)
             flex.addItem(memoTextView).marginBottom(24)
+            flex.addItem().direction(.row).define { flex in
+              flex.addItem(UILabel().text("카테고리", font: Fonts.body._2, color: Colors.Gray._6))
+              flex.addItem().grow(1)
+              flex.addItem(categoryEditButton)
+            }.marginBottom(8)
+            flex.addItem(chipListView)
+            .marginBottom(24)
             flex.addItem(UILabel().text("사진 첨부 (최대 12장)", font: Fonts.body._2, color: Colors.Gray._6))
             flex.addItem(documentCollectionView).marginBottom(24).marginRight(-8)
             flex.addItem().alignItems(.start).define { flex in
@@ -326,6 +348,17 @@ final class CreateManualLedgerVC: BaseVC, View, ImagePickerPresentable {
       .bind(with: self) { owner, _ in
         owner.scrollView.contentInset.bottom = 100
       }.disposed(by: disposeBag)
+    
+    categoryEditButton.rx.tap
+      .bind(with: self) { owner, _ in
+        #warning("카테고리 수정 버튼 액션")
+      }
+      .disposed(by: disposeBag)
+    
+    chipListView.chipTapAction = { chip in
+      guard let chipTitle = chip.titleLabel?.text else { return }
+      reactor.action.onNext(.inputContent(.category(chipTitle)))
+    }
   }
   
   private func bindState(reactor: CreateManualLedgerReactor) {
@@ -422,6 +455,26 @@ final class CreateManualLedgerVC: BaseVC, View, ImagePickerPresentable {
       .observe(on: MainScheduler.instance)
       .bind(with: self) { owner, isEnabled in
         owner.completeButton.setState(isEnabled ? .primary : .disable)
+      }
+      .disposed(by: disposeBag)
+    
+    reactor.pulse(\.content.$category)
+      .skip(1)
+      .bind(with: self) { owner, value in
+        let offset = owner.scrollView.contentOffset
+        owner.chipListView.selectChip(value)
+        owner.rootContainer.flex.layout(mode: .adjustHeight)
+        owner.scrollView.setContentOffset(offset, animated: false)
+      }
+      .disposed(by: disposeBag)
+    
+    reactor.pulse(\.$categories)
+      .debug()
+      .filter { !$0.isEmpty }
+      .observe(on: MainScheduler.instance)
+      .bind(with: self) { owner, categories in
+        owner.chipListView.setupChips(with: categories)
+        owner.rootContainer.flex.layout(mode: .adjustHeight)
       }
       .disposed(by: disposeBag)
   }

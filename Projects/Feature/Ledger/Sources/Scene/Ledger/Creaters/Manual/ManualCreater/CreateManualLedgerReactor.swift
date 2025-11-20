@@ -1,6 +1,7 @@
 import Foundation
 import UIKit
 
+import AgencyInterface
 import BaseDomain
 import BaseFeature
 import LedgerInterface
@@ -23,6 +24,7 @@ final class CreateManualLedgerReactor: Reactor {
     case date(String, Bool)
     case time(String, Bool)
     case memo(String)
+    case category(String)
   }
   
   struct ContentValid {
@@ -58,6 +60,7 @@ final class CreateManualLedgerReactor: Reactor {
     case addImageURL(ImageInfo)
     case setDestination
     case setAlertContent(AlertType)
+    case setCategory([String])
   }
   
   struct State {
@@ -68,6 +71,7 @@ final class CreateManualLedgerReactor: Reactor {
     @Pulse var alertMessage: (String, String?, AlertType)? = nil
     @Pulse var isButtonEnabled = false
     @Pulse var destination: Destination?
+    @Pulse var categories: [String] = []
     var content = Content()
     
     enum Destination {
@@ -83,6 +87,7 @@ final class CreateManualLedgerReactor: Reactor {
     @Pulse var time: String = ""
     @Pulse var memo: String = ""
     @Pulse var documentImages = [ImageInfo]()
+    @Pulse var category: String? = nil
   }
   
   let initialState: State
@@ -98,6 +103,7 @@ final class CreateManualLedgerReactor: Reactor {
   private let deleteImageUseCase: DeleteImageUseCaseInterface
   private let createLedgerUseCase: CreateLedgerUseCaseInterface
   private let uploadImageUseCase: UploadImageUseCaseInterface
+  private let getCategoriesUseCase: GetCategoriesUseCaseInterface
   
   init(
     agencyId: Int,
@@ -106,6 +112,7 @@ final class CreateManualLedgerReactor: Reactor {
     deleteImageUseCase: DeleteImageUseCaseInterface,
     createLedgerUseCase: CreateLedgerUseCaseInterface,
     uploadImageUseCase: UploadImageUseCaseInterface,
+    getCatagoriesUseCase: GetCategoriesUseCaseInterface = DIContainer.shared.resolve(type: GetCategoriesUseCaseInterface.self),
     ledgerService: LedgerServiceInterface,
     formatter: ContentFormatter
   ) {
@@ -116,6 +123,7 @@ final class CreateManualLedgerReactor: Reactor {
     self.deleteImageUseCase = deleteImageUseCase
     self.createLedgerUseCase = createLedgerUseCase
     self.uploadImageUseCase = uploadImageUseCase
+    self.getCategoriesUseCase = getCatagoriesUseCase
   }
   
   func mutate(action: Action) -> Observable<Mutation> {
@@ -126,11 +134,17 @@ final class CreateManualLedgerReactor: Reactor {
         return .merge(
           .task { try await getMyInfoUseCase.execute().nickname }
             .map { .setName($0) },
+          .task { try await getCategoriesUseCase.execute(id: currentState.agencyId) }
+            .map { .setCategory($0) },
           .just(.setOperatingCostValues)
         )
       case .createManual:
-        return .task { try await getMyInfoUseCase.execute().nickname }
-          .map { .setName($0) }
+        return .merge(
+          .task { try await getMyInfoUseCase.execute().nickname }
+            .map { .setName($0) },
+          .task { try await getCategoriesUseCase.execute(id: currentState.agencyId) }
+            .map { .setCategory($0) }
+        )
       }
       
     case let .selectedImage(item):
@@ -203,6 +217,8 @@ final class CreateManualLedgerReactor: Reactor {
       case .end:
         newState.alertMessage = ("정말 나가시겠습니까?", "작성한 내용이 저장되지 않았습니다", type)
       }
+    case .setCategory(let categories):
+      newState.categories = categories
     }
     return newState
   }
@@ -240,6 +256,8 @@ private extension CreateManualLedgerReactor {
       content.time = formatter.convertToTime(with: value)
     case let .memo(value):
       content.memo = value
+    case let .category(value):
+      content.category = content.category == value ? nil : value
     }
   }
   
