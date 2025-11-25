@@ -29,7 +29,7 @@ final class SelectAgencySheetVC: BottomSheetVC, View {
     super.setupConstraints()
     
     contentView.flex.define { flex in
-      flex.addItem(tableView).height(3 * (80) + 12 * 2)
+      flex.addItem(tableView).height(3 * (72) + 12 * 2)
         .margin(16)
       flex.addItem(registerCodeInputButton)
         .marginHorizontal(16)
@@ -101,8 +101,9 @@ final class SelectAgencySheetVC: BottomSheetVC, View {
         
         let height = min(CGFloat(count * 72 + (count - 1) * 12), 3 * (72) + 2 * 12)
         owner.tableView.isScrollEnabled = count > 3
-        owner.tableView.flex.height(height + 6)
-        owner.view.setNeedsLayout()
+        owner.update {
+          owner.tableView.flex.height(height + 6).markDirty()
+        }
         
         if let index = agencies.firstIndex(where: { $0.id == reactor.currentState.selectedAgencyID }) {
           owner.tableView.scrollToRow(at: IndexPath(row: index, section: 0), at: .middle, animated: true)
