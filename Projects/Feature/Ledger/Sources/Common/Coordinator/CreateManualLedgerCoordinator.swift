@@ -11,10 +11,8 @@ public final class CreateManualLedgerCoordinator: CreateManualLedgerCoordinatorI
   private let contentFormatter: ContentFormatter
   
   enum Scene {
-    case imagePicker(delegate: UIImagePickerControllerDelegate & UINavigationControllerDelegate)
-    case alert(title: String, subTitle: String?, type: MMAlerts.`Type`)
+    case categorySheet(categories: [String])
   }
-  
 
   public init(contentFormatter: ContentFormatter) {
     self.contentFormatter = contentFormatter
@@ -26,7 +24,25 @@ public final class CreateManualLedgerCoordinator: CreateManualLedgerCoordinatorI
     navigationController?.pushViewController(vc, animated: animated)
   }
   
+  func present(_ scene: Scene) {
+    switch scene {
+    case let .categorySheet(categories):
+      categorySheet(categories: categories)
+    }
+  }
+  
   func pop() {
     navigationController?.popViewController(animated: true)
+  }
+}
+
+private extension CreateManualLedgerCoordinator {
+  func categorySheet(categories: [String]) {
+    let vc = LedgerFactory(
+      ledgerService: ledgerService,
+      contentFormatter: contentFormatter
+    ).makeCategorySheet(categories: categories)
+    vc.modalPresentationStyle = .overFullScreen
+    navigationController?.present(vc, animated: false)
   }
 }

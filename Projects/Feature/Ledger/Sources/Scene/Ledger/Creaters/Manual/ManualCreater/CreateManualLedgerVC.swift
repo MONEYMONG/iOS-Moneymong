@@ -350,12 +350,11 @@ final class CreateManualLedgerVC: BaseVC, View, ImagePickerPresentable {
       }.disposed(by: disposeBag)
     
     categoryEditButton.rx.tap
-      .bind(with: self) { owner, _ in
-        #warning("카테고리 수정 버튼 액션")
-      }
+      .map { Reactor.Action.didTapCategoryEditButton }
+      .bind(to: reactor.action)
       .disposed(by: disposeBag)
     
-    chipListView.chipTapAction = { chip in
+    chipListView.chipTapAction = { chip, _ in
       guard let chipTitle = chip.titleLabel?.text else { return }
       reactor.action.onNext(.inputContent(.category(chipTitle)))
     }
@@ -422,10 +421,16 @@ final class CreateManualLedgerVC: BaseVC, View, ImagePickerPresentable {
       .disposed(by: disposeBag)
     
     reactor.pulse(\.$destination)
-      .filter { $0 == .ledger }
       .observe(on: MainScheduler.instance)
-      .bind(with: self) { owner, _ in
-        owner.dismiss(animated: true)
+      .bind(with: self) { owner, destination in
+        switch destination {
+        case .ledger:
+          owner.dismiss(animated: true)
+        case let .categorySheet(categories):
+          owner.coordinator?.present(.categorySheet(categories: categories))
+        case .none:
+          break
+        }
       }
       .disposed(by: disposeBag)
     
@@ -469,7 +474,6 @@ final class CreateManualLedgerVC: BaseVC, View, ImagePickerPresentable {
       .disposed(by: disposeBag)
     
     reactor.pulse(\.$categories)
-      .debug()
       .filter { !$0.isEmpty }
       .observe(on: MainScheduler.instance)
       .bind(with: self) { owner, categories in

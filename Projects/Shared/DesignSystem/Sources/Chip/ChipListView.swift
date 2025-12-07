@@ -10,9 +10,15 @@ import UIKit
 import FlexLayout
 
 public final class ChipListView: UIView {
+  public enum Mode {
+    case `default`
+    case edit
+  }
+  
   private var chips: [CategoryChip] = []
-  public var chipTapAction: ((CategoryChip) -> Void) = {_ in}
+  public var chipTapAction: ((CategoryChip, Int) -> Void) = {_, _ in}
   private var selectedChipIndex: Int?
+  public var mode: Mode = .default
   
   override public func layoutSubviews() {
     super.layoutSubviews()
@@ -20,11 +26,14 @@ public final class ChipListView: UIView {
   }
   
   public func setupChips(with titles: [String]) {
-    chips = titles.map {
-      let chip = CategoryChip(title: $0)
+    subviews.forEach {
+      $0.removeFromSuperview()
+    }
+    chips = titles.enumerated().map { index, title in
+      let chip = CategoryChip(title: title, state: mode == .default ? .unselected : .deletable)
       chip.sizeToFit()
       chip.addAction { [weak self] in
-        self?.chipTapAction(chip)
+        self?.chipTapAction(chip, index)
         self?.flex.markDirty()
         self?.layoutIfNeeded()
       }
