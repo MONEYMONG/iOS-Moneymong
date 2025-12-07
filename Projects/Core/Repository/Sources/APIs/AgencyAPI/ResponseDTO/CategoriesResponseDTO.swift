@@ -1,10 +1,11 @@
 import Foundation
 
+import BaseDomain
 import MMNetworkInterface
 
 struct CategoriesResponseDTO: Responsable {
   let agencyId: Int
-  let categories: [String]
+  let categories: [CategoryResponseDTO]
   
-  var toEntity: [String] { categories }
+  var toEntity: [MMCategory] { categories.map(\.toEntity) }
 }

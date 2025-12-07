@@ -24,7 +24,7 @@ final class CreateManualLedgerReactor: Reactor {
     case date(String, Bool)
     case time(String, Bool)
     case memo(String)
-    case category(String)
+    case category(MMCategory)
   }
   
   struct ContentValid {
@@ -61,7 +61,7 @@ final class CreateManualLedgerReactor: Reactor {
     case addImageURL(ImageInfo)
     case setDestination(State.Destination)
     case setAlertContent(AlertType)
-    case setCategory([String])
+    case setCategory([MMCategory])
   }
   
   struct State {
@@ -72,12 +72,12 @@ final class CreateManualLedgerReactor: Reactor {
     @Pulse var alertMessage: (String, String?, AlertType)? = nil
     @Pulse var isButtonEnabled = false
     @Pulse var destination: Destination?
-    @Pulse var categories: [String] = []
+    @Pulse var categories: [MMCategory] = []
     var content = Content()
     
     enum Destination {
       case ledger
-      case categorySheet([String])
+      case categorySheet([MMCategory])
     }
   }
   
@@ -89,7 +89,7 @@ final class CreateManualLedgerReactor: Reactor {
     @Pulse var time: String = ""
     @Pulse var memo: String = ""
     @Pulse var documentImages = [ImageInfo]()
-    @Pulse var category: String? = nil
+    @Pulse var category: MMCategory? = nil
   }
   
   let initialState: State

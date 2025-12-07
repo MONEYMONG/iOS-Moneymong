@@ -97,7 +97,7 @@ final class CategorySheetVC: BottomSheetVC, View {
   private func bindState(_ reactor: CategoryReactor) {
     reactor.pulse(\.$categories)
       .bind(with: self) { owner, categories in
-        owner.chipListView.setupChips(with: categories)
+        owner.chipListView.setupChips(with: categories.map(\.name))
       }
       .disposed(by: disposeBag)
   }

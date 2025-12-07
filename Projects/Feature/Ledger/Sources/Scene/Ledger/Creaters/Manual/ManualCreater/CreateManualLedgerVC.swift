@@ -354,9 +354,9 @@ final class CreateManualLedgerVC: BaseVC, View, ImagePickerPresentable {
       .bind(to: reactor.action)
       .disposed(by: disposeBag)
     
-    chipListView.chipTapAction = { chip, _ in
-      guard let chipTitle = chip.titleLabel?.text else { return }
-      reactor.action.onNext(.inputContent(.category(chipTitle)))
+    chipListView.chipTapAction = { _, index in
+      let category = reactor.currentState.categories[index]
+      reactor.action.onNext(.inputContent(.category(category)))
     }
   }
   
@@ -465,9 +465,9 @@ final class CreateManualLedgerVC: BaseVC, View, ImagePickerPresentable {
     
     reactor.pulse(\.content.$category)
       .skip(1)
-      .bind(with: self) { owner, value in
+      .bind(with: self) { owner, category in
         let offset = owner.scrollView.contentOffset
-        owner.chipListView.selectChip(value)
+        owner.chipListView.selectChip(category?.name)
         owner.rootContainer.flex.layout(mode: .adjustHeight)
         owner.scrollView.setContentOffset(offset, animated: false)
       }
@@ -477,7 +477,7 @@ final class CreateManualLedgerVC: BaseVC, View, ImagePickerPresentable {
       .filter { !$0.isEmpty }
       .observe(on: MainScheduler.instance)
       .bind(with: self) { owner, categories in
-        owner.chipListView.setupChips(with: categories)
+        owner.chipListView.setupChips(with: categories.map(\.name))
         owner.rootContainer.flex.layout(mode: .adjustHeight)
       }
       .disposed(by: disposeBag)

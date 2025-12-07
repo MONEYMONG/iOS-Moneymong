@@ -10,7 +10,7 @@ public struct GetCategoriesUseCase: GetCategoriesUseCaseInterface {
     self.repo = repo
   }
   
-  public func execute(id: Int) async throws -> [String] {
+  public func execute(id: Int) async throws -> [MMCategory] {
     return try await repo.getCategories(id: id)
   }
 }

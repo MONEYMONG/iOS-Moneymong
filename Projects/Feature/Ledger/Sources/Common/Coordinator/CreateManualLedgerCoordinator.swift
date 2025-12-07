@@ -1,5 +1,6 @@
 import UIKit
 
+import BaseDomain
 import BaseFeature
 import DesignSystem
 import LedgerFeatureInterface
@@ -11,7 +12,7 @@ public final class CreateManualLedgerCoordinator: CreateManualLedgerCoordinatorI
   private let contentFormatter: ContentFormatter
   
   enum Scene {
-    case categorySheet(categories: [String])
+    case categorySheet(categories: [MMCategory])
   }
 
   public init(contentFormatter: ContentFormatter) {
@@ -37,7 +38,7 @@ public final class CreateManualLedgerCoordinator: CreateManualLedgerCoordinatorI
 }
 
 private extension CreateManualLedgerCoordinator {
-  func categorySheet(categories: [String]) {
+  func categorySheet(categories: [MMCategory]) {
     let vc = LedgerFactory(
       ledgerService: ledgerService,
       contentFormatter: contentFormatter

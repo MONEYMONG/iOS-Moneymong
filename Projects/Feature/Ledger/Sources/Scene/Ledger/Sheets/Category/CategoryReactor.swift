@@ -1,3 +1,5 @@
+import BaseDomain
+
 import ReactorKit
 
 final class CategoryReactor: Reactor {
@@ -10,13 +12,13 @@ final class CategoryReactor: Reactor {
   }
   
   struct State {
-    @Pulse var categories: [String]
+    @Pulse var categories: [MMCategory]
   }
   
   let initialState: State
   
   init(
-    categories: [String],
+    categories: [MMCategory],
   ) {
     self.initialState = State(
       categories: categories

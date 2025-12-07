@@ -101,7 +101,7 @@ public struct AgencyRepository: AgencyRepositoryInterface {
     memoryCache.delete(key: "v1/agencies/me")
   }
   
-  public func getCategories(id: Int) async throws -> [String] {
+  public func getCategories(id: Int) async throws -> [MMCategory] {
     let targetType = AgencyAPI.getCategories(id: id)
     return try await networkManager.request(target: targetType, of: CategoriesResponseDTO.self).toEntity
   }
