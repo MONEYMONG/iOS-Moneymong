@@ -66,9 +66,11 @@ final class CategorySheetVC: BottomSheetVC, View {
           flex.addItem(chipListView)
         }
       }
-    }.padding(16)
+    }
+    .paddingHorizontal(16)
+    .paddingVertical(20)
     
-    contentHeight = 480
+    contentHeight = 530
   }
   
   func bind(reactor: CategoryReactor) {
@@ -89,7 +91,9 @@ final class CategorySheetVC: BottomSheetVC, View {
     
     createButton.rx.tap
       .bind(with: self) { owner, _ in
-        #warning("카테코리 추가화면으로 이동")
+        let createCategoryVC = CreateCategoryVC()
+        createCategoryVC.reactor = CreateCategoryReactor()
+        owner.sheetNavigation.pushViewController(createCategoryVC, animated: true)
       }
       .disposed(by: disposeBag)
   }
