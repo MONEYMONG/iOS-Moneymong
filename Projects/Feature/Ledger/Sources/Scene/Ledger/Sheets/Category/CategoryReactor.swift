@@ -1,4 +1,6 @@
+import AgencyInterface
 import BaseDomain
+import BaseFeature
 
 import ReactorKit
 
@@ -16,19 +18,26 @@ final class CategoryReactor: Reactor {
   }
   
   let initialState: State
+  private let deleteCategoryUseCase: DeleteCategoryUseCaseInterface
   
   init(
     categories: [MMCategory],
+    deleteCategoryUseCase: DeleteCategoryUseCaseInterface = DIContainer.shared.resolve(type: DeleteCategoryUseCaseInterface.self)
   ) {
     self.initialState = State(
       categories: categories
     )
+    self.deleteCategoryUseCase = deleteCategoryUseCase
   }
   
   func mutate(action: Action) -> Observable<Mutation> {
     switch action {
     case let .didTapDeleteButton(index):
-      return .just(.deleteCategory(index))
+      return .task {
+        let categoryId = currentState.categories[index].id
+        try await deleteCategoryUseCase.execute(id: categoryId)
+      }
+      .map { .deleteCategory(index) }
     }
   }
   
