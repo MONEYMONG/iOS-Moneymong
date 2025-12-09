@@ -190,6 +190,11 @@ extension SceneDelegate {
       return GetCategoriesUseCase(repo: agencyRepo)
     }
     
+    DIContainer.shared.register(type: DeleteCategoryUseCaseInterface.self) {
+      let agencyRepo = AgencyRepository(networkManager: networkManager, localStorage: localStorage, memoryCache: memoryCache)
+      return DeleteCategoryUseCase(repo: agencyRepo)
+    }
+    
     // MARK: - Ledger UseCase Dependency
     DIContainer.shared.register(type: CreateLedgerUseCaseInterface.self) {
       let ledgerRepo = LedgerRepository(networkManager: networkManager, localStorage: localStorage)

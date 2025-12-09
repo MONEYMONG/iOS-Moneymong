@@ -127,6 +127,14 @@ extension SceneDelegate {
       return MockUploadImageUseCase()
     }
     
+    DIContainer.shared.register(type: GetCategoriesUseCaseInterface.self) {
+      return MockGetCategoriesUseCase()
+    }
+    
+    DIContainer.shared.register(type: DeleteCategoryUseCaseInterface.self) {
+      return MockDeleteCategoryUseCase()
+    }
+    
     // MARK: - Detail
     DIContainer.shared.register(type: UpdateLedgerUseCaseInterface.self) {
       return MockUpdateLedgerUseCase()
@@ -163,10 +171,6 @@ extension SceneDelegate {
     
     DIContainer.shared.register(type: UpdateSelectedAgencyUseCaseInterface.self) {
       return MockUpdateSelectedAgencyUseCase()
-    }
-    
-    DIContainer.shared.register(type: GetCategoriesUseCaseInterface.self) {
-      return MockGetCategoriesUseCase()
     }
     
     //MARK: - JoinAgency
