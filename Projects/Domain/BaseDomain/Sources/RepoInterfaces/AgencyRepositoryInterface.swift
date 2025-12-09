@@ -10,4 +10,5 @@ public protocol AgencyRepositoryInterface {
   func deleteAgency(id: Int) async throws
   func getCategories(id: Int) async throws -> [MMCategory]
   func createCategory(id: Int, name: String) async throws -> String
+  func deleteCategory(id: Int) async throws
 }

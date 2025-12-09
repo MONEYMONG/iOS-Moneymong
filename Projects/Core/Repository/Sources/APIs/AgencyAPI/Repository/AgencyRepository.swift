@@ -111,4 +111,9 @@ public struct AgencyRepository: AgencyRepositoryInterface {
     try await networkManager.request(target: targetType)
     return name
   }
+  
+  public func deleteCategory(id: Int) async throws {
+    let targetType = AgencyAPI.deleteCategory(id: id)
+    try await networkManager.request(target: targetType)
+  }
 }

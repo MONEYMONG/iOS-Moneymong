@@ -14,6 +14,7 @@ enum AgencyAPI {
   case delete(id: Int) // 소속삭제
   case getCategories(id: Int)
   case createCategory(query: CreateCategoryRequestDTO)
+  case deleteCategory(id: Int)
 }
 
 extension AgencyAPI: TargetType {
@@ -32,7 +33,7 @@ extension AgencyAPI: TargetType {
     case .certificateCode: return "v2/agencies/invitation-code"
     case let .reissueCode(id): return "v1/agencies/\(id)/invitation-code"
     case let .delete(id): return "v1/agencies/\(id)"
-    case .getCategories, .createCategory: return "v1/agencies/categories"
+    case .getCategories, .createCategory, .deleteCategory: return "v1/agencies/categories"
     }
   }
 
@@ -49,6 +50,7 @@ extension AgencyAPI: TargetType {
     case .delete: return .delete
     case .getCategories: return .get
     case .createCategory: return .post
+    case .deleteCategory: return .delete
     }
   }
 
@@ -65,6 +67,7 @@ extension AgencyAPI: TargetType {
     case .delete: return .plain
     case let .getCategories(id): return .requestJSONEncodable(query: ["agencyId":id])
     case let .createCategory(query): return .requestJSONEncodable(query: query)
+    case let .deleteCategory(id): return .requestJSONEncodable(query: ["categoryId":id])
     }
   }
 
