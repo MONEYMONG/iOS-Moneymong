@@ -8,11 +8,9 @@ import LedgerInterface
 import LedgerFeatureInterface
 
 struct LedgerFactory {
-  private let ledgerService: LedgerServiceInterface
   private let contentFormatter: ContentFormatter
   
-  init(ledgerService: LedgerServiceInterface, contentFormatter: ContentFormatter) {
-    self.ledgerService = ledgerService
+  init(contentFormatter: ContentFormatter) {
     self.contentFormatter = contentFormatter
   }
   
@@ -22,7 +20,7 @@ struct LedgerFactory {
       getMyAgencyUseCase: DIContainer.shared.resolve(type: GetMyAgencyUseCaseInterface.self),
       getSelectedAgency: DIContainer.shared.resolve(type: GetSelectedAgencyUseCaseInterface.self),
       updateSelectedAgency: DIContainer.shared.resolve(type: UpdateSelectedAgencyUseCaseInterface.self),
-      ledgerService: ledgerService
+      ledgerService: DIContainer.shared.resolve(type: LedgerServiceInterface.self)
     )
     return vc
   }
@@ -35,7 +33,7 @@ struct LedgerFactory {
       saveLedgerDateRangeUseCase: DIContainer.shared.resolve(type: SaveLedgerDateRangeUseCaseInterface.self),
       getLedgerListUseCase: DIContainer.shared.resolve(type: GetLedgerListUseCaseInterface.self),
       getMemberListUseCase: DIContainer.shared.resolve(type: GetMemberListUseCaseInterface.self),
-      ledgerService: ledgerService,
+      ledgerService: DIContainer.shared.resolve(type: LedgerServiceInterface.self),
       formatter: contentFormatter
     )
     vc.title = "장부"
@@ -53,7 +51,7 @@ struct LedgerFactory {
       getMyInfoUseCase: DIContainer.shared.resolve(type: GetMyInfoUseCaseInterface.self),
       getInvitationCodeUseCase: DIContainer.shared.resolve(type: GetInvitationCodeUseCaseInterface.self),
       getMemberListUseCase: DIContainer.shared.resolve(type: GetMemberListUseCaseInterface.self),
-      ledgerService: ledgerService
+      ledgerService: DIContainer.shared.resolve(type: LedgerServiceInterface.self)
     )
     vc.title = "멤버"
     return vc
@@ -68,7 +66,7 @@ struct LedgerFactory {
       deleteImageUseCase: DIContainer.shared.resolve(type: DeleteImageUseCaseInterface.self),
       createLedgerUseCase: DIContainer.shared.resolve(type: CreateLedgerUseCaseInterface.self),
       uploadImageUseCase: DIContainer.shared.resolve(type: UploadImageUseCaseInterface.self),
-      ledgerService: ledgerService,
+      ledgerService: DIContainer.shared.resolve(type: LedgerServiceInterface.self),
       formatter: contentFormatter
     )
     return vc
@@ -79,7 +77,7 @@ struct LedgerFactory {
     vc.reactor = DatePickerReactor(
       startDate: start,
       endDate: end,
-      ledgerService: ledgerService,
+      ledgerService: DIContainer.shared.resolve(type: LedgerServiceInterface.self),
       formatter: contentFormatter
     )
     return vc
@@ -91,7 +89,7 @@ struct LedgerFactory {
       agencyID: agencyID,
       member: member,
       changeMemberRoleUseCase: DIContainer.shared.resolve(type: ChangeMemberRoleUseCaseInterface.self),
-      ledgerService: ledgerService
+      ledgerService: DIContainer.shared.resolve(type: LedgerServiceInterface.self)
     )
     return vc
   }
@@ -103,7 +101,7 @@ struct LedgerFactory {
       updateSelectedAgencyUseCase: DIContainer.shared.resolve(type: UpdateSelectedAgencyUseCaseInterface.self),
       getUserIDUseCase: DIContainer.shared.resolve(type: GetUserIDUseCaseInterface.self),
       getSelectedAgencyUseCase: DIContainer.shared.resolve(type: GetSelectedAgencyUseCaseInterface.self),
-      service: ledgerService
+      service: DIContainer.shared.resolve(type: LedgerServiceInterface.self)
     )
     return vc
   }
@@ -126,7 +124,7 @@ struct LedgerFactory {
       role: role,
       getLedgerDetailUseCase: DIContainer.shared.resolve(type: GetLedgerDetailUseCaseInterface.self),
       deleteLedgerUseCase: DIContainer.shared.resolve(type: DeleteLedgerUseCaseInterface.self),
-      ledgerService: ledgerService,
+      ledgerService: DIContainer.shared.resolve(type: LedgerServiceInterface.self),
       ledgerContentsService: ledgerDetailContentsService
     )
     return vc

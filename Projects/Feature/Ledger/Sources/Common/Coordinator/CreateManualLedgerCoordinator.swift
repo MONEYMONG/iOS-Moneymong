@@ -8,7 +8,6 @@ public final class CreateManualLedgerCoordinator: CreateManualLedgerCoordinatorI
   public weak var navigationController: UINavigationController?
   public weak var parentCoordinator: Coordinator?
   
-  private let ledgerService: LedgerServiceInterface
   private let contentFormatter: ContentFormatter
   
   enum Scene {
@@ -17,13 +16,12 @@ public final class CreateManualLedgerCoordinator: CreateManualLedgerCoordinatorI
   }
   
 
-  public init(ledgerService: LedgerServiceInterface, contentFormatter: ContentFormatter) {
-    self.ledgerService = ledgerService
+  public init(contentFormatter: ContentFormatter) {
     self.contentFormatter = contentFormatter
   }
 
   public func start(agencyId: Int, type: ManualPresentType, animated: Bool) {
-    let vc = LedgerFactory(ledgerService: ledgerService, contentFormatter: contentFormatter).makeCreateManual(agencyId: agencyId, type: type)
+    let vc = LedgerFactory(contentFormatter: contentFormatter).makeCreateManual(agencyId: agencyId, type: type)
     vc.coordinator = self
     navigationController?.pushViewController(vc, animated: animated)
   }

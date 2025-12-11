@@ -70,7 +70,6 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
 extension SceneDelegate {
   func registerDependency(localStorage: LocalStorage) {
     let networkManager = NetworkManager()
-    let ledgerService = LedgerService()
     let contentFormatter = ContentFormatter()
     let memoryCache = MemoryCache()
     let widgetRefreshController = WidgetRefreshController()
@@ -82,6 +81,12 @@ extension SceneDelegate {
         localStorage: localStorage
       )
     )
+    
+    // MARK: Common Object
+    DIContainer.shared.register(type: LedgerServiceInterface.self) {
+      return LedgerService()
+    }
+    
     
     // MARK: - User UseCase Dependency
     DIContainer.shared.register(type: GetMyInfoUseCaseInterface.self) {
@@ -242,19 +247,19 @@ extension SceneDelegate {
     }
     
     DIContainer.shared.register(type: CreateAgencyCoordinatorInterface.self) {
-      return CreateAgencyCoordinator(ledgerService: ledgerService)
+      return CreateAgencyCoordinator()
     }
     
     DIContainer.shared.register(type: JoinAgencyCoordinatorInterface.self) {
-      return JoinAgencyCoordinator(ledgerService: ledgerService)
+      return JoinAgencyCoordinator()
     }
     
     DIContainer.shared.register(type: LedgerCoordinatorInterface.self) {
-      return LedgerCoordinator(ledgerService: ledgerService, contentFormatter: contentFormatter)
+      return LedgerCoordinator(contentFormatter: contentFormatter)
     }
     
     DIContainer.shared.register(type: CreateManualLedgerCoordinatorInterface.self) {
-      return CreateManualLedgerCoordinator(ledgerService: ledgerService, contentFormatter: contentFormatter)
+      return CreateManualLedgerCoordinator(contentFormatter: contentFormatter)
     }
   }
 }
