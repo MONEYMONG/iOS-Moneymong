@@ -77,7 +77,7 @@ final class CreateManualLedgerReactor: Reactor {
     
     enum Destination {
       case ledger
-      case categorySheet([MMCategory])
+      case categorySheet(agencyId: Int, categorise: [MMCategory])
     }
   }
   
@@ -182,8 +182,30 @@ final class CreateManualLedgerReactor: Reactor {
     case .didTapCompleteButton:
       return requestCreateLedgerRecord()
     case .didTapCategoryEditButton:
-      return .just(.setDestination(.categorySheet(currentState.categories)))
+      return .just(
+        .setDestination(
+          .categorySheet(
+            agencyId: currentState.agencyId,
+            categorise: currentState.categories
+          )
+        )
+      )
     }
+  }
+  
+  func transform(mutation: Observable<Mutation>) -> Observable<Mutation> {
+    return .merge(mutation, serviceMutation())
+  }
+  
+  private func serviceMutation() -> Observable<Mutation> {
+    service.category.event
+      .withUnretained(self)
+      .flatMap { owner, event -> Observable<Mutation> in
+        switch event {
+        case let .update(categories):
+          return .just(.setCategory(categories))
+        }
+      }
   }
   
   func reduce(state: State, mutation: Mutation) -> State {

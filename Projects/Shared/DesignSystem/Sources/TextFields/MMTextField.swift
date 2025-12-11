@@ -231,6 +231,11 @@ extension MMTextField {
     return self
   }
   
+  public func setError(message: String) {
+    state = .error
+    charactorLimitView.setState(.error(characterCount: textField.text?.count ?? 0, errorMessage: message))
+  }
+  
   @discardableResult
   public func setText(to text: String) -> Self {
     textField.text = text

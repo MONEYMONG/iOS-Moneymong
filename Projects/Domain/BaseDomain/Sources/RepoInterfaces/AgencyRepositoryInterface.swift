@@ -9,6 +9,6 @@ public protocol AgencyRepositoryInterface {
   func reissueCode(id: Int) async throws -> String
   func deleteAgency(id: Int) async throws
   func getCategories(id: Int) async throws -> [MMCategory]
-  func createCategory(id: Int, name: String) async throws -> String
+  func createCategory(agencyId: Int, name: String) async throws
   func deleteCategory(id: Int) async throws
 }

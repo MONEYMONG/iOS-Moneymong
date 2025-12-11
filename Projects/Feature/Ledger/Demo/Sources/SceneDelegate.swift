@@ -19,15 +19,13 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
   var coordinator: LedgerCoordinator?
   var window: UIWindow?
   func scene(_ scene: UIScene, willConnectTo session: UISceneSession, options connectionOptions: UIScene.ConnectionOptions) {
-    let ledgerService = LedgerService()
     let contentFormatter = ContentFormatter()
     Fonts.registerFont()
-    registerDependency(ledgerService: ledgerService, contentFormatter: contentFormatter)
+    registerDependency(contentFormatter: contentFormatter)
     let navigationController = UINavigationController()
     guard let windowScene = (scene as? UIWindowScene) else { return }
     window = UIWindow(windowScene: windowScene)
     coordinator = LedgerCoordinator(
-      ledgerService: ledgerService,
       contentFormatter: contentFormatter
     )
     coordinator?.navigationController = navigationController
@@ -49,9 +47,12 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
 
 extension SceneDelegate {
   func registerDependency(
-    ledgerService: LedgerServiceInterface,
     contentFormatter: ContentFormatter
   ) {
+    DIContainer.shared.register(type: LedgerServiceInterface.self) {
+      return LedgerService()
+    }
+    
     // MARK: LedgerTab
     DIContainer.shared.register(type: GetLedgerDateRangeUseCaseInterface.self) {
       return MockGetLedgerDateRangeUseCase()
@@ -110,7 +111,6 @@ extension SceneDelegate {
     //MARK: Creater
     DIContainer.shared.register(type: CreateManualLedgerCoordinatorInterface.self) {
       return CreateManualLedgerCoordinator(
-        ledgerService: ledgerService,
         contentFormatter: contentFormatter
       )
     }
@@ -133,6 +133,10 @@ extension SceneDelegate {
     
     DIContainer.shared.register(type: DeleteCategoryUseCaseInterface.self) {
       return MockDeleteCategoryUseCase()
+    }
+    
+    DIContainer.shared.register(type: CreateCategoryUseCaseInterface.self) {
+      return MockCreateCategoryUseCase()
     }
     
     // MARK: - Detail
@@ -158,7 +162,7 @@ extension SceneDelegate {
     
     //MARK: - CreateAgency
     DIContainer.shared.register(type: CreateAgencyCoordinatorInterface.self) {
-      return CreateAgencyCoordinator(ledgerService: nil)
+      return CreateAgencyCoordinator()
     }
     
     DIContainer.shared.register(type: CreateAgencyUseCaseInterface.self) {
@@ -175,7 +179,7 @@ extension SceneDelegate {
     
     //MARK: - JoinAgency
     DIContainer.shared.register(type: JoinAgencyCoordinatorInterface.self) {
-      return JoinAgencyCoordinator(ledgerService: nil)
+      return JoinAgencyCoordinator()
     }
     
     DIContainer.shared.register(type: ConfirmCertificateCodeUseCaseInterface.self) {

@@ -107,7 +107,45 @@ final class CreateCategoryVC: BaseVC, View {
         owner.navigationController?.popViewController(animated: true)
       }
       .disposed(by: disposeBag)
+    
+    categoryField.textField.rx.text
+      .skip(1)
+      .compactMap { $0 }
+      .map { Reactor.Action.inputTitle($0) }
+      .bind(to: reactor.action)
+      .disposed(by: disposeBag)
+    
+    registerButton.rx.tap
+      .map { Reactor.Action.didTapRegisterButton }
+      .bind(to: reactor.action)
+      .disposed(by: disposeBag)
   }
   
-  private func bindState(_ reactor: CreateCategoryReactor) {}
+  private func bindState(_ reactor: CreateCategoryReactor) {
+    reactor.pulse(\.$destination)
+      .compactMap { $0 }
+      .observe(on: MainScheduler.instance)
+      .bind(with: self) { owner, destination in
+        switch destination {
+        case .before:
+          owner.navigationController?.popViewController(animated: true)
+        }
+      }
+      .disposed(by: disposeBag)
+    
+    reactor.pulse(\.$title)
+      .map { $0.isEmpty || $0 == "" }
+      .bind(with: self) { owner, isDisabled in
+        owner.registerButton.setState(isDisabled ? .disable : .primary)
+      }
+      .disposed(by: disposeBag)
+    
+    reactor.pulse(\.$textFieldError)
+      .compactMap { $0 }
+      .observe(on: MainScheduler.instance)
+      .bind(with: self) { owner, message in
+        owner.categoryField.setError(message: message)
+      }
+      .disposed(by: disposeBag)
+  }
 }

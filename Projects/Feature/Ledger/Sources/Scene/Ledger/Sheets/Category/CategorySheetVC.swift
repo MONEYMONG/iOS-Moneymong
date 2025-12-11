@@ -90,11 +90,8 @@ final class CategorySheetVC: BottomSheetVC, View {
     }
     
     createButton.rx.tap
-      .bind(with: self) { owner, _ in
-        let createCategoryVC = CreateCategoryVC()
-        createCategoryVC.reactor = CreateCategoryReactor()
-        owner.sheetNavigation.pushViewController(createCategoryVC, animated: true)
-      }
+      .map { Reactor.Action.didTapCreateButton }
+      .bind(to: reactor.action)
       .disposed(by: disposeBag)
   }
   
@@ -103,6 +100,18 @@ final class CategorySheetVC: BottomSheetVC, View {
       .observe(on: MainScheduler.instance)
       .bind(with: self) { owner, categories in
         owner.chipListView.setupChips(with: categories.map(\.name))
+      }
+      .disposed(by: disposeBag)
+    
+    reactor.pulse(\.$destination)
+      .compactMap { $0 }
+      .bind(with: self) { owner, destination in
+        switch destination {
+        case let .createCategory(agencyId):
+          let createCategoryVC = CreateCategoryVC()
+          createCategoryVC.reactor = CreateCategoryReactor(agencyId: agencyId)
+          owner.sheetNavigation.pushViewController(createCategoryVC, animated: true)
+        }
       }
       .disposed(by: disposeBag)
   }

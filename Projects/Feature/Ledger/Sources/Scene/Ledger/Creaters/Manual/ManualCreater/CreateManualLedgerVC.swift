@@ -426,8 +426,8 @@ final class CreateManualLedgerVC: BaseVC, View, ImagePickerPresentable {
         switch destination {
         case .ledger:
           owner.dismiss(animated: true)
-        case let .categorySheet(categories):
-          owner.coordinator?.present(.categorySheet(categories: categories))
+        case let .categorySheet(agencyId, categories):
+          owner.coordinator?.present(.categorySheet(agencyId: agencyId, categories: categories))
         case .none:
           break
         }

@@ -106,10 +106,9 @@ public struct AgencyRepository: AgencyRepositoryInterface {
     return try await networkManager.request(target: targetType, of: CategoriesResponseDTO.self).toEntity
   }
   
-  public func createCategory(id: Int, name: String) async throws -> String {
-    let targetType = AgencyAPI.createCategory(query: CreateCategoryRequestDTO(agencyId: id, name: name))
+  public func createCategory(agencyId: Int, name: String) async throws {
+    let targetType = AgencyAPI.createCategory(query: CreateCategoryRequestDTO(agencyId: agencyId, name: name))
     try await networkManager.request(target: targetType)
-    return name
   }
   
   public func deleteCategory(id: Int) async throws {

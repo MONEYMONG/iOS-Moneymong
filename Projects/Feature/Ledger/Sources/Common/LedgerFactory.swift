@@ -130,9 +130,9 @@ struct LedgerFactory {
     return vc
   }
   
-  func makeCategorySheet(categories: [MMCategory]) -> CategorySheetVC {
+  func makeCategorySheet(agencyId: Int, categories: [MMCategory]) -> CategorySheetVC {
     let vc = CategorySheetVC()
-    vc.reactor = CategoryReactor(categories: categories)
+    vc.reactor = CategoryReactor(agencyId: agencyId, categories: categories)
     return vc
   }
 }

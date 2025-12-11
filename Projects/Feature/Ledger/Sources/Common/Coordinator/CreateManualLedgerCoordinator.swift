@@ -12,7 +12,7 @@ public final class CreateManualLedgerCoordinator: CreateManualLedgerCoordinatorI
   private let contentFormatter: ContentFormatter
   
   enum Scene {
-    case categorySheet(categories: [MMCategory])
+    case categorySheet(agencyId: Int, categories: [MMCategory])
   }
 
   public init(contentFormatter: ContentFormatter) {
@@ -27,8 +27,8 @@ public final class CreateManualLedgerCoordinator: CreateManualLedgerCoordinatorI
   
   func present(_ scene: Scene) {
     switch scene {
-    case let .categorySheet(categories):
-      categorySheet(categories: categories)
+    case let .categorySheet(agencyId, categories):
+      categorySheet(agencyId: agencyId, categories: categories)
     }
   }
   
@@ -38,11 +38,10 @@ public final class CreateManualLedgerCoordinator: CreateManualLedgerCoordinatorI
 }
 
 private extension CreateManualLedgerCoordinator {
-  func categorySheet(categories: [MMCategory]) {
+  func categorySheet(agencyId: Int, categories: [MMCategory]) {
     let vc = LedgerFactory(
-      ledgerService: ledgerService,
       contentFormatter: contentFormatter
-    ).makeCategorySheet(categories: categories)
+    ).makeCategorySheet(agencyId: agencyId, categories: categories)
     vc.modalPresentationStyle = .overFullScreen
     navigationController?.present(vc, animated: false)
   }

@@ -66,8 +66,8 @@ extension AgencyAPI: TargetType {
     case .reissueCode: return .plain
     case .delete: return .plain
     case let .getCategories(id): return .requestJSONEncodable(query: ["agencyId":id])
-    case let .createCategory(query): return .requestJSONEncodable(query: query)
-    case let .deleteCategory(id): return .requestJSONEncodable(query: ["categoryId":id])
+    case let .createCategory(params): return .requestJSONEncodable(params: params)
+    case let .deleteCategory(id): return .requestJSONEncodable(params: ["categoryId":id])
     }
   }
 

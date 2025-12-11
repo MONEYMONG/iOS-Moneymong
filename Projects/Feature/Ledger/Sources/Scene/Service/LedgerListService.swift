@@ -15,8 +15,8 @@ final class LedgerListService: LedgerListServiceInterface {
     event.onNext(.createLedgerRecord)
     return .empty()
   }
-
+  
   func updateList() {
-      event.onNext(.update)
-    }
+    event.onNext(.update)
+  }
 }
