@@ -13,7 +13,6 @@ public final class LedgerCoordinator: LedgerCoordinatorInterface {
   public weak var parentCoordinator: Coordinator?
   var moveTab: ((Int) -> Void)?
   
-  private let ledgerService: LedgerServiceInterface
   private let contentFormatter: ContentFormatter
   
   enum Scene {
@@ -23,8 +22,7 @@ public final class LedgerCoordinator: LedgerCoordinatorInterface {
     case createAgency
   }
 
-  public init(ledgerService: LedgerServiceInterface, contentFormatter: ContentFormatter) {
-    self.ledgerService = ledgerService
+  public init(contentFormatter: ContentFormatter) {
     self.contentFormatter = contentFormatter
   }
 
@@ -52,7 +50,7 @@ public final class LedgerCoordinator: LedgerCoordinatorInterface {
 
 extension LedgerCoordinator {
   private func ledger(animated: Bool) {
-    let ledgerFactory = LedgerFactory(ledgerService: ledgerService, contentFormatter: contentFormatter)
+    let ledgerFactory = LedgerFactory(contentFormatter: contentFormatter)
     
     let ledgerTabVC = ledgerFactory.makeLedgerTab()
     let memberTabVC = ledgerFactory.makeMemberTab()
@@ -79,20 +77,20 @@ extension LedgerCoordinator {
   }
 
   private func detail(ledgerID: Int, role: Member.Role, animated: Bool = true) {
-    let vc = LedgerFactory(ledgerService: ledgerService, contentFormatter: contentFormatter).makeDetail(ledgetID: ledgerID, role: role)
+    let vc = LedgerFactory(contentFormatter: contentFormatter).makeDetail(ledgetID: ledgerID, role: role)
     vc.coordinator = self
     navigationController?.pushViewController(vc, animated: animated)
   }
   
   func editMember(agencyID: Int, member: Member) {
-    let vc = LedgerFactory(ledgerService: ledgerService, contentFormatter: contentFormatter).makeEditMember(agencyID: agencyID, member: member)
+    let vc = LedgerFactory(contentFormatter: contentFormatter).makeEditMember(agencyID: agencyID, member: member)
     vc.modalPresentationStyle = .overFullScreen
     vc.modalTransitionStyle = .crossDissolve
     navigationController?.present(vc, animated: false)
   }
   
   func selectAgencySheet() {
-    let vc = LedgerFactory(ledgerService: ledgerService, contentFormatter: contentFormatter).makeSelectAgency()
+    let vc = LedgerFactory(contentFormatter: contentFormatter).makeSelectAgency()
     vc.coordinator = self
     vc.modalPresentationStyle = .overFullScreen
     vc.modalTransitionStyle = .crossDissolve
@@ -100,7 +98,7 @@ extension LedgerCoordinator {
   }
   
   func datePicker(start: DateInfo, end: DateInfo) {
-    let vc = LedgerFactory(ledgerService: ledgerService, contentFormatter: contentFormatter).makeDatePicker(start: start, end: end)
+    let vc = LedgerFactory(contentFormatter: contentFormatter).makeDatePicker(start: start, end: end)
     vc.modalPresentationStyle = .overFullScreen
     navigationController?.present(vc, animated: false)
   }

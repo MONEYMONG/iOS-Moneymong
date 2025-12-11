@@ -9,11 +9,8 @@ public final class JoinAgencyCoordinator: JoinAgencyCoordinatorInterface {
   public weak var navigationController: UINavigationController?
   public weak var parentCoordinator: Coordinator?
   
-  private let ledgerService: LedgerServiceInterface?
   
-  public init(ledgerService: LedgerServiceInterface?) {
-    self.ledgerService = ledgerService
-  }
+  public init() {}
   
   enum Destination {
     case alert(title: String)
@@ -41,7 +38,7 @@ public final class JoinAgencyCoordinator: JoinAgencyCoordinatorInterface {
 
 private extension JoinAgencyCoordinator {
   private func joinAgency(animated: Bool) {
-    let vc = AgencyFactory().makeJoinAgency(ledgerService: ledgerService)
+    let vc = AgencyFactory().makeJoinAgency()
     vc.coordinator = self
     navigationController?.pushViewController(vc, animated: animated)
   }
