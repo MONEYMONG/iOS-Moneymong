@@ -93,6 +93,11 @@ final class CategorySheetVC: BottomSheetVC, View {
       .map { Reactor.Action.didTapCreateButton }
       .bind(to: reactor.action)
       .disposed(by: disposeBag)
+    
+    rx.viewWillDisappear
+      .map { Reactor.Action.onDisappear }
+      .bind(to: reactor.action)
+      .disposed(by: disposeBag)
   }
   
   private func bindState(_ reactor: CategoryReactor) {

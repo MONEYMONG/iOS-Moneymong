@@ -9,6 +9,7 @@ final class CategoryReactor: Reactor {
   enum Action {
     case didTapDeleteButton(Int)
     case didTapCreateButton
+    case onDisappear
   }
   
   enum Mutation {
@@ -50,11 +51,14 @@ final class CategoryReactor: Reactor {
     case let .didTapDeleteButton(index):
       return .task {
         let categoryId = currentState.categories[index].id
-        try await deleteCategoryUseCase.execute(id: categoryId)
+        try? await deleteCategoryUseCase.execute(id: categoryId)
       }
       .map { .deleteCategory(index) }
     case .didTapCreateButton:
       return .just(.setDestination(.createCategory(agencyId: agencyId)))
+    case .onDisappear:
+      service.category.event.onNext(.update(currentState.categories))
+      return .empty()
     }
   }
   
