@@ -45,7 +45,6 @@ public final class CategoryChip: UIButton {
     
     var configuration = UIButton.Configuration.bordered()
     configuration.attributedTitle = attributedTitle
-    configuration.baseForegroundColor = Colors.Black._1
     configuration.contentInsets = .init(top: 9, leading: 12, bottom: 9, trailing: 12)
     configuration.imagePlacement = .trailing
     configuration.imagePadding = 2
@@ -77,6 +76,13 @@ public final class CategoryChip: UIButton {
       self.configuration?.imageColorTransformer = UIConfigurationColorTransformer { _ in return Colors.Gray._5 }
     }
     stateType = state
+  }
+  
+  public func setTitle(_ title: String) {
+    var attributedTitle = AttributedString(title)
+    attributedTitle.font = Fonts.body._3
+    attributedTitle.foregroundColor = Colors.Gray._6
+    self.configuration?.attributedTitle = attributedTitle
   }
 }
 

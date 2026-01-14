@@ -18,8 +18,9 @@ public final class LedgerCoordinator: LedgerCoordinatorInterface {
   enum Scene {
     case alert(title: String, subTitle: String?, type: MMAlerts.`Type`)
     case createManualLedger(Int, ManualPresentType)
-    case detail(Ledger, Member.Role)
+    case detail(Int, Ledger, Member.Role)
     case createAgency
+    case categorySheet(agencyID: Int, categories: [MMCategory])
   }
 
   public init(contentFormatter: ContentFormatter) {
@@ -36,10 +37,12 @@ public final class LedgerCoordinator: LedgerCoordinatorInterface {
       createManualLedger(agencyId: agencyId, type: type, animated: animated)
     case let .alert(title, subTitle, type):
       AlertsManager.show(title: title, subTitle: subTitle, type: type)
-    case let .detail(ledger, role):
-      detail(ledgerID: ledger.id, role: role)
+    case let .detail(agencyID, ledger, role):
+      detail(agencyID: agencyID, ledgerID: ledger.id, role: role)
     case .createAgency:
       createAgency()
+    case let .categorySheet(agencyID, categories):
+      categorySheet(agencyId: agencyID, categories: categories)
     }
   }
   
@@ -76,8 +79,12 @@ extension LedgerCoordinator {
     self.navigationController?.present(navigationController, animated: animated)
   }
 
-  private func detail(ledgerID: Int, role: Member.Role, animated: Bool = true) {
-    let vc = LedgerFactory(contentFormatter: contentFormatter).makeDetail(ledgetID: ledgerID, role: role)
+  private func detail(agencyID: Int, ledgerID: Int, role: Member.Role, animated: Bool = true) {
+    let vc = LedgerFactory(contentFormatter: contentFormatter).makeDetail(
+      agencyID: agencyID,
+      ledgetID: ledgerID,
+      role: role
+    )
     vc.coordinator = self
     navigationController?.pushViewController(vc, animated: animated)
   }
@@ -121,5 +128,13 @@ extension LedgerCoordinator {
     coordinator.start(animated: false)
     navigationController.modalPresentationStyle = .overFullScreen
     self.navigationController?.present(navigationController, animated: true)
+  }
+  
+  private func categorySheet(agencyId: Int, categories: [MMCategory]) {
+    let vc = LedgerFactory(
+      contentFormatter: contentFormatter
+    ).makeCategorySheet(agencyId: agencyId, categories: categories)
+    vc.modalPresentationStyle = .overFullScreen
+    navigationController?.present(vc, animated: false)
   }
 }

@@ -9,6 +9,7 @@ public struct LedgerDetail: Equatable {
   public let paymentDate: String
   public let documentImageUrls: [ImageURL]
   public let authorName: String
+  public let category: String?
 
   public init(
     id: Int,
@@ -18,7 +19,8 @@ public struct LedgerDetail: Equatable {
     description: String,
     paymentDate: String,
     documentImageUrls: [ImageURL],
-    authorName: String
+    authorName: String,
+    category: String?
   ) {
     self.id = id
     self.storeInfo = storeInfo
@@ -28,6 +30,7 @@ public struct LedgerDetail: Equatable {
     self.paymentDate = paymentDate
     self.documentImageUrls = documentImageUrls
     self.authorName = authorName
+    self.category = category
   }
   
   public struct ImageURL: Equatable {

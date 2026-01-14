@@ -325,7 +325,8 @@ private extension CreateManualLedgerReactor {
         amount: amount,
         description: memo,
         paymentDate: date,
-        documentImageUrls: currentState.content.documentImages.map(\.url)
+        documentImageUrls: currentState.content.documentImages.map(\.url),
+        category: currentState.content.category?.name
       )}
     .withUnretained(self)
     .flatMap({ owner, _ -> Observable<Mutation> in

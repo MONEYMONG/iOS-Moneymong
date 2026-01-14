@@ -106,7 +106,7 @@ struct LedgerFactory {
     return vc
   }
   
-  func makeDetail(ledgetID: Int, role: Member.Role) -> LedgerDetailVC {
+  func makeDetail(agencyID: Int, ledgetID: Int, role: Member.Role) -> LedgerDetailVC {
     let ledgerDetailContentsService = LedgerDetailContentsService()
     let ledgerContentReactor = LedgerContentsReactor(
       ledgerContentsService: ledgerDetailContentsService,
@@ -120,6 +120,7 @@ struct LedgerFactory {
     let vc = LedgerDetailVC(contentsView: contentView)
     contentView.delegate = vc
     vc.reactor = LedgerDetailReactor(
+      agencyID: agencyID,
       ledgerID: ledgetID,
       role: role,
       getLedgerDetailUseCase: DIContainer.shared.resolve(type: GetLedgerDetailUseCaseInterface.self),

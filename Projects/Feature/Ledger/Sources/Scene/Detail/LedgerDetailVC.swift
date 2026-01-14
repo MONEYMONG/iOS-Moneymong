@@ -149,6 +149,17 @@ final class LedgerDetailVC: BaseVC, View, ImagePickerPresentable {
         owner.coordinator?.pop()
       }
       .disposed(by: disposeBag)
+    
+    reactor.pulse(\.$destination)
+      .compactMap { $0 }
+      .observe(on: MainScheduler.instance)
+      .bind(with: self) { owner, destination in
+        switch destination {
+        case let .categorySheet(agencyID, categories):
+          owner.coordinator?.present(.categorySheet(agencyID: agencyID, categories: categories))
+        }
+      }
+      .disposed(by: disposeBag)
   }
 
   private func setNavigationBarRightButton(role: Member.Role,  isEdit: Bool) {

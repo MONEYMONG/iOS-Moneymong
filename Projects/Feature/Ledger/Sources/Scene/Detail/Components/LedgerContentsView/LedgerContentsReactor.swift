@@ -1,9 +1,11 @@
 import UIKit
 
+import AgencyInterface
 import BaseDomain
 import BaseFeature
 import DesignSystem
 import LedgerInterface
+import LedgerFeatureInterface
 import Utility
 
 import ReactorKit
@@ -19,6 +21,7 @@ final class LedgerContentsReactor: Reactor {
     case time(String, Bool)
     case authorName(String)
     case documentImage(LedgerImageInfo, Bool)
+    case category(String)
   }
 
   struct ContentValid {
@@ -34,6 +37,8 @@ final class LedgerContentsReactor: Reactor {
     case selectedImage(Data)
     case deleteImage(LedgerImageInfo)
     case registrationLedger(LedgerDetail)
+    case loadCategories(Result<[MMCategory], MoneyMongError>)
+    case didTapCategoryEditButton
   }
 
   enum Mutation {
@@ -41,6 +46,7 @@ final class LedgerContentsReactor: Reactor {
     case setValueChanged(ContentType)
     case setState(LedgerContentsView.State)
     case setError(MoneyMongError)
+    case setCategories([MMCategory])
   }
 
   struct State {
@@ -48,11 +54,13 @@ final class LedgerContentsReactor: Reactor {
     @Pulse var currentLedgerItem: LedgerDetailItem = .empty
     @Pulse var error: MoneyMongError?
     @Pulse var state: LedgerContentsView.State = .read
+    @Pulse var categories: [MMCategory] = []
   }
 
   var initialState = State()
   let formatter: ContentFormatter
   private let ledgerContentsService: LedgerDetailContentsServiceInterface
+  private let ledgerService: LedgerServiceInterface
   
   private var valid = ContentValid()
   private var isValided: Bool {
@@ -70,7 +78,8 @@ final class LedgerContentsReactor: Reactor {
     uploadImageUseCase: UploadImageUseCaseInterface,
     uploadDocumentUseCase: UploadDocumentUseCaseInterface,
     deleteDocumentUseCase: DeleteDocumentUseCaseInterface,
-    formatter: ContentFormatter
+    formatter: ContentFormatter,
+    ledgerService: LedgerServiceInterface = DIContainer.shared.resolve(type: LedgerServiceInterface.self)
   ) {
     self.ledgerContentsService = ledgerContentsService
     self.updateLedgerUseCase = updateLedgerUseCase
@@ -78,10 +87,15 @@ final class LedgerContentsReactor: Reactor {
     self.uploadDocumentUseCase = uploadDocumentUseCase
     self.deleteDocumentUseCase = deleteDocumentUseCase
     self.formatter = formatter
+    self.ledgerService = ledgerService
   }
 
   func transform(action: Observable<Action>) -> Observable<Action> {
     return Observable.merge(action, serviceAction)
+  }
+  
+  func transform(mutation: Observable<Mutation>) -> Observable<Mutation> {
+    return Observable.merge(mutation, serviceMutation)
   }
 
   private var serviceAction: Observable<Action> {
@@ -93,6 +107,19 @@ final class LedgerContentsReactor: Reactor {
           return .just(.didStateChanged(state))
         case .setLedger(let ledger):
           return .just(.registrationLedger(ledger))
+        case .setCategories(let result):
+          return .just(.loadCategories(result))
+        }
+      }
+  }
+  
+  private var serviceMutation: Observable<Mutation> {
+    return ledgerService.category.event
+      .withUnretained(self)
+      .flatMap { owner, event -> Observable<Mutation> in
+        switch event {
+        case let .update(categories):
+          return .just(.setCategories(categories))
         }
       }
   }
@@ -145,6 +172,20 @@ final class LedgerContentsReactor: Reactor {
 
     case .deleteImage(let item):
       return .just(.setValueChanged(.documentImage(item, false)))
+    case .loadCategories(let result):
+      switch result {
+      case .success(let categories):
+          return .just(.setCategories(categories))
+      case .failure(let error):
+          return .just(.setError(error))
+      }
+    case .didTapCategoryEditButton:
+      ledgerContentsService.contentsViewEvent.onNext(
+        .showCategorySheet(
+          categories: currentState.categories
+        )
+      )
+      return .empty()
     }
   }
 
@@ -181,6 +222,9 @@ final class LedgerContentsReactor: Reactor {
         } else {
           newState.currentLedgerItem.deleteImageItem(imageInfo: imageInfo)
         }
+        
+      case .category(let category):
+        newState.currentLedgerItem.category = newState.currentLedgerItem.category == category ? nil : category
       }
 
     case .setError(let error):
@@ -196,6 +240,12 @@ final class LedgerContentsReactor: Reactor {
     case .setLedger(let ledger):
       newState.prevLedgerItem = ledger
       newState.currentLedgerItem = ledger
+      
+    case .setCategories(let categories):
+      newState.categories = categories
+      if !categories.map(\.name).contains(state.currentLedgerItem.category) {
+        newState.currentLedgerItem.category = nil
+      }
     }
 
     return newState

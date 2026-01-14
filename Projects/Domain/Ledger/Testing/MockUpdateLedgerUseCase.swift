@@ -15,7 +15,8 @@ public struct MockUpdateLedgerUseCase: UpdateLedgerUseCaseInterface {
       description: "test",
       paymentDate: "2023-11-16T15:36:11",
       documentImageUrls: [.init(id: 0, url: "https://picsum.photos/250/250")],
-      authorName: "홍길동"
+      authorName: "홍길동",
+      category: "뉴테스트"
     )
   }
 }

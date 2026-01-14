@@ -12,6 +12,7 @@ struct LedgerDetailResponseDTO: Responsable {
   let paymentDate: String
   let documentImageUrls: [DocumentImageURL]
   let authorName: String
+  let category: String?
   
   struct DocumentImageURL: Decodable {
     let id: Int
@@ -29,7 +30,8 @@ struct LedgerDetailResponseDTO: Responsable {
       documentImageUrls: documentImageUrls.map {
         LedgerDetail.ImageURL(id: $0.id, url: $0.documentImageUrl)
       },
-      authorName: authorName
+      authorName: authorName,
+      category: category
     )
   }
 }

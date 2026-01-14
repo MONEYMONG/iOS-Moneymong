@@ -8,4 +8,5 @@ struct LedgerRequestDTO: Encodable {
   let paymentDate: String
   let receiptImageUrls: [String] = []
   let documentImageUrls: [String]
+  let category: String?
 }

@@ -80,13 +80,9 @@ public final class ChipListView: UIView {
       }
     }
     
-    let height = chips.first?.frame.height ?? 0
-    let margins: CGFloat = (lineCount - 1) * marginY
-    frame = CGRect(
-      x: frame.origin.x,
-      y: frame.origin.y,
-      width: frame.width,
-      height: (lineCount * height) + margins
-    )
+    let chipHeight = chips.first?.frame.height ?? 0
+    let totalHeight = (lineCount * chipHeight) + (lineCount - 1) * marginY
+    flex.height(totalHeight).markDirty()
+    superview?.flex.markDirty()
   }
 }

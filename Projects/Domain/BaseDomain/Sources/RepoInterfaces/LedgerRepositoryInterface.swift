@@ -11,7 +11,8 @@ public protocol LedgerRepositoryInterface {
     amount: Int,
     description: String,
     paymentDate: String,
-    documentImageUrls: [String]
+    documentImageUrls: [String],
+    category: String?
   ) async throws
   func update(ledger: LedgerDetail) async throws -> LedgerDetail
   func delete(id: Int) async throws

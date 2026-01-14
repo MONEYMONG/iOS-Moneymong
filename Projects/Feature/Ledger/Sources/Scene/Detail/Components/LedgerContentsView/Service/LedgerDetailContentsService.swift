@@ -1,4 +1,5 @@
 import BaseDomain
+import Utility
 
 import RxSwift
 import RxRelay
@@ -6,11 +7,13 @@ import RxRelay
 enum LedgerDetailContentsEvent {
   case isValidChanged(Bool)
   case isLoading(Bool)
+  case showCategorySheet(categories: [MMCategory])
 }
 
 enum ParentEvent {
   case shouldTypeChanged(LedgerContentsView.State)
   case setLedger(LedgerDetail)
+  case setCategories(Result<[MMCategory], MoneyMongError>)
 }
 
 protocol LedgerDetailContentsServiceInterface {

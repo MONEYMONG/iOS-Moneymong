@@ -14,6 +14,7 @@ struct LedgerDetailItem {
   var addedDocumentImages: [LedgerImageInfo] = []
   var deletedDocumentImages: [LedgerImageInfo] = []
   var authorName: String
+  var category: String?
 
   private let formatter = ContentFormatter()
 
@@ -32,6 +33,7 @@ struct LedgerDetailItem {
       items: ledger.documentImageUrls.count == 0 ? [.description("내용없음")] : ledger.documentImageUrls.map { return .image(.init(key: "\($0.id)", url: $0.url)) }
     )
     self.authorName = ledger.authorName
+    self.category = ledger.category
   }
 
   var toEntity: LedgerDetail {
@@ -49,7 +51,8 @@ struct LedgerDetailItem {
           }
           return nil
         },
-      authorName: authorName
+      authorName: authorName,
+      category: category
     )
   }
 }
@@ -69,6 +72,7 @@ extension LedgerDetailItem {
       items: [.description("내용없음")]
     )
     self.authorName = ""
+    self.category = nil
   }
 
   static var empty: LedgerDetailItem { .init() }
