@@ -133,7 +133,7 @@ final class SelectAgencySheetVC: BottomSheetVC, View {
       .compactMap { $0 }
       .observe(on: MainScheduler.instance)
       .bind(with: self) { owner, error in
-        AlertsManager.show(title: "네트워크 에러", subTitle: error.localizedDescription, type: .onlyOkButton({ }))
+        AlertsManager.show(title: error.errorTitle, subTitle: error.localizedDescription, type: .onlyOkButton({ }))
       }
       .disposed(by: disposeBag)
   }

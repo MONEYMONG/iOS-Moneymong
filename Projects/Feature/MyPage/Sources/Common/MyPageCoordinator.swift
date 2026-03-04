@@ -12,7 +12,7 @@ public final class MyPageCoordinator: MyPageCoordinatorInterface {
   public init() {}
   
   enum Scene {
-    case alert(title: String, subTitle: String, okAction: () -> Void)
+    case alert(title: String, subTitle: String?, okAction: () -> Void)
     case web(urlString: String)
     case withrawal
   }
@@ -50,7 +50,7 @@ extension MyPageCoordinator {
     navigationController?.pushViewController(vc, animated: animated)
   }
   
-  private func alert(title: String, subTitle: String, okAction: @escaping () -> Void) {
+  private func alert(title: String, subTitle: String?, okAction: @escaping () -> Void) {
     AlertsManager.show(title: title, subTitle: subTitle, type: .default(okAction: okAction))
   }
 }

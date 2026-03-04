@@ -474,7 +474,6 @@ final class CreateManualLedgerVC: BaseVC, View, ImagePickerPresentable {
       .disposed(by: disposeBag)
     
     reactor.pulse(\.$categories)
-      .filter { !$0.isEmpty }
       .observe(on: MainScheduler.instance)
       .bind(with: self) { owner, categories in
         owner.chipListView.setupChips(with: categories.map(\.name))

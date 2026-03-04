@@ -115,8 +115,8 @@ final class LedgerDetailVC: BaseVC, View, ImagePickerPresentable {
       .observe(on: MainScheduler.instance)
       .bind(with: self) { owner, error in
         owner.coordinator?.present(.alert(
-          title: "네트워크 에러",
-          subTitle: error.localizedDescription,
+          title: error.errorTitle,
+          subTitle: error.errorDescription,
           type: .onlyOkButton({})
         ))
       }

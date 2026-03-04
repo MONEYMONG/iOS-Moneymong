@@ -236,7 +236,7 @@ final class CreateManualLedgerReactor: Reactor {
     case .setAlertContent(let type):
       switch type {
       case .error(let moneyMongError):
-        newState.alertMessage = (moneyMongError.errorTitle, moneyMongError.errorDescription!, type)
+        newState.alertMessage = (moneyMongError.errorTitle, moneyMongError.errorDescription, type)
       case .deleteImage:
         newState.alertMessage = ("사진을 삭제하시겠습니까?", "삭제된 사진은 되돌릴 수 없습니다", type)
       case .end:

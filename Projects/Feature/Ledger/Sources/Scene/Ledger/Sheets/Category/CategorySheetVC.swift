@@ -105,6 +105,7 @@ final class CategorySheetVC: BottomSheetVC, View {
       .observe(on: MainScheduler.instance)
       .bind(with: self) { owner, categories in
         owner.chipListView.setupChips(with: categories.map(\.name))
+        owner.contentView.flex.layout(mode: .adjustHeight)
       }
       .disposed(by: disposeBag)
     

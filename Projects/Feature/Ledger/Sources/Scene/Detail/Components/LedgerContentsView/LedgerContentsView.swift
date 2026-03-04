@@ -274,7 +274,6 @@ final class LedgerContentsView: BaseView, View, UIScrollViewDelegate {
       .disposed(by: disposeBag)
     
     reactor.pulse(\.$categories)
-      .filter { !$0.isEmpty }
       .withLatestFrom(reactor.pulse(\.$currentLedgerItem)) { (categories: $0, selected: $1.category) }
       .observe(on: MainScheduler.instance)
       .bind(with: self) { owner, state in

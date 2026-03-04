@@ -35,16 +35,16 @@ public enum MoneyMongError: LocalizedError, Equatable {
   }
   case networkError(errorMessage: String)
   case serverError(errorMessage: String)
-  case appError(Code)
+  case appError(Code, errorMessage: String? = nil)
   case `default`(String)
   
   public var errorTitle: String {
     switch self {
-    case let .appError(code):
+    case let .appError(code, _):
       switch code {
       case .global_400: "잘못된 요청입니다."
       case .global_403: "접근 권한이 없습니다."
-      case .global_500, .network_001, .default: "잠시후에 다시 시도해주세요!"
+      case .global_500, .network_001: "잠시후에 다시 시도해주세요!"
       case .user_001, .user_002: "존재하지 않는 사용자예요"
       case .agencyUser_001: "사용자가 없는 장부예요"
       case .agencyUser_002: "잘못된 접근이에요\n다시 한 번 확인해주세요!"
@@ -63,6 +63,7 @@ public enum MoneyMongError: LocalizedError, Equatable {
       case .login_001: "잘못된 접근이에요\n다시 한 번 확인해주세요!"
       case .login_002: "로그인 정보가 유효하지 않아요\n다시 로그인해 주세요!"
       case .invitation_001, .invitation_002, .invitation_003: "잘못된 초대코드에요\n다시 입력해주세요!"
+      case .default: "에러"
       }
     case let .default(title): title
     default: "에러"
@@ -73,13 +74,13 @@ public enum MoneyMongError: LocalizedError, Equatable {
     switch self {
     case .networkError: "네트워크 연결을 확인해주세요"
     case .serverError(let errorMessage): errorMessage
-    case .appError(let code):
+    case .appError(let code, let message):
       switch code {
       case .ledger_005: "총 잔액은 최대 999,999,999원까지 기록이 가능합니다"
       case .ledger_008: "총 잔액은 최소 -999,999,999원까지 기록이 가능합니다"
-      default: nil
+      default: message
       }
-    case .default: nil
+    case .default(let message): message
     }
   }
 }

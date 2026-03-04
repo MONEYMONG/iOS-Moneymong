@@ -8,7 +8,7 @@ let project = Project(
   ),
   settings: .settings(
     base: .init()
-      .marketingVersion("2.0.5")
+      .marketingVersion("2.1.0")
       .swiftVersion("5.7")
       .currentProjectVersion("1")
       .appleGenericVersioningSystem()
@@ -56,6 +56,7 @@ let project = Project(
       bundleId: "com.yapp.moneymong",
       deploymentTarget: .iOS(targetVersion: "15.0", devices: .iphone),
       infoPlist: .extendingDefault(with: [
+        "UIDesignRequiresCompatibility": true,
         "CFBundleDisplayName": "머니몽",
         "UISupportedInterfaceOrientations": [
           "UIInterfaceOrientationPortrait"

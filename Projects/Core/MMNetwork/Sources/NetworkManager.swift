@@ -29,13 +29,15 @@ public final class NetworkManager: NetworkManagerInterfacae {
     {
       if let message = errorResponse.message {
         throw MoneyMongError.appError(
-          MoneyMongError.Code(rawValue: errorResponse.code) ?? .default
+          MoneyMongError.Code(rawValue: errorResponse.code) ?? .default,
+          errorMessage: message
         )
       }
       
       if let messages = errorResponse.messages {
         throw MoneyMongError.appError(
-          MoneyMongError.Code(rawValue: errorResponse.code) ?? .default
+          MoneyMongError.Code(rawValue: errorResponse.code) ?? .default,
+          errorMessage: messages.first
         )
       }
     }
@@ -96,13 +98,15 @@ public final class NetworkManager: NetworkManagerInterfacae {
       {
         if let message = errorResponse.message {
           throw MoneyMongError.appError(
-            MoneyMongError.Code(rawValue: errorResponse.code) ?? .default
+            MoneyMongError.Code(rawValue: errorResponse.code) ?? .default,
+            errorMessage: message
           )
         }
         
         if let messages = errorResponse.messages {
           throw MoneyMongError.appError(
-            MoneyMongError.Code(rawValue: errorResponse.code) ?? .default
+            MoneyMongError.Code(rawValue: errorResponse.code) ?? .default,
+            errorMessage: messages.first
           )
         }
       }
