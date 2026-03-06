@@ -80,11 +80,10 @@ final class LedgerCell: UICollectionViewCell, ReusableView {
         flex.addItem(titleLabel).marginBottom(2)
         flex.addItem(dateLabel)
       }.marginLeft(10).shrink(1)
-      flex.addItem().grow(1)
       flex.addItem().define { flex in
         flex.addItem(amountLabel).marginBottom(2)
         flex.addItem(balanceLabel)
-      }.alignItems(.end)
+      }.alignItems(.end).grow(1)
     }
   }
 

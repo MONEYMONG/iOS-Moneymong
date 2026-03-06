@@ -185,6 +185,21 @@ extension SceneDelegate {
       return ReissueCodeUseCase(repo: agencyRepo)
     }
     
+    DIContainer.shared.register(type: GetCategoriesUseCaseInterface.self) {
+      let agencyRepo = AgencyRepository(networkManager: networkManager, localStorage: localStorage, memoryCache: memoryCache)
+      return GetCategoriesUseCase(repo: agencyRepo)
+    }
+    
+    DIContainer.shared.register(type: DeleteCategoryUseCaseInterface.self) {
+      let agencyRepo = AgencyRepository(networkManager: networkManager, localStorage: localStorage, memoryCache: memoryCache)
+      return DeleteCategoryUseCase(repo: agencyRepo)
+    }
+    
+    DIContainer.shared.register(type: CreateCategoryUseCaseInterface.self) {
+      let agencyRepo = AgencyRepository(networkManager: networkManager, localStorage: localStorage, memoryCache: memoryCache)
+      return CreateCategoryUseCase(repo: agencyRepo)
+    }
+    
     // MARK: - Ledger UseCase Dependency
     DIContainer.shared.register(type: CreateLedgerUseCaseInterface.self) {
       let ledgerRepo = LedgerRepository(networkManager: networkManager, localStorage: localStorage)

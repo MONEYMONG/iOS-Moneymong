@@ -14,6 +14,12 @@ open class BottomSheetVC: UIViewController {
   private let dimView = UIView()
   private let sheetView = UIView()
   public let contentView = UIView()
+  public let sheetNavigation: UINavigationController = {
+    let nv = UINavigationController()
+    nv.isNavigationBarHidden = true
+    return nv
+  }()
+  public let sheetVC = UIViewController()
 
   private lazy var panGesture: UIPanGestureRecognizer = {
     let g = UIPanGestureRecognizer(target: self, action: #selector(panAction))
@@ -24,6 +30,7 @@ open class BottomSheetVC: UIViewController {
   
   private lazy var tapGesture = UITapGestureRecognizer(target: self, action: #selector(tapAction))
   
+  public var contentHeight: CGFloat = 0
   private var dimViewHeight: CGFloat = 0
   
   public init() {
@@ -58,12 +65,17 @@ open class BottomSheetVC: UIViewController {
   }
   
   open func setupConstraints() {
+    sheetNavigation.viewControllers = [sheetVC]
+    addChild(sheetNavigation)
     view.addSubview(rootContainer)
     rootContainer.flex.define { flex in
       flex.addItem(dimView).height(UIScreen.main.bounds.height)
-      flex.addItem(sheetView).backgroundColor(.white).cornerRadius(20)
+      flex.addItem(sheetView)
+        .define { flex in
+          flex.addItem(sheetNavigation.view).backgroundColor(.white).cornerRadius(20)
+        }
     }
-    sheetView.addSubview(contentView)
+    sheetVC.view.addSubview(contentView)
   }
   
   @objc
@@ -96,6 +108,7 @@ open class BottomSheetVC: UIViewController {
   private func show() {
     view.setNeedsLayout()
     dimView.flex.height(nil).grow(1).markDirty()
+    sheetNavigation.view.flex.height(contentHeight).markDirty()
     UIView.animate(withDuration: 0.2) {
       self.view.backgroundColor = Colors.Gray._10.withAlphaComponent(0.7)
       self.view.layoutIfNeeded()
@@ -121,6 +134,7 @@ open class BottomSheetVC: UIViewController {
   public func update(c: () -> Void) {
     view.setNeedsLayout()
     c()
+    sheetNavigation.view.flex.height(contentHeight).markDirty()
     UIView.animate(withDuration: 0.2) {
       self.view.layoutIfNeeded()
     } completion: { _ in

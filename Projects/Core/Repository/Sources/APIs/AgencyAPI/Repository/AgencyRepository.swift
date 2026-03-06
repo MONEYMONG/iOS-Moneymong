@@ -100,4 +100,19 @@ public struct AgencyRepository: AgencyRepositoryInterface {
     localStorage.deleteCurrentLedgerInfo()
     memoryCache.delete(key: "v1/agencies/me")
   }
+  
+  public func getCategories(id: Int) async throws -> [MMCategory] {
+    let targetType = AgencyAPI.getCategories(id: id)
+    return try await networkManager.request(target: targetType, of: CategoriesResponseDTO.self).toEntity
+  }
+  
+  public func createCategory(agencyId: Int, name: String) async throws {
+    let targetType = AgencyAPI.createCategory(query: CreateCategoryRequestDTO(agencyId: agencyId, name: name))
+    try await networkManager.request(target: targetType)
+  }
+  
+  public func deleteCategory(id: Int) async throws {
+    let targetType = AgencyAPI.deleteCategory(id: id)
+    try await networkManager.request(target: targetType)
+  }
 }

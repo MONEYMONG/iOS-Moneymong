@@ -11,8 +11,19 @@ import RxSwift
 import RxCocoa
 
 final class SelectAgencySheetVC: BottomSheetVC, View {
+  private struct Constant {
+    static let buttonHeight: CGFloat = 56
+    static let buttonSpacing: CGFloat = 12
+    static let bottomSpacing: CGFloat = 34
+    static let topSpacing: CGFloat = 20
+    static let horizontalMargin: CGFloat = 16
+    static let cellHeight: CGFloat = 72
+    static let cellSpacing: CGFloat = 12
+  }
+  
   var disposeBag = DisposeBag()
   var coordinator: LedgerCoordinator?
+  private var componentHeight: CGFloat = 0
   
   private let tableView: UITableView = {
     let v = UITableView()
@@ -29,16 +40,20 @@ final class SelectAgencySheetVC: BottomSheetVC, View {
     super.setupConstraints()
     
     contentView.flex.define { flex in
-      flex.addItem(tableView).height(3 * (80) + 12 * 2)
-        .margin(16)
+      flex.addItem(tableView).height(3 * (Constant.cellHeight) + Constant.cellSpacing * 3)
+        .marginTop(Constant.topSpacing)
+        .marginHorizontal(Constant.horizontalMargin)
       flex.addItem(registerCodeInputButton)
-        .marginHorizontal(16)
-        .height(56)
-        .marginBottom(12)
+        .marginHorizontal(Constant.horizontalMargin)
+        .height(Constant.buttonHeight)
+        .marginVertical(Constant.buttonSpacing)
       flex.addItem(createAgencyButton)
-        .height(56)
-        .marginHorizontal(16)
-        .marginBottom(44)
+        .height(Constant.buttonHeight)
+        .marginHorizontal(Constant.horizontalMargin)
+        .marginBottom(Constant.buttonSpacing + Constant.bottomSpacing)
+      
+      componentHeight = Constant.topSpacing + Constant.buttonHeight * 2 + Constant.buttonSpacing * 3 + Constant.bottomSpacing // (버튼 + 마진) 높이
+      contentHeight = componentHeight + 3 * (Constant.cellHeight) + Constant.cellSpacing * 2 // 소속 리스트 높이
     }
   }
   
@@ -96,13 +111,17 @@ final class SelectAgencySheetVC: BottomSheetVC, View {
       .skip(1)
       .observe(on: MainScheduler.instance)
       .bind(with: self) { owner, agencies in
+        let count = CGFloat(agencies.count)
+        let height = min(
+          count * 72 + count * 12,
+          3 * (72) + 3 * 12
+        )
         
-        let count = agencies.count
-        
-        let height = min(CGFloat(count * 72 + (count - 1) * 12), 3 * (72) + 2 * 12)
         owner.tableView.isScrollEnabled = count > 3
-        owner.tableView.flex.height(height + 6)
-        owner.view.setNeedsLayout()
+        owner.contentHeight = owner.componentHeight + height
+        owner.update {
+          owner.tableView.flex.height(height).markDirty()
+        }
         
         if let index = agencies.firstIndex(where: { $0.id == reactor.currentState.selectedAgencyID }) {
           owner.tableView.scrollToRow(at: IndexPath(row: index, section: 0), at: .middle, animated: true)
@@ -114,7 +133,7 @@ final class SelectAgencySheetVC: BottomSheetVC, View {
       .compactMap { $0 }
       .observe(on: MainScheduler.instance)
       .bind(with: self) { owner, error in
-        AlertsManager.show(title: "네트워크 에러", subTitle: error.localizedDescription, type: .onlyOkButton({ }))
+        AlertsManager.show(title: error.errorTitle, subTitle: error.localizedDescription, type: .onlyOkButton({ }))
       }
       .disposed(by: disposeBag)
   }

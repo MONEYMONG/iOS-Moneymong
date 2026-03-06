@@ -115,8 +115,8 @@ final class LedgerDetailVC: BaseVC, View, ImagePickerPresentable {
       .observe(on: MainScheduler.instance)
       .bind(with: self) { owner, error in
         owner.coordinator?.present(.alert(
-          title: "네트워크 에러",
-          subTitle: error.localizedDescription,
+          title: error.errorTitle,
+          subTitle: error.errorDescription,
           type: .onlyOkButton({})
         ))
       }
@@ -147,6 +147,17 @@ final class LedgerDetailVC: BaseVC, View, ImagePickerPresentable {
       .observe(on: MainScheduler.instance)
       .bind(with: self) { owner, _ in
         owner.coordinator?.pop()
+      }
+      .disposed(by: disposeBag)
+    
+    reactor.pulse(\.$destination)
+      .compactMap { $0 }
+      .observe(on: MainScheduler.instance)
+      .bind(with: self) { owner, destination in
+        switch destination {
+        case let .categorySheet(agencyID, categories):
+          owner.coordinator?.present(.categorySheet(agencyID: agencyID, categories: categories))
+        }
       }
       .disposed(by: disposeBag)
   }

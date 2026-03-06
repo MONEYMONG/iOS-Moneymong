@@ -8,4 +8,7 @@ public protocol AgencyRepositoryInterface {
   func certificateCode(code: String) async throws -> CertificationResult
   func reissueCode(id: Int) async throws -> String
   func deleteAgency(id: Int) async throws
+  func getCategories(id: Int) async throws -> [MMCategory]
+  func createCategory(agencyId: Int, name: String) async throws
+  func deleteCategory(id: Int) async throws
 }

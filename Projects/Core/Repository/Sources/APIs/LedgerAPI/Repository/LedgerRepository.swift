@@ -24,7 +24,8 @@ public final class LedgerRepository: LedgerRepositoryInterface {
     amount: Int,
     description: String,
     paymentDate: String,
-    documentImageUrls: [String]
+    documentImageUrls: [String],
+    category: String?
   ) async throws {
     let targetType = LedgerAPI.create(
       id: id,
@@ -34,7 +35,8 @@ public final class LedgerRepository: LedgerRepositoryInterface {
         amount: amount,
         description: description,
         paymentDate: paymentDate,
-        documentImageUrls: documentImageUrls
+        documentImageUrls: documentImageUrls,
+        category: category
       )
     )
     let ledger = try await networkManager.request(target: targetType, of: LedgerDetailResponseDTO.self)
@@ -63,7 +65,8 @@ public final class LedgerRepository: LedgerRepositoryInterface {
         amount: ledger.amount,
         description: ledger.description,
         paymentDate: ledger.paymentDate,
-        documentImageUrls: ledger.documentImageUrls.map { $0.url }
+        documentImageUrls: ledger.documentImageUrls.map { $0.url },
+        category: ledger.category
       )
     )
     let entity = try await networkManager.request(target: targetType, of: LedgerDetailResponseDTO.self).toEntity

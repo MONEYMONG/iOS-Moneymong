@@ -102,6 +102,27 @@ final class LedgerContentsView: BaseView, View, UIScrollViewDelegate {
   }()
 
   private let authorNameTextField = MMTextField(title: Const.authorNameTitle)
+  
+  private let categoryChip: CategoryChip = {
+    let v = CategoryChip(title: "")
+    v.isEnabled = false
+    return v
+  }()
+  
+  private let categoryEditButton: UIButton = {
+    let v = UIButton()
+    let attributedString = NSAttributedString(
+      string: "수정",
+      attributes: [
+        .font: Fonts.body._2,
+        .foregroundColor: Colors.Blue._4
+      ]
+    )
+    v.setAttributedTitle(attributedString, for: .normal)
+    return v
+  }()
+  
+  private let chipListView: ChipListView = ChipListView()
 
   private var isShowKeyboard: Bool = false
 
@@ -158,8 +179,8 @@ final class LedgerContentsView: BaseView, View, UIScrollViewDelegate {
 
   func bindState(reactor: LedgerContentsReactor) {
     reactor.pulse(\.$currentLedgerItem)
-      .distinctUntilChanged()
       .map { $0.fundType }
+      .distinctUntilChanged()
       .observe(on: MainScheduler.instance)
       .bind(with: self) { owner, fundType in
         owner.amountTextField.setTitle(
@@ -171,39 +192,39 @@ final class LedgerContentsView: BaseView, View, UIScrollViewDelegate {
       .disposed(by: disposeBag)
 
     reactor.pulse(\.$currentLedgerItem)
-      .distinctUntilChanged()
       .map { $0.storeInfo }
+      .distinctUntilChanged()
       .bind(to: storeInfoTextField.textField.rx.text)
       .disposed(by: disposeBag)
 
     reactor.pulse(\.$currentLedgerItem)
-      .distinctUntilChanged()
       .map { $0.amount }
+      .distinctUntilChanged()
       .bind(to: amountTextField.textField.rx.text)
       .disposed(by: disposeBag)
 
     reactor.pulse(\.$currentLedgerItem)
-      .distinctUntilChanged()
       .map { $0.date }
+      .distinctUntilChanged()
       .bind(to: dateTextField.textField.rx.text)
       .disposed(by: disposeBag)
 
     reactor.pulse(\.$currentLedgerItem)
-      .distinctUntilChanged()
       .map { $0.time }
+      .distinctUntilChanged()
       .bind(to: timeTextField.textField.rx.text)
       .disposed(by: disposeBag)
 
     reactor.pulse(\.$currentLedgerItem)
-      .distinctUntilChanged()
       .map { $0.memo }
+      .distinctUntilChanged()
       .map { $0.isEmpty ? Const.emptyDescription : $0 }
       .bind(to: memoTextField.textField.rx.text)
       .disposed(by: disposeBag)
 
     reactor.pulse(\.$currentLedgerItem)
-      .distinctUntilChanged()
       .map { $0.memo }
+      .distinctUntilChanged()
       .observe(on: MainScheduler.instance)
       .bind(with: self, onNext: { owner, value in
         owner.memoTextView.setText(to: value)
@@ -227,9 +248,42 @@ final class LedgerContentsView: BaseView, View, UIScrollViewDelegate {
       .disposed(by: disposeBag)
 
     reactor.pulse(\.$currentLedgerItem)
-      .distinctUntilChanged()
       .map { $0.authorName }
+      .distinctUntilChanged()
       .bind(to: authorNameTextField.textField.rx.text)
+      .disposed(by: disposeBag)
+    
+    reactor.pulse(\.$currentLedgerItem)
+      .map(\.category)
+      .distinctUntilChanged()
+      .observe(on: MainScheduler.instance)
+      .bind(with: self, onNext: { owner, category in
+        let offset = owner.scrollView.contentOffset
+        owner.chipListView.selectChip(category)
+        if let category {
+          owner.categoryChip.setTitle(category)
+          owner.categoryChip.isHidden = false
+          owner.categoryChip.flex.display(.flex).markDirty()
+        } else {
+          owner.categoryChip.isHidden = true
+          owner.categoryChip.flex.display(.none).markDirty()
+        }
+        owner.rootContainer.flex.layout(mode: .adjustHeight)
+        owner.scrollView.setContentOffset(offset, animated: false)
+      })
+      .disposed(by: disposeBag)
+    
+    reactor.pulse(\.$categories)
+      .withLatestFrom(reactor.pulse(\.$currentLedgerItem)) { (categories: $0, selected: $1.category) }
+      .observe(on: MainScheduler.instance)
+      .bind(with: self) { owner, state in
+        let (categories, selected) = state
+        let offset = owner.scrollView.contentOffset
+        owner.chipListView.setupChips(with: categories.map(\.name))
+        owner.chipListView.selectChip(selected)
+        owner.rootContainer.flex.layout(mode: .adjustHeight)
+        owner.scrollView.setContentOffset(offset, animated: false)
+      }
       .disposed(by: disposeBag)
 
     reactor.pulse(\.$error)
@@ -249,6 +303,8 @@ final class LedgerContentsView: BaseView, View, UIScrollViewDelegate {
         case .update: owner.setupUpdate()
         case .read: owner.setupRead()
         }
+        owner.layoutIfNeeded()
+        owner.rootContainer.flex.layout(mode: .adjustHeight)
       }
       .disposed(by: disposeBag)
   }
@@ -371,6 +427,16 @@ final class LedgerContentsView: BaseView, View, UIScrollViewDelegate {
         owner.delegate?.selectSection(owner)
       }
       .disposed(by: disposeBag)
+    
+    chipListView.chipTapAction = { _, index in
+      let category = reactor.currentState.categories[index]
+      reactor.action.onNext(.didValueChanged(.category(category.name)))
+    }
+    
+    categoryEditButton.rx.tap
+      .map { Reactor.Action.didTapCategoryEditButton }
+      .bind(to: reactor.action)
+      .disposed(by: disposeBag)
   }
 
   private func setupRead() {
@@ -434,6 +500,23 @@ final class LedgerContentsView: BaseView, View, UIScrollViewDelegate {
               flex.addItem(LineDashDivider())
                 .height(1)
                 .marginHorizontal(16)
+              
+              flex.addItem().direction(.row).define { flex in
+                flex.addItem(UILabel().text("카테고리", font: Fonts.body._2, color: Colors.Gray._6))
+                flex.addItem().grow(1)
+              }
+              .margin(20, 16, 8)
+              
+              flex.addItem().direction(.row).define { flex in
+                flex.addItem(categoryChip)
+                flex.addItem().grow(1)
+              }
+              .marginHorizontal(16)
+              .marginBottom(8)
+
+              flex.addItem(LineDashDivider())
+                .height(1)
+                .marginHorizontal(16)
 
               flex.addItem(documentCollentionView)
                 .marginVertical(20)
@@ -462,13 +545,6 @@ final class LedgerContentsView: BaseView, View, UIScrollViewDelegate {
     memoTextField.setRequireMark(to: false)
     authorNameTextField.setIsEnabled(to: false)
     authorNameTextField.setRequireMark(to: false)
-
-    memoTextView.isHidden = true
-    memoTextView.flex.display(.none).markDirty()
-    memoTextField.isHidden = false
-    memoTextField.flex.display(.flex).markDirty()
-
-    setNeedsLayout()
   }
 
   private func setupUpdate() {
@@ -497,6 +573,16 @@ final class LedgerContentsView: BaseView, View, UIScrollViewDelegate {
               flex.addItem(LineDashDivider()).height(1).marginHorizontal(16)
               flex.addItem(memoTextView).margin(20, 16)
               flex.addItem(LineDashDivider()).height(1).marginHorizontal(16)
+              flex.addItem().direction(.row).define { flex in
+                flex.addItem(UILabel().text("카테고리", font: Fonts.body._2, color: Colors.Gray._6))
+                flex.addItem().grow(1)
+                flex.addItem(categoryEditButton)
+              }
+              .margin(20, 16, 8)
+              flex.addItem(chipListView)
+                .marginBottom(8)
+                .marginHorizontal(16)
+              flex.addItem(LineDashDivider()).height(1).marginHorizontal(16)
               flex.addItem(documentCollentionView).marginVertical(20)
               flex.addItem(LineDashDivider()).height(1).marginHorizontal(16)
               flex.addItem(authorNameTextField).margin(20, 16)
@@ -517,14 +603,8 @@ final class LedgerContentsView: BaseView, View, UIScrollViewDelegate {
     authorNameTextField.setIsEnabled(to: false)
     authorNameTextField.setRequireMark(to: false)
 
-    memoTextField.isHidden = true
-    memoTextField.flex.display(.none).markDirty()
-    memoTextView.isHidden = false
-    memoTextView.flex.display(.flex).markDirty()
     scrollView.setContentOffset(CGPoint(x: 0, y: 0), animated: true)
     storeInfoTextField.textField.becomeFirstResponder()
-
-    setNeedsLayout()
   }
 }
 

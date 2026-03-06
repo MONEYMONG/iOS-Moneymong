@@ -41,6 +41,8 @@ final class DatePickerSheetVC: BottomSheetVC, View {
       flex.addItem(datePicker).grow(1).marginBottom(20)
       flex.addItem(completeButton).height(56).marginBottom(12)
     }.padding(20)
+    
+    contentHeight = 440
   }
   
   func bind(reactor: DatePickerReactor) {

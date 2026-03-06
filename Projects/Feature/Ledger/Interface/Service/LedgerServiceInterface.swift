@@ -3,5 +3,6 @@ public protocol LedgerServiceInterface {
   var agency: AgencyServiceInterface { get }
   var member: MemberServiceInterface { get }
   var ledgerList: LedgerListServiceInterface { get }
+  var category: CategoryServiceInterface { get }
 }
 

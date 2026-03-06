@@ -1,0 +1,88 @@
+//
+//  ChipListView.swift
+//  DesignSystem
+//
+//  Created by 이시원 on 10/30/25.
+//
+
+import UIKit
+
+import FlexLayout
+
+public final class ChipListView: UIView {
+  public enum Mode {
+    case `default`
+    case edit
+  }
+  
+  private var chips: [CategoryChip] = []
+  public var chipTapAction: ((CategoryChip, Int) -> Void) = {_, _ in}
+  private var selectedChipIndex: Int?
+  public var mode: Mode = .default
+  
+  override public func layoutSubviews() {
+    super.layoutSubviews()
+    updateButtonsLayout()
+  }
+  
+  public func setupChips(with titles: [String]) {
+    subviews.forEach {
+      $0.removeFromSuperview()
+    }
+    chips = titles.enumerated().map { index, title in
+      let chip = CategoryChip(title: title, state: mode == .default ? .unselected : .deletable)
+      chip.sizeToFit()
+      chip.addAction { [weak self] in
+        self?.chipTapAction(chip, index)
+        self?.flex.markDirty()
+        self?.layoutIfNeeded()
+      }
+      addSubview(chip)
+      return chip
+    }
+    flex.markDirty()
+    layoutIfNeeded()
+  }
+  
+  public func selectChip(_ title: String?) {
+    if let selectedChipIndex {
+      chips[selectedChipIndex].updateState(.unselected)
+      self.selectedChipIndex = nil
+    }
+    
+    if let title {
+      guard let newChipIndex = chips.firstIndex(where: {
+        $0.titleLabel?.text == title
+      }) else { return }
+      chips[newChipIndex].updateState(.selected)
+      selectedChipIndex = newChipIndex
+    }
+  }
+  
+  private func updateButtonsLayout() {
+    var lineCount: CGFloat = 1
+    let marginX: CGFloat = 10
+    let marginY: CGFloat = 8
+    
+    var positionX: CGFloat = 0
+    var positionY: CGFloat = 0
+    
+    for (index, chip) in chips.enumerated() {
+      chip.frame = CGRect(x: positionX, y: positionY, width: chip.frame.width, height: chip.frame.height)
+      
+      if index < chips.count - 1 {
+        positionX += chip.frame.width + marginX
+        if positionX + chips[index + 1].frame.width > frame.width {
+          positionX = 0
+          positionY += chip.frame.height + marginY
+          lineCount += 1
+        }
+      }
+    }
+    
+    let chipHeight = chips.first?.frame.height ?? 0
+    let totalHeight = (lineCount * chipHeight) + (lineCount - 1) * marginY
+    flex.height(totalHeight).markDirty()
+    superview?.flex.markDirty()
+  }
+}

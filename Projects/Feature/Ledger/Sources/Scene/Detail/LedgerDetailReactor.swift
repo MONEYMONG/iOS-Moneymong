@@ -1,4 +1,5 @@
 import AgencyInterface
+import BaseFeature
 import LedgerFeatureInterface
 import BaseDomain
 import LedgerInterface
@@ -21,9 +22,11 @@ final class LedgerDetailReactor: Reactor {
     case setIsEdit(Bool)
     case setDeleteCompleted(Void)
     case setIsValid(Bool)
+    case setDestination(State.Destination)
   }
 
   struct State {
+    let agencyID: Int
     let ledgerId: Int
     @Pulse var role: Member.Role
     @Pulse var ledger: LedgerDetail?
@@ -32,6 +35,11 @@ final class LedgerDetailReactor: Reactor {
     @Pulse var isEdit: Bool = false
     @Pulse var isValid: Bool?
     @Pulse var deleteCompleted: Void?
+    @Pulse var destination: Destination?
+
+    enum Destination {
+      case categorySheet(agencyID: Int, categories: [MMCategory])
+    }
   }
 
   var initialState: State
@@ -40,18 +48,22 @@ final class LedgerDetailReactor: Reactor {
   
   private let getLedgerDetailUseCase: GetLedgerDetailUseCaseInterface
   private let deleteLedgerUseCase: DeleteLedgerUseCaseInterface
+  private let getCategoriesUseCase: GetCategoriesUseCaseInterface
 
   init(
+    agencyID: Int,
     ledgerID: Int,
     role: Member.Role,
     getLedgerDetailUseCase: GetLedgerDetailUseCaseInterface,
     deleteLedgerUseCase: DeleteLedgerUseCaseInterface,
+    getCatagoriesUseCase: GetCategoriesUseCaseInterface = DIContainer.shared.resolve(type: GetCategoriesUseCaseInterface.self),
     ledgerService: LedgerServiceInterface,
     ledgerContentsService: LedgerDetailContentsServiceInterface
   ) {
-    self.initialState = State(ledgerId: ledgerID, role: role)
+    self.initialState = State(agencyID: agencyID, ledgerId: ledgerID, role: role)
     self.getLedgerDetailUseCase = getLedgerDetailUseCase
     self.deleteLedgerUseCase = deleteLedgerUseCase
+    self.getCategoriesUseCase = getCatagoriesUseCase
     self.ledgerService = ledgerService
     self.ledgerContentsService = ledgerContentsService
   }
@@ -69,6 +81,11 @@ final class LedgerDetailReactor: Reactor {
           return .just(.setIsValid(value))
         case .isLoading(let value):
           return .just(.setIsLoading(value))
+        case let .showCategorySheet(categories):
+          return .just(.setDestination(.categorySheet(
+            agencyID: owner.currentState.agencyID,
+            categories: categories
+          )))
         }
       }
   }
@@ -79,16 +96,24 @@ final class LedgerDetailReactor: Reactor {
     case .onAppear:
       return .concat([
         .just(.setIsLoading(true)),
-
-          .task {
-            let ledgerDetail = try await getLedgerDetailUseCase.execute(id: currentState.ledgerId)
-            ledgerContentsService.setLedger(ledgerDetail)
-            return ledgerDetail
-          }
+        .task {
+          let ledgerDetail = try await getLedgerDetailUseCase.execute(id: currentState.ledgerId)
+          ledgerContentsService.setLedger(ledgerDetail)
+          return ledgerDetail
+        }
           .map { .setLedger($0) }
           .catch { return .just(.setError($0.toMMError))},
-
-          .just(.setIsLoading(false))
+        .just(.setIsLoading(false)),
+        .task {
+          let categories = try await getCategoriesUseCase.execute(id: currentState.agencyID)
+          ledgerContentsService.parentViewEvent.onNext(.setCategories(.success(categories)))
+          return ()
+        }
+          .flatMap { Observable.empty() }
+          .catch { [weak self] in
+            self?.ledgerContentsService.parentViewEvent.onNext(.setCategories(.failure($0.toMMError)))
+            return .empty()
+          },
       ])
 
     case .didTapDelete:
@@ -124,6 +149,8 @@ final class LedgerDetailReactor: Reactor {
       newState.isValid = value
     case .setError(let error):
       newState.error = error
+    case let .setDestination(destination):
+      newState.destination = destination
     }
     return newState
   }

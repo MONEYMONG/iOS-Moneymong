@@ -1,6 +1,7 @@
 import Foundation
 import UIKit
 
+import AgencyInterface
 import BaseDomain
 import BaseFeature
 import LedgerInterface
@@ -23,6 +24,7 @@ final class CreateManualLedgerReactor: Reactor {
     case date(String, Bool)
     case time(String, Bool)
     case memo(String)
+    case category(MMCategory)
   }
   
   struct ContentValid {
@@ -46,6 +48,7 @@ final class CreateManualLedgerReactor: Reactor {
     case didTapImageDeleteAlertButton(ImageData.Item)
     case selectedImage(ImageData.Item)
     case inputContent(_ content: InputContent)
+    case didTapCategoryEditButton
   }
   
   enum Mutation {
@@ -56,8 +59,9 @@ final class CreateManualLedgerReactor: Reactor {
     case deleteImageURL(Int)
     case setContent(InputContent)
     case addImageURL(ImageInfo)
-    case setDestination
+    case setDestination(State.Destination)
     case setAlertContent(AlertType)
+    case setCategory([MMCategory])
   }
   
   struct State {
@@ -68,10 +72,12 @@ final class CreateManualLedgerReactor: Reactor {
     @Pulse var alertMessage: (String, String?, AlertType)? = nil
     @Pulse var isButtonEnabled = false
     @Pulse var destination: Destination?
+    @Pulse var categories: [MMCategory] = []
     var content = Content()
     
     enum Destination {
       case ledger
+      case categorySheet(agencyId: Int, categorise: [MMCategory])
     }
   }
   
@@ -83,6 +89,7 @@ final class CreateManualLedgerReactor: Reactor {
     @Pulse var time: String = ""
     @Pulse var memo: String = ""
     @Pulse var documentImages = [ImageInfo]()
+    @Pulse var category: MMCategory? = nil
   }
   
   let initialState: State
@@ -98,6 +105,7 @@ final class CreateManualLedgerReactor: Reactor {
   private let deleteImageUseCase: DeleteImageUseCaseInterface
   private let createLedgerUseCase: CreateLedgerUseCaseInterface
   private let uploadImageUseCase: UploadImageUseCaseInterface
+  private let getCategoriesUseCase: GetCategoriesUseCaseInterface
   
   init(
     agencyId: Int,
@@ -106,6 +114,7 @@ final class CreateManualLedgerReactor: Reactor {
     deleteImageUseCase: DeleteImageUseCaseInterface,
     createLedgerUseCase: CreateLedgerUseCaseInterface,
     uploadImageUseCase: UploadImageUseCaseInterface,
+    getCatagoriesUseCase: GetCategoriesUseCaseInterface = DIContainer.shared.resolve(type: GetCategoriesUseCaseInterface.self),
     ledgerService: LedgerServiceInterface,
     formatter: ContentFormatter
   ) {
@@ -116,6 +125,7 @@ final class CreateManualLedgerReactor: Reactor {
     self.deleteImageUseCase = deleteImageUseCase
     self.createLedgerUseCase = createLedgerUseCase
     self.uploadImageUseCase = uploadImageUseCase
+    self.getCategoriesUseCase = getCatagoriesUseCase
   }
   
   func mutate(action: Action) -> Observable<Mutation> {
@@ -126,11 +136,17 @@ final class CreateManualLedgerReactor: Reactor {
         return .merge(
           .task { try await getMyInfoUseCase.execute().nickname }
             .map { .setName($0) },
+          .task { try await getCategoriesUseCase.execute(id: currentState.agencyId) }
+            .map { .setCategory($0) },
           .just(.setOperatingCostValues)
         )
       case .createManual:
-        return .task { try await getMyInfoUseCase.execute().nickname }
-          .map { .setName($0) }
+        return .merge(
+          .task { try await getMyInfoUseCase.execute().nickname }
+            .map { .setName($0) },
+          .task { try await getCategoriesUseCase.execute(id: currentState.agencyId) }
+            .map { .setCategory($0) }
+        )
       }
       
     case let .selectedImage(item):
@@ -141,7 +157,7 @@ final class CreateManualLedgerReactor: Reactor {
       return .just(.setAlertContent(.deleteImage(item)))
     case .didTapCancelButton:
       if isEmptyContent() {
-        return .just(.setDestination)
+        return .just(.setDestination(.ledger))
       } else {
         return .just(.setAlertContent(.end))
       }
@@ -165,7 +181,31 @@ final class CreateManualLedgerReactor: Reactor {
       return .just(.setContent(content))
     case .didTapCompleteButton:
       return requestCreateLedgerRecord()
+    case .didTapCategoryEditButton:
+      return .just(
+        .setDestination(
+          .categorySheet(
+            agencyId: currentState.agencyId,
+            categorise: currentState.categories
+          )
+        )
+      )
     }
+  }
+  
+  func transform(mutation: Observable<Mutation>) -> Observable<Mutation> {
+    return .merge(mutation, serviceMutation())
+  }
+  
+  private func serviceMutation() -> Observable<Mutation> {
+    service.category.event
+      .withUnretained(self)
+      .flatMap { owner, event -> Observable<Mutation> in
+        switch event {
+        case let .update(categories):
+          return .just(.setCategory(categories))
+        }
+      }
   }
   
   func reduce(state: State, mutation: Mutation) -> State {
@@ -179,7 +219,6 @@ final class CreateManualLedgerReactor: Reactor {
       newState.content.fundType = 1
     case let .setName(name):
       newState.userName = name
-      
     case let .addImage(item):
       addImage(images: &newState.documentImages, item: item)
     case .deleteImage(let id):
@@ -188,8 +227,8 @@ final class CreateManualLedgerReactor: Reactor {
       setContent(&newState.content, inputContent: inputContent)
       setVaild(&valid, inputContent: inputContent)
       newState.isButtonEnabled = isValided && newState.content.fundType != -1
-    case .setDestination:
-      newState.destination = .ledger
+    case let .setDestination(destination):
+      newState.destination = destination
     case .addImageURL(let imageURL):
       newState.content.documentImages.append(imageURL)
     case .deleteImageURL(let index):
@@ -197,12 +236,14 @@ final class CreateManualLedgerReactor: Reactor {
     case .setAlertContent(let type):
       switch type {
       case .error(let moneyMongError):
-        newState.alertMessage = (moneyMongError.errorTitle, moneyMongError.errorDescription!, type)
+        newState.alertMessage = (moneyMongError.errorTitle, moneyMongError.errorDescription, type)
       case .deleteImage:
         newState.alertMessage = ("사진을 삭제하시겠습니까?", "삭제된 사진은 되돌릴 수 없습니다", type)
       case .end:
         newState.alertMessage = ("정말 나가시겠습니까?", "작성한 내용이 저장되지 않았습니다", type)
       }
+    case .setCategory(let categories):
+      newState.categories = categories
     }
     return newState
   }
@@ -240,6 +281,8 @@ private extension CreateManualLedgerReactor {
       content.time = formatter.convertToTime(with: value)
     case let .memo(value):
       content.memo = value
+    case let .category(value):
+      content.category = content.category == value ? nil : value
     }
   }
   
@@ -282,7 +325,8 @@ private extension CreateManualLedgerReactor {
         amount: amount,
         description: memo,
         paymentDate: date,
-        documentImageUrls: currentState.content.documentImages.map(\.url)
+        documentImageUrls: currentState.content.documentImages.map(\.url),
+        category: currentState.content.category?.name
       )}
     .withUnretained(self)
     .flatMap({ owner, _ -> Observable<Mutation> in
@@ -290,7 +334,7 @@ private extension CreateManualLedgerReactor {
         owner.service.ledgerList.createLedgerRecord().flatMap { _ in
           Observable<Mutation>.empty()
         },
-        .just(.setDestination)
+        .just(.setDestination(.ledger))
       ])
     })
     .catch {

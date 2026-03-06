@@ -149,7 +149,8 @@ final class LedgerTabVC: BaseVC, View {
       .withLatestFrom(reactor.pulse(\.$role)) { ($0, $1) }
       .bind(with: self) { owner, info in
         let (ledger, role) = info
-        owner.coordinator?.present(.detail(ledger, role ?? .staff))
+        guard let agencyID = reactor.currentState.agencyID else { return }
+        owner.coordinator?.present(.detail(agencyID, ledger, role ?? .staff))
       }
       .disposed(by: disposeBag)
     
