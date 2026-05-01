@@ -80,6 +80,8 @@ public enum Images {
   
   public static let feedback = UIImage(named: "feedback", in: Bundle.module, with: nil)
   
+  public static let moneyAndPen = UIImage(named: "money_and_pen", in: Bundle.module, with: nil)!
+  
   // Widget
   public static let mongCoin = UIImage(named: "mong.coin", in: Bundle.module, with: nil)
   public static let mongLedgerWidget = UIImage(named: "mong.ledger.widget", in: Bundle.module, with: nil)
