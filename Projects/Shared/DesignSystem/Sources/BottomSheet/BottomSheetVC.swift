@@ -30,7 +30,11 @@ open class BottomSheetVC: UIViewController {
   
   private lazy var tapGesture = UITapGestureRecognizer(target: self, action: #selector(tapAction))
   
-  public var contentHeight: CGFloat = 0
+  public var contentHeight: CGFloat = 0 {
+    didSet {
+      sheetNavigation.view.flex.height(contentHeight).markDirty()
+    }
+  }
   private var dimViewHeight: CGFloat = 0
   
   public init() {
@@ -108,7 +112,7 @@ open class BottomSheetVC: UIViewController {
   private func show() {
     view.setNeedsLayout()
     dimView.flex.height(nil).grow(1).markDirty()
-    sheetNavigation.view.flex.height(contentHeight).markDirty()
+    //sheetNavigation.view.flex.height(contentHeight).markDirty()
     UIView.animate(withDuration: 0.2) {
       self.view.backgroundColor = Colors.Gray._10.withAlphaComponent(0.7)
       self.view.layoutIfNeeded()

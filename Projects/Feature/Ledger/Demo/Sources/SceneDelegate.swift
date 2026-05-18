@@ -99,6 +99,10 @@ extension SceneDelegate {
       return MockGetInvitationCodeUseCase()
     }
     
+    DIContainer.shared.register(type: ChangeMemberRoleUseCaseInterface.self) {
+      return MockChangeMemberRoleUseCase()
+    }
+    
     //MARK: LedgerMain
     DIContainer.shared.register(type: GetMyAgencyUseCaseInterface.self) {
       return MockGetMyAgencyUseCase()

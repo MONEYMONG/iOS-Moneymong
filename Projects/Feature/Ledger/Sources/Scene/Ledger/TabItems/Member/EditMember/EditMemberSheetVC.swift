@@ -25,6 +25,7 @@ final class EditMemberSheetVC: BottomSheetVC, View {
     
     assignRoleView.flex.isIncludedInLayout(false).markDirty()
     assignRoleView.isHidden = true
+    contentHeight = 150
   }
   
   func bind(reactor: EditMemberReactor) {
@@ -34,6 +35,7 @@ final class EditMemberSheetVC: BottomSheetVC, View {
         owner.assignRoleView.flex.isIncludedInLayout(true).markDirty()
         owner.editMemberView.isHidden = true
         owner.assignRoleView.isHidden = false
+        owner.contentHeight = 206
         owner.view.setNeedsLayout()
       }
       .disposed(by: disposeBag)
