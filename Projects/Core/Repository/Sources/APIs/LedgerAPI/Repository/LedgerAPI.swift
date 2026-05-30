@@ -15,6 +15,7 @@ enum LedgerAPI {
   case ledgerDetail(id: Int)
   case documentImagesUpload(detailId: Int, documentImageUrls: DocumentUploadRequestDTO) // 증빙자료 이미지 등록
   case documentImageDelete(detailId: Int, documentId: Int) // 증빙자료 이미지 제거
+  case reports(agencyID: Int, query: ReportRequestDTO)
 }
 
 extension LedgerAPI: TargetType {
@@ -34,6 +35,7 @@ extension LedgerAPI: TargetType {
     case .ledgerDetail(let id): return "v1/ledger-detail/\(id)"
     case .documentImagesUpload(let detailId, _): return "v1/ledger-detail/\(detailId)/ledger-document"
     case .documentImageDelete(let detailId, let documentId): return "v1/ledger-detail/\(detailId)/ledger-document/\(documentId)"
+    case .reports(agencyID: let agencyID, _): return "/v1/ledger/agencies/\(agencyID)/reports"
     }
   }
 
@@ -49,6 +51,7 @@ extension LedgerAPI: TargetType {
     case .documentImagesUpload: return .post
     case .documentImageDelete: return .delete
     case .update: return .put
+    case .reports: return .get
     }
   }
   
@@ -75,6 +78,7 @@ extension LedgerAPI: TargetType {
       return .requestJSONEncodable(params: documentImageUrls)
     case .documentImageDelete:
       return .plain
+    case .reports(_, query: let query): return .requestJSONEncodable(query: query)
     }
   }
   
