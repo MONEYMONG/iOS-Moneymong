@@ -24,10 +24,9 @@ public protocol LedgerRepositoryInterface {
     limit: Int,
     fundType: FundType?
   ) async throws -> LedgerList
-//  func receiptImagesUpload(detailId: Int, receiptImageUrls: [String]) async throws
-//  func receiptImageDelete(detailId: Int, receiptId: Int) async throws
   func documentImagesUpload(detailId: Int, documentImageUrls: [String]) async throws
   func documentImageDelete(detailId: Int, documentId: Int) async throws
   func saveDateRange(_ dateRange: DateRange)
   func fetchDateRange() -> DateRange?
+  func fetchReport(agencyID: Int, from: Date, to: Date) async throws -> Report
 }

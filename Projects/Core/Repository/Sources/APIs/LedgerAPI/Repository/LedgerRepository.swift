@@ -170,5 +170,18 @@ public final class LedgerRepository: LedgerRepositoryInterface {
     guard let dateRange = localStorage.ledgerDateRange else { return nil }
     return DateRange(dic: dateRange)
   }
+  
+  public func fetchReport(agencyID: Int, from: Date, to: Date) async throws -> Report {
+    let fromComponents = Calendar.current.dateComponents([.year, .month], from: from)
+    let toComponents = Calendar.current.dateComponents([.year, .month], from: to)
+    let query = ReportRequestDTO(
+      startYear: fromComponents.year ?? 0,
+      endYear: toComponents.year ?? 0,
+      startMonth: fromComponents.month ?? 1,
+      endMonth: toComponents.month ?? 1
+    )
+    let targetType = LedgerAPI.reports(agencyID: agencyID, query: query)
+    return try await networkManager.request(target: targetType, of: ReportResponseDTO.self).toEntity
+  }
 }
 

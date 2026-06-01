@@ -170,4 +170,10 @@ public class MockLedgerRepository: LedgerRepositoryInterface {
     callCount.fetchDateRange += 1
     return returnValue.fetchDateRange!
   }
+  
+  public func fetchReport(agencyID: Int, from: Date, to: Date) async throws -> BaseDomain.Report {
+    callCount.fetchReport += 1
+    inputValue.fetchReport = (agencyID: agencyID, from: from, to: to)
+    return returnValue.fetchReport!
+  }
 }
