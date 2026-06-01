@@ -18,6 +18,17 @@ let project = Project(
               .project(target: "Utility", path: .relativeToRoot("Projects/Shared/Utility")),
               .project(target: "ThirdPartyLips", path: .relativeToRoot("Projects/Shared/ThirdPartyLips"))
             ]
+        ),
+        Target(
+            name: "BaseDomainTesting",
+            platform: .iOS,
+            product: .staticLibrary,
+            bundleId: "com.framework.moneymong.BaseDomainTesting",
+            deploymentTarget: .iOS(targetVersion: "15.0", devices: .iphone),
+            sources: ["Testing/**"],
+            dependencies: [
+                .target(name: "BaseDomain")
+            ]
         )
     ]
 )
