@@ -1,42 +1,22 @@
 import XCTest
 @testable import Ledger
-@testable import Repository
-@testable import RepositoryTesting
-@testable import LedgerInterface
+@testable import BaseDomainTesting
 
 final class CreateLedgerUseCaseTests: XCTestCase {
   var sut: CreateLedgerUseCase!
-  var mockNetworkManager: MockNetworkManager!
-  var mockLocalStorage: MockLocalStorage!
+  var mockRepo: MockLedgerRepository!
   
   override func setUpWithError() throws {
-    mockLocalStorage = MockLocalStorage()
-    mockNetworkManager = MockNetworkManager()
-    let ledgerRepo = LedgerRepository(networkManager: mockNetworkManager, localStorage: mockLocalStorage)
-    sut = CreateLedgerUseCase(ledgerRepo: ledgerRepo)
+    mockRepo = MockLedgerRepository()
+    sut = CreateLedgerUseCase(ledgerRepo: mockRepo)
   }
   
   override func tearDownWithError() throws {
-    mockLocalStorage = nil
-    mockNetworkManager = nil
+    mockRepo = nil
     sut = nil
   }
   
   func test_execute_호출_시_에러가_발생하지_않는다면_Network_요청이_발생한다() async {
-    // Arrange
-   let dto = LedgerDetailResponseDTO(
-      id: 0,
-      storeInfo: "",
-      amount: 0,
-      fundType: FundType.expense.rawValue,
-      description: "",
-      paymentDate: "",
-      receiptImageUrls: [],
-      documentImageUrls: [],
-      authorName: ""
-    )
-    mockNetworkManager.returnValue = dto
-    
     do {
       // Act
       try await sut.execute(
@@ -46,12 +26,12 @@ final class CreateLedgerUseCaseTests: XCTestCase {
         amount: 0,
         description: "",
         paymentDate: "",
-        receiptImageUrls: [],
-        documentImageUrls: []
+        documentImageUrls: [],
+        category: nil
       )
       
       // Assert
-      XCTAssertEqual(mockNetworkManager.requestCallCount, 1)
+      XCTAssertEqual(mockRepo.callCount.create, 1)
     } catch {
       // Assert
       XCTFail()

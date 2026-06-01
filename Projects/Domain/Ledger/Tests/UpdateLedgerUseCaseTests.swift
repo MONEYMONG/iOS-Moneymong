@@ -1,41 +1,36 @@
 import XCTest
 @testable import Ledger
-@testable import Repository
-@testable import RepositoryTesting
-@testable import LedgerInterface
+@testable import BaseDomain
+@testable import BaseDomainTesting
+
 
 final class UpdateLedgerUseCaseTests: XCTestCase {
   var sut: UpdateLedgerUseCase!
-  var mockNetworkManager: MockNetworkManager!
-  var mockLocalStorage: MockLocalStorage!
+  var mockRepo: MockLedgerRepository!
   
   override func setUpWithError() throws {
-    mockLocalStorage = MockLocalStorage()
-    mockNetworkManager = MockNetworkManager()
-    let ledgerRepo = LedgerRepository(networkManager: mockNetworkManager, localStorage: mockLocalStorage)
-    sut = UpdateLedgerUseCase(ledgerRepo: ledgerRepo)
+    mockRepo = MockLedgerRepository()
+    sut = UpdateLedgerUseCase(ledgerRepo: mockRepo)
   }
   
   override func tearDownWithError() throws {
-    mockLocalStorage = nil
-    mockNetworkManager = nil
+    mockRepo = nil
     sut = nil
   }
   
   func test_execute_호출_시_에러가_발생하지_않는다면_LedgerDetail_Entity가_반환되어야_한다() async {
     // Arrange
-   let dto = LedgerDetailResponseDTO(
+    mockRepo.returnValue.update = LedgerDetail(
       id: 0,
       storeInfo: "",
       amount: 0,
-      fundType: FundType.expense.rawValue,
+      fundType: .expense,
       description: "",
       paymentDate: "",
-      receiptImageUrls: [],
       documentImageUrls: [],
-      authorName: ""
+      authorName: "",
+      category: nil
     )
-    mockNetworkManager.returnValue = dto
     
     do {
       // Act
@@ -46,18 +41,19 @@ final class UpdateLedgerUseCaseTests: XCTestCase {
         fundType: .expense,
         description: "",
         paymentDate: "",
-        receiptImageUrls: [],
         documentImageUrls: [],
-        authorName: ""
+        authorName: "",
+        category: nil
       )
       let output = try await sut.execute(request: detail)
       
       // Assert
-      XCTAssertEqual(mockNetworkManager.requestCallCount, 1)
-      XCTAssertEqual(output, dto.toEntity)
+      XCTAssertEqual(mockRepo.callCount.update, 1)
+      XCTAssertEqual(output, mockRepo.returnValue.update)
     } catch {
       // Assert
       XCTFail()
     }
   }
 }
+

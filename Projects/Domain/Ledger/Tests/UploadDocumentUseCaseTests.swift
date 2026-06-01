@@ -1,24 +1,19 @@
 import XCTest
 @testable import Ledger
-@testable import Repository
-@testable import RepositoryTesting
-@testable import LedgerInterface
+@testable import BaseDomainTesting
+
 
 final class UploadDocumentUseCaseTests: XCTestCase {
   var sut: UploadDocumentUseCase!
-  var mockNetworkManager: MockNetworkManager!
-  var mockLocalStorage: MockLocalStorage!
+  var mockRepo: MockLedgerRepository!
   
   override func setUpWithError() throws {
-    mockLocalStorage = MockLocalStorage()
-    mockNetworkManager = MockNetworkManager()
-    let ledgerRepo = LedgerRepository(networkManager: mockNetworkManager, localStorage: mockLocalStorage)
-    sut = UploadDocumentUseCase(ledgerRepo: ledgerRepo)
+    mockRepo = MockLedgerRepository()
+    sut = UploadDocumentUseCase(ledgerRepo: mockRepo)
   }
   
   override func tearDownWithError() throws {
-    mockLocalStorage = nil
-    mockNetworkManager = nil
+    mockRepo = nil
     sut = nil
   }
   
@@ -30,7 +25,7 @@ final class UploadDocumentUseCaseTests: XCTestCase {
       try await sut.execute(ledgerID: 0, documentUrls: [])
       
       // Assert
-      XCTAssertEqual(mockNetworkManager.requestCallCount, 1)
+      XCTAssertEqual(mockRepo.callCount.documentImagesUpload, 1)
     } catch {
       // Assert
       XCTFail()

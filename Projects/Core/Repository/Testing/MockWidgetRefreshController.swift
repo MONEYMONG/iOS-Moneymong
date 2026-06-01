@@ -1,4 +1,5 @@
 import Repository
+import BaseDomain
 
 public final class MockWidgetRefreshController: WidgetRefreshable {
   public var refreshCallCount: Int = 0

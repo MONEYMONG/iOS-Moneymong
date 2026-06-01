@@ -1,24 +1,20 @@
 import XCTest
 @testable import Ledger
-@testable import Repository
-@testable import RepositoryTesting
-@testable import LedgerInterface
+@testable import BaseDomain
+@testable import BaseDomainTesting
+
 
 final class SaveLedgerDateRangeUseCaseTests: XCTestCase {
   var sut: SaveLedgerDateRangeUseCase!
-  var mockNetworkManager: MockNetworkManager!
-  var mockLocalStorage: MockLocalStorage!
+  var mockRepo: MockLedgerRepository!
   
   override func setUpWithError() throws {
-    mockLocalStorage = MockLocalStorage()
-    mockNetworkManager = MockNetworkManager()
-    let ledgerRepo = LedgerRepository(networkManager: mockNetworkManager, localStorage: mockLocalStorage)
-    sut = SaveLedgerDateRangeUseCase(ledgerRepo: ledgerRepo)
+    mockRepo = MockLedgerRepository()
+    sut = SaveLedgerDateRangeUseCase(ledgerRepo: mockRepo)
   }
   
   override func tearDownWithError() throws {
-    mockLocalStorage = nil
-    mockNetworkManager = nil
+    mockRepo = nil
     sut = nil
   }
   
@@ -33,6 +29,6 @@ final class SaveLedgerDateRangeUseCaseTests: XCTestCase {
     sut.excute(dateRange: input)
     
     // Assert
-    XCTAssertEqual(mockLocalStorage.ledgerDateRange, input.toDic)
+    XCTAssertEqual(mockRepo.callCount.saveDateRange, 1)
   }
 }

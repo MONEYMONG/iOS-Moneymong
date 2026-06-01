@@ -1,4 +1,5 @@
 import Repository
+import MMStorageInterface
 
 public final class MockLocalStorage: LocalStorageInterface {
   public var recentLoginType: String?

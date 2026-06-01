@@ -1,24 +1,18 @@
 import XCTest
 @testable import Ledger
-@testable import Repository
-@testable import RepositoryTesting
-@testable import LedgerInterface
+@testable import BaseDomainTesting
 
 final class DeleteDocumentUseCaseTests: XCTestCase {
   var sut: DeleteDocumentUseCase!
-  var mockNetworkManager: MockNetworkManager!
-  var mockLocalStorage: MockLocalStorage!
+  var mockRepo: MockLedgerRepository!
   
   override func setUpWithError() throws {
-    mockLocalStorage = MockLocalStorage()
-    mockNetworkManager = MockNetworkManager()
-    let ledgerRepo = LedgerRepository(networkManager: mockNetworkManager, localStorage: mockLocalStorage)
-    sut = DeleteDocumentUseCase(ledgerRepo: ledgerRepo)
+    mockRepo = MockLedgerRepository()
+    sut = DeleteDocumentUseCase(ledgerRepo: mockRepo)
   }
   
   override func tearDownWithError() throws {
-    mockLocalStorage = nil
-    mockNetworkManager = nil
+    mockRepo = nil
     sut = nil
   }
   
@@ -30,7 +24,7 @@ final class DeleteDocumentUseCaseTests: XCTestCase {
       try await sut.execute(ledgerID: 0, documentID: 0)
       
       // Assert
-      XCTAssertEqual(mockNetworkManager.requestCallCount, 1)
+      XCTAssertEqual(mockRepo.callCount.documentImageDelete, 1)
     } catch {
       // Assert
       XCTFail()
