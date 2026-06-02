@@ -49,6 +49,11 @@ extension SceneDelegate {
   func registerDependency(
     contentFormatter: ContentFormatter
   ) {
+    // MARK: Common
+    DIContainer.shared.register(type: ContentFormatter.self) {
+      return ContentFormatter()
+    }
+    
     DIContainer.shared.register(type: LedgerServiceInterface.self) {
       return LedgerService()
     }
@@ -188,6 +193,12 @@ extension SceneDelegate {
     
     DIContainer.shared.register(type: ConfirmCertificateCodeUseCaseInterface.self) {
       return MockConfirmCertificateCodeUseCase()
+    }
+    
+    //MARK: - Report
+    
+    DIContainer.shared.register(type: GetReportUseCaseInterface.self) {
+      return MockGetReportUseCase()
     }
   }
 }

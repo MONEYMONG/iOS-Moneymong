@@ -2,11 +2,11 @@ import UIKit
 
 import PinLayout
 
-final class MMLineTabs: UISegmentedControl {
+public final class MMLineTabs: UISegmentedControl {
   private var underlineView: UIView!
   private var dividerView: UIView!
   
-  override init(items: [Any]?) {
+  public override init(items: [Any]?) {
     super.init(items: items)
     setupView()
     setupConstraints()
@@ -17,7 +17,7 @@ final class MMLineTabs: UISegmentedControl {
     fatalError("init(coder:) has not been implemented")
   }
   
-  override func layoutSubviews() {
+  public override func layoutSubviews() {
     super.layoutSubviews()
     dividerView.frame = CGRect(
       x: 0,
