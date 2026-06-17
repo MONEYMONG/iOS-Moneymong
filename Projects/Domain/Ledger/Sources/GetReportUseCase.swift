@@ -11,7 +11,7 @@ public struct GetReportUseCase: GetReportUseCaseInterface {
     self.ledgerRepo = ledgerRepo
   }
   
-  public func excute(agencyID: Int, report: Report?, currentDate: Date, limit: Int = 3) async throws -> Report {
+  public func execute(agencyID: Int, report: Report?, currentDate: Date, limit: Int = 3) async throws -> Report {
     let calendar = Calendar.current
 
     if let report {

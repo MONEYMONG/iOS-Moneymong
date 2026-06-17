@@ -77,7 +77,7 @@ final class LedgerTabReactor: Reactor {
     self.service = ledgerService
     self.formatter = formatter
     
-    if let fetchDateRange = getLedgerDateRangeUseCase.excute() {
+    if let fetchDateRange = getLedgerDateRangeUseCase.execute() {
       self.initialState = State(
         userID: getUserIDUseCase.execute(),
         dateRange: fetchDateRange
@@ -150,7 +150,7 @@ final class LedgerTabReactor: Reactor {
     switch mutation {
     case let .setDateRange(start, end):
       let newDateRange = DateRange(start: start, end: end)
-      saveLedgerDateRangeUseCase.excute(dateRange: newDateRange)
+      saveLedgerDateRangeUseCase.execute(dateRange: newDateRange)
       newState.dateRange = newDateRange
     case let .setDestination(destination):
       newState.destination = destination
@@ -236,7 +236,7 @@ final class LedgerTabReactor: Reactor {
   private func requestLedgerList(agencyID: Int?) -> Observable<Mutation> {
     guard let agencyID else { return .empty() }
     return .task {
-      return try await getLedgerListUseCase.excute(
+      return try await getLedgerListUseCase.execute(
         id: agencyID, // 소속 ID
         start: currentState.dateRange.start,
         end: currentState.dateRange.end,

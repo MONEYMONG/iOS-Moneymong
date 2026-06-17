@@ -4,7 +4,7 @@ import BaseDomain
 public struct MockGetLedgerDateRangeUseCase: GetLedgerDateRangeUseCaseInterface {
   public init() {}
   
-  public func excute() -> BaseDomain.DateRange? {
+  public func execute() -> BaseDomain.DateRange? {
     return nil
   }
 }

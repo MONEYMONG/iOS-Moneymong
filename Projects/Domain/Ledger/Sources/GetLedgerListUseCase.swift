@@ -12,7 +12,7 @@ public struct GetLedgerListUseCase: GetLedgerListUseCaseInterface {
     self.widgetRefreshController = widgetRefreshController
   }
   
-  public func excute(id: Int, start: DateInfo, end: DateInfo, page: Int, limit: Int, fundType: FundType?) async throws -> LedgerList {
+  public func execute(id: Int, start: DateInfo, end: DateInfo, page: Int, limit: Int, fundType: FundType?) async throws -> LedgerList {
     defer {
       widgetRefreshController.refresh()
     }

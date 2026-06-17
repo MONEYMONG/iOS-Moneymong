@@ -10,7 +10,7 @@ public struct GetLedgerDateRangeUseCase: GetLedgerDateRangeUseCaseInterface {
     self.ledgerRepo = ledgerRepo
   }
   
-  public func excute() -> DateRange? {
+  public func execute() -> DateRange? {
     ledgerRepo.fetchDateRange()
   }
 }

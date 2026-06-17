@@ -33,7 +33,7 @@ final class GetLedgerListUseCaseTests: XCTestCase {
     
     do {
       // Act
-      let output = try await sut.excute(
+      let output = try await sut.execute(
         id: 0,
         start: .init(year: 2024, month: 1),
         end: .init(year: 2025, month: 1),

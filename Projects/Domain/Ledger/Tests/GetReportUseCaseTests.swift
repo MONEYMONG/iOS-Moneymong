@@ -32,7 +32,7 @@ final class GetReportUseCaseTests: XCTestCase {
     
     do {
       // Act
-      let output = try await sut.excute(
+      let output = try await sut.execute(
         agencyID: 0,
         report: nil,
         currentDate: Calendar.current.date(from: DateComponents(year: 2026, month: 5))!,
@@ -97,7 +97,7 @@ final class GetReportUseCaseTests: XCTestCase {
     mockRepo.returnValue.fetchReport = expected
     
     do {
-      let output = try await sut.excute(
+      let output = try await sut.execute(
         agencyID: 0,
         report: current,
         currentDate: Calendar.current.date(from: DateComponents(year: 2026, month: 5))!

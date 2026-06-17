@@ -1,7 +1,7 @@
 import BaseDomain
 
 public protocol GetLedgerListUseCaseInterface {
-  func excute(
+  func execute(
     id: Int,
     start: DateInfo,
     end: DateInfo,

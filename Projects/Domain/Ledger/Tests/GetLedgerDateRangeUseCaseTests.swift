@@ -26,7 +26,7 @@ final class GetLedgerDateRangeUseCaseTests: XCTestCase {
     )
     
     // Act
-    let output = sut.excute()
+    let output = sut.execute()
     
     // Assert
     XCTAssertEqual(mockRepo.returnValue.fetchDateRange, output)

@@ -10,7 +10,7 @@ public struct SaveLedgerDateRangeUseCase: SaveLedgerDateRangeUseCaseInterface {
     self.ledgerRepo = ledgerRepo
   }
   
-  public func excute(dateRange: DateRange) {
+  public func execute(dateRange: DateRange) {
     ledgerRepo.saveDateRange(dateRange)
   }
 }

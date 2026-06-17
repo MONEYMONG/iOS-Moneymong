@@ -4,5 +4,5 @@ import BaseDomain
 public struct MockSaveLedgerDateRangeUseCase: SaveLedgerDateRangeUseCaseInterface {
   public init() {}
   
-  public func excute(dateRange: BaseDomain.DateRange) {}
+  public func execute(dateRange: BaseDomain.DateRange) {}
 }

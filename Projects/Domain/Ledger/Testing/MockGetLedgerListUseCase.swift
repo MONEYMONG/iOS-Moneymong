@@ -4,7 +4,7 @@ import BaseDomain
 public struct MockGetLedgerListUseCase: GetLedgerListUseCaseInterface {
   public init() {}
   
-  public func excute(id: Int, start: DateInfo, end: DateInfo, page: Int, limit: Int, fundType: FundType?) async throws -> LedgerList {
+  public func execute(id: Int, start: DateInfo, end: DateInfo, page: Int, limit: Int, fundType: FundType?) async throws -> LedgerList {
     return LedgerList(
       totalBalance: 0,
       totalCount: 5,

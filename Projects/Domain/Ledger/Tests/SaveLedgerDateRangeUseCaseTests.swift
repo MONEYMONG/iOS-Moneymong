@@ -26,7 +26,7 @@ final class SaveLedgerDateRangeUseCaseTests: XCTestCase {
     )
     
     // Act
-    sut.excute(dateRange: input)
+    sut.execute(dateRange: input)
     
     // Assert
     XCTAssertEqual(mockRepo.callCount.saveDateRange, 1)
