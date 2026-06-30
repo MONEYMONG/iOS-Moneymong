@@ -32,6 +32,7 @@ final class LedgerCell: UICollectionViewCell, ReusableView {
   private let amountLabel: UILabel = {
     let v = UILabel()
     v.font = Fonts.heading._1
+    v.textAlignment = .right
     return v
   }()
   
@@ -39,6 +40,7 @@ final class LedgerCell: UICollectionViewCell, ReusableView {
     let v = UILabel()
     v.font = Fonts.body._2
     v.textColor = Colors.Gray._4
+    v.textAlignment = .right
     return v
   }()
 
@@ -72,18 +74,29 @@ final class LedgerCell: UICollectionViewCell, ReusableView {
     contentView.addSubview(rootContainer)
 
     rootContainer.flex.direction(.row).define { flex in
-      flex.addItem(UIImageView(image: Images.hexagon)).define { flex in
-        flex.addItem(numberLabel)
-      }
-      .justifyContent(.center).alignItems(.center).size(38)
-      flex.addItem().define { flex in
-        flex.addItem(titleLabel).marginBottom(2)
-        flex.addItem(dateLabel)
-      }.marginLeft(10).shrink(1)
-      flex.addItem().define { flex in
-        flex.addItem(amountLabel).marginBottom(2)
-        flex.addItem(balanceLabel)
-      }.alignItems(.end).grow(1)
+      flex.addItem(UIImageView(image: Images.hexagon))
+        .justifyContent(.center)
+        .alignItems(.center)
+        .size(38)
+        .define { flex in
+          flex.addItem(numberLabel)
+        }
+     
+      flex.addItem()
+        .marginLeft(10)
+        .shrink(1)
+        .define { flex in
+          flex.addItem(titleLabel).marginBottom(2)
+          flex.addItem(dateLabel)
+        }
+      
+      flex.addItem()
+        .alignItems(.end)
+        .grow(1)
+        .define { flex in
+          flex.addItem(amountLabel).marginBottom(2)
+          flex.addItem(balanceLabel)
+        }
     }
   }
 
@@ -108,7 +121,7 @@ final class LedgerCell: UICollectionViewCell, ReusableView {
     titleLabel.flex.markDirty()
     balanceLabel.flex.markDirty()
     amountLabel.flex.markDirty()
-    contentView.setNeedsLayout()
+    setNeedsLayout()
     return self
   }
 }

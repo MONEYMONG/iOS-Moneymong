@@ -91,5 +91,8 @@ public enum Images {
   public static let onboardingFirst = UIImage(named: "onboarding.first", in: Bundle.module, with: nil)!
   public static let onboardingSecond = UIImage(named: "onboarding.second", in: Bundle.module, with: nil)!
   public static let onboardingThird = UIImage(named: "onboarding.third", in: Bundle.module, with: nil)!
+  
+  //MARK: - Report
+  public static let reportButton = UIImage(named: "report.button", in: Bundle.module, with: nil)!
 }
 

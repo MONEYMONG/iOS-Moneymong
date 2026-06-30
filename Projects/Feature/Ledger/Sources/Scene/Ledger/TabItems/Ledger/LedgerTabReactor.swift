@@ -14,6 +14,7 @@ final class LedgerTabReactor: Reactor {
     case didTapWriteButton
     case didPrefech(Int)
     case didRefresh
+    case didTapReportButton
   }
   
   enum Mutation {
@@ -45,6 +46,7 @@ final class LedgerTabReactor: Reactor {
     enum Destination {
       case datePicker(start: DateInfo, end: DateInfo)
       case createManualLedger(Int)
+      case report(agencyID: Int)
     }
   }
   
@@ -141,6 +143,9 @@ final class LedgerTabReactor: Reactor {
         requestLedgerListFirstPage(agencyID: currentState.agencyID),
         .just(.setLoading(false))
       ])
+    case .didTapReportButton:
+      guard let agencyID = currentState.agencyID else { return .empty() }
+      return .just(.setDestination(.report(agencyID: agencyID)))
     }
   }
   

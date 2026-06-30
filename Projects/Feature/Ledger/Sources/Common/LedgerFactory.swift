@@ -136,4 +136,10 @@ struct LedgerFactory {
     vc.reactor = CategoryReactor(agencyId: agencyId, categories: categories)
     return vc
   }
+  
+  func makeReport(agencyID: Int) -> ReportVC {
+    let vc = ReportVC()
+    vc.reactor = ReportReactor(agencyId: agencyID)
+    return vc
+  }
 }

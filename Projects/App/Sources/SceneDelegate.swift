@@ -87,6 +87,10 @@ extension SceneDelegate {
       return LedgerService()
     }
     
+    DIContainer.shared.register(type: ContentFormatter.self) {
+      return ContentFormatter()
+    }
+    
     
     // MARK: - User UseCase Dependency
     DIContainer.shared.register(type: GetMyInfoUseCaseInterface.self) {
@@ -254,6 +258,11 @@ extension SceneDelegate {
     DIContainer.shared.register(type: UploadImageUseCaseInterface.self) {
       let ledgerRepo = LedgerRepository(networkManager: networkManager, localStorage: localStorage)
       return UploadImageUseCase(ledgerRepo: ledgerRepo)
+    }
+    
+    DIContainer.shared.register(type: GetReportUseCaseInterface.self) {
+      let ledgerRepo = LedgerRepository(networkManager: networkManager, localStorage: localStorage)
+      return GetReportUseCase(ledgerRepo: ledgerRepo)
     }
     
     // MARK: - Coordinator Dependency

@@ -73,6 +73,12 @@ final class LedgerTabVC: BaseVC, View {
     return v
   }()
   
+  private let reportButton: UIButton = {
+    let v = UIButton()
+    v.setImage(Images.reportButton, for: .normal)
+    return v
+  }()
+  
   private let refreshControl = UIRefreshControl()
 
   override func setupUI() {
@@ -98,7 +104,11 @@ final class LedgerTabVC: BaseVC, View {
         flex.addItem(dateRangeLabel).marginRight(8).paddingVertical(10)
         flex.addItem(UIImageView(image: Images.chevronDown)).size(16)
       }.justifyContent(.center).alignItems(.center)
-      flex.addItem(filterControl).alignSelf(.start).marginTop(20).marginBottom(16)
+      flex.addItem().direction(.row).define { flex in
+        flex.addItem(filterControl).alignSelf(.start).marginTop(20).marginBottom(16)
+        flex.addItem().grow(1)
+        flex.addItem(reportButton)
+      }
       flex.addItem(ledgerList).grow(1)
     }.marginHorizontal(16).marginTop(8)
     
@@ -165,6 +175,11 @@ final class LedgerTabVC: BaseVC, View {
       .bind(to: reactor.action)
       .disposed(by: disposeBag)
     
+    reportButton.rx.tap
+      .map { Reactor.Action.didTapReportButton }
+      .bind(to: reactor.action)
+      .disposed(by: disposeBag)
+    
     reactor.pulse(\.$isLoading)
       .filter { !$0 }
       .observe(on: MainScheduler.instance)
@@ -219,6 +234,8 @@ final class LedgerTabVC: BaseVC, View {
           owner.coordinator?.datePicker(start: start, end: end)
         case let .createManualLedger(id):
           owner.coordinator?.present(.createManualLedger(id, .createManual))
+        case let .report(agencyID):
+          owner.coordinator?.present(.report(agencyID: agencyID))
         }
       }
       .disposed(by: disposeBag)

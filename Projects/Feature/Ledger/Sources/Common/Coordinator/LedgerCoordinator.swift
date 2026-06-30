@@ -21,6 +21,7 @@ public final class LedgerCoordinator: LedgerCoordinatorInterface {
     case detail(Int, Ledger, Member.Role)
     case createAgency
     case categorySheet(agencyID: Int, categories: [MMCategory])
+    case report(agencyID: Int)
   }
 
   public init(contentFormatter: ContentFormatter) {
@@ -43,6 +44,8 @@ public final class LedgerCoordinator: LedgerCoordinatorInterface {
       createAgency()
     case let .categorySheet(agencyID, categories):
       categorySheet(agencyId: agencyID, categories: categories)
+    case .report(agencyID: let agencyID):
+      report(agencyID: agencyID)
     }
   }
   
@@ -136,5 +139,14 @@ extension LedgerCoordinator {
     ).makeCategorySheet(agencyId: agencyId, categories: categories)
     vc.modalPresentationStyle = .overFullScreen
     navigationController?.present(vc, animated: false)
+  }
+  
+  private func report(agencyID: Int) {
+    let vc = LedgerFactory(
+      contentFormatter: contentFormatter
+    ).makeReport(agencyID: agencyID)
+    let navigationController = UINavigationController(rootViewController: vc)
+    navigationController.modalPresentationStyle = .fullScreen
+    self.navigationController?.present(navigationController, animated: true)
   }
 }
