@@ -50,10 +50,26 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
     guard let url = URLContexts.first?.url else { return }
 
     if url.absoluteString.contains("widget://") {
-      DeepLinkManager.setDestination(url.absoluteString, agencyID: localStorage.selectedAgency)
+      let destination = url.absoluteString.replacingOccurrences(of: "widget://", with: "")
+      guard let agencyID = localStorage.selectedAgency else { return }
+      DeepLinkManager.setQuery([
+        "destination": destination,
+        "agencyID": agencyID
+      ], notiName: .init("deeplink"))
     } else {
       KakaoAuthManager.shared.openURL(url)
     }
+  }
+  
+  func scene(_ scene: UIScene, continue userActivity: NSUserActivity) {
+    guard userActivity.activityType == NSUserActivityTypeBrowsingWeb,
+          let url = userActivity.webpageURL,
+          let components = URLComponents(url: url, resolvingAgainstBaseURL: true) else { return }
+    var queryItems: [String: Any] = [:]
+    components.queryItems?.forEach {
+      queryItems[$0.name] = $0.value
+    }
+    DeepLinkManager.setQuery(queryItems, notiName: .invitationLink)
   }
 
   func sceneDidDisconnect(_ scene: UIScene) {}
