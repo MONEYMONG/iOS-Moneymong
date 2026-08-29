@@ -21,6 +21,7 @@ final class MemberTabVC: BaseVC, View {
   }()
   
   private let profileView = MyProfileView()
+  private let invitationLinkButton = InvitationLinkButton()
   private let emptyView = MemberEmptyView()
   
   private let memberHeaderLabel: UILabel = {
@@ -49,7 +50,8 @@ final class MemberTabVC: BaseVC, View {
     
     rootContainer.flex.paddingHorizontal(20).define { flex in
       flex.addItem(profileHeaderLabel).marginTop(24).marginBottom(8)
-      flex.addItem(profileView).marginBottom(24)
+      flex.addItem(profileView).marginBottom(16)
+      flex.addItem(invitationLinkButton).marginBottom(20)
       flex.addItem(memberHeaderLabel).marginBottom(8)
       flex.addItem(tableView).grow(1)
     }
@@ -80,6 +82,11 @@ final class MemberTabVC: BaseVC, View {
     profileView.tapAgencyDelete
       .throttle(.seconds(1), latest: false, scheduler: MainScheduler.instance)
       .map { Reactor.Action.tapAgencyDeleteButton }
+      .bind(to: reactor.action)
+      .disposed(by: disposeBag)
+
+    invitationLinkButton.rx.tap
+      .map { Reactor.Action.didTapInviteButton }
       .bind(to: reactor.action)
       .disposed(by: disposeBag)
     
@@ -120,6 +127,9 @@ final class MemberTabVC: BaseVC, View {
     .observe(on: MainScheduler.instance)
     .bind(with: self) { owner, element in
       owner.profileView.configure(title: element.name, role: element.role, code: element.code)
+      owner.invitationLinkButton.isHidden = element.role == .member
+      owner.invitationLinkButton.flex.isIncludedInLayout(element.role == .staff).markDirty()
+      owner.profileView.flex.marginBottom(element.role == .staff ? 16 : 24).markDirty()
     }
     .disposed(by: disposeBag)
     
@@ -158,8 +168,20 @@ final class MemberTabVC: BaseVC, View {
               reactor.action.onNext(.tapAgnecyDeleteAlertButton)
             }, cancelAction: {})
           ))
+        case let .sharedSheet(content):
+          owner.showShareSheet(content: content)
         }
       }
       .disposed(by: disposeBag)
+  }
+}
+
+private extension MemberTabVC {
+  func showShareSheet(content: String) {
+    let activityVC = UIActivityViewController(
+      activityItems: [content],
+      applicationActivities: nil
+    )
+    present(activityVC, animated: true)
   }
 }
