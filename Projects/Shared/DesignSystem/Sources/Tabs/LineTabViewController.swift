@@ -79,10 +79,11 @@ public final class LineTabViewController: UIViewController {
   private func setupView() {}
   
   private func setupConstraints() {
+    addChild(pageViewController)
     view.addSubview(rootContainer)
     rootContainer.addSubview(pageViewController.view)
     rootContainer.addSubview(tabView)
-
+    pageViewController.didMove(toParent: self)
   }
   
   @objc

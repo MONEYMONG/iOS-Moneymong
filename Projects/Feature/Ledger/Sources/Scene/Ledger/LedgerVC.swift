@@ -58,11 +58,13 @@ public final class LedgerVC: BaseVC, View {
   public override func setupConstraints() {
     super.setupConstraints()
     view.addSubview(emptyView)
-    
+
+    addChild(lineTab)
     rootContainer.flex
       .define { flex in
         flex.addItem(lineTab.view)
       }
+    lineTab.didMove(toParent: self)
   }
   
   public func bind(reactor: LedgerReactor) {
