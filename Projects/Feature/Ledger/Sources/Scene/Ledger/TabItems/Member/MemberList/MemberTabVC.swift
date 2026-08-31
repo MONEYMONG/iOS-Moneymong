@@ -128,8 +128,8 @@ final class MemberTabVC: BaseVC, View {
     .bind(with: self) { owner, element in
       owner.profileView.configure(title: element.name, role: element.role, code: element.code)
       owner.invitationLinkButton.isHidden = element.role == .member
-      owner.invitationLinkButton.flex.isIncludedInLayout(element.role == .staff).markDirty()
-      owner.profileView.flex.marginBottom(element.role == .staff ? 16 : 24).markDirty()
+      owner.invitationLinkButton.flex.isIncludedInLayout(element.role != .member).markDirty()
+      owner.profileView.flex.marginBottom(element.role != .member ? 16 : 24).markDirty()
     }
     .disposed(by: disposeBag)
     
