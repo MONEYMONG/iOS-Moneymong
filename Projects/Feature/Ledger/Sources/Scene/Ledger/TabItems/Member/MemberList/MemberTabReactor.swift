@@ -160,13 +160,9 @@ final class MemberTabReactor: Reactor {
       .catch { return .just(.setError($0.toMMError)) }
     case .didTapInviteButton:
       guard let code = currentState.invitationCode,
-            let agencyID = currentState.agencyID else { return .empty() }
-      var components = URLComponents(string: Config.base)
-      components?.queryItems = [
-        URLQueryItem(name: "code", value: code),
-        URLQueryItem(name: "agencyID", value: String(agencyID))
-      ]
-      let content = components?.url?.absoluteString ?? ""
+            let agencyID = currentState.agencyID,
+            let content = Config.invitationURL(code: code, agencyID: agencyID)
+      else { return .empty() }
       return .just(.setDestination(.sharedSheet(content: content)))
     }
   }
