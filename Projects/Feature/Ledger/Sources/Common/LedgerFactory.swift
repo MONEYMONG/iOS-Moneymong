@@ -18,8 +18,8 @@ struct LedgerFactory {
     let vc = LedgerVC([ledgerTab, memberTab])
     vc.reactor = LedgerReactor(
       getMyAgencyUseCase: DIContainer.shared.resolve(type: GetMyAgencyUseCaseInterface.self),
-      getSelectedAgency: DIContainer.shared.resolve(type: GetSelectedAgencyUseCaseInterface.self),
-      updateSelectedAgency: DIContainer.shared.resolve(type: UpdateSelectedAgencyUseCaseInterface.self),
+      getSelectedAgencyUseCase: DIContainer.shared.resolve(type: GetSelectedAgencyUseCaseInterface.self),
+      updateSelectedAgencyUseCase: DIContainer.shared.resolve(type: UpdateSelectedAgencyUseCaseInterface.self),
       ledgerService: DIContainer.shared.resolve(type: LedgerServiceInterface.self)
     )
     return vc

@@ -1,3 +1,5 @@
+import Foundation
+
 import ReactorKit
 
 import AgencyInterface
@@ -27,6 +29,7 @@ final class MemberTabReactor: Reactor {
       case kickOffAlert(memberID: Int)
       case agencyDeleteAlert
       case ledgerTab
+      case sharedSheet(content: String)
     }
   }
   
@@ -37,6 +40,7 @@ final class MemberTabReactor: Reactor {
     case tapCodeCopyButton // 초대코드 복사
     case tapAgencyDeleteButton // 소속삭제 얼럿 present
     case tapAgnecyDeleteAlertButton // 소속삭제 얼럿 -> 소속삭제
+    case didTapInviteButton
   }
   
   enum Mutation {
@@ -154,6 +158,16 @@ final class MemberTabReactor: Reactor {
         return .setDestination(.ledgerTab)
       }
       .catch { return .just(.setError($0.toMMError)) }
+    case .didTapInviteButton:
+      guard let code = currentState.invitationCode,
+            let agencyID = currentState.agencyID else { return .empty() }
+      var components = URLComponents(string: Config.base)
+      components?.queryItems = [
+        URLQueryItem(name: "code", value: code),
+        URLQueryItem(name: "agencyID", value: String(agencyID))
+      ]
+      let content = components?.url?.absoluteString ?? ""
+      return .just(.setDestination(.sharedSheet(content: content)))
     }
   }
   

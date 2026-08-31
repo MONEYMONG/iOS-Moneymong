@@ -58,20 +58,37 @@ public final class LedgerVC: BaseVC, View {
   public override func setupConstraints() {
     super.setupConstraints()
     view.addSubview(emptyView)
-    
+
+    addChild(lineTab)
     rootContainer.flex
       .define { flex in
         flex.addItem(lineTab.view)
       }
+    lineTab.didMove(toParent: self)
   }
   
   public func bind(reactor: LedgerReactor) {
     setTitle(agencyButton)
     
-    rx.viewDidLoad
-      .map { Reactor.Action.requestMyAgencies }
+    NotificationCenter.default.rx.notification(.invitationLink)
+      .compactMap { noti -> (code: String, agencyID: Int)? in
+        guard let code = noti.userInfo?["code"] as? String,
+              let agencyID = noti.userInfo?["agencyID"] as? Int else { return nil }
+        return (code, agencyID)
+      }
+      .map { Reactor.Action.invite(code: $0.code, agencyID: $0.agencyID) }
+      .do { _ in DeepLinkManager.clear() }
       .bind(to: reactor.action)
       .disposed(by: disposeBag)
+    
+    if let query = DeepLinkManager.query {
+      NotificationCenter.default.post(name: .invitationLink, object: nil, userInfo: query)
+    } else {
+      rx.viewDidLoad
+        .map { Reactor.Action.requestMyAgencies }
+        .bind(to: reactor.action)
+        .disposed(by: disposeBag)
+    }
     
     rx.viewDidLoad
       .bind(with: self, onNext: { owner, _ in
@@ -82,6 +99,12 @@ public final class LedgerVC: BaseVC, View {
     emptyView.tapAgency
       .bind(with: self) { owner, _ in
         owner.coordinator?.createAgency()
+      }
+      .disposed(by: disposeBag)
+    
+    agencyButton.rx.tap
+      .bind(with: self) { owner, _ in
+        owner.coordinator?.selectAgencySheet()
       }
       .disposed(by: disposeBag)
     
@@ -105,10 +128,9 @@ public final class LedgerVC: BaseVC, View {
       }
       .disposed(by: disposeBag)
     
-    agencyButton.rx.tap
-      .bind(with: self) { owner, _ in
-        owner.coordinator?.selectAgencySheet()
-      }
+    reactor.pulse(\.$isLoading)
+      .observe(on: MainScheduler.instance)
+      .bind(to: rx.isLoading)
       .disposed(by: disposeBag)
   }
 }

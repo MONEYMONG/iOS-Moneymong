@@ -2,30 +2,20 @@ import Foundation
 
 public struct DeepLinkManager {
   
-  public static var destination: [String : Any]?
+  public static var query: [String : Any]?
   
   // CreateLedger, LedgerDetail
-  public static func setDestination(_ urlString: String, agencyID: Int?) {
-    let query = urlString.replacingOccurrences(of: "widget://", with: "")
-    
-    guard let agencyID else { return }
-    
-    destination = [
-      "query": query,
-      "agencyID": agencyID
-    ]
+  public static func setQuery(_ query: [String : Any], notiName: Notification.Name) {
+    self.query = query
     
     NotificationCenter.default.post(
-      name: .init("deeplink"),
+      name: notiName,
       object: nil,
-      userInfo: [
-        "query": query,
-        "agencyID": agencyID
-      ]
+      userInfo: query
     )
   }
   
   public static func clear() {
-    destination = nil
+    query = nil
   }
 }

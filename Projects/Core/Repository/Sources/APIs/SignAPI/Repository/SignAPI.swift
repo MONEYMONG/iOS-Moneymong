@@ -1,6 +1,7 @@
 import Foundation
 
 import MMNetworkInterface
+import Utility
 
 enum SignAPI {
   case sign(SignRequestDTO)
