@@ -59,7 +59,7 @@ public final class MainTapViewController: UITabBarController {
   
   private func observeNotification() {
     NotificationCenter.default.rx
-      .notification(.init("deeplink"))
+      .notification(.widgetLink)
       .compactMap { noti -> (destination: String, agencyID: Int)? in
         guard let destination = noti.userInfo?["destination"] as? String,
               let agencyID = noti.userInfo?["agencyID"] as? Int else { return nil }
@@ -80,8 +80,8 @@ public final class MainTapViewController: UITabBarController {
       }
       .disposed(by: disposeBag)
     
-    if let destination = DeepLinkManager.query {
-      NotificationCenter.default.post(name: .init("deeplink"), object: nil, userInfo: destination)
+    if let destination = DeepLinkManager.query, DeepLinkManager.notiName == .widgetLink {
+      NotificationCenter.default.post(name: .widgetLink, object: nil, userInfo: destination)
     }
   }
 }

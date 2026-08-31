@@ -57,7 +57,7 @@ final class LoginReactor: Reactor {
     case .login(let loginType):
       return .task {
         _ = try await signUpUseCase.execute(loginType: loginType)
-        if DeepLinkManager.query != nil { return true }
+        if DeepLinkManager.notiName == .invitationLink { return true }
         return try await !getMyAgencyUseCase.execute().isEmpty
       }
       .map { .setDestination($0 ? .main : .signUp) }
