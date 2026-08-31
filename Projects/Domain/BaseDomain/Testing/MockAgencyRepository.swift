@@ -29,6 +29,7 @@ public class MockAgencyRepository: AgencyRepositoryInterface {
     public var create: Int?
     public var fetchMemberList: [BaseDomain.Member]?
     public var fetchMyAgency: [BaseDomain.Agency]?
+    public var fetchMyAgencySequence: [[BaseDomain.Agency]] = []
     public var fetchCode: String?
     public var certificateCode: BaseDomain.CertificationResult?
     public var reissueCode: String?
@@ -79,6 +80,11 @@ public class MockAgencyRepository: AgencyRepositoryInterface {
 
   public func fetchMyAgency() async throws -> [BaseDomain.Agency] {
     callCount.fetchMyAgency += 1
+    if !returnValue.fetchMyAgencySequence.isEmpty {
+      return returnValue.fetchMyAgencySequence.count > 1
+        ? returnValue.fetchMyAgencySequence.removeFirst()
+        : returnValue.fetchMyAgencySequence[0]
+    }
     return returnValue.fetchMyAgency!
   }
 

@@ -3,7 +3,7 @@ import XCTest
 @testable import BaseDomain
 @testable import BaseDomainTesting
 
-final class ConfirmCerrificateCodeUseCaseTests: XCTestCase {
+final class ConfirmCertificateCodeUseCaseTests: XCTestCase {
   var sut: ConfirmCertificateCodeUseCase!
   var mockAgencyRepo: MockAgencyRepository!
   var mockUserRepo: MockUserRepository!
@@ -77,10 +77,11 @@ final class ConfirmCerrificateCodeUseCaseTests: XCTestCase {
     }
   }
 
-  func test_execute_코드와_소속ID로_호출_시_가입되지_않은_소속이고_인증에_성공하면_해당_Agency를_반환한다() async {
+  func test_execute_코드와_소속ID로_호출_시_가입되지_않은_소속이고_인증에_성공하면_재조회한_목록의_Agency를_반환한다() async {
     // Arrange
     let agency = Agency(id: 2, name: "몽테스트", count: 1)
-    mockAgencyRepo.returnValue.fetchMyAgency = [agency]
+    // 가입 전 조회에는 해당 소속이 없고, 인증(가입) 후 재조회에서야 등장한다.
+    mockAgencyRepo.returnValue.fetchMyAgencySequence = [[], [agency]]
     mockAgencyRepo.returnValue.certificateCode = CertificationResult(certified: true, agencyId: agency.id)
 
     do {
@@ -90,6 +91,7 @@ final class ConfirmCerrificateCodeUseCaseTests: XCTestCase {
       // Assert
       XCTAssertEqual(output, agency)
       XCTAssertEqual(mockAgencyRepo.callCount.certificateCode, 1)
+      XCTAssertEqual(mockAgencyRepo.callCount.fetchMyAgency, 2)
       XCTAssertEqual(mockUserRepo.inputValue.updateSelectedAgency, agency.id)
     } catch {
       // Assert
@@ -108,6 +110,7 @@ final class ConfirmCerrificateCodeUseCaseTests: XCTestCase {
 
       // Assert
       XCTAssertNil(output)
+      XCTAssertEqual(mockAgencyRepo.callCount.fetchMyAgency, 1)
       XCTAssertEqual(mockUserRepo.callCount.updateSelectedAgency, 0)
     } catch {
       // Assert
