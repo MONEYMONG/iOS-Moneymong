@@ -55,37 +55,51 @@ public final class LedgerReactor: Reactor {
     switch action {
     case .requestMyAgencies:
       return .concat(
-          .just(.setLoading(true)),
-          .task {
-            try await getMyAgencyUseCase.execute()
-          }
-          .map { [weak self] agencies in
-            let agencyID = self?.getSelectedAgencyUseCase.execute()
-            let agency = agencies.first(where: { $0.id == agencyID }) ?? agencies.first
-            
-            if let agency {
-              self?.updateSelectedAgencyUseCase.execute(id: agency.id)
-              self?.service.agency.updateAgency(agency)
-            }
-
-            return .setAgency(agency)
-          }
-          .catch { return .just(.setError($0.toMMError)) },
-          .just(.setLoading(false))
-        )
+        .just(.setLoading(true)),
+        requestMyAgenciesMutation(),
+        .just(.setLoading(false))
+      )
     case .invite(let code, let agencyID):
       return .concat(
-          .just(.setLoading(true)),
-          .task {
-            try await confirmCertificateCodeUseCase.execute(code: code, agencyID: agencyID)
-          }
-          .map { [weak self] agency in
-            self?.service.agency.updateAgency(agency)
-            return .setAgency(agency)
-          }.catch { return .just(.setError($0.toMMError)) },
-          .just(.setLoading(false))
-        )
+        .just(.setLoading(true)),
+        .task {
+          try await confirmCertificateCodeUseCase.execute(code: code, agencyID: agencyID)
+        }
+        .flatMap { [weak self] agency -> Observable<Mutation> in
+          guard let self else { return .empty() }
+          guard let agency else { return requestMyAgenciesMutation() }
+          applySelected(agency)
+          return .just(.setAgency(agency))
+        }
+        .catch { [weak self] error in
+          guard let self else { return .just(.setError(error.toMMError)) }
+          return .concat(
+            .just(.setError(error.toMMError)),
+            self.requestMyAgenciesMutation()
+          )
+        },
+        .just(.setLoading(false))
+      )
     }
+  }
+
+  private func requestMyAgenciesMutation() -> Observable<Mutation> {
+    return .task { try await getMyAgencyUseCase.execute() }
+      .map { [weak self] agencies -> Agency? in
+        let selectedID = self?.getSelectedAgencyUseCase.execute()
+        return agencies.first(where: { $0.id == selectedID }) ?? agencies.first
+      }
+      .do(onNext: { [weak self] agency in
+        guard let agency else { return }
+        self?.applySelected(agency)
+      })
+      .map { .setAgency($0) }
+      .catch { .just(.setError($0.toMMError)) }
+  }
+
+  private func applySelected(_ agency: Agency) {
+    updateSelectedAgencyUseCase.execute(id: agency.id)
+    service.agency.updateAgency(agency)
   }
   
   public func reduce(state: State, mutation: Mutation) -> State {
@@ -110,7 +124,6 @@ public final class LedgerReactor: Reactor {
           return .just(.setAgency(agency))
         }
       }
-    
     return .merge(stream, mutation)
   }
 }

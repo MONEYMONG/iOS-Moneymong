@@ -71,25 +71,26 @@ public final class LedgerVC: BaseVC, View {
     setTitle(agencyButton)
     
     NotificationCenter.default.rx.notification(.invitationLink)
-      .compactMap { noti -> (code: String, agencyID: Int)? in
-        guard let code = noti.userInfo?["code"] as? String,
-              let agencyID = noti.userInfo?["agencyID"] as? Int else { return nil }
-        return (code, agencyID)
-      }
-      .map { Reactor.Action.invite(code: $0.code, agencyID: $0.agencyID) }
-      .do { _ in DeepLinkManager.clear() }
+      .compactMap { Self.inviteAction(code: $0.userInfo?["code"], agencyID: $0.userInfo?["agencyID"]) }
+      .do(onNext: { _ in DeepLinkManager.clear() })
       .bind(to: reactor.action)
       .disposed(by: disposeBag)
     
-    if let query = DeepLinkManager.query {
-      NotificationCenter.default.post(name: .invitationLink, object: nil, userInfo: query)
-    } else {
-      rx.viewDidLoad
-        .map { Reactor.Action.requestMyAgencies }
-        .bind(to: reactor.action)
-        .disposed(by: disposeBag)
-    }
-    
+    rx.viewDidLoad
+      .map { _ -> Reactor.Action in
+        if DeepLinkManager.notiName == .invitationLink,
+           let action = Self.inviteAction(
+            code: DeepLinkManager.query?["code"],
+            agencyID: DeepLinkManager.query?["agencyID"]
+           ) {
+          DeepLinkManager.clear()
+          return action
+        }
+        return .requestMyAgencies
+      }
+      .bind(to: reactor.action)
+      .disposed(by: disposeBag)
+
     rx.viewDidLoad
       .bind(with: self, onNext: { owner, _ in
         owner.coordinator?.moveTab = { owner.lineTab.currentPage = $0 }
@@ -132,5 +133,11 @@ public final class LedgerVC: BaseVC, View {
       .observe(on: MainScheduler.instance)
       .bind(to: rx.isLoading)
       .disposed(by: disposeBag)
+  }
+
+  private static func inviteAction(code: Any?, agencyID: Any?) -> LedgerReactor.Action? {
+    guard let code = code as? String, !code.isEmpty,
+          let agencyID = Int(agencyID as? String ?? "") else { return nil }
+    return .invite(code: code, agencyID: agencyID)
   }
 }
