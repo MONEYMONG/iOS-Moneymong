@@ -32,15 +32,14 @@ public struct ConfirmCertificateCodeUseCase: ConfirmCertificateCodeUseCaseInterf
       // 이미 소속에 가입되어 있는 경우
       userRepo.updateSelectedAgency(id: agencyID)
       return agency
-    } else {
-      // 소속에 가입되어 있는 않는 경우
-      let response = try await agencyRepo.certificateCode(code: code)
-      if response.certified {
-        userRepo.updateSelectedAgency(id: response.agencyId)
-        return agencies.first { $0.id == response.agencyId }
-      }
     }
-    
-    return nil
+
+    // 소속에 가입되어 있지 않은 경우
+    let response = try await agencyRepo.certificateCode(code: code)
+    guard response.certified else { return nil }
+
+    userRepo.updateSelectedAgency(id: response.agencyId)
+    // 방금 가입했으므로 가입 전 조회한 `agencies`(stale)가 아니라 재조회한 목록에서 찾는다.
+    return try await agencyRepo.fetchMyAgency().first { $0.id == response.agencyId }
   }
 }
