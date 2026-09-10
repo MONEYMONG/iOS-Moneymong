@@ -44,7 +44,6 @@ struct LedgerFactory {
     let vc = MemberTabVC()
     vc.reactor = MemberTabReactor(
       getUserIDUseCase: DIContainer.shared.resolve(type: GetUserIDUseCaseInterface.self),
-      getSelectedAgencyUseCase: DIContainer.shared.resolve(type: GetSelectedAgencyUseCaseInterface.self),
       reissueCodeUseCase: DIContainer.shared.resolve(type: ReissueCodeUseCaseInterface.self),
       kickoutMemberUseCase: DIContainer.shared.resolve(type: KickoutMemberUseCaseInterface.self),
       deleteAgencyUseCase: DIContainer.shared.resolve(type: DeleteAgencyUseCaseInterface.self),

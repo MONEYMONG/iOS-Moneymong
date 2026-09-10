@@ -13,7 +13,8 @@ final class MemberTabReactor: Reactor {
   
   struct State {
     let userID: Int
-    @Pulse var agencyID: Int?
+    @Pulse var agencyID: Int? = nil
+    @Pulse var agecnyName: String?
     
     @Pulse var name: String?
     @Pulse var role: Member.Role?
@@ -45,7 +46,7 @@ final class MemberTabReactor: Reactor {
   
   enum Mutation {
     case setName(String)
-    case setAgencyID(Int)
+    case setAgency(id: Int, name: String)
     case setMembers([Member])
     case setRole(Member.Role)
     case setInvitationCode(String)
@@ -58,7 +59,6 @@ final class MemberTabReactor: Reactor {
   let initialState: State
   
   private let getUserIDUseCase: GetUserIDUseCaseInterface
-  private let getSelectedAgencyUseCase: GetSelectedAgencyUseCaseInterface
   private let reissueCodeUseCase: ReissueCodeUseCaseInterface
   private let kickoutMemberUseCase: KickoutMemberUseCaseInterface
   private let deleteAgencyUseCase: DeleteAgencyUseCaseInterface
@@ -70,7 +70,6 @@ final class MemberTabReactor: Reactor {
   
   init(
     getUserIDUseCase: GetUserIDUseCaseInterface,
-    getSelectedAgencyUseCase: GetSelectedAgencyUseCaseInterface,
     reissueCodeUseCase: ReissueCodeUseCaseInterface,
     kickoutMemberUseCase: KickoutMemberUseCaseInterface,
     deleteAgencyUseCase: DeleteAgencyUseCaseInterface,
@@ -80,7 +79,6 @@ final class MemberTabReactor: Reactor {
     ledgerService: LedgerServiceInterface
   ) {
     self.getUserIDUseCase = getUserIDUseCase
-    self.getSelectedAgencyUseCase = getSelectedAgencyUseCase
     self.reissueCodeUseCase = reissueCodeUseCase
     self.kickoutMemberUseCase = kickoutMemberUseCase
     self.deleteAgencyUseCase = deleteAgencyUseCase
@@ -91,7 +89,6 @@ final class MemberTabReactor: Reactor {
     
     self.initialState = .init(
       userID: getUserIDUseCase.execute(),
-      agencyID: getSelectedAgencyUseCase.execute()
     )
   }
   
@@ -159,10 +156,7 @@ final class MemberTabReactor: Reactor {
       }
       .catch { return .just(.setError($0.toMMError)) }
     case .didTapInviteButton:
-      guard let code = currentState.invitationCode,
-            let agencyID = currentState.agencyID,
-            let content = Config.invitationURL(code: code, agencyID: agencyID)
-      else { return .empty() }
+      guard let content = makeInvitationContent() else { return .empty() }
       return .just(.setDestination(.sharedSheet(content: content)))
     }
   }
@@ -173,8 +167,9 @@ final class MemberTabReactor: Reactor {
     case let .setName(name):
       newState.name = name
       
-    case let .setAgencyID(id):
+    case let .setAgency(id, name):
       newState.agencyID = id
+      newState.agecnyName = name
       
     case let .setInvitationCode(code):
       newState.invitationCode = code
@@ -229,9 +224,9 @@ final class MemberTabReactor: Reactor {
       case let .update(agency):
         if currentState.agencyID == agency?.id {
           return .empty()
-        } else if let id = agency?.id {
+        } else if let id = agency?.id, let name = agency?.name {
           return .concat(
-            .just(.setAgencyID(id)),
+            .just(.setAgency(id: id, name: name)),
             .just(.setLoading(true)),
             requestInvitationCode(agencyID: id),
             requestMembers(agencyID: id),
@@ -283,5 +278,16 @@ final class MemberTabReactor: Reactor {
           .just(.setRole(role))
         )
       }
+  }
+  
+  private func makeInvitationContent() -> String? {
+    guard let code = currentState.invitationCode,
+          let agencyID = currentState.agencyID,
+          let invitationURL = Config.invitationURL(code: code, agencyID: agencyID),
+          let userName = currentState.name,
+          let angecyName = currentState.agecnyName else { return nil }
+    
+    return "\(userName)님이 \(angecyName) 장부에 초대했어요.\n초대 받고 함께 쓴 돈을 같이 관리해봐요!\n\n\(invitationURL)"
+    
   }
 }
