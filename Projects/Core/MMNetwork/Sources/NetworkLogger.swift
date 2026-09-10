@@ -4,8 +4,6 @@ import OSLog
 import Alamofire
 
 final class NetworkLogger: EventMonitor {
-  let queue = DispatchQueue(label: "NetworkLogger")
-  
   private let logger = Logger(subsystem: Bundle.main.bundleIdentifier ?? "", category: "NetworkLogger")
   
   func request<Value>(_ request: DataRequest, didParseResponse response: DataResponse<Value, AFError>) where Value : Sendable {
@@ -34,9 +32,9 @@ final class NetworkLogger: EventMonitor {
     log.append("\(response.data?.toPrettyPrintedString ?? "None")")
     
     if (200..<300) ~= statusCode {
-      logger.log("\(log)")
+      logger.log("\(log, privacy: .public)")
     } else {
-      logger.error("\(log)")
+      logger.error("\(log, privacy: .public)")
       
     }
   }
