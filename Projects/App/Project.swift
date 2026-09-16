@@ -8,7 +8,7 @@ let project = Project(
   ),
   settings: .settings(
     base: .init()
-      .marketingVersion("2.2.0")
+      .marketingVersion("2.2.1")
       .swiftVersion("5.7")
       .currentProjectVersion("1")
       .appleGenericVersioningSystem()
@@ -118,11 +118,11 @@ let project = Project(
         configurations: [
           .debug(name: "Debug", settings: [
             "CODE_SIGN_IDENTITY": "Apple Development: Nayeon Gu (3CMPGMMD7L)",
-            "PROVISIONING_PROFILE_SPECIFIER": "match Development com.yapp.moneymong 1769511003"
+            "PROVISIONING_PROFILE_SPECIFIER": "match Development com.yapp.moneymong"
           ]),
           .release(name: "Release", settings: [
             "CODE_SIGN_IDENTITY": "Apple Distribution: Nayeon Gu (H5G7RFWFSQ)",
-            "PROVISIONING_PROFILE_SPECIFIER": "match AppStore com.yapp.moneymong 1769511386"
+            "PROVISIONING_PROFILE_SPECIFIER": "match AppStore com.yapp.moneymong"
           ])
         ]
       ),

@@ -1,6 +1,7 @@
 import Foundation
 
 import MMNetworkInterface
+import Utility
 
 enum VersionAPI {
   case version(VersionRequestDTO) // 버전조회

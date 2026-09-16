@@ -58,21 +58,39 @@ public final class LedgerVC: BaseVC, View {
   public override func setupConstraints() {
     super.setupConstraints()
     view.addSubview(emptyView)
-    
+
+    addChild(lineTab)
     rootContainer.flex
       .define { flex in
         flex.addItem(lineTab.view)
       }
+    lineTab.didMove(toParent: self)
   }
   
   public func bind(reactor: LedgerReactor) {
     setTitle(agencyButton)
     
-    rx.viewDidLoad
-      .map { Reactor.Action.requestMyAgencies }
+    NotificationCenter.default.rx.notification(.invitationLink)
+      .compactMap { Self.inviteAction(code: $0.userInfo?["code"], agencyID: $0.userInfo?["agencyID"]) }
+      .do(onNext: { _ in DeepLinkManager.clear() })
       .bind(to: reactor.action)
       .disposed(by: disposeBag)
     
+    rx.viewDidLoad
+      .map { _ -> Reactor.Action in
+        if DeepLinkManager.notiName == .invitationLink,
+           let action = Self.inviteAction(
+            code: DeepLinkManager.query?["code"],
+            agencyID: DeepLinkManager.query?["agencyID"]
+           ) {
+          DeepLinkManager.clear()
+          return action
+        }
+        return .requestMyAgencies
+      }
+      .bind(to: reactor.action)
+      .disposed(by: disposeBag)
+
     rx.viewDidLoad
       .bind(with: self, onNext: { owner, _ in
         owner.coordinator?.moveTab = { owner.lineTab.currentPage = $0 }
@@ -82,6 +100,12 @@ public final class LedgerVC: BaseVC, View {
     emptyView.tapAgency
       .bind(with: self) { owner, _ in
         owner.coordinator?.createAgency()
+      }
+      .disposed(by: disposeBag)
+    
+    agencyButton.rx.tap
+      .bind(with: self) { owner, _ in
+        owner.coordinator?.selectAgencySheet()
       }
       .disposed(by: disposeBag)
     
@@ -105,10 +129,15 @@ public final class LedgerVC: BaseVC, View {
       }
       .disposed(by: disposeBag)
     
-    agencyButton.rx.tap
-      .bind(with: self) { owner, _ in
-        owner.coordinator?.selectAgencySheet()
-      }
+    reactor.pulse(\.$isLoading)
+      .observe(on: MainScheduler.instance)
+      .bind(to: rx.isLoading)
       .disposed(by: disposeBag)
+  }
+
+  private static func inviteAction(code: Any?, agencyID: Any?) -> LedgerReactor.Action? {
+    guard let code = code as? String, !code.isEmpty,
+          let agencyID = Int(agencyID as? String ?? "") else { return nil }
+    return .invite(code: code, agencyID: agencyID)
   }
 }

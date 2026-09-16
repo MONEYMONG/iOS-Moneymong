@@ -1,6 +1,7 @@
 import Foundation
 
 import MMNetworkInterface
+import Utility
 
 enum AgencyAPI {
   case create(param: AgencyCreateRequestDTO) // 소속생성

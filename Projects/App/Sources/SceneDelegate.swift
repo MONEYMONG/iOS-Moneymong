@@ -21,6 +21,7 @@ import Repository
 import SignFeature
 import User
 import UserInterface
+import Utility
 
 class SceneDelegate: UIResponder, UIWindowSceneDelegate {
   let localStorage = LocalStorage()
@@ -44,16 +45,31 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
     appCoordinator?.start(animated: false)
     
     self.scene(scene, openURLContexts: connectionOptions.urlContexts)
+    
+    if let userActivity = connectionOptions.userActivities.first(
+      where: { $0.activityType == NSUserActivityTypeBrowsingWeb }
+    ) {
+      handleUniversalLink(from: userActivity)
+    }
   }
 
   func scene(_ scene: UIScene, openURLContexts URLContexts: Set<UIOpenURLContext>) {
     guard let url = URLContexts.first?.url else { return }
 
     if url.absoluteString.contains("widget://") {
-      DeepLinkManager.setDestination(url.absoluteString, agencyID: localStorage.selectedAgency)
+      let destination = url.absoluteString.replacingOccurrences(of: "widget://", with: "")
+      guard let agencyID = localStorage.selectedAgency else { return }
+      DeepLinkManager.setQuery([
+        "destination": destination,
+        "agencyID": agencyID
+      ], notiName: .widgetLink)
     } else {
       KakaoAuthManager.shared.openURL(url)
     }
+  }
+  
+  func scene(_ scene: UIScene, continue userActivity: NSUserActivity) {
+    handleUniversalLink(from: userActivity)
   }
 
   func sceneDidDisconnect(_ scene: UIScene) {}
@@ -65,6 +81,23 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
   func sceneWillEnterForeground(_ scene: UIScene) {}
   
   func sceneDidEnterBackground(_ scene: UIScene) {}
+  
+  private func handleUniversalLink(from userActivity: NSUserActivity) {
+    guard userActivity.activityType == NSUserActivityTypeBrowsingWeb,
+          let url = userActivity.webpageURL,
+          let components = URLComponents(url: url, resolvingAgainstBaseURL: true),
+          url.path == Config.invitationPath else { return }
+
+    let queryItems = components.queryItems ?? []
+    guard let code = queryItems.first(where: { $0.name == "code" })?.value,
+          let agencyID = queryItems.first(where: { $0.name == "agencyID" })?.value,
+          !code.isEmpty, !agencyID.isEmpty else { return }
+
+    DeepLinkManager.setQuery(
+      ["code": code, "agencyID": agencyID],
+      notiName: .invitationLink
+    )
+  }
 }
 
 extension SceneDelegate {

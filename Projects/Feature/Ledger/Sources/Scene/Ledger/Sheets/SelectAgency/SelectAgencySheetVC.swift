@@ -36,13 +36,18 @@ final class SelectAgencySheetVC: BottomSheetVC, View {
   private let registerCodeInputButton: MMButton = MMButton(title: "초대 코드 입력하기", image: Images.pencil, type: .tertiary)
   private let createAgencyButton: MMButton = MMButton(title: "새로운 장부 만들기", image: Images.plusCircleLineWhite, type: .primary)
   
+  private let loadingIndicator: MMIndicator = .init()
   override func setupConstraints() {
     super.setupConstraints()
     
     contentView.flex.define { flex in
-      flex.addItem(tableView).height(3 * (Constant.cellHeight) + Constant.cellSpacing * 3)
+      flex.addItem(tableView).height(Constant.cellHeight)
         .marginTop(Constant.topSpacing)
         .marginHorizontal(Constant.horizontalMargin)
+        .alignItems(.center)
+        .define { flex in
+          flex.addItem(loadingIndicator)
+        }
       flex.addItem(registerCodeInputButton)
         .marginHorizontal(Constant.horizontalMargin)
         .height(Constant.buttonHeight)
@@ -53,7 +58,7 @@ final class SelectAgencySheetVC: BottomSheetVC, View {
         .marginBottom(Constant.buttonSpacing + Constant.bottomSpacing)
       
       componentHeight = Constant.topSpacing + Constant.buttonHeight * 2 + Constant.buttonSpacing * 3 + Constant.bottomSpacing // (버튼 + 마진) 높이
-      contentHeight = componentHeight + 3 * (Constant.cellHeight) + Constant.cellSpacing * 2 // 소속 리스트 높이
+      contentHeight = componentHeight + (Constant.cellHeight) // 소속 리스트 높이
     }
   }
   
@@ -89,7 +94,12 @@ final class SelectAgencySheetVC: BottomSheetVC, View {
       .disposed(by: disposeBag)
     
     reactor.pulse(\.$isLoading)
-      .bind(to: rx.isLoading)
+      .observe(on: MainScheduler.instance)
+      .bind(with: self) { owner, isLoading in
+        owner.loadingIndicator.isHidden = !isLoading
+        owner.loadingIndicator.flex.isIncludedInLayout(isLoading).markDirty()
+        isLoading ? owner.loadingIndicator.startAnimating() : owner.loadingIndicator.stopAnimating()
+      }
       .disposed(by: disposeBag)
     
     reactor.pulse(\.$selectedAgencyID)
@@ -113,8 +123,8 @@ final class SelectAgencySheetVC: BottomSheetVC, View {
       .bind(with: self) { owner, agencies in
         let count = CGFloat(agencies.count)
         let height = min(
-          count * 72 + count * 12,
-          3 * (72) + 3 * 12
+          count * 72 + (count - 1) * 12,
+          3 * (72) + 2 * 12
         )
         
         owner.tableView.isScrollEnabled = count > 3

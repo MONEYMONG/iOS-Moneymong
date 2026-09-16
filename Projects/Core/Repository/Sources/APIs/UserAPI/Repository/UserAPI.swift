@@ -1,6 +1,7 @@
 import Foundation
 
 import MMNetworkInterface
+import Utility
 
 enum UserAPI {
   case user // 내정보 조회
