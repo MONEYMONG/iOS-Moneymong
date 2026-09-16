@@ -18,8 +18,7 @@ jobs:
           known_hosts: ${{ secrets.KNOWN_HOSTS }}
 
       - name: Install Tuist
-        run: brew tap tuist/tuist
-      - run: brew install --formula tuist@3.42.1
+        uses: jdx/mise-action@v2
       - run: tuist version
 
       - name: Install Fastlane
