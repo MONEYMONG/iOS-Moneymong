@@ -40,11 +40,11 @@ let project = Project(
         configurations: [
           .debug(name: "Debug", settings: [
             "CODE_SIGN_IDENTITY": "Apple Development: Nayeon Gu (3CMPGMMD7L)",
-            "PROVISIONING_PROFILE_SPECIFIER": "match Development com.yapp.moneymong.WidgetExtension 1769511006"
+            "PROVISIONING_PROFILE_SPECIFIER": "match Development com.yapp.moneymong.WidgetExtension"
           ]),
           .release(name: "Release", settings: [
             "CODE_SIGN_IDENTITY": "Apple Distribution: Nayeon Gu (H5G7RFWFSQ)",
-            "PROVISIONING_PROFILE_SPECIFIER": "match AppStore com.yapp.moneymong.WidgetExtension 1769511389"
+            "PROVISIONING_PROFILE_SPECIFIER": "match AppStore com.yapp.moneymong.WidgetExtension"
           ])
         ]
       )
