@@ -5,6 +5,7 @@ import BaseDomain
 import BaseFeature
 import DesignSystem
 import LedgerFeatureInterface
+import Utility
 
 import ReactorKit
 
@@ -67,6 +68,7 @@ final class MemberTabVC: BaseVC, View {
     profileView.tapCopy
       .throttle(.seconds(1), latest: false, scheduler: MainScheduler.instance)
       .do(onNext: {
+        FirebaseManager.shared.logEvent(event: .didTapInvitationCodeCopy)
         UIPasteboard.general.string = reactor.currentState.invitationCode
       })
       .map { Reactor.Action.tapCodeCopyButton }
@@ -86,6 +88,8 @@ final class MemberTabVC: BaseVC, View {
       .disposed(by: disposeBag)
 
     invitationLinkButton.rx.tap
+      .throttle(.seconds(1), latest: false, scheduler: MainScheduler.instance)
+      .do(onNext:  { FirebaseManager.shared.logEvent(event: .didTapinvitationLink) })
       .map { Reactor.Action.didTapInviteButton }
       .bind(to: reactor.action)
       .disposed(by: disposeBag)

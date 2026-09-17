@@ -25,6 +25,9 @@ public class FirebaseManager: NSObject {
     case didTapSelectDate = "did_tap_select_date" /// 날짜 선택 버튼 클릭 *
 
     case kickoutMember = "kickout_member" /// 멤버 추방
+    
+    case didTapInvitationCodeCopy = "did_tap_invite_code_copy" /// 초대코드 복사
+    case didTapinvitationLink = "did_tap_invite_link" ///초대링크 클릭
   }
   
   public static var shared = FirebaseManager()
